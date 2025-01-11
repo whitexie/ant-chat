@@ -12,12 +12,3 @@ interface ImportMeta {
 }
 
 declare module 'markdown-it';
-
-// global.d.ts
-interface Window {
-  showDirectoryPicker: () => Promise<FileSystemDirectoryHandle>
-}
-
-interface FileSystemDirectoryHandle {
-  values: () => AsyncIterable<FileSystemHandle>
-}
