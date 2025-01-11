@@ -1,15 +1,15 @@
 import type { Bubble } from '@ant-design/x'
 import type { GetProp } from 'antd'
+import Icon from '@/components/Icon'
 import { Role } from '@/constants'
-import { UserOutlined } from '@ant-design/icons'
 
 export const roles: GetProp<typeof Bubble.List, 'roles'> = {
   [Role.AI]: {
     placement: 'start',
-    avatar: { icon: <UserOutlined />, style: { background: '#fde3cf' } },
+    avatar: { icon: <Icon name="i-ant-design:user-outlined" />, style: { background: '#fde3cf' } },
   },
   [Role.USER]: {
     placement: 'end',
-    avatar: { icon: <UserOutlined />, style: { background: '#87d068' } },
+    avatar: { icon: <Icon name="i-ant-design:user-outlined" />, style: { background: '#87d068' } },
   },
 }

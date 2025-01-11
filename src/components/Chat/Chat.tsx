@@ -1,12 +1,13 @@
 import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
 
+import RenderMarkdown from '@/components/RenderMarkdown'
 import { Role } from '@/constants'
 import { useChat } from '@/hooks/useChat'
-import { LinkOutlined } from '@ant-design/icons'
+import { getNow, uuid } from '@/utils'
 import { Bubble, Sender } from '@ant-design/x'
 import { Button } from 'antd'
 import { useState } from 'react'
-import RenderMarkdown from '../RenderMarkdown'
+import Icon from '../Icon'
 import { roles } from './roles'
 
 export default function Chat() {
@@ -15,7 +16,7 @@ export default function Chat() {
 
   const prefix = (
     <div className="flex gap-1">
-      <Button type="text" icon={<LinkOutlined />} />
+      <Button type="text" icon={<Icon name="i-ant-design:link-outlined" classNames="w-3.5 h-3.5" />} />
     </div>
   )
 
@@ -33,9 +34,10 @@ export default function Chat() {
 
   function onSubmit(message: string) {
     onRequest({
-      id: `${Date.now()}`,
+      id: uuid(),
       role: Role.USER,
       content: message,
+      createAt: getNow(),
     })
     setMessage('')
   }

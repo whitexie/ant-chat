@@ -2,12 +2,14 @@ import type { XAgent } from '@ant-design/x/es/useXAgent'
 import { sendChatMessage } from '@/api'
 import { Role } from '@/constants'
 import { useAgent } from '@/hooks/useAgent'
+import { getNow, uuid } from '@/utils'
 import { useXChat, XStream } from '@ant-design/x'
 
 export interface ChatMessage {
   id: string
   role: Role
   content: string
+  createAt: Date | number | string
 }
 
 interface RequestFnInfo<T> {
@@ -20,8 +22,6 @@ interface RequestFnCallbacks {
   onSuccess: (message: ChatMessage) => void
   onError: (error: Error) => void
 }
-
-let uuid = 0
 
 async function request(info: RequestFnInfo<ChatMessage>, callbacks: RequestFnCallbacks) {
   if (!info.message || !info.messages) {
@@ -36,7 +36,8 @@ async function request(info: RequestFnInfo<ChatMessage>, callbacks: RequestFnCal
   const readableStream = response.body!
 
   let content = ''
-  const id = `AI-${++uuid}`
+  const id = `AI-${uuid()}`
+  const createAt = getNow()
   for await (const chunk of XStream({ readableStream })) {
     if (!chunk.data) {
       continue
@@ -45,7 +46,7 @@ async function request(info: RequestFnInfo<ChatMessage>, callbacks: RequestFnCal
       const json = JSON.parse(chunk.data)
       if (json.choices[0].delta.content) {
         content += json.choices[0].delta.content
-        onUpdate({ id, role: Role.AI, content })
+        onUpdate({ id, role: Role.AI, content, createAt })
       }
     }
     catch {
@@ -54,11 +55,7 @@ async function request(info: RequestFnInfo<ChatMessage>, callbacks: RequestFnCal
       }
     }
   }
-  onSuccess({
-    id: `AI-${id}`,
-    role: Role.AI,
-    content,
-  })
+  onSuccess({ id, role: Role.AI, content, createAt })
 }
 export function useChat() {
   const agent = useAgent<ChatMessage>({ request })[0] as unknown as XAgent<ChatMessage>
