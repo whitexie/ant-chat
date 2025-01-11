@@ -12,11 +12,13 @@
   },
   "dependencies": {
     "@ant-design/x": "^1.0.4",
+    "immer": "^10.1.1",
     "markdown-it": "^14.1.0",
     "nanoid": "^5.0.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-query": "^3.39.3"
+    "react-query": "^3.39.3",
+    "use-immer": "^0.11.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.12.1",
