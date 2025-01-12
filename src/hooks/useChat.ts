@@ -5,11 +5,13 @@ import { useAgent } from '@/hooks/useAgent'
 import { getNow, uuid } from '@/utils'
 import { useXChat, XStream } from '@ant-design/x'
 
+export type CreateAt = Date | number | string
+
 export interface ChatMessage {
   id: string
   role: Role
   content: string
-  createAt: Date | number | string
+  createAt: CreateAt
 }
 
 interface RequestFnInfo<T> {
@@ -57,15 +59,17 @@ async function request(info: RequestFnInfo<ChatMessage>, callbacks: RequestFnCal
   }
   onSuccess({ id, role: Role.AI, content, createAt })
 }
+
 export function useChat() {
   const agent = useAgent<ChatMessage>({ request })[0] as unknown as XAgent<ChatMessage>
 
-  const { onRequest, messages, setMessages } = useXChat({ agent })
+  const { onRequest, messages, setMessages, parsedMessages } = useXChat({ agent })
 
   return {
     agent,
     messages,
     setMessages,
+    parsedMessages,
     onRequest,
   }
 }

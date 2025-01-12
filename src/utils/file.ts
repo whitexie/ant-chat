@@ -5,16 +5,10 @@ export async function createDirectory(directoryName: string) {
   return targetDirHandle
 }
 
+const FILE_TYPE = { description: 'ant chat files', appcept: { 'text/json': ['.antchat'] } }
+
 export async function stringToBinaryFile(stringContent: string, fileName: string) {
-  const fileHandle = await window.showSaveFilePicker({
-    suggestedName: fileName,
-    types: [{
-      description: 'Text Files',
-      accept: {
-        'application/octet-stream': ['.antchat'],
-      },
-    }],
-  })
+  const fileHandle = await window.showSaveFilePicker({ suggestedName: fileName, types: [FILE_TYPE] })
   if (fileHandle) {
     const writableStream = await fileHandle.createWritable()
     await writableStream.write(stringContent)
@@ -23,14 +17,7 @@ export async function stringToBinaryFile(stringContent: string, fileName: string
 }
 
 export async function readBinaryFile() {
-  const fileHandle = await window.showOpenFilePicker({
-    types: [{
-      description: 'Text Files',
-      accept: {
-        'application/octet-stream': ['.antchat'],
-      },
-    }],
-  })
+  const fileHandle = await window.showOpenFilePicker({ types: [FILE_TYPE] })
 
   if (fileHandle.length > 0) {
     const file = await fileHandle[0].getFile()

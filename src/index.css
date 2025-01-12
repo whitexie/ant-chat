@@ -4,12 +4,25 @@
   box-sizing: border-box;
 }
 
+:root {
+  --headerHeight: 50px;
+  --mainHeight: calc(100vh - var(--headerHeight));
+  --senderHeight: 80px;
+  --bubbleListHeight: calc(var(--mainHeight) - var(--senderHeight));
+  --conversationWidth: 200px;
+}
+
 body,
 #root {
   width: 100%;
   height: 100vh;
 }
 
-body {
-  overflow: hidden;
+/* 自定义样式 */
+.scroll-hidden {
+  /* scrollbar-width: none; */
+}
+
+.scroll-hidden::-webkit-scrollbar {
+  display: none; /* Chrome, Safari 和 Opera */
 }

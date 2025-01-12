@@ -1,8 +1,4 @@
-import { nanoid } from 'nanoid'
-
 export * from './file'
+export * from './theme'
 export * from './time'
-
-export function uuid() {
-  return nanoid()
-}
+export * from './util'
