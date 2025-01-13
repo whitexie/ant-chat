@@ -1,12 +1,13 @@
 import type { MenuProps } from 'antd'
 import Icon from '@/components/Icon'
-import { DEFAULT_TITLE } from '@/constants'
+import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
 import { useActiveConversationIdContext } from '@/contexts/activeIdConversations'
 import { useConversationStore } from '@/stores/conversations'
 import { createConversation } from '@/stores/conversations/reducer'
 
+import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
 import { Conversations } from '@ant-design/x'
-import { Button, Dropdown } from 'antd'
+import { App, Button, Dropdown } from 'antd'
 
 const dropdownButtons = [
   { key: 'import', label: '导入', icon: <Icon name="i-ant-design:import-outlined" classNames="mr-2" /> },
@@ -16,17 +17,34 @@ const dropdownButtons = [
 export default function ConversationsManage() {
   const [conversations, dispatch] = useConversationStore()
   const [activeId, updateActiveId] = useActiveConversationIdContext()
+  const { message } = App.useApp()
 
   const items = conversations!.map((item) => {
     const { id: key, title: label } = item
     return { key, label, icon: <Icon name="i-ant-design:message-outlined" style={{ width: '1.2em', height: '1.2em' }} /> }
   })
 
-  const onClickMenu: MenuProps['onClick'] = (e) => {
+  const onClickMenu: MenuProps['onClick'] = async (e) => {
     console.log('e => ', e)
 
     if (e.key === 'import') {
-      dispatch!({ type: 'improt', option: [] })
+      try {
+        const data = await importAntChatFile()
+        dispatch!({
+          type: 'improt',
+          items: data.conversations,
+        })
+        message.success('导入成功')
+      }
+      catch (error: unknown) {
+        message.error((error as Error).message)
+      }
+    }
+
+    else if (e.key === 'export') {
+      const data = Object.assign({}, ANT_CHAT_STRUCTURE, { conversations, exportTime: getNow() })
+      await exportAntChatFile(JSON.stringify(data, null, 2), 'ant-chat.antchat')
+      message.success('导出成功')
     }
   }
 

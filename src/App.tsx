@@ -3,31 +3,35 @@ import ConversationsManage from '@/components/Conversations/ConversationsManage'
 import Header from '@/components/Header'
 import { ActiveConversationIdProvider } from '@/contexts/activeIdConversations'
 import { ConversationsProvider } from '@/stores/conversations'
-import { ConfigProvider, Layout, theme } from 'antd'
+import { App, ConfigProvider, Layout, theme } from 'antd'
 import { useTheme } from './contexts/theme'
 
-function App() {
+function AntChatApp() {
   const [currentTheme] = useTheme()
 
+  const algorithm = currentTheme === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm
+
   return (
-    <ConfigProvider theme={{ algorithm: currentTheme === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm, cssVar: true }}>
-      <ActiveConversationIdProvider>
-        <ConversationsProvider>
-          <Layout>
-            <div className="w-full h-full">
-              <Header />
-              <div className="grid w-full h-[var(--mainHeight)] grid-cols-[var(--conversationWidth)_1fr]">
-                <div className="shadow h-full">
-                  <ConversationsManage />
+    <ConfigProvider theme={{ algorithm, cssVar: true }}>
+      <App>
+        <ActiveConversationIdProvider>
+          <ConversationsProvider>
+            <Layout>
+              <div className="w-full h-full">
+                <Header />
+                <div className="grid w-full h-[var(--mainHeight)] grid-cols-[var(--conversationWidth)_1fr]">
+                  <div className="shadow h-full">
+                    <ConversationsManage />
+                  </div>
+                  <Chat />
                 </div>
-                <Chat />
               </div>
-            </div>
-          </Layout>
-        </ConversationsProvider>
-      </ActiveConversationIdProvider>
+            </Layout>
+          </ConversationsProvider>
+        </ActiveConversationIdProvider>
+      </App>
     </ConfigProvider>
   )
 }
 
-export default App
+export default AntChatApp

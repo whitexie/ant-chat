@@ -11,4 +11,7 @@ export const ANT_CHAT_STRUCTURE = {
   version: '1',
   modelConfig: {},
   conversations: [],
+  exportTime: -1,
 }
+
+export const ANT_CHAT_FILE_TYPE = { description: 'ant chat files', appcept: { 'text/plain': ['.antchat'] } }

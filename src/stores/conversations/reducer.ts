@@ -18,7 +18,7 @@ interface DeleteConversion {
 
 interface ImportConversions {
   type: 'improt'
-  option: IConversation[]
+  items: IConversation[]
 }
 
 interface UpdateConversionMessages {
@@ -47,7 +47,7 @@ export function conversationsReducer(draft: IConversation[], action: Conversatio
     }
 
     case 'improt': {
-      importConversations(draft, action.option)
+      importConversations(draft, action.items)
       break
     }
 

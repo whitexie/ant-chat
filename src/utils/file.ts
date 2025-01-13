@@ -1,27 +1,43 @@
-export async function createDirectory(directoryName: string) {
-  const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' })
-  const targetDirHandle = await dirHandle.getDirectoryHandle(directoryName, { create: true })
+import { ANT_CHAT_FILE_TYPE, ANT_CHAT_STRUCTURE } from '@/constants'
+import { pick } from 'lodash-es'
 
-  return targetDirHandle
+export async function downloadAntChatFile(fileContent: string, fileName: string) {
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(new Blob([fileContent]))
+  a.download = fileName
+  a.click()
+  a.remove()
 }
 
-const FILE_TYPE = { description: 'ant chat files', appcept: { 'text/json': ['.antchat'] } }
+export async function exportAntChatFile(fileContent: string, fileName: string) {
+  const fileHandle = await window.showSaveFilePicker({ suggestedName: fileName, types: [ANT_CHAT_FILE_TYPE] })
+  const writableStream = await fileHandle.createWritable()
+  await writableStream.write(fileContent)
+  await writableStream.close()
+}
 
-export async function stringToBinaryFile(stringContent: string, fileName: string) {
-  const fileHandle = await window.showSaveFilePicker({ suggestedName: fileName, types: [FILE_TYPE] })
-  if (fileHandle) {
-    const writableStream = await fileHandle.createWritable()
-    await writableStream.write(stringContent)
-    await writableStream.close()
+export async function importAntChatFile() {
+  const fileHandle = await showOpenFilePicker({
+    types: [ANT_CHAT_FILE_TYPE],
+  })
+  const file = await fileHandle[0].getFile()
+  if (!file.name.endsWith('.antchat')) {
+    throw new Error('文件格式错误')
+  }
+  const text = await file.text()
+  try {
+    return parseAntFile(text)
+  }
+  catch {
+    throw new Error('antchat文件解析失败～')
   }
 }
 
-export async function readBinaryFile() {
-  const fileHandle = await window.showOpenFilePicker({ types: [FILE_TYPE] })
-
-  if (fileHandle.length > 0) {
-    const file = await fileHandle[0].getFile()
-    const text = await file.text()
-    return text
+function parseAntFile(text: string) {
+  const data = pick(JSON.parse(text), Object.keys(ANT_CHAT_STRUCTURE))
+  const { type, version, conversations } = data
+  if (type !== 'Ant Chat' || version !== '1' || !Array.isArray(conversations)) {
+    throw new Error('antchat文件解析失败～')
   }
+  return data
 }
