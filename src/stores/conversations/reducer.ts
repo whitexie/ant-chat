@@ -40,7 +40,7 @@ export type ConversationsReducerAction = AddConversation | RenameConversation | 
 export function conversationsReducer(draft: IConversation[], action: ConversationsReducerAction) {
   switch (action.type) {
     case 'add': {
-      draft.push(action.item)
+      draft.splice(0, 0, action.item)
       break
     }
 
@@ -109,6 +109,9 @@ function importConversations(draft: IConversation[], list: IConversation[]) {
       draft.push(item)
     }
   }
+
+  // 按创建时间倒序排列
+  draft.sort((a, b) => b.createAt - a.createAt)
 }
 
 function updateMessage(draft: IConversation[], id: string, messages: ChatMessage[]) {
