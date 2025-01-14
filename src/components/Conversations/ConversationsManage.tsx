@@ -5,47 +5,75 @@ import { useConversationStore } from '@/stores/conversations'
 import { createConversation } from '@/stores/conversations/reducer'
 
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
-import { ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
+import { ClearOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations } from '@ant-design/x'
 import { App, Button, Dropdown } from 'antd'
-
-const dropdownButtons = [
-  { key: 'import', label: '导入', icon: <ImportOutlined /> },
-  { key: 'export', label: '导出', icon: <ExportOutlined /> },
-]
 
 export default function ConversationsManage() {
   const [conversations, dispatch] = useConversationStore()
   const [activeId, updateActiveId] = useActiveConversationIdContext()
-  const { message } = App.useApp()
+  const { message, modal } = App.useApp()
+
+  const disabledClear = conversations!.length === 0
+
+  const dropdownButtons = [
+    { key: 'import', label: '导入', icon: <ImportOutlined /> },
+    { key: 'export', label: '导出', icon: <ExportOutlined /> },
+    { key: 'clear', label: '清空', icon: <ClearOutlined />, danger: true, disabled: disabledClear },
+  ]
 
   const items = conversations!.map((item) => {
     const { id: key, title: label } = item
     return { key, label, icon: <MessageOutlined /> }
   })
 
+  async function handleImport() {
+    try {
+      const data = await importAntChatFile()
+      dispatch!({
+        type: 'improt',
+        items: data.conversations,
+      })
+      message.success('导入成功')
+    }
+    catch (error: unknown) {
+      message.error((error as Error).message)
+    }
+  }
+
+  function handleExport() {
+    const data = Object.assign({}, ANT_CHAT_STRUCTURE, { conversations, exportTime: getNow() })
+    exportAntChatFile(JSON.stringify(data, null, 2), 'ant-chat.antchat')
+    message.success('导出成功')
+  }
+
+  function handleClear() {
+    modal.confirm({
+      title: '清空对话',
+      content: '清空后将无法恢复，请谨慎操作',
+      cancelText: '取消',
+      okType: 'danger',
+      okText: '清空',
+      onOk: () => {
+        dispatch!({ type: 'clear' })
+        message.success('清空成功')
+      },
+    })
+  }
+
+  const handleMapping = {
+    import: handleImport,
+    export: handleExport,
+    clear: handleClear,
+  }
+
   const onClickMenu: MenuProps['onClick'] = async (e) => {
-    console.log('e => ', e)
+    const key = e.key as keyof typeof handleMapping
 
-    if (e.key === 'import') {
-      try {
-        const data = await importAntChatFile()
-        dispatch!({
-          type: 'improt',
-          items: data.conversations,
-        })
-        message.success('导入成功')
-      }
-      catch (error: unknown) {
-        message.error((error as Error).message)
-      }
-    }
-
-    else if (e.key === 'export') {
-      const data = Object.assign({}, ANT_CHAT_STRUCTURE, { conversations, exportTime: getNow() })
-      await exportAntChatFile(JSON.stringify(data, null, 2), 'ant-chat.antchat')
-      message.success('导出成功')
-    }
+    if (handleMapping[key])
+      handleMapping[key]()
+    else
+      console.error('unknown key', key)
   }
 
   function onActiveChange(value: string) {

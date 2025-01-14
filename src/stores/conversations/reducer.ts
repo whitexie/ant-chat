@@ -21,6 +21,10 @@ interface ImportConversions {
   items: IConversation[]
 }
 
+interface ClearConversations {
+  type: 'clear'
+}
+
 interface UpdateConversionMessages {
   type: 'updateMessage'
   id: string
@@ -35,7 +39,7 @@ interface AddConversionMessageAction {
 
 type ConversationMessageActions = AddConversionMessageAction | UpdateConversionMessages
 
-export type ConversationsReducerAction = AddConversation | RenameConversation | DeleteConversion | ImportConversions | ConversationMessageActions
+export type ConversationsReducerAction = ClearConversations | AddConversation | RenameConversation | DeleteConversion | ImportConversions | ConversationMessageActions
 
 export function conversationsReducer(draft: IConversation[], action: ConversationsReducerAction) {
   switch (action.type) {
@@ -56,6 +60,11 @@ export function conversationsReducer(draft: IConversation[], action: Conversatio
 
     case 'improt': {
       importConversations(draft, action.items)
+      break
+    }
+
+    case 'clear': {
+      draft.splice(0, draft.length)
       break
     }
 
