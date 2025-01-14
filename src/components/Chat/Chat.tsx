@@ -8,15 +8,15 @@ import { useChat } from '@/hooks/useChat'
 import { useConversationStore } from '@/stores/conversations'
 import { createConversation } from '@/stores/conversations/reducer'
 import { getNow, uuid } from '@/utils'
+import { LinkOutlined } from '@ant-design/icons'
 import { Bubble, Sender } from '@ant-design/x'
 import { Button } from 'antd'
 import { useEffect, useRef, useState } from 'react'
-import Icon from '../Icon'
 import { roles } from './roles'
 
 const prefix = (
   <div className="flex gap-1">
-    <Button type="text" icon={<Icon name="i-ant-design:link-outlined" classNames="w-3.5 h-3.5" />} />
+    <Button type="text" icon={<LinkOutlined />} />
   </div>
 )
 

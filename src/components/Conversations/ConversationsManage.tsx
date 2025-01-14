@@ -1,17 +1,17 @@
 import type { MenuProps } from 'antd'
-import Icon from '@/components/Icon'
 import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
 import { useActiveConversationIdContext } from '@/contexts/activeIdConversations'
 import { useConversationStore } from '@/stores/conversations'
 import { createConversation } from '@/stores/conversations/reducer'
 
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
+import { ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations } from '@ant-design/x'
 import { App, Button, Dropdown } from 'antd'
 
 const dropdownButtons = [
-  { key: 'import', label: '导入', icon: <Icon name="i-ant-design:import-outlined" classNames="mr-2" /> },
-  { key: 'export', label: '导出', icon: <Icon name="i-ant-design:export-outlined" classNames="mr-2" /> },
+  { key: 'import', label: '导入', icon: <ImportOutlined /> },
+  { key: 'export', label: '导出', icon: <ExportOutlined /> },
 ]
 
 export default function ConversationsManage() {
@@ -21,7 +21,7 @@ export default function ConversationsManage() {
 
   const items = conversations!.map((item) => {
     const { id: key, title: label } = item
-    return { key, label, icon: <Icon name="i-ant-design:message-outlined" style={{ width: '1.2em', height: '1.2em' }} /> }
+    return { key, label, icon: <MessageOutlined /> }
   })
 
   const onClickMenu: MenuProps['onClick'] = async (e) => {
