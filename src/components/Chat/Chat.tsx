@@ -1,11 +1,13 @@
+import type { ChatMessage } from '@/hooks/useChat'
 import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
+import type { MessageInfo } from '@ant-design/x/es/useXChat'
 import RenderMarkdown from '@/components/RenderMarkdown'
 import { DEFAULT_TITLE, Role } from '@/constants'
 import { useActiveConversationIdContext } from '@/contexts/activeIdConversations'
 import { useChat } from '@/hooks/useChat'
 import { useConversationStore } from '@/stores/conversations'
 import { createConversation } from '@/stores/conversations/reducer'
-import { debounce, getNow, uuid } from '@/utils'
+import { getNow, uuid } from '@/utils'
 import { Bubble, Sender } from '@ant-design/x'
 import { Button } from 'antd'
 import { useEffect, useRef, useState } from 'react'
@@ -22,7 +24,11 @@ export default function Chat() {
   const [conversations, dispatch] = useConversationStore()
   const [activeId, udpateActiveId] = useActiveConversationIdContext()
   const [message, setMessage] = useState('')
-  const { agent, messages, onRequest, setMessages } = useChat()
+  const { agent, messages, onRequest, setMessages } = useChat({
+    onSuccess: (message) => {
+      dispatch!({ type: 'addMessage', id: activeId, item: message })
+    },
+  })
 
   const currentConversation = useRef<IConversation | null>(null)
 
@@ -39,18 +45,23 @@ export default function Chat() {
   })
 
   function onSubmit(message: string) {
-    onRequest({
+    const messageItem: ChatMessage = {
       id: uuid(),
       role: Role.USER,
       content: message,
       createAt: getNow(),
-    })
+    }
+    onRequest(messageItem)
     setMessage('')
 
+    // 如果当前没有活跃的会话，则创建一个默认的会话
     if (!activeId && dispatch && udpateActiveId) {
       const item = createConversation({ title: DEFAULT_TITLE })
       dispatch({ type: 'add', item })
       udpateActiveId(item.id)
+    }
+    else {
+      dispatch!({ type: 'addMessage', id: activeId, item: messageItem })
     }
   }
 
@@ -58,33 +69,21 @@ export default function Chat() {
     if (activeId === currentConversation.current?.id) {
       return
     }
+
     currentConversation.current = conversations.find(item => item.id === activeId) || null
     if (currentConversation.current) {
-      setMessages(currentConversation.current.messages.map((msg) => {
+      const messages: MessageInfo<ChatMessage>[] = currentConversation.current.messages.map((msg) => {
         const { id } = msg
         return {
           id,
           message: msg,
           status: msg.role === Role.USER ? 'local' : 'success',
         }
-      }))
+      })
+
+      setMessages(messages)
     }
   }, [activeId, conversations, setMessages])
-
-  const debouncedEffect = debounce(() => {
-    if (!messages.length) {
-      return
-    }
-
-    console.log('dispatch updateMessages', activeId)
-    dispatch!({
-      type: 'updateMessage',
-      id: activeId,
-      messages: messages.map(item => item.message),
-    })
-  }, 100)
-
-  useEffect(debouncedEffect, [messages, activeId, dispatch])
 
   return (
     <div className="flex flex-col h-full w-full max-w-4xl m-auto p-1">

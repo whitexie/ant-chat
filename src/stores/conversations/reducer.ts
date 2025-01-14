@@ -27,7 +27,15 @@ interface UpdateConversionMessages {
   messages: ChatMessage[]
 }
 
-export type ConversationsReducerAction = AddConversation | RenameConversation | DeleteConversion | ImportConversions | UpdateConversionMessages
+interface AddConversionMessageAction {
+  type: 'addMessage'
+  id: string
+  item: ChatMessage
+}
+
+type ConversationMessageActions = AddConversionMessageAction | UpdateConversionMessages
+
+export type ConversationsReducerAction = AddConversation | RenameConversation | DeleteConversion | ImportConversions | ConversationMessageActions
 
 export function conversationsReducer(draft: IConversation[], action: ConversationsReducerAction) {
   switch (action.type) {
@@ -54,6 +62,12 @@ export function conversationsReducer(draft: IConversation[], action: Conversatio
     case 'updateMessage': {
       const { id, messages } = action
       updateMessage(draft, id, messages)
+      break
+    }
+
+    case 'addMessage': {
+      const { id, item } = action
+      addMessage(draft, id, item)
       break
     }
 
@@ -101,5 +115,12 @@ function updateMessage(draft: IConversation[], id: string, messages: ChatMessage
   const index = draft.findIndex(item => item.id === id)
   if (index > -1) {
     draft[index].messages = [...messages]
+  }
+}
+
+function addMessage(draft: IConversation[], id: string, item: ChatMessage) {
+  const index = draft.findIndex(item => item.id === id)
+  if (index > -1) {
+    draft[index].messages.push(item)
   }
 }
