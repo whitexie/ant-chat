@@ -1,18 +1,20 @@
 import type { MenuProps } from 'antd'
 import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
 import { useActiveConversationIdContext } from '@/contexts/activeIdConversations'
+import { useConversationRename } from '@/hooks/useConversationRename'
 import { useConversationStore } from '@/stores/conversations'
-import { createConversation } from '@/stores/conversations/reducer'
 
+import { createConversation } from '@/stores/conversations/reducer'
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
-import { ClearOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
-import { Conversations } from '@ant-design/x'
-import { App, Button, Dropdown } from 'antd'
+import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
+import { Conversations, type ConversationsProps } from '@ant-design/x'
+import { App, Button, Dropdown, Input, Modal } from 'antd'
 
 export default function ConversationsManage() {
   const [conversations, dispatch] = useConversationStore()
   const [activeId, updateActiveId] = useActiveConversationIdContext()
   const { message, modal } = App.useApp()
+  const { openRenameModal, changeRename, closeRenameModal, isRenameModalOpen, newName, renameId } = useConversationRename()
 
   const disabledClear = conversations!.length === 0
 
@@ -21,6 +23,30 @@ export default function ConversationsManage() {
     { key: 'export', label: '导出', icon: <ExportOutlined /> },
     { key: 'clear', label: '清空', icon: <ClearOutlined />, danger: true, disabled: disabledClear },
   ]
+
+  const conversationsMenuConfig: ConversationsProps['menu'] = conversation => ({
+    items: [
+      { key: 'rename', label: '重命名', icon: <EditOutlined /> },
+      { key: 'delete', label: '删除', icon: <DeleteOutlined />, danger: true },
+    ],
+    onClick: (e) => {
+      if (e.key === 'rename') {
+        openRenameModal(conversation.key, conversation.label as string)
+      }
+      else if (e.key === 'delete') {
+        modal.confirm({
+          title: '删除对话',
+          content: '删除后将无法恢复，请谨慎操作',
+          cancelText: '取消',
+          okType: 'danger',
+          okText: '删除',
+          onOk: () => {
+            dispatch!({ type: 'delete', id: conversation.key })
+          },
+        })
+      }
+    },
+  })
 
   const items = conversations!.map((item) => {
     const { id: key, title: label } = item
@@ -31,7 +57,7 @@ export default function ConversationsManage() {
     try {
       const data = await importAntChatFile()
       dispatch!({
-        type: 'improt',
+        type: 'import',
         items: data.conversations,
       })
       message.success('导入成功')
@@ -69,11 +95,7 @@ export default function ConversationsManage() {
 
   const onClickMenu: MenuProps['onClick'] = async (e) => {
     const key = e.key as keyof typeof handleMapping
-
-    if (handleMapping[key])
-      handleMapping[key]()
-    else
-      console.error('unknown key', key)
+    handleMapping[key]?.() || console.error('unknown key', key)
   }
 
   function onActiveChange(value: string) {
@@ -102,8 +124,34 @@ export default function ConversationsManage() {
         <Dropdown.Button type="primary" buttonsRender={buttonsRender} menu={{ items: dropdownButtons, onClick: onClickMenu }} />
       </div>
       <div className="flex-1">
-        <Conversations activeKey={activeId} onActiveChange={onActiveChange} items={items} />
+        <Conversations
+          activeKey={activeId}
+          menu={conversationsMenuConfig}
+          onActiveChange={onActiveChange}
+          items={items}
+        />
       </div>
+      <Modal
+        title="重命名"
+        open={isRenameModalOpen}
+        onCancel={() => closeRenameModal()}
+        onOk={() => {
+          if (newName.length < 1) {
+            message.error('名称不能为空')
+            throw new Error('名称不能为空')
+          }
+          dispatch!({ type: 'rename', id: renameId, title: newName })
+          closeRenameModal()
+        }}
+        cancelText="取消"
+      >
+        <Input
+          value={newName}
+          onChange={(e) => {
+            changeRename(e.target.value)
+          }}
+        />
+      </Modal>
     </div>
   )
 }

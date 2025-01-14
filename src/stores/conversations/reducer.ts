@@ -8,7 +8,8 @@ interface AddConversation {
 
 interface RenameConversation {
   type: 'rename'
-  option: Pick<IConversation, 'id' | 'title'>
+  id: string
+  title: string
 }
 
 interface DeleteConversion {
@@ -17,7 +18,7 @@ interface DeleteConversion {
 }
 
 interface ImportConversions {
-  type: 'improt'
+  type: 'import'
   items: IConversation[]
 }
 
@@ -49,7 +50,8 @@ export function conversationsReducer(draft: IConversation[], action: Conversatio
     }
 
     case 'rename': {
-      renameConversation(draft, action.option)
+      const { id, title } = action
+      renameConversation(draft, id, title)
       break
     }
 
@@ -58,7 +60,7 @@ export function conversationsReducer(draft: IConversation[], action: Conversatio
       break
     }
 
-    case 'improt': {
+    case 'import': {
       importConversations(draft, action.items)
       break
     }
@@ -101,8 +103,7 @@ function deleteConversation(draft: IConversation[], id: string) {
   }
 }
 
-function renameConversation(draft: IConversation[], option: RenameConversation['option']) {
-  const { id, title } = option
+function renameConversation(draft: IConversation[], id: string, title: string) {
   const index = draft.findIndex(item => item.id === id)
   draft[index].title = title
 }
