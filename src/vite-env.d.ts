@@ -2,8 +2,8 @@
 
 interface ImportMetaEnv {
   readonly VITE_APP_TITLE: string
-  readonly VITE_OPENAI_ACCESS_KEY: string
-  readonly VITE_API_URL: string
+  readonly VITE_API_HOST: string
+  readonly VITE_API_KEY: string
   readonly VITE_DEFAULT_MODEL: string
 }
 

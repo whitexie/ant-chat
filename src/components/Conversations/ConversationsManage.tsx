@@ -1,12 +1,13 @@
 import type { MenuProps } from 'antd'
+import Settings from '@/components/Settings'
 import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
 import { useActiveConversationIdContext } from '@/contexts/activeIdConversations'
 import { useConversationRename } from '@/hooks/useConversationRename'
 import { useConversationStore } from '@/stores/conversations'
-import { createConversation } from '@/stores/conversations/reducer'
 
+import { createConversation } from '@/stores/conversations/reducer'
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
-import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined, SettingOutlined } from '@ant-design/icons'
+import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations, type ConversationsProps } from '@ant-design/x'
 import { App, Button, Dropdown, Input, Modal } from 'antd'
 import { useConversationsListHeight } from './useConversationsListHeight'
@@ -137,14 +138,8 @@ export default function ConversationsManage() {
         </div>
       </div>
       <div ref={footerDivRef} className="footer px-1 py-2">
-        <div className="flex w-full items-center gap-4 cursor-pointer hover:bg-gray-300 p-2 rounded-md">
-          <div className="flex-shrink-0 flex justify-center items-center">
-            <SettingOutlined className="w-4 h-4" />
-          </div>
-          <div className="flex-1">
-            设置
-          </div>
-        </div>
+        <Settings />
+
       </div>
       <Modal
         title="重命名"
