@@ -59,10 +59,9 @@ export default function Chat() {
       const item = createConversation({ title: DEFAULT_TITLE })
       dispatch({ type: 'add', item })
       udpateActiveId(item.id)
+      currentConversation.current = item
     }
-    else {
-      dispatch!({ type: 'addMessage', id: activeId, item: messageItem })
-    }
+    dispatch!({ type: 'addMessage', id: currentConversation.current?.id || activeId, item: messageItem })
   }
 
   useEffect(() => {
