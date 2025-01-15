@@ -3,18 +3,21 @@ import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
 import { useActiveConversationIdContext } from '@/contexts/activeIdConversations'
 import { useConversationRename } from '@/hooks/useConversationRename'
 import { useConversationStore } from '@/stores/conversations'
-
 import { createConversation } from '@/stores/conversations/reducer'
+
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
-import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
+import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined, SettingOutlined } from '@ant-design/icons'
 import { Conversations, type ConversationsProps } from '@ant-design/x'
 import { App, Button, Dropdown, Input, Modal } from 'antd'
+import { useConversationsListHeight } from './useConversationsListHeight'
 
 export default function ConversationsManage() {
   const [conversations, dispatch] = useConversationStore()
   const [activeId, updateActiveId] = useActiveConversationIdContext()
   const { message, modal } = App.useApp()
   const { openRenameModal, changeRename, closeRenameModal, isRenameModalOpen, newName, renameId } = useConversationRename()
+
+  const { headerDivRef, footerDivRef, listHeight } = useConversationsListHeight()
 
   const disabledClear = conversations!.length === 0
 
@@ -53,47 +56,47 @@ export default function ConversationsManage() {
     return { key, label, icon: <MessageOutlined /> }
   })
 
-  async function handleImport() {
-    try {
-      const data = await importAntChatFile()
-      dispatch!({
-        type: 'import',
-        items: data.conversations,
-      })
-      message.success('导入成功')
-    }
-    catch (error: unknown) {
-      message.error((error as Error).message)
-    }
-  }
-
-  function handleExport() {
-    const data = Object.assign({}, ANT_CHAT_STRUCTURE, { conversations, exportTime: getNow() })
-    exportAntChatFile(JSON.stringify(data, null, 2), 'ant-chat.antchat')
-    message.success('导出成功')
-  }
-
-  function handleClear() {
-    modal.confirm({
-      title: '清空对话',
-      content: '清空后将无法恢复，请谨慎操作',
-      cancelText: '取消',
-      okType: 'danger',
-      okText: '清空',
-      onOk: () => {
-        dispatch!({ type: 'clear' })
-        message.success('清空成功')
-      },
-    })
-  }
-
-  const handleMapping = {
-    import: handleImport,
-    export: handleExport,
-    clear: handleClear,
-  }
-
   const onClickMenu: MenuProps['onClick'] = async (e) => {
+    async function handleImport() {
+      try {
+        const data = await importAntChatFile()
+        dispatch!({
+          type: 'import',
+          items: data.conversations,
+        })
+        message.success('导入成功')
+      }
+      catch (error: unknown) {
+        message.error((error as Error).message)
+      }
+    }
+
+    function handleExport() {
+      const data = Object.assign({}, ANT_CHAT_STRUCTURE, { conversations, exportTime: getNow() })
+      exportAntChatFile(JSON.stringify(data, null, 2), 'ant-chat.antchat')
+      message.success('导出成功')
+    }
+
+    function handleClear() {
+      modal.confirm({
+        title: '清空对话',
+        content: '清空后将无法恢复，请谨慎操作',
+        cancelText: '取消',
+        okType: 'danger',
+        okText: '清空',
+        onOk: () => {
+          dispatch!({ type: 'clear' })
+          message.success('清空成功')
+        },
+      })
+    }
+
+    const handleMapping = {
+      import: handleImport,
+      export: handleExport,
+      clear: handleClear,
+    }
+
     const key = e.key as keyof typeof handleMapping
     handleMapping[key]?.() || console.error('unknown key', key)
   }
@@ -119,17 +122,29 @@ export default function ConversationsManage() {
   ]
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="w-full flex-shrink-0 py-2 px-1">
+    <div className="h-full grid grid-rows-[auto_1fr_auto]">
+      <div ref={headerDivRef} className="w-full py-2 px-1">
         <Dropdown.Button type="primary" buttonsRender={buttonsRender} menu={{ items: dropdownButtons, onClick: onClickMenu }} />
       </div>
-      <div className="flex-1">
-        <Conversations
-          activeKey={activeId}
-          menu={conversationsMenuConfig}
-          onActiveChange={onActiveChange}
-          items={items}
-        />
+      <div className="overflow-hidden" style={listHeight}>
+        <div className="h-full overflow-y-auto">
+          <Conversations
+            activeKey={activeId}
+            menu={conversationsMenuConfig}
+            onActiveChange={onActiveChange}
+            items={items}
+          />
+        </div>
+      </div>
+      <div ref={footerDivRef} className="footer px-1 py-2">
+        <div className="flex w-full items-center gap-4 cursor-pointer hover:bg-gray-300 p-2 rounded-md">
+          <div className="flex-shrink-0 flex justify-center items-center">
+            <SettingOutlined className="w-4 h-4" />
+          </div>
+          <div className="flex-1">
+            设置
+          </div>
+        </div>
       </div>
       <Modal
         title="重命名"
