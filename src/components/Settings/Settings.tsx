@@ -1,6 +1,7 @@
 import { SettingOutlined } from '@ant-design/icons'
-import { useState } from 'react'
-import SettingsModal from './Modal'
+import { lazy, useState } from 'react'
+
+const SettingsModal = lazy(() => import('./Modal'))
 
 export default function Settings() {
   const [open, setOpen] = useState(false)

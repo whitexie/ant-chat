@@ -1,7 +1,6 @@
 import type { ChatMessage } from '@/hooks/useChat'
 import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
 import type { MessageInfo } from '@ant-design/x/es/useXChat'
-import RenderMarkdown from '@/components/RenderMarkdown'
 import { DEFAULT_TITLE, Role } from '@/constants'
 import { useActiveConversationIdContext } from '@/contexts/activeIdConversations'
 import { useChat } from '@/hooks/useChat'
@@ -11,7 +10,7 @@ import { getNow, uuid } from '@/utils'
 import { LinkOutlined } from '@ant-design/icons'
 import { Bubble, Sender } from '@ant-design/x'
 import { Button } from 'antd'
-import { useEffect, useRef, useState } from 'react'
+import { lazy, useEffect, useRef, useState } from 'react'
 import { roles } from './roles'
 
 const prefix = (
@@ -19,6 +18,8 @@ const prefix = (
     <Button type="text" icon={<LinkOutlined />} />
   </div>
 )
+
+const RenderMarkdown = lazy(() => import('./RenderMarkdown'))
 
 export default function Chat() {
   const [conversations, dispatch] = useConversationStore()
