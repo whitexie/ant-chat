@@ -47,13 +47,12 @@ function messageRender(content: API.MessageContent): React.ReactNode {
 export default function Chat() {
   const [conversations, dispatch] = useConversationStore()
   const [activeId, udpateActiveId] = useActiveConversationIdContext()
+  const currentConversation = useRef<IConversation | null>(null)
   const { agent, messages, onRequest, setMessages } = useChat({
     onSuccess: (message) => {
-      dispatch!({ type: 'addMessage', id: activeId, item: message })
+      dispatch!({ type: 'addMessage', id: currentConversation.current?.id || activeId, item: message })
     },
   })
-
-  const currentConversation = useRef<IConversation | null>(null)
 
   const items = messages.map((msg) => {
     const { id: key, message: { role, content } } = msg

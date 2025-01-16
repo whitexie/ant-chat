@@ -99,7 +99,8 @@ export default function ConversationsManage() {
     }
 
     const key = e.key as keyof typeof handleMapping
-    handleMapping[key]?.() || console.error('unknown key', key)
+    const func = handleMapping[key]
+    func ? func() : console.error('unknown key', key)
   }
 
   function onActiveChange(value: string) {
