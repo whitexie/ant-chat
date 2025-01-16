@@ -1,5 +1,4 @@
 import type { PluginOption } from 'vite'
-import process from 'node:process'
 import { fileURLToPath, URL } from 'node:url'
 import react from '@vitejs/plugin-react'
 
@@ -13,25 +12,30 @@ const plugins: PluginOption[] = [
   UnoCSS(),
 ]
 
-if (process.env.NODE_ENV === 'production') {
-  plugins.push(analyzer())
-  plugins.push(
-    compression({
+// https://vite.dev/config/
+export default defineConfig(({ command, mode }) => {
+  console.log('command => ', command)
+
+  if (command === 'build') {
+    plugins.push(compression({
       verbose: true, // 输出压缩日志
       disable: false, // 是否禁用压缩
       threshold: 10240, // 对超过10KB的文件进行压缩
       algorithm: 'gzip', // 使用gzip压缩
       ext: '.gz', // 压缩后文件的扩展名
-    }),
-  )
-}
+    }))
+  }
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins,
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+  if (mode === 'preview') {
+    plugins.push(analyzer())
+  }
+
+  return {
+    plugins,
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+      },
     },
-  },
+  }
 })
