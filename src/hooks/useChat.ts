@@ -10,7 +10,7 @@ export type CreateAt = Date | number | string
 export interface ChatMessage {
   id: string
   role: Role
-  content: string
+  content: API.MessageContent
   createAt: CreateAt
 }
 

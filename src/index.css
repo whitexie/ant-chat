@@ -8,7 +8,7 @@
   --headerHeight: 50px;
   --mainHeight: calc(100vh - var(--headerHeight));
   --senderHeight: 80px;
-  --bubbleListHeight: calc(var(--mainHeight) - var(--senderHeight));
+  --bubbleListHeight: calc(var(--mainHeight) - var(--senderHeight) - 1rem);
   --conversationWidth: 200px;
 }
 

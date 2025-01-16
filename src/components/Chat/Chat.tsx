@@ -7,24 +7,46 @@ import { useChat } from '@/hooks/useChat'
 import { useConversationStore } from '@/stores/conversations'
 import { createConversation } from '@/stores/conversations/reducer'
 import { getNow, uuid } from '@/utils'
-import { LinkOutlined } from '@ant-design/icons'
-import { Bubble, Sender } from '@ant-design/x'
-import { Button } from 'antd'
-import { lazy, useEffect, useRef, useState } from 'react'
+import { Bubble } from '@ant-design/x'
+import { lazy, useEffect, useRef } from 'react'
+import ChatSender from './ChatSender'
 import { roles } from './roles'
 
-const prefix = (
-  <div className="flex gap-1">
-    <Button type="text" icon={<LinkOutlined />} />
-  </div>
-)
-
 const RenderMarkdown = lazy(() => import('./RenderMarkdown'))
+
+function messageRender(content: API.MessageContent): React.ReactNode {
+  if (typeof content === 'string') {
+    return <span>{content}</span>
+  }
+
+  const images = content.filter(item => item.type === 'image_url')
+  const texts = content.filter(item => item.type === 'text')
+
+  return (
+    <div>
+      <div className="flex gap-1 overflow-x-auto">
+        {images.map(item => (
+          <img
+            key={item.image_url.uid}
+            className="object-contain border-solid border-gray-100 rounded-md"
+            src={item.image_url.url}
+            alt={item.image_url.name}
+            width={100}
+            height={100}
+          />
+        ))}
+      </div>
+      <hr className="my-2" />
+      {texts.map((item, index) => (
+        <div key={index}>{item.text}</div>
+      ))}
+    </div>
+  )
+}
 
 export default function Chat() {
   const [conversations, dispatch] = useConversationStore()
   const [activeId, udpateActiveId] = useActiveConversationIdContext()
-  const [message, setMessage] = useState('')
   const { agent, messages, onRequest, setMessages } = useChat({
     onSuccess: (message) => {
       dispatch!({ type: 'addMessage', id: activeId, item: message })
@@ -36,7 +58,7 @@ export default function Chat() {
   const items = messages.map((msg) => {
     const { id: key, message: { role, content } } = msg
     const styles = { content: { maxWidth: '60%' } }
-    const item: BubbleDataType = { role, content, styles, key }
+    const item: BubbleDataType = { role, content, styles, key, messageRender }
 
     if (item.role === Role.AI) {
       item.messageRender = (content: string) => <RenderMarkdown content={content} />
@@ -45,15 +67,26 @@ export default function Chat() {
     return item
   })
 
-  function onSubmit(message: string) {
+  function onSubmit(message: string, images: API.IImage[]) {
     const messageItem: ChatMessage = {
       id: uuid(),
       role: Role.USER,
       content: message,
       createAt: getNow(),
     }
+
+    if (images.length) {
+      const content: (API.ImageContent | API.TextContent)[] = images.map((item) => {
+        return {
+          type: 'image_url',
+          image_url: { ...item },
+        }
+      })
+      content.push({ type: 'text', text: message })
+      messageItem.content = content
+    }
+
     onRequest(messageItem)
-    setMessage('')
 
     // 如果当前没有活跃的会话，则创建一个默认的会话
     if (!activeId && dispatch && udpateActiveId) {
@@ -88,21 +121,19 @@ export default function Chat() {
   return (
     <div className="flex flex-col h-full w-full max-w-4xl m-auto p-1">
       <div className="flex-1 overflow-y-auto">
-        <div>
-          <Bubble.List items={items} roles={roles} className="h-[var(--bubbleListHeight)] scroll-hidden" />
-        </div>
-      </div>
-      <div className="flex-shrink-0 w-full relative">
-        <div className="w-full p-2">
-          <Sender
-            value={message}
-            prefix={prefix}
-            onChange={setMessage}
-            loading={agent.isRequesting()}
-            placeholder="按回车发送，Shift + 回车 换行"
-            onSubmit={onSubmit}
+        <div className="py-2">
+          <Bubble.List
+            items={items}
+            roles={roles}
+            className="h-[var(--bubbleListHeight)] scroll-hidden"
           />
         </div>
+      </div>
+      <div className="w-full p-2 flex-shrink-0 w-full h-[72px] relative">
+        <ChatSender
+          loading={agent.isRequesting()}
+          onSubmit={(message, images) => onSubmit(message, images)}
+        />
       </div>
     </div>
   )

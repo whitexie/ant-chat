@@ -11,10 +11,12 @@ function AntChatApp() {
   const [currentTheme] = useTheme()
   useModelConfig()
 
-  const algorithm = currentTheme === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm
+  const algorithm = currentTheme === 'dark'
+    ? theme.darkAlgorithm
+    : theme.defaultAlgorithm
 
   return (
-    <ConfigProvider theme={{ algorithm, cssVar: true }}>
+    <ConfigProvider theme={{ algorithm, cssVar: true, hashed: false }}>
       <App>
         <ActiveConversationIdProvider>
           <ConversationsProvider>
