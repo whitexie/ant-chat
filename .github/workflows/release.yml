@@ -34,6 +34,3 @@ jobs:
         with:
           token: ${{ secrets.ANT_CHAT_RELEASE }}
           body_path: ./CHANGELOG.md
-          files: |
-            ./dist/**
-            ./CHANGELOG.md
