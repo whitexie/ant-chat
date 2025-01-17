@@ -1,7 +1,7 @@
 import Chat from '@/components/Chat'
 import ConversationsManage from '@/components/Conversations/ConversationsManage'
 import Header from '@/components/Header'
-import { ActiveConversationIdProvider } from '@/contexts/activeIdConversations'
+import { ActiveConversationIdProvider } from '@/contexts/ActiveConversationId'
 import useModelConfig from '@/hooks/useModelConfig'
 import { ConversationsProvider } from '@/stores/conversations'
 import { App, ConfigProvider, Layout, theme } from 'antd'

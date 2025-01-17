@@ -1,7 +1,7 @@
 import type { MenuProps } from 'antd'
 import Settings from '@/components/Settings'
 import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
-import { useActiveConversationIdContext } from '@/contexts/activeIdConversations'
+import { useActiveConversationIdContext } from '@/contexts/ActiveConversationId'
 import { useConversationRename } from '@/hooks/useConversationRename'
 import { useConversationStore } from '@/stores/conversations'
 
