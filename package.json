@@ -9,9 +9,10 @@
     "build:preview": "tsc -b && vite build --mode preview",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:unit": "vitest",
+    "test": "vitest",
     "release": "conventional-changelog -p angular -i CHANGELOG.md -s",
-    "prepare": "husky"
+    "prepare": "husky",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@ant-design/x": "^1.0.4",
@@ -41,6 +42,7 @@
     "@types/react-dom": "^18.3.5",
     "@types/wicg-file-system-access": "^2023.10.5",
     "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "2.1.8",
     "antd": "^5.22.7",
     "commitizen": "^4.3.1",
     "conventional-changelog-cli": "^5.0.0",
