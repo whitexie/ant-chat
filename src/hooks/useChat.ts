@@ -35,34 +35,39 @@ export function useChat(option?: UseChatConfig) {
       return
     }
     const { messages } = info
-    const { onSuccess, onUpdate } = callbacks
+    const { onSuccess, onUpdate, onError } = callbacks
 
-    const { response } = await sendChatMessage(messages, 'deepseek-chat')
-    const readableStream = response.body!
+    try {
+      const { response } = await sendChatMessage(messages, 'deepseek-chat')
+      const readableStream = response.body!
 
-    let content = ''
-    const id = `AI-${uuid()}`
-    const createAt = getNow()
-    for await (const chunk of XStream({ readableStream })) {
-      if (!chunk.data) {
-        continue
-      }
-      try {
-        const json = JSON.parse(chunk.data)
-        if (json.choices[0].delta.content) {
-          content += json.choices[0].delta.content
-          onUpdate({ id, role: Role.AI, content, createAt })
+      let content = ''
+      const id = `AI-${uuid()}`
+      const createAt = getNow()
+      for await (const chunk of XStream({ readableStream })) {
+        if (!chunk.data) {
+          continue
+        }
+        try {
+          const json = JSON.parse(chunk.data)
+          if (json.choices[0].delta.content) {
+            content += json.choices[0].delta.content
+            onUpdate({ id, role: Role.AI, content, createAt })
+          }
+        }
+        catch {
+          if (!chunk.data.includes('[DONE]')) {
+            console.error('parse fail line => ', JSON.stringify(chunk))
+          }
         }
       }
-      catch {
-        if (!chunk.data.includes('[DONE]')) {
-          console.error('parse fail line => ', JSON.stringify(chunk))
-        }
-      }
+      const messageItem = { id, role: Role.AI, content, createAt }
+      onSuccess(messageItem)
+      option?.onSuccess?.(messageItem)
     }
-    const messageItem = { id, role: Role.AI, content, createAt }
-    onSuccess(messageItem)
-    option?.onSuccess?.(messageItem)
+    catch (error) {
+      onError(error as Error)
+    }
   }
   const agent = useAgent<ChatMessage>({ request })[0] as unknown as XAgent<ChatMessage>
 
