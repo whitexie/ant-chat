@@ -24,7 +24,8 @@
     "nanoid": "^5.0.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "use-immer": "^0.11.0"
+    "use-immer": "^0.11.0",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@ant-design/icons": "^5.5.2",
