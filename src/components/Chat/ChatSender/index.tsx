@@ -49,6 +49,7 @@ export default function ChatSender({ loading, onSubmit }: ChatSenderProps) {
           onSubmit(message, images)
           setMessage('')
           setImages([])
+          setOpen(false)
         }}
       />
     </div>
