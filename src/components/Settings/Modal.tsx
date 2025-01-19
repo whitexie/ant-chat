@@ -1,9 +1,11 @@
+import type { ModelConfigStore } from '@/store/modelConfig'
 import { getModels } from '@/api'
-import useModelConfig from '@/hooks/useModelConfig'
+import { useModelConfigStore } from '@/store/modelConfig'
 import { ReloadOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
-import { Button, Form, Input, Modal, Select, Slider } from 'antd'
-import { useMemo } from 'react'
+import { App, Button, Form, Input, Modal, Select, Slider } from 'antd'
+import { Suspense, useMemo, useState } from 'react'
+import { useShallow } from 'zustand/shallow'
 
 function TemperatureHelp() {
   return (
@@ -33,7 +35,16 @@ interface SettingsModalProps {
 
 export default function SettingsModal({ open, onClose }: SettingsModalProps) {
   const [form] = Form.useForm<ModelConfig>()
-  const { config, setConfig } = useModelConfig()
+  const setConfig = useModelConfigStore(state => state.setConfig)
+  // const setModel = useModelConfigStore(state => state.setModel)
+  const { message } = App.useApp()
+  const config = useModelConfigStore(useShallow((state: ModelConfigStore) => ({
+    apiHost: state.apiHost,
+    apiKey: state.apiKey,
+    model: state.model,
+    temperature: state.temperature,
+  })))
+  const [model, setModel] = useState(config.model)
 
   const apiHost = Form.useWatch('apiHost', form)
   const apiKey = Form.useWatch('apiKey', form)
@@ -43,10 +54,20 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
       if (!apiHost || !apiKey || !open)
         return Promise.resolve([])
 
-      console.log('call request')
-      return getModels(apiHost, apiKey)
+      try {
+        const result = getModels(apiHost, apiKey)
+        return result
+      }
+      catch (error) {
+        return Promise.reject(error)
+      }
     },
-    { refreshDeps: [apiHost, apiKey, open] },
+    {
+      refreshDeps: [apiHost, apiKey, open],
+      onError: (error) => {
+        message.error(`获取模型失败，请检查 API Host 和 API Key\n${error.message}`)
+      },
+    },
   )
 
   const modelOptions = useMemo(() => {
@@ -55,6 +76,7 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
 
   function onOk() {
     form.validateFields().then((values) => {
+      console.log('values => ', values)
       setConfig(values)
       onClose?.()
     })
@@ -72,7 +94,17 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
         </Form.Item>
         <Form.Item label="Model" name="model" rules={[CommonRules]}>
           <div className="flex gap-1 items-center">
-            <Select options={modelOptions} showSearch defaultValue={config?.model} loading={loading} />
+            <Suspense>
+              <Select
+                showSearch
+                value={model}
+                onChange={setModel}
+                loading={loading}
+                options={modelOptions}
+                placeholder="请选择模型"
+                allowClear
+              />
+            </Suspense>
             <Button type="text" icon={<ReloadOutlined />} onClick={refresh} loading={loading} />
           </div>
         </Form.Item>

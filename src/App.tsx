@@ -1,13 +1,11 @@
 import Chat from '@/components/Chat'
 import ConversationsManage from '@/components/Conversations/ConversationsManage'
 import Header from '@/components/Header'
-import useModelConfig from '@/hooks/useModelConfig'
 import { useThemeStore } from '@/store/theme'
 import { App, ConfigProvider, Layout, theme } from 'antd'
 
 function AntChatApp() {
   const currentTheme = useThemeStore(state => state.theme)
-  useModelConfig()
 
   const algorithm = currentTheme === 'dark'
     ? theme.darkAlgorithm

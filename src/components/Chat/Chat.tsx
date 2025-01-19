@@ -1,6 +1,7 @@
 import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
 import { Role } from '@/constants'
 import { activeConversationSelector, useConversationsStore } from '@/store/conversation'
+import { useModelConfigStore } from '@/store/modelConfig'
 import { getNow, uuid } from '@/utils'
 import { Bubble } from '@ant-design/x'
 import { useMemo, useRef, useState } from 'react'
@@ -20,7 +21,7 @@ export default function Chat() {
   const { activeConversation, onRequest } = useConversationsStore(useShallow(activeConversationSelector))
   const activeConversationId = activeConversation?.id || ''
   const currentConversation = activeConversation
-
+  const model = useModelConfigStore(state => state.model)
   const messages = currentConversation?.messages || []
 
   const bubbleList = useMemo(() => {
@@ -56,43 +57,10 @@ export default function Chat() {
       messageItem.content = content
     }
 
-    // addMessage(activeConversationId, messageItem)
-
     // 发送请求
     setIsLoading(true)
 
-    await onRequest(activeConversationId, messageItem)
-
-    // TODO model为空
-    // const { response, abort } = await chatCompletions([...messages, messageItem], '')
-    // const readableStream = response.body!
-
-    // abortRef.current = abort
-
-    // let content = ''
-    // const id = `AI-${uuid()}`
-    // const createAt = getNow()
-
-    // addMessage(activeConversationId, { id, role: Role.AI, content, createAt })
-
-    // for await (const chunk of Stream({ readableStream })) {
-    //   if (!chunk.data)
-    //     continue
-
-    //   try {
-    //     const json = JSON.parse(chunk.data)
-    //     if (json.choices[0].delta.content) {
-    //       content += json.choices[0].delta.content
-    //       updateMessage(activeConversationId, id, { id, role: Role.AI, content, createAt })
-    //     }
-    //   }
-    //   catch (error) {
-    //     if (!chunk.data.includes('[DONE]')) {
-    //       console.error(error)
-    //       console.error('parse fail line => ', JSON.stringify(chunk))
-    //     }
-    //   }
-    // }
+    await onRequest(activeConversationId, messageItem, model)
 
     setIsLoading(false)
   }

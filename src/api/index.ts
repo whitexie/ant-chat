@@ -1,4 +1,4 @@
-import { runtimeModelConfig } from '@/hooks/useModelConfig'
+import { useModelConfigStore } from '@/store/modelConfig'
 
 export async function getModels(apiHost: string, apiKey: string) {
   const resp = await fetch(`${apiHost}/models`, {
@@ -10,7 +10,7 @@ export async function getModels(apiHost: string, apiKey: string) {
 }
 
 export async function chatCompletions(messages: API.MessageItem[], modelId: string) {
-  const { temperature } = runtimeModelConfig
+  const { temperature } = useModelConfigStore.getState()
   const abortController = new AbortController()
   const resp = await request('/chat/completions', {
     method: 'POST',
@@ -38,8 +38,8 @@ export async function chatCompletions(messages: API.MessageItem[], modelId: stri
 }
 
 async function request(url: string, options?: RequestInit) {
-  const { apiHost, apiKey } = runtimeModelConfig
-  const _url = apiHost + url
+  const { apiHost, apiKey } = useModelConfigStore.getState()
+  const _url = new URL(url, apiHost).toString()
   const _option = {
     ...options,
     headers: {

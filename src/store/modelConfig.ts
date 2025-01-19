@@ -1,8 +1,10 @@
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 
 interface Action {
   setConfig: (config: ModelConfig) => void
+  setModel: (model: string) => void
 }
 
 const initialState: ModelConfig = {
@@ -12,11 +14,21 @@ const initialState: ModelConfig = {
   temperature: 0.7,
 }
 
-type ModelConfigStore = ModelConfig & Action
+export type ModelConfigStore = ModelConfig & Action
 
-export const useModelConfigStore = create<ModelConfigStore>()(immer(set => ({
-  ...initialState,
-  setConfig: (config) => {
-    set(config)
-  },
-})))
+export const useModelConfigStore = create<ModelConfigStore>()(
+  persist(immer(set => ({
+    ...initialState,
+    setConfig: (config) => {
+      set(config)
+    },
+    setModel: (model) => {
+      set((state) => {
+        state.model = model
+      })
+    },
+  })), {
+    name: 'model-config',
+    storage: createJSONStorage(() => localStorage),
+  }),
+)
