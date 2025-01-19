@@ -1,6 +1,6 @@
 import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
 import { Role } from '@/constants'
-import { activeConversationSelector, useConversationsStore } from '@/store/conversation'
+import { activeConversationSelector, createConversation, useConversationsStore } from '@/store/conversation'
 import { useModelConfigStore } from '@/store/modelConfig'
 import { getNow, uuid } from '@/utils'
 import { Bubble } from '@ant-design/x'
@@ -15,10 +15,22 @@ function messageRender(content: API.MessageContent): React.ReactNode {
   return <MessageContent content={content} />
 }
 
+function createMessageContent(message: string, images: API.IImage[]) {
+  const content: (API.ImageContent | API.TextContent)[] = images.map((item) => {
+    return {
+      type: 'image_url',
+      image_url: { ...item },
+    }
+  })
+  content.push({ type: 'text', text: message })
+  return content
+}
+
 export default function Chat() {
   const abortRef = useRef<() => void>(() => {})
   const [isLoading, setIsLoading] = useState(false)
   const { activeConversation, onRequest } = useConversationsStore(useShallow(activeConversationSelector))
+  const addConversation = useConversationsStore(state => state.addConversation)
   const activeConversationId = activeConversation?.id || ''
   const currentConversation = activeConversation
   const model = useModelConfigStore(state => state.model)
@@ -39,28 +51,25 @@ export default function Chat() {
   }, [messages])
 
   async function onSubmit(message: string, images: API.IImage[]) {
+    let id = activeConversationId
+    // 如果当前没有会话，则创建一个
+    if (!activeConversationId) {
+      const conversation = createConversation()
+      addConversation(conversation)
+      id = conversation.id
+    }
+
     const messageItem: ChatMessage = {
       id: uuid(),
       role: Role.USER,
-      content: message,
+      content: createMessageContent(message, images),
       createAt: getNow(),
-    }
-
-    if (images.length) {
-      const content: (API.ImageContent | API.TextContent)[] = images.map((item) => {
-        return {
-          type: 'image_url',
-          image_url: { ...item },
-        }
-      })
-      content.push({ type: 'text', text: message })
-      messageItem.content = content
     }
 
     // 发送请求
     setIsLoading(true)
 
-    await onRequest(activeConversationId, messageItem, model)
+    await onRequest(id, messageItem, model)
 
     setIsLoading(false)
   }

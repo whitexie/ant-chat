@@ -1,5 +1,5 @@
 import { chatCompletions } from '@/api'
-import { Role } from '@/constants'
+import { DEFAULT_TITLE, Role } from '@/constants'
 import { getNow, Stream, uuid } from '@/utils'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
@@ -45,7 +45,7 @@ export const useConversationsStore = create<ConversationsStore>()(
 
     renameConversation: (id, title) => {
       set((state) => {
-        const conversation = state.conversations.find(conv => conv.id === id)
+        const conversation = getConversation(state.conversations, id)
         if (!conversation)
           return
 
@@ -77,33 +77,24 @@ export const useConversationsStore = create<ConversationsStore>()(
 
     addMessage: (conversationId, message) => {
       set((state) => {
-        const conversation = state.conversations.find(conv => conv.id === conversationId)
-        if (!conversation)
-          throw new Error('Conversation not found')
-
+        const conversation = getConversation(state.conversations, conversationId)
         conversation.messages.push(message)
       })
     },
 
     deleteMessage: (conversationId, messageId) => {
       set((state) => {
-        const conversation = state.conversations.find(conv => conv.id === conversationId)
-        if (!conversation)
-          return
-
+        const conversation = getConversation(state.conversations, conversationId)
         conversation.messages = conversation.messages.filter(msg => msg.id !== messageId)
       })
     },
 
     updateMessage: (conversationId, id, message) => {
       set((state) => {
-        const conversation = state.conversations.find(conv => conv.id === conversationId)
-        if (!conversation)
-          return
-
+        const conversation = getConversation(state.conversations, conversationId)
         const index = conversation.messages.findIndex(msg => msg.id === id)
         if (index === -1)
-          return
+          throw new Error(`Message not found => ${message.id}`)
 
         conversation.messages[index] = message
       })
@@ -114,6 +105,7 @@ export const useConversationsStore = create<ConversationsStore>()(
         const conversation = getConversation(state.conversations, conversationId)
         const messages = conversation.messages
         get().addMessage(conversationId, message)
+        // debugger
         const { response } = await chatCompletions([...messages, message], model || '')
         const readableStream = response.body!
         let content = ''
@@ -133,9 +125,8 @@ export const useConversationsStore = create<ConversationsStore>()(
               get().updateMessage(conversationId, id, { id, role: Role.AI, content, createAt })
             }
           }
-          catch (error) {
+          catch {
             if (!chunk.data.includes('[DONE]')) {
-              console.error(error)
               console.error('parse fail line => ', JSON.stringify(chunk))
             }
           }
@@ -156,7 +147,7 @@ function getConversation(conversations: IConversation[], id: string) {
 export function createConversation(option?: Partial<IConversation>) {
   return Object.assign({
     id: uuid(),
-    title: '',
+    title: DEFAULT_TITLE,
     messages: [],
     createAt: getNow(),
   }, option)
