@@ -1,11 +1,11 @@
-import { useTheme } from '@/contexts/theme/themeContext'
+import { useThemeStore } from '@/store/theme'
 import { useToken } from '@/utils'
 import { MoonFilled, SunFilled } from '@ant-design/icons'
 import { Button } from 'antd'
 
 export default function Header() {
   const { token } = useToken()
-  const [theme, toggleTheme] = useTheme()
+  const { theme, toggleTheme } = useThemeStore()
 
   const icon = theme === 'default' ? <SunFilled /> : <MoonFilled />
   return (
