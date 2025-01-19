@@ -1,72 +1,43 @@
-import type { ChatMessage } from '@/hooks/useChat'
 import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
-import type { MessageInfo } from '@ant-design/x/es/useXChat'
-import { DEFAULT_TITLE, Role } from '@/constants'
-import { useActiveConversationIdContext } from '@/contexts/ActiveConversationId'
-import { useChat } from '@/hooks/useChat'
-import { useConversationStore } from '@/stores/conversations'
-import { createConversation } from '@/stores/conversations/reducer'
+import { Role } from '@/constants'
+import { activeConversationSelector, useConversationsStore } from '@/store/conversation'
 import { getNow, uuid } from '@/utils'
 import { Bubble } from '@ant-design/x'
-import { lazy, useEffect, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { useShallow } from 'zustand/shallow'
 import ChatSender from './ChatSender'
+import MessageContent from './MessageContent'
+import RenderMarkdown from './RenderMarkdown'
 import { roles } from './roles'
 
-const RenderMarkdown = lazy(() => import('./RenderMarkdown'))
-
 function messageRender(content: API.MessageContent): React.ReactNode {
-  if (typeof content === 'string') {
-    return <span>{content}</span>
-  }
-
-  const images = content.filter(item => item.type === 'image_url')
-  const texts = content.filter(item => item.type === 'text')
-
-  return (
-    <div>
-      <div className="flex gap-1 overflow-x-auto">
-        {images.map(item => (
-          <img
-            key={item.image_url.uid}
-            className="object-contain border-solid border-gray-100 rounded-md"
-            src={item.image_url.url}
-            alt={item.image_url.name}
-            width={100}
-            height={100}
-          />
-        ))}
-      </div>
-      <hr className="my-2" />
-      {texts.map((item, index) => (
-        <div key={index}>{item.text}</div>
-      ))}
-    </div>
-  )
+  return <MessageContent content={content} />
 }
 
 export default function Chat() {
-  const [conversations, dispatch] = useConversationStore()
-  const [activeId, udpateActiveId] = useActiveConversationIdContext()
-  const currentConversation = useRef<IConversation | null>(null)
-  const { agent, messages, onRequest, setMessages } = useChat({
-    onSuccess: (message) => {
-      dispatch!({ type: 'addMessage', id: currentConversation.current?.id || activeId, item: message })
-    },
-  })
+  const abortRef = useRef<() => void>(() => {})
+  const [isLoading, setIsLoading] = useState(false)
+  const { activeConversation, onRequest } = useConversationsStore(useShallow(activeConversationSelector))
+  const activeConversationId = activeConversation?.id || ''
+  const currentConversation = activeConversation
 
-  const items = messages.map((msg) => {
-    const { id: key, message: { role, content } } = msg
-    const styles = { content: { maxWidth: '60%' } }
-    const item: BubbleDataType = { role, content, styles, key, messageRender }
+  const messages = currentConversation?.messages || []
 
-    if (item.role === Role.AI) {
-      item.messageRender = (content: string) => <RenderMarkdown content={content} />
-    }
+  const bubbleList = useMemo(() => {
+    return messages.map((msg) => {
+      const { id: key, role, content } = msg
+      const styles = { content: { maxWidth: '60%' } }
+      const item: BubbleDataType = { role, content, styles, key, messageRender }
 
-    return item
-  })
+      if (item.role === Role.AI) {
+        item.messageRender = (content: string) => <RenderMarkdown content={content} />
+      }
 
-  function onSubmit(message: string, images: API.IImage[]) {
+      return item
+    })
+  }, [messages])
+
+  async function onSubmit(message: string, images: API.IImage[]) {
     const messageItem: ChatMessage = {
       id: uuid(),
       role: Role.USER,
@@ -85,44 +56,53 @@ export default function Chat() {
       messageItem.content = content
     }
 
-    onRequest(messageItem)
+    // addMessage(activeConversationId, messageItem)
 
-    // 如果当前没有活跃的会话，则创建一个默认的会话
-    if (!activeId && dispatch && udpateActiveId) {
-      const item = createConversation({ title: DEFAULT_TITLE })
-      dispatch({ type: 'add', item })
-      udpateActiveId(item.id)
-      currentConversation.current = item
-    }
-    dispatch!({ type: 'addMessage', id: currentConversation.current?.id || activeId, item: messageItem })
+    // 发送请求
+    setIsLoading(true)
+
+    await onRequest(activeConversationId, messageItem)
+
+    // TODO model为空
+    // const { response, abort } = await chatCompletions([...messages, messageItem], '')
+    // const readableStream = response.body!
+
+    // abortRef.current = abort
+
+    // let content = ''
+    // const id = `AI-${uuid()}`
+    // const createAt = getNow()
+
+    // addMessage(activeConversationId, { id, role: Role.AI, content, createAt })
+
+    // for await (const chunk of Stream({ readableStream })) {
+    //   if (!chunk.data)
+    //     continue
+
+    //   try {
+    //     const json = JSON.parse(chunk.data)
+    //     if (json.choices[0].delta.content) {
+    //       content += json.choices[0].delta.content
+    //       updateMessage(activeConversationId, id, { id, role: Role.AI, content, createAt })
+    //     }
+    //   }
+    //   catch (error) {
+    //     if (!chunk.data.includes('[DONE]')) {
+    //       console.error(error)
+    //       console.error('parse fail line => ', JSON.stringify(chunk))
+    //     }
+    //   }
+    // }
+
+    setIsLoading(false)
   }
-
-  useEffect(() => {
-    if (activeId === currentConversation.current?.id) {
-      return
-    }
-
-    currentConversation.current = conversations.find(item => item.id === activeId) || null
-    if (currentConversation.current) {
-      const messages: MessageInfo<ChatMessage>[] = currentConversation.current.messages.map((msg) => {
-        const { id } = msg
-        return {
-          id,
-          message: msg,
-          status: msg.role === Role.USER ? 'local' : 'success',
-        }
-      })
-
-      setMessages(messages)
-    }
-  }, [activeId, conversations, setMessages])
 
   return (
     <div className="flex flex-col h-full w-full max-w-4xl m-auto p-1">
       <div className="flex-1 overflow-y-auto">
         <div className="py-2">
           <Bubble.List
-            items={items}
+            items={bubbleList}
             roles={roles}
             className="h-[var(--bubbleListHeight)] scroll-hidden"
           />
@@ -130,8 +110,12 @@ export default function Chat() {
       </div>
       <div className="w-full p-2 flex-shrink-0 w-full h-[72px] relative">
         <ChatSender
-          loading={agent.isRequesting()}
+          loading={isLoading}
           onSubmit={(message, images) => onSubmit(message, images)}
+          onCancel={() => {
+            abortRef.current()
+            setIsLoading(false)
+          }}
         />
       </div>
     </div>

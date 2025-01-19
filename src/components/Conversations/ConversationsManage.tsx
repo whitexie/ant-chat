@@ -1,20 +1,17 @@
 import type { MenuProps } from 'antd'
 import Settings from '@/components/Settings'
 import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
-import { useActiveConversationIdContext } from '@/contexts/ActiveConversationId'
 import { useConversationRename } from '@/hooks/useConversationRename'
-import { useConversationStore } from '@/stores/conversations'
-
-import { createConversation } from '@/stores/conversations/reducer'
+import { conversationsSelector, createConversation, useConversationsStore } from '@/store/conversation'
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
 import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations, type ConversationsProps } from '@ant-design/x'
 import { App, Button, Dropdown, Input, Modal } from 'antd'
+import { useShallow } from 'zustand/shallow'
 import { useConversationsListHeight } from './useConversationsListHeight'
 
 export default function ConversationsManage() {
-  const [conversations, dispatch] = useConversationStore()
-  const [activeId, updateActiveId] = useActiveConversationIdContext()
+  const { conversations, activeConversationId, setActiveConversationId, addConversation, renameConversation, deleteConversation, importConversations, clearConversations } = useConversationsStore(useShallow(conversationsSelector))
   const { message, modal } = App.useApp()
   const { openRenameModal, changeRename, closeRenameModal, isRenameModalOpen, newName, renameId } = useConversationRename()
 
@@ -45,7 +42,7 @@ export default function ConversationsManage() {
           okType: 'danger',
           okText: '删除',
           onOk: () => {
-            dispatch!({ type: 'delete', id: conversation.key })
+            deleteConversation(conversation.key)
           },
         })
       }
@@ -61,10 +58,8 @@ export default function ConversationsManage() {
     async function handleImport() {
       try {
         const data = await importAntChatFile()
-        dispatch!({
-          type: 'import',
-          items: data.conversations,
-        })
+        importConversations(data.conversations)
+
         message.success('导入成功')
       }
       catch (error: unknown) {
@@ -86,7 +81,7 @@ export default function ConversationsManage() {
         okType: 'danger',
         okText: '清空',
         onOk: () => {
-          dispatch!({ type: 'clear' })
+          clearConversations()
           message.success('清空成功')
         },
       })
@@ -104,7 +99,7 @@ export default function ConversationsManage() {
   }
 
   function onActiveChange(value: string) {
-    updateActiveId!(value)
+    setActiveConversationId(value)
   }
 
   const buttonsRender = ([,rightButton]: React.ReactNode[]) => [
@@ -114,8 +109,8 @@ export default function ConversationsManage() {
       className="flex-1"
       onClick={() => {
         const item = createConversation({ title: DEFAULT_TITLE })
-        dispatch!({ type: 'add', item })
-        updateActiveId!(item.id)
+        addConversation(item)
+        setActiveConversationId(item.id)
       }}
     >
       新对话
@@ -131,7 +126,7 @@ export default function ConversationsManage() {
       <div className="overflow-hidden" style={listHeight}>
         <div className="h-full overflow-y-auto">
           <Conversations
-            activeKey={activeId}
+            activeKey={activeConversationId}
             menu={conversationsMenuConfig}
             onActiveChange={onActiveChange}
             items={items}
@@ -151,7 +146,7 @@ export default function ConversationsManage() {
             message.error('名称不能为空')
             throw new Error('名称不能为空')
           }
-          dispatch!({ type: 'rename', id: renameId, title: newName })
+          renameConversation(renameId, newName)
           closeRenameModal()
         }}
         cancelText="取消"
