@@ -16,6 +16,7 @@ interface StoreActions {
   deleteMessage: (conversationId: string, messageId: string) => void
   updateMessage: (conversationId: string, id: string, message: ChatMessage) => void
   onRequest: (conversationId: string, message: ChatMessage, model?: string) => Promise<void>
+  reset: () => void
 }
 
 export type ConversationsStore = StoreState & StoreActions
@@ -132,6 +133,9 @@ export const useConversationsStore = create<ConversationsStore>()(
           }
         }
       })
+    },
+    reset: () => {
+      set(initialState)
     },
   })),
 )
