@@ -1,13 +1,9 @@
-import type { ChatMessage, IConversation } from '@/types/conversation'
-import { createSelectors } from '@/utils/createSelectors'
+import { chatCompletions } from '@/api'
+import { Role } from '@/constants'
+import { getNow, Stream, uuid } from '@/utils'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
-
-interface StoreState {
-  conversations: IConversation[]
-  activeConversationId: string
-  currentConversation: IConversation | undefined
-}
+import { initialState, type StoreState } from './initialState'
 
 interface StoreActions {
   setActiveConversationId: (id: string) => void
@@ -18,26 +14,24 @@ interface StoreActions {
   clearConversations: () => void
   addMessage: (conversationId: string, message: ChatMessage) => void
   deleteMessage: (conversationId: string, messageId: string) => void
-  updateMessage: (conversationId: string, messageId: string, content: API.MessageContent) => void
+  updateMessage: (conversationId: string, id: string, message: ChatMessage) => void
+  onRequest: (conversationId: string, message: ChatMessage, model?: string) => Promise<void>
 }
 
-type ConversationsStore = StoreState & StoreActions
+export type ConversationsStore = StoreState & StoreActions
 
 // 创建基础 store
-const useConversationsStoreBase = create<ConversationsStore>()(
+export const useConversationsStore = create<ConversationsStore>()(
   immer((set, get) => ({
-    conversations: [],
-    activeConversationId: '',
-    currentConversation: undefined,
+    ...initialState,
 
     setActiveConversationId: (id) => {
       const conversation = get().conversations.find(conv => conv.id === id)
       if (!conversation)
-        return
+        throw new Error('Conversation not found')
 
       set((state) => {
         state.activeConversationId = id
-        state.currentConversation = conversation
       })
     },
 
@@ -46,7 +40,6 @@ const useConversationsStoreBase = create<ConversationsStore>()(
         state.conversations.push(conversation)
         // 自动设置为当前会话
         state.activeConversationId = conversation.id
-        state.currentConversation = conversation
       })
     },
 
@@ -57,9 +50,6 @@ const useConversationsStoreBase = create<ConversationsStore>()(
           return
 
         conversation.title = title
-        if (state.currentConversation?.id === id) {
-          state.currentConversation.title = title
-        }
       })
     },
 
@@ -68,7 +58,6 @@ const useConversationsStoreBase = create<ConversationsStore>()(
         state.conversations = state.conversations.filter(conv => conv.id !== id)
         if (state.activeConversationId === id) {
           state.activeConversationId = state.conversations[0]?.id || ''
-          state.currentConversation = state.conversations[0]
         }
       })
     },
@@ -83,7 +72,6 @@ const useConversationsStoreBase = create<ConversationsStore>()(
       set((state) => {
         state.conversations = []
         state.activeConversationId = ''
-        state.currentConversation = undefined
       })
     },
 
@@ -91,12 +79,9 @@ const useConversationsStoreBase = create<ConversationsStore>()(
       set((state) => {
         const conversation = state.conversations.find(conv => conv.id === conversationId)
         if (!conversation)
-          return
+          throw new Error('Conversation not found')
 
         conversation.messages.push(message)
-        if (state.currentConversation?.id === conversationId) {
-          state.currentConversation = conversation
-        }
       })
     },
 
@@ -107,39 +92,72 @@ const useConversationsStoreBase = create<ConversationsStore>()(
           return
 
         conversation.messages = conversation.messages.filter(msg => msg.id !== messageId)
-        if (state.currentConversation?.id === conversationId) {
-          state.currentConversation = conversation
-        }
       })
     },
 
-    updateMessage: (conversationId, messageId, content) => {
+    updateMessage: (conversationId, id, message) => {
       set((state) => {
         const conversation = state.conversations.find(conv => conv.id === conversationId)
         if (!conversation)
           return
 
-        const message = conversation.messages.find(msg => msg.id === messageId)
-        if (!message)
+        const index = conversation.messages.findIndex(msg => msg.id === id)
+        if (index === -1)
           return
 
-        message.content = content
-        if (state.currentConversation?.id === conversationId) {
-          state.currentConversation = conversation
+        conversation.messages[index] = message
+      })
+    },
+
+    onRequest: async (conversationId, message, model) => {
+      set(async (state) => {
+        const conversation = getConversation(state.conversations, conversationId)
+        const messages = conversation.messages
+        get().addMessage(conversationId, message)
+        const { response } = await chatCompletions([...messages, message], model || '')
+        const readableStream = response.body!
+        let content = ''
+        const id = `AI-${uuid()}`
+        const createAt = getNow()
+
+        get().addMessage(conversationId, { id, role: Role.AI, content, createAt })
+
+        for await (const chunk of Stream({ readableStream })) {
+          if (!chunk.data)
+            continue
+
+          try {
+            const json = JSON.parse(chunk.data)
+            if (json.choices[0].delta.content) {
+              content += json.choices[0].delta.content
+              get().updateMessage(conversationId, id, { id, role: Role.AI, content, createAt })
+            }
+          }
+          catch (error) {
+            if (!chunk.data.includes('[DONE]')) {
+              console.error(error)
+              console.error('parse fail line => ', JSON.stringify(chunk))
+            }
+          }
         }
       })
     },
   })),
 )
 
-// 导出带选择器的 store
-export const useConversationsStore = createSelectors(useConversationsStoreBase)
-
-// 导出常用选择器
-export function useActiveConversation() {
-  return useConversationsStore(state => state.currentConversation)
+function getConversation(conversations: IConversation[], id: string) {
+  const conversation = conversations.find(conv => conv.id === id)
+  if (!conversation) {
+    throw new Error('Conversation not found')
+  }
+  return conversation
 }
 
-export function useConversations() {
-  return useConversationsStore(state => state.conversations)
+export function createConversation(option?: Partial<IConversation>) {
+  return Object.assign({
+    id: uuid(),
+    title: '',
+    messages: [],
+    createAt: getNow(),
+  }, option)
 }
