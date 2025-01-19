@@ -4,13 +4,6 @@ import { pick } from 'lodash-es'
 
 const LOCAL_STORAGE_KEY = 'model-config'
 
-interface ModelConfig {
-  apiHost: string
-  apiKey: string
-  model: string
-  temperature: number
-}
-
 const DEFAULT_CONFIG: ModelConfig = {
   apiHost: import.meta.env.VITE_API_HOST,
   apiKey: import.meta.env.VITE_API_KEY,

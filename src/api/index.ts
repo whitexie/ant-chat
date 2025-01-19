@@ -9,8 +9,9 @@ export async function getModels(apiHost: string, apiKey: string) {
   return ((await resp.json()) as ModelsResponse).data
 }
 
-export async function sendChatMessage(messages: API.MessageItem[], modelId: string) {
+export async function chatCompletions(messages: API.MessageItem[], modelId: string) {
   const { temperature } = runtimeModelConfig
+  const abortController = new AbortController()
   const resp = await request('/chat/completions', {
     method: 'POST',
     headers: {
@@ -22,6 +23,7 @@ export async function sendChatMessage(messages: API.MessageItem[], modelId: stri
       stream: true,
       temperature,
     }),
+    signal: abortController.signal,
   })
 
   if (!resp.ok || !resp.body) {
@@ -31,6 +33,7 @@ export async function sendChatMessage(messages: API.MessageItem[], modelId: stri
   return {
     // reader: resp.body.getReader(),
     response: resp,
+    abort: () => abortController.abort(),
   }
 }
 

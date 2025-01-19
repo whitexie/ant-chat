@@ -32,7 +32,7 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ open, onClose }: SettingsModalProps) {
-  const [form] = Form.useForm()
+  const [form] = Form.useForm<ModelConfig>()
   const { config, setConfig } = useModelConfig()
 
   const apiHost = Form.useWatch('apiHost', form)

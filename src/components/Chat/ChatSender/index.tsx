@@ -8,8 +8,9 @@ import ImageUpload from './ImageUpload'
 interface ChatSenderProps {
   loading: boolean
   onSubmit: (message: string, images: API.IImage[]) => void
+  onCancel?: () => void
 }
-export default function ChatSender({ loading, onSubmit }: ChatSenderProps) {
+export default function ChatSender({ loading, onSubmit, onCancel }: ChatSenderProps) {
   const { token } = useToken()
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
@@ -51,6 +52,7 @@ export default function ChatSender({ loading, onSubmit }: ChatSenderProps) {
           setImages([])
           setOpen(false)
         }}
+        onCancel={onCancel}
       />
     </div>
   )
