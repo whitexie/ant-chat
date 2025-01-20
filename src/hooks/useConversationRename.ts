@@ -1,6 +1,6 @@
 import { useImmerReducer } from 'use-immer'
 
-const RenameInitialState = {
+const initialState = {
   isRenameModalOpen: false,
   newName: '',
   renameId: '',
@@ -15,14 +15,17 @@ interface StartRenameAction {
 interface EndRenameAction {
   type: 'endRename'
 }
-interface changeRenameAction {
+
+interface ChangeRenameAction {
   type: 'changeRename'
   title: string
 }
 
-type RenameReducerAction = StartRenameAction | EndRenameAction | changeRenameAction | changeRenameAction
+type RenameInitialState = typeof initialState
 
-function renameReducer(draft: typeof RenameInitialState, action: RenameReducerAction) {
+type RenameReducerAction = StartRenameAction | EndRenameAction | ChangeRenameAction | ChangeRenameAction
+
+function renameReducer(draft: RenameInitialState, action: RenameReducerAction) {
   switch (action.type) {
     case 'startRename': {
       draft.isRenameModalOpen = true
@@ -45,7 +48,7 @@ function renameReducer(draft: typeof RenameInitialState, action: RenameReducerAc
 }
 
 export function useConversationRename() {
-  const [state, dispatch] = useImmerReducer(renameReducer, RenameInitialState)
+  const [state, dispatch] = useImmerReducer(renameReducer, initialState)
 
   function openRenameModal(id: string, title: string) {
     dispatch({ type: 'startRename', id, title })
