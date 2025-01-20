@@ -5,6 +5,7 @@ import { immer } from 'zustand/middleware/immer'
 interface Action {
   setConfig: (config: ModelConfig) => void
   setModel: (model: string) => void
+  reset: () => void
 }
 
 const initialState: ModelConfig = {
@@ -26,6 +27,9 @@ export const useModelConfigStore = create<ModelConfigStore>()(
       set((state) => {
         state.model = model
       })
+    },
+    reset: () => {
+      set(initialState)
     },
   })), {
     name: 'model-config',
