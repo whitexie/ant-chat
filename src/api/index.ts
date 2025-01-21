@@ -26,7 +26,12 @@ export async function chatCompletions(messages: API.MessageItem[], modelId: stri
     signal: abortController.signal,
   })
 
-  if (!resp.ok || !resp.body) {
+  if (!resp.ok) {
+    if (`${resp.status}`.startsWith('4')) {
+      const json = await resp.json()
+      console.log('request fail json => ', json)
+      throw new Error(json.error.message)
+    }
     throw new Error('request fail')
   }
 

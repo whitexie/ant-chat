@@ -38,7 +38,13 @@ export default function ChatSender({ loading, onSubmit, onCancel }: ChatSenderPr
   )
 
   return (
-    <div className="absolute left-2 right-2 bottom-2 max-w-4xl">
+    <div
+      className="absolute left-2 right-2 bottom-2 max-w-4xl"
+      style={{
+        backgroundColor: token.colorBgContainer,
+        borderRadius: 'calc(var(--ant-border-radius) * 2)',
+      }}
+    >
       <Sender
         value={message}
         header={headerNode}
