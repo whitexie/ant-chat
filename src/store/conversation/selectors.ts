@@ -5,8 +5,10 @@ export function activeConversationSelector(state: ConversationsStore) {
   return {
     activeConversation,
     addMessage: state.addMessage,
+    deleteMessage: state.deleteMessage,
     updateMessage: state.updateMessage,
     onRequest: state.onRequest,
+    refreshRequest: state.refreshRequest,
   }
 }
 
@@ -20,5 +22,12 @@ export function conversationsSelector(state: ConversationsStore) {
     importConversations: state.importConversations,
     clearConversations: state.clearConversations,
     setActiveConversationId: state.setActiveConversationId,
+  }
+}
+
+export function requestStatusSelector(state: ConversationsStore) {
+  return {
+    requestStatus: state.requestStatus,
+    setRequestStatus: state.setRequestStatus,
   }
 }

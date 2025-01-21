@@ -12,6 +12,7 @@ interface ChatMessage {
   role: Role
   content: API.MessageContent
   createAt: CreateAt
+  status?: 'success' | 'error'
 }
 
 interface ModelConfig {

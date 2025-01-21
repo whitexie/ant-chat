@@ -7,6 +7,7 @@ import { initialState, type StoreState } from './initialState'
 
 interface StoreActions {
   setActiveConversationId: (id: string) => void
+  setRequestStatus: (status: StoreState['requestStatus']) => void
   addConversation: (conversation: IConversation) => void
   renameConversation: (id: string, title: string) => void
   deleteConversation: (id: string) => void
@@ -15,7 +16,9 @@ interface StoreActions {
   addMessage: (conversationId: string, message: ChatMessage) => void
   deleteMessage: (conversationId: string, messageId: string) => void
   updateMessage: (conversationId: string, id: string, message: ChatMessage) => void
+  sendChatCompletions: (conversationId: string, model?: string) => Promise<void>
   onRequest: (conversationId: string, message: ChatMessage, model?: string) => Promise<void>
+  refreshRequest: (conversationId: string, message: ChatMessage, model?: string) => Promise<void>
   reset: () => void
 }
 
@@ -33,6 +36,12 @@ export const useConversationsStore = create<ConversationsStore>()(
 
       set((state) => {
         state.activeConversationId = id
+      })
+    },
+
+    setRequestStatus: (status) => {
+      set((state) => {
+        state.requestStatus = status
       })
     },
 
@@ -101,38 +110,64 @@ export const useConversationsStore = create<ConversationsStore>()(
       })
     },
 
-    onRequest: async (conversationId, message, model) => {
-      set(async (state) => {
-        const conversation = getConversation(state.conversations, conversationId)
-        const messages = conversation.messages
-        get().addMessage(conversationId, message)
-        // debugger
-        const { response } = await chatCompletions([...messages, message], model || '')
-        const readableStream = response.body!
-        let content = ''
-        const id = `AI-${uuid()}`
-        const createAt = getNow()
+    sendChatCompletions: async (conversationId, model) => {
+      const messages = get().conversations.find(conv => conv.id === conversationId)?.messages || null
+      if (!messages) {
+        throw new Error('Conversation not found')
+      }
+      let response: Response | null = null
+      try {
+        get().setRequestStatus('loading')
+        response = (await chatCompletions(messages, model || '')).response
+      }
+      catch (e) {
+        const error = e as Error
+        console.log('chatCompletions fail', error)
+        get().addMessage(conversationId, createMessage({ role: Role.AI, content: error.message, status: 'error' }))
+        get().setRequestStatus('error')
+        return
+      }
 
-        get().addMessage(conversationId, { id, role: Role.AI, content, createAt })
+      const readableStream = response.body!
+      const aiMessage = createMessage({ role: Role.AI, content: '' })
+      // 这里解构，避免被冻结， 后面的updateMessage同理
+      get().addMessage(conversationId, { ...aiMessage })
+      for await (const chunk of Stream({ readableStream })) {
+        if (!chunk.data)
+          continue
 
-        for await (const chunk of Stream({ readableStream })) {
-          if (!chunk.data)
-            continue
-
-          try {
-            const json = JSON.parse(chunk.data)
-            if (json.choices[0].delta.content) {
-              content += json.choices[0].delta.content
-              get().updateMessage(conversationId, id, { id, role: Role.AI, content, createAt })
-            }
-          }
-          catch {
-            if (!chunk.data.includes('[DONE]')) {
-              console.error('parse fail line => ', JSON.stringify(chunk))
-            }
+        try {
+          const json = JSON.parse(chunk.data)
+          if (json.choices[0].delta.content) {
+            const content = json.choices[0].delta.content
+            aiMessage.content = [aiMessage.content, content].join('') // `${aiMessage.content}${content}`
+            get().updateMessage(conversationId, aiMessage.id, { ...aiMessage })
           }
         }
-      })
+        catch (e) {
+          const error = e as Error
+          if (!chunk.data.includes('[DONE]')) {
+            console.error('parse Stream error', error)
+          }
+        }
+      }
+
+      get().setRequestStatus('success')
+    },
+
+    onRequest: async (conversationId, message, model) => {
+      const messages = get().conversations.find(conv => conv.id === conversationId)?.messages || null
+      if (!messages) {
+        throw new Error('Conversation not found')
+      }
+      get().addMessage(conversationId, message)
+      await get().sendChatCompletions(conversationId, model)
+    },
+
+    refreshRequest: async (conversationId, message, model) => {
+      get().deleteMessage(conversationId, message.id)
+
+      await (get().sendChatCompletions(conversationId, model))
     },
     reset: () => {
       set(initialState)
@@ -154,5 +189,15 @@ export function createConversation(option?: Partial<IConversation>) {
     title: DEFAULT_TITLE,
     messages: [],
     createAt: getNow(),
+  }, option)
+}
+
+export function createMessage(option?: Partial<ChatMessage>) {
+  return Object.assign({
+    id: uuid(),
+    role: Role.USER,
+    content: '',
+    createAt: getNow(),
+    status: 'success',
   }, option)
 }
