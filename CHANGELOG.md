@@ -1,3 +1,26 @@
+## [0.0.2](https://github.com/whitexie/ant-chat/compare/v0.0.1...v0.0.2) (2025-01-21)
+
+
+### Bug Fixes
+
+* 处理聊天消息处理中的错误 ([e6bdb03](https://github.com/whitexie/ant-chat/commit/e6bdb0379aa024fd07a50fb4a98cd1d17ddb698f))
+* 发送消息时，同步关闭sender.header窗口 ([4bc16e4](https://github.com/whitexie/ant-chat/commit/4bc16e4e77281660b9d2dd664037b683aaa03d1a))
+* 优化发送消息逻辑 ([d79524b](https://github.com/whitexie/ant-chat/commit/d79524b2db2aaf42c336a8a7aec9f343a902bbeb))
+* modelConfigStore 增加reset函数 ([f667ce5](https://github.com/whitexie/ant-chat/commit/f667ce5baf4228694e935f669afde90b0055182e))
+
+
+### Features
+
+* 侧边栏增加版本信息入口 ([cf0ae62](https://github.com/whitexie/ant-chat/commit/cf0ae621fbbf27c7c0e5b858afff6af5528406df))
+* 对话气泡增加复制、刷新和删除功能 ([388c49c](https://github.com/whitexie/ant-chat/commit/388c49c60bf916b1672380fa97dd76ed5e59c918))
+* 消息气泡增加格式化时间显示 ([2f1deb0](https://github.com/whitexie/ant-chat/commit/2f1deb03b608a3a0402c093ca84450337eb6696b))
+* 增加Github的跳转Button ([435a22f](https://github.com/whitexie/ant-chat/commit/435a22fb6f9ec5f759cd8d3c8ea66b2fe4afc4ba))
+* conversationStore 状态优化 ([a54fac1](https://github.com/whitexie/ant-chat/commit/a54fac15ef8bd5728dfb461272f1a2b952a2c531))
+* convesationsStore 增加 reset 方法，重置Store ([ec5a429](https://github.com/whitexie/ant-chat/commit/ec5a4292b2234358af9cdf4762552ab8fd800b01))
+* store初步实现 ([58d9c15](https://github.com/whitexie/ant-chat/commit/58d9c15ad91fb94470fe888aaf6c52bfe7655a35))
+
+
+
 ## 0.0.1 (2025-01-16)
 
 
