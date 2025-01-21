@@ -5,17 +5,11 @@ import { useModelConfigStore } from '@/store/modelConfig'
 import { clipboardWriteText, getNow, uuid } from '@/utils'
 import { Bubble } from '@ant-design/x'
 import { App, Typography } from 'antd'
-import { useMemo, useRef } from 'react'
+import { useRef } from 'react'
 import { useShallow } from 'zustand/shallow'
 import BubbleFooter from './BubbleFooter'
 import ChatSender from './ChatSender'
-import MessageContent from './MessageContent'
-import RenderMarkdown from './RenderMarkdown'
 import { roles } from './roles'
-
-function messageRender(content: API.MessageContent): React.ReactNode {
-  return <MessageContent content={content} />
-}
 
 function createMessageContent(message: string, images: API.IImage[]) {
   if (!images.length)
@@ -43,35 +37,25 @@ export default function Chat() {
 
   const isLoading = requestStatus === 'loading'
 
-  const bubbleList = useMemo(() => {
-    return messages.map((msg) => {
-      const { id: key, role, content, status } = msg
-      const item: BubbleDataType = { role, content, key, footer: <BubbleFooter message={msg} onClick={handleFooterButtonClick} /> }
+  const bubbleList = messages.map((msg) => {
+    const { id: key, role, content, status } = msg
+    const item: BubbleDataType = { role, content, key, footer: <BubbleFooter message={msg} onClick={handleFooterButtonClick} /> }
 
-      if (item.role === Role.AI) {
-        if (status === 'error') {
-          item.content = (
-            <>
-              <Typography.Paragraph>
-                <Typography.Text type="danger">{content as string}</Typography.Text>
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <Typography.Text type="danger">发送失败，请检查配置是否正确</Typography.Text>
-              </Typography.Paragraph>
-            </>
-          )
-        }
-        else {
-          item.messageRender = (content: string) => <RenderMarkdown content={content} />
-        }
-      }
-      else if (item.role === Role.USER) {
-        item.messageRender = messageRender
-      }
+    if (item.role === Role.AI && status === 'error') {
+      item.content = (
+        <>
+          <Typography.Paragraph>
+            <Typography.Text type="danger">{content as string}</Typography.Text>
+          </Typography.Paragraph>
+          <Typography.Paragraph>
+            <Typography.Text type="danger">请求失败，请检查配置是否正确</Typography.Text>
+          </Typography.Paragraph>
+        </>
+      )
+    }
 
-      return item
-    })
-  }, [messages])
+    return item
+  })
 
   async function handleFooterButtonClick(buttonName: string, message: ChatMessage) {
     const mapping = {
