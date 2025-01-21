@@ -18,6 +18,7 @@
     "@ant-design/x": "^1.0.5",
     "ahooks": "^3.8.4",
     "crypto-js": "^4.2.0",
+    "dayjs": "^1.11.13",
     "immer": "^10.1.1",
     "lodash-es": "^4.17.21",
     "markdown-it": "^14.1.0",

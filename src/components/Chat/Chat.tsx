@@ -2,7 +2,7 @@ import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
 import { Role } from '@/constants'
 import { activeConversationSelector, createConversation, requestStatusSelector, useConversationsStore } from '@/store/conversation'
 import { useModelConfigStore } from '@/store/modelConfig'
-import { clipboardWriteText, getNow, uuid } from '@/utils'
+import { clipboardWriteText, formatTime, getNow, uuid } from '@/utils'
 import { Bubble } from '@ant-design/x'
 import { App, Typography } from 'antd'
 import { useRef } from 'react'
@@ -38,8 +38,14 @@ export default function Chat() {
   const isLoading = requestStatus === 'loading'
 
   const bubbleList = messages.map((msg) => {
-    const { id: key, role, content, status } = msg
-    const item: BubbleDataType = { role, content, key, footer: <BubbleFooter message={msg} onClick={handleFooterButtonClick} /> }
+    const { id: key, role, content, status, createAt } = msg
+    const item: BubbleDataType = {
+      role,
+      content,
+      key,
+      header: <div className="text-xs flex items-center">{formatTime(createAt)}</div>,
+      footer: <BubbleFooter message={msg} onClick={handleFooterButtonClick} />,
+    }
 
     if (item.role === Role.AI && status === 'error') {
       item.content = (

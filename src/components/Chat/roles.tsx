@@ -22,7 +22,7 @@ export const roles: GetProp<BubbleListProps, 'roles'> = {
       marginInlineEnd: 10,
       marginInlineStart: 44,
     },
-    // @ts-expect-error 类型错误
+    // @ts-expect-error 类型错误, 等antdesign-x更新
     messageRender: (message: ChatMessage) => <MessageContent content={message} />,
   },
 }
