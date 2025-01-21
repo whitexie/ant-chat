@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@ant-design/x':
-        specifier: ^1.0.4
-        version: 1.0.4(antd@5.22.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^1.0.5
+        version: 1.0.5(antd@5.22.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       ahooks:
         specifier: ^3.8.4
         version: 3.8.4(react@18.3.1)
@@ -124,16 +124,16 @@ importers:
         specifier: ^15.3.0
         version: 15.3.0
       typescript:
-        specifier: ~5.6.2
+        specifier: ~5.6.3
         version: 5.6.3
       typescript-eslint:
-        specifier: ^8.18.2
+        specifier: ^8.19.0
         version: 8.19.0(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
       unocss:
         specifier: ^0.65.3
         version: 0.65.3(postcss@8.4.49)(rollup@4.29.1)(vite@6.0.7(@types/node@22.10.5)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.6.3))
       vite:
-        specifier: ^6.0.5
+        specifier: ^6.0.7
         version: 6.0.7(@types/node@22.10.5)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
       vite-bundle-analyzer:
         specifier: ^0.16.0
@@ -185,8 +185,8 @@ packages:
     peerDependencies:
       react: '>=16.9.0'
 
-  '@ant-design/x@1.0.4':
-    resolution: {integrity: sha512-YrwgHjJITC50vBpe5MxJ/Mj6XXWDy90xfmCOPPrEtR4jPw57t7RwKo/LNG3R59PQqhvRsKRUaQBTc/r0NdCW7A==}
+  '@ant-design/x@1.0.5':
+    resolution: {integrity: sha512-St+JqVa6VNDTDjsn79O+GN6hG2rxZ1Skksjbfzn9JFkHNXXBQ+7SK+Vh2lDaZi48IzLPhaiBzFu+D8/4mgw2Ww==}
     peerDependencies:
       antd: '>=5.0.0'
       react: '>=18.0.0'
@@ -4408,7 +4408,7 @@ snapshots:
       resize-observer-polyfill: 1.5.1
       throttle-debounce: 5.0.2
 
-  '@ant-design/x@1.0.4(antd@5.22.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@ant-design/x@1.0.5(antd@5.22.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@ant-design/colors': 7.2.0
       '@ant-design/cssinjs': 1.22.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
