@@ -1,7 +1,7 @@
 import { useThemeStore } from '@/store/theme'
 import { useToken } from '@/utils'
-import { MoonFilled, SunFilled } from '@ant-design/icons'
-import { Button } from 'antd'
+import { GithubFilled, MoonFilled, SunFilled } from '@ant-design/icons'
+import { Button, Tooltip } from 'antd'
 
 export default function Header() {
   const { token } = useToken()
@@ -24,7 +24,19 @@ export default function Header() {
         </div>
       </div>
       <div className="flex items-center px-4">
-        <div className="flex justify-center items-center rounded-xl">
+        <div className="flex justify-center gap-3 items-center rounded-xl">
+          <Tooltip title="赏一颗🌟🌟🌟～">
+            <Button
+              type="text"
+              shape="circle"
+              href="https://github.com/whitexie/ant-chat"
+              target="_blank"
+              icon={<GithubFilled />}
+              onClick={() => {
+                console.log('go to github')
+              }}
+            />
+          </Tooltip>
           <Button type="text" shape="circle" icon={icon} onClick={() => toggleTheme?.()} />
         </div>
       </div>
