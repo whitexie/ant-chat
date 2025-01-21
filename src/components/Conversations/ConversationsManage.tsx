@@ -8,6 +8,7 @@ import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutl
 import { Conversations, type ConversationsProps } from '@ant-design/x'
 import { App, Button, Dropdown, Input, Modal } from 'antd'
 import { useShallow } from 'zustand/shallow'
+import { VersionButton } from '../Version'
 import { useConversationsListHeight } from './useConversationsListHeight'
 
 export default function ConversationsManage() {
@@ -133,9 +134,9 @@ export default function ConversationsManage() {
           />
         </div>
       </div>
-      <div ref={footerDivRef} className="footer px-1 py-2">
+      <div ref={footerDivRef} className="footer flex flex-col gap-1 px-1 py-2">
         <Settings />
-
+        <VersionButton />
       </div>
       <Modal
         title="重命名"
