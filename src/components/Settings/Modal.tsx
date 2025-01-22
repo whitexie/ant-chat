@@ -1,10 +1,11 @@
 import type { ModelConfigStore } from '@/store/modelConfig'
+import type { SelectProps } from 'antd'
 import { getModels } from '@/api'
 import { useModelConfigStore } from '@/store/modelConfig'
 import { ReloadOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
 import { App, Button, Form, Input, Modal, Select, Slider } from 'antd'
-import { Suspense, useMemo, useState } from 'react'
+import { Suspense, useMemo } from 'react'
 import { useShallow } from 'zustand/shallow'
 
 function TemperatureHelp() {
@@ -28,6 +29,19 @@ const apiHostRules = [
   },
 ]
 
+function SelectHoc({ onRefresh, loading, ...props }: SelectProps & { onRefresh: () => void, loading: boolean }) {
+  return (
+    <div className="flex gap-1 items-center">
+      <Suspense>
+        <Select
+          {...props}
+        />
+      </Suspense>
+      <Button type="text" icon={<ReloadOutlined />} onClick={onRefresh} loading={loading} />
+    </div>
+  )
+}
+
 interface SettingsModalProps {
   open: boolean
   onClose?: () => void
@@ -44,7 +58,6 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
     model: state.model,
     temperature: state.temperature,
   })))
-  const [model, setModel] = useState(config.model)
 
   const apiHost = Form.useWatch('apiHost', form)
   const apiKey = Form.useWatch('apiKey', form)
@@ -83,7 +96,6 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
   }
 
   return (
-
     <Modal open={open} title="设置" onOk={onOk} onCancel={onClose} okText="保存" cancelText="取消">
       <Form requiredMark form={form} layout="vertical" initialValues={config}>
         <Form.Item label="API Host" name="apiHost" rules={apiHostRules}>
@@ -93,20 +105,14 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
           <Input.Password />
         </Form.Item>
         <Form.Item label="Model" name="model" rules={[CommonRules]}>
-          <div className="flex gap-1 items-center">
-            <Suspense>
-              <Select
-                showSearch
-                value={model}
-                onChange={setModel}
-                loading={loading}
-                options={modelOptions}
-                placeholder="请选择模型"
-                allowClear
-              />
-            </Suspense>
-            <Button type="text" icon={<ReloadOutlined />} onClick={refresh} loading={loading} />
-          </div>
+          <SelectHoc
+            showSearch
+            onRefresh={refresh}
+            loading={loading}
+            options={modelOptions}
+            placeholder="请选择模型"
+            allowClear
+          />
         </Form.Item>
         <Form.Item
           label="Temperature"
