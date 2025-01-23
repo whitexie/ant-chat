@@ -7,8 +7,8 @@
 :root {
   --headerHeight: 50px;
   --mainHeight: calc(100vh - var(--headerHeight));
-  --senderHeight: 80px;
-  --bubbleListHeight: calc(var(--mainHeight) - var(--senderHeight) - 1rem);
+  --senderHeight: 65px;
+  --bubbleListHeight: calc(var(--mainHeight) - var(--senderHeight));
   --conversationWidth: 200px;
 }
 
@@ -25,4 +25,13 @@ body,
 
 .scroll-hidden::-webkit-scrollbar {
   display: none; /* Chrome, Safari 和 Opera */
+}
+
+
+.ant-bubble-list::before,
+.ant-bubble-list::after {
+  display: block;
+  content: '';
+  height: 5px;
+  width: 100%;
 }
