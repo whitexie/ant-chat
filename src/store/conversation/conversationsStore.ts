@@ -136,7 +136,7 @@ export const useConversationsStore = create<ConversationsStore>()(
 
       await parseSse(readableStream, {
         onUpdate: (content) => {
-          aiMessage.content = [aiMessage.content, content].join('') // `${aiMessage.content}${content}`
+          aiMessage.content = content
           get().updateMessage(conversationId, aiMessage.id, { ...aiMessage })
         },
       })
