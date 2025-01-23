@@ -1,3 +1,19 @@
+# [0.1.0](https://github.com/whitexie/ant-chat/compare/v0.0.2...v0.1.0) (2025-01-23)
+
+
+### Bug Fixes
+
+* 修复ai回复的内容混乱问题 ([487bd4c](https://github.com/whitexie/ant-chat/commit/487bd4cb16f9c478d74fce04373ff3da33d57886))
+* 修复Settings的model字段选中值不生效问题 ([82c9de9](https://github.com/whitexie/ant-chat/commit/82c9de9a1b5d38f1c4fee50d13a02bbf056995ca))
+
+
+### Features
+
+* 根据对话上下文自动生成标题 ([10169e0](https://github.com/whitexie/ant-chat/commit/10169e0b8283ac055baf7680d2f1f5e9543604b7))
+* 使用react-markdown 替换markdown-it. 抽离RenameModal组件.优化首屏渲染 ([7db5db6](https://github.com/whitexie/ant-chat/commit/7db5db639dc818c34f6192ee7db458df70747d60))
+
+
+
 ## [0.0.2](https://github.com/whitexie/ant-chat/compare/v0.0.1...v0.0.2) (2025-01-21)
 
 
