@@ -6,10 +6,14 @@ import { conversationsSelector, createConversation, useConversationsStore } from
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
 import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations, type ConversationsProps } from '@ant-design/x'
-import { App, Button, Dropdown, Input, Modal } from 'antd'
+import { App, Button, Dropdown } from 'antd'
+import { lazy, Suspense } from 'react'
 import { useShallow } from 'zustand/shallow'
+import Loading from '../Loading'
 import { VersionButton } from '../Version'
 import { useConversationsListHeight } from './useConversationsListHeight'
+
+const RenameModal = lazy(() => import('./RenameModal'))
 
 export default function ConversationsManage() {
   const { conversations, activeConversationId, setActiveConversationId, addConversation, renameConversation, deleteConversation, importConversations, clearConversations } = useConversationsStore(useShallow(conversationsSelector))
@@ -138,27 +142,16 @@ export default function ConversationsManage() {
         <Settings />
         <VersionButton />
       </div>
-      <Modal
-        title="重命名"
-        open={isRenameModalOpen}
-        onCancel={() => closeRenameModal()}
-        onOk={() => {
-          if (newName.length < 1) {
-            message.error('名称不能为空')
-            throw new Error('名称不能为空')
-          }
-          renameConversation(renameId, newName)
-          closeRenameModal()
-        }}
-        cancelText="取消"
-      >
-        <Input
-          value={newName}
-          onChange={(e) => {
-            changeRename(e.target.value)
-          }}
+      <Suspense fallback={<Loading />}>
+        <RenameModal
+          isRenameModalOpen={isRenameModalOpen}
+          closeRenameModal={closeRenameModal}
+          renameConversation={renameConversation}
+          renameId={renameId}
+          newName={newName}
+          onChange={changeRename}
         />
-      </Modal>
+      </Suspense>
     </div>
   )
 }

@@ -21,10 +21,10 @@
     "dayjs": "^1.11.13",
     "immer": "^10.1.1",
     "lodash-es": "^4.17.21",
-    "markdown-it": "^14.1.0",
     "nanoid": "^5.0.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.3",
     "use-immer": "^0.11.0",
     "zustand": "^5.0.3"
   },
