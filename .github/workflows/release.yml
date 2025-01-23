@@ -1,9 +1,10 @@
 name: Build and Release
 
-on: workflow_dispatch
-  # push:
-  #   tags:
-  #     - "v*"
+# on: workflow_dispatch
+on:
+  push:
+    tags:
+       - "v*"
 
 jobs:
   build:
