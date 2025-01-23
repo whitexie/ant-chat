@@ -9,6 +9,7 @@ export function activeConversationSelector(state: ConversationsStore) {
     updateMessage: state.updateMessage,
     onRequest: state.onRequest,
     refreshRequest: state.refreshRequest,
+    renameConversation: state.renameConversation,
   }
 }
 

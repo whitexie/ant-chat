@@ -4,7 +4,7 @@ export enum Role {
   AI = 'assistant',
 }
 
-export const DEFAULT_TITLE = '新对话'
+export const DEFAULT_TITLE = 'Untitled'
 
 export const ANT_CHAT_STRUCTURE = {
   type: 'Ant Chat',

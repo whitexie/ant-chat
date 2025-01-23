@@ -1,6 +1,6 @@
 import { chatCompletions } from '@/api'
 import { DEFAULT_TITLE, Role } from '@/constants'
-import { getNow, Stream, uuid } from '@/utils'
+import { getNow, parseSse, uuid } from '@/utils'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { initialState, type StoreState } from './initialState'
@@ -130,27 +130,16 @@ export const useConversationsStore = create<ConversationsStore>()(
 
       const readableStream = response.body!
       const aiMessage = createMessage({ role: Role.AI, content: '' })
-      // 这里解构，避免被冻结， 后面的updateMessage同理
-      get().addMessage(conversationId, { ...aiMessage })
-      for await (const chunk of Stream({ readableStream })) {
-        if (!chunk.data)
-          continue
 
-        try {
-          const json = JSON.parse(chunk.data)
-          if (json.choices[0].delta.content) {
-            const content = json.choices[0].delta.content
-            aiMessage.content = [aiMessage.content, content].join('') // `${aiMessage.content}${content}`
-            get().updateMessage(conversationId, aiMessage.id, { ...aiMessage })
-          }
-        }
-        catch (e) {
-          const error = e as Error
-          if (!chunk.data.includes('[DONE]')) {
-            console.error('parse Stream error', error)
-          }
-        }
-      }
+      // 这里aiMessage需要展开，避免被冻结， 后面的updateMessage同理
+      get().addMessage(conversationId, { ...aiMessage })
+
+      await parseSse(readableStream, {
+        onUpdate: (content) => {
+          aiMessage.content = [aiMessage.content, content].join('') // `${aiMessage.content}${content}`
+          get().updateMessage(conversationId, aiMessage.id, { ...aiMessage })
+        },
+      })
 
       get().setRequestStatus('success')
     },

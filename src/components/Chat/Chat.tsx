@@ -1,5 +1,6 @@
 import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
-import { Role } from '@/constants'
+import { getConversationTitle } from '@/api'
+import { DEFAULT_TITLE, Role } from '@/constants'
 import { activeConversationSelector, createConversation, requestStatusSelector, useConversationsStore } from '@/store/conversation'
 import { useModelConfigStore } from '@/store/modelConfig'
 import { clipboardWriteText, formatTime, getNow, uuid } from '@/utils'
@@ -27,7 +28,7 @@ function createMessageContent(message: string, images: API.IImage[]) {
 export default function Chat() {
   const abortRef = useRef<() => void>(() => {})
   const { message: messageFunc } = App.useApp()
-  const { activeConversation, onRequest, refreshRequest, deleteMessage } = useConversationsStore(useShallow(activeConversationSelector))
+  const { activeConversation, onRequest, refreshRequest, deleteMessage, renameConversation } = useConversationsStore(useShallow(activeConversationSelector))
   const { requestStatus, setRequestStatus } = useConversationsStore(useShallow(requestStatusSelector))
   const addConversation = useConversationsStore(state => state.addConversation)
   const activeConversationId = activeConversation?.id || ''
@@ -85,11 +86,13 @@ export default function Chat() {
 
   async function onSubmit(message: string, images: API.IImage[]) {
     let id = activeConversationId
+    let isNewConversation = false
     // 如果当前没有会话，则创建一个
     if (!activeConversationId) {
       const conversation = createConversation()
       addConversation(conversation)
       id = conversation.id
+      isNewConversation = true
     }
 
     const messageItem: ChatMessage = {
@@ -100,14 +103,27 @@ export default function Chat() {
     }
 
     // 发送请求
-
     await onRequest(id, messageItem, model)
+
+    // 初始化会话标题
+    if (
+      (currentConversation && currentConversation.title === DEFAULT_TITLE)
+      || isNewConversation
+    ) {
+      initConversationTitle(id, messageItem)
+    }
+  }
+
+  async function initConversationTitle(id: string, message: ChatMessage) {
+    const title = await getConversationTitle([...messages, message], model)
+
+    renameConversation(id, title)
   }
 
   return (
-    <div className="flex flex-col h-full w-full max-w-4xl m-auto p-1">
+    <div className="flex flex-col h-full w-full max-w-4xl m-auto">
       <div className="flex-1 overflow-y-auto">
-        <div className="py-2">
+        <div>
           <Bubble.List
             items={bubbleList}
             roles={roles}
@@ -115,7 +131,7 @@ export default function Chat() {
           />
         </div>
       </div>
-      <div className="w-full p-2 flex-shrink-0 w-full h-[72px] relative">
+      <div className={`w-full px-2 flex-shrink-0 w-full h-[var(--senderHeight)] relative `}>
         <ChatSender
           loading={isLoading}
           onSubmit={(message, images) => onSubmit(message, images)}

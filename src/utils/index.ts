@@ -1,5 +1,6 @@
 export * from './crypto'
 export * from './file'
+export * from './sse-parse'
 export { default as Stream } from './stream'
 export * from './theme'
 export * from './time'

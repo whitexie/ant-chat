@@ -1,4 +1,30 @@
+import titlePrompt from '@/../public/title-prompt?raw'
+import { DEFAULT_TITLE } from '@/constants'
 import { useModelConfigStore } from '@/store/modelConfig'
+import { parseSse } from '@/utils'
+
+export async function getConversationTitle(messages: API.MessageItem[], modelId: string) {
+  const text = messages.map((item) => {
+    const { content } = item
+
+    if (typeof content === 'string') {
+      return content
+    }
+    return content.filter(item => item.type === 'text').map(item => item.text).join('\n')
+  }).join('————————————————————\n\n')
+
+  const content = titlePrompt.replace('pGqat5J/L@~U', text)
+
+  const { response } = await chatCompletions([{ role: 'user', content }], modelId)
+
+  if (!response.ok) {
+    return DEFAULT_TITLE
+  }
+  const readableStream = response.body!
+  const title = await parseSse(readableStream)
+
+  return title
+}
 
 export async function getModels(apiHost: string, apiKey: string) {
   const resp = await fetch(`${apiHost}/models`, {
