@@ -11,5 +11,9 @@ export default defineConfig({
     },
 
     environment: 'jsdom',
+
+    setupFiles: [
+      'fake-indexeddb/auto',
+    ],
   },
 })
