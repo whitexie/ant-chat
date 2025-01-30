@@ -123,13 +123,13 @@ export const useConversationsStore = create<ConversationsStore>()(
       catch (e) {
         const error = e as Error
         console.log('chatCompletions fail', error)
-        get().addMessage(conversationId, createMessage({ role: Role.AI, content: error.message, status: 'error' }))
+        get().addMessage(conversationId, createMessage({ convId: conversationId, role: Role.AI, content: error.message, status: 'error' }))
         get().setRequestStatus('error')
         return
       }
 
       const readableStream = response.body!
-      const aiMessage = createMessage({ role: Role.AI, content: '' })
+      const aiMessage = createMessage({ convId: conversationId, role: Role.AI, content: '' })
 
       // 这里aiMessage需要展开，避免被冻结， 后面的updateMessage同理
       get().addMessage(conversationId, { ...aiMessage })
@@ -181,12 +181,13 @@ export function createConversation(option?: Partial<IConversation>) {
   }, option)
 }
 
-export function createMessage(option?: Partial<ChatMessage>) {
+export function createMessage(option?: RequireKey<Partial<ChatMessage>, 'convId'>) {
   return Object.assign({
     id: uuid(),
     role: Role.USER,
     content: '',
     createAt: getNow(),
     status: 'success',
+    convId: '',
   }, option)
 }

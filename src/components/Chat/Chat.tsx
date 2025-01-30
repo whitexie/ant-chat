@@ -97,6 +97,7 @@ export default function Chat() {
 
     const messageItem: ChatMessage = {
       id: uuid(),
+      convId: id,
       role: Role.USER,
       content: createMessageContent(message, images),
       createAt: getNow(),

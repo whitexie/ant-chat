@@ -102,11 +102,12 @@ describe('conversationStore', () => {
     const { result } = renderHook(() => useConversationsStore())
 
     const conversation = createConversation()
-    const message = {
+    const message: ChatMessage = {
       id: '1',
       role: Role.USER,
       content: 'test',
       createAt: 1,
+      convId: conversation.id,
     }
 
     act(() => {
@@ -132,6 +133,7 @@ describe('conversationStore', () => {
         { type: 'image_url', image_url: { uid: '1', name: 'test', url: 'https://example.com/image.jpg', size: 100, type: 'image/jpeg' } },
         { type: 'text', text: 'test' },
       ],
+      convId: conversation.id,
       createAt: 1,
     }
 

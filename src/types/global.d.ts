@@ -9,6 +9,7 @@ interface IConversation {
 
 interface ChatMessage {
   id: string
+  convId: string
   role: Role
   content: API.MessageContent
   createAt: CreateAt
@@ -21,3 +22,5 @@ interface ModelConfig {
   model: string
   temperature: number
 }
+
+type RequireKey<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
