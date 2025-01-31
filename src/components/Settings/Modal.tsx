@@ -1,12 +1,9 @@
-import type { ModelConfigStore } from '@/store/modelConfig'
 import type { SelectProps } from 'antd'
 import { getModels } from '@/api'
-import { useModelConfigStore } from '@/store/modelConfig'
 import { ReloadOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
 import { App, Button, Form, Input, Modal, Select, Slider } from 'antd'
 import { Suspense, useMemo } from 'react'
-import { useShallow } from 'zustand/shallow'
 
 function TemperatureHelp() {
   return (
@@ -45,19 +42,13 @@ function SelectHoc({ onRefresh, loading, ...props }: SelectProps & { onRefresh: 
 interface SettingsModalProps {
   open: boolean
   onClose?: () => void
+  config: ModelConfig
+  onSave?: (config: ModelConfig) => void
 }
 
-export default function SettingsModal({ open, onClose }: SettingsModalProps) {
+export default function SettingsModal({ open, onClose, config, onSave }: SettingsModalProps) {
   const [form] = Form.useForm<ModelConfig>()
-  const setConfig = useModelConfigStore(state => state.setConfig)
-  // const setModel = useModelConfigStore(state => state.setModel)
   const { message } = App.useApp()
-  const config = useModelConfigStore(useShallow((state: ModelConfigStore) => ({
-    apiHost: state.apiHost,
-    apiKey: state.apiKey,
-    model: state.model,
-    temperature: state.temperature,
-  })))
 
   const apiHost = Form.useWatch('apiHost', form)
   const apiKey = Form.useWatch('apiKey', form)
@@ -76,6 +67,8 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
       }
     },
     {
+      debounceWait: 300,
+      manual: true,
       refreshDeps: [apiHost, apiKey, open],
       onError: (error) => {
         message.error(`获取模型失败，请检查 API Host 和 API Key\n${error.message}`)
@@ -89,8 +82,7 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
 
   function onOk() {
     form.validateFields().then((values) => {
-      console.log('values => ', values)
-      setConfig(values)
+      onSave?.(values)
       onClose?.()
     })
   }
