@@ -9,7 +9,7 @@ describe('gemini Service 测试', () => {
   })
 
   it('应该正确转换用户消息为 Gemini 请求格式', () => {
-    const messages: ChatMessage[] = [createMessage({ role: 'user', content: 'Hello, how are you?' })]
+    const messages: ChatMessage[] = [createMessage({ convId: '1', role: 'user', content: 'Hello, how are you?' })]
     const service = new GeminiService()
     const result = service.transformMessages(messages)
 
@@ -21,9 +21,9 @@ describe('gemini Service 测试', () => {
 
   it('应该正确转换AI和用户的对话消息', () => {
     const messages: ChatMessage[] = [
-      createMessage({ role: 'user', content: 'Hello' }),
-      createMessage({ role: 'assistant', content: 'Hi there!' }),
-      createMessage({ role: 'user', content: 'How are you?' }),
+      createMessage({ convId: '1', role: 'user', content: 'Hello' }),
+      createMessage({ convId: '1', role: 'assistant', content: 'Hi there!' }),
+      createMessage({ convId: '1', role: 'user', content: 'How are you?' }),
     ]
     const service = new GeminiService()
     const result = service.transformMessages(messages)
@@ -39,7 +39,7 @@ describe('gemini Service 测试', () => {
   })
 
   it('应该正确转换包含图片的用户消息', () => {
-    const messages: ChatMessage[] = [createMessage({ role: 'user', content: [
+    const messages: ChatMessage[] = [createMessage({ convId: '1', role: 'user', content: [
       { type: 'text', text: 'Hello, how are you?' },
       { type: 'image_url', image_url: { uid: '123', name: 'test.png', size: 100, type: 'image/png', url: 'https://example.com/test.png' } },
     ] })]
@@ -53,7 +53,7 @@ describe('gemini Service 测试', () => {
   })
 
   it('应该正确转换系统消息', () => {
-    const messages: ChatMessage[] = [createMessage({ role: 'system', content: 'You are a helpful assistant' })]
+    const messages: ChatMessage[] = [createMessage({ convId: '1', role: 'system', content: 'You are a helpful assistant' })]
     const service = new GeminiService()
     const result = service.transformMessages(messages)
 
@@ -65,7 +65,7 @@ describe('gemini Service 测试', () => {
 
   // 测试空消息处理
   it('当消息内容为空时应该正确处理', () => {
-    const messages: ChatMessage[] = [createMessage({ role: 'user', content: '' })]
+    const messages: ChatMessage[] = [createMessage({ convId: '1', role: 'user', content: '' })]
     const service = new GeminiService()
     const result = service.transformMessages(messages)
 
