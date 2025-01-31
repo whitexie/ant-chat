@@ -31,10 +31,10 @@ export default function Chat() {
   const { activeConversation, onRequest, refreshRequest, deleteMessage, renameConversation } = useConversationsStore(useShallow(activeConversationSelector))
   const { requestStatus, setRequestStatus } = useConversationsStore(useShallow(requestStatusSelector))
   const addConversation = useConversationsStore(state => state.addConversation)
+  const messages = useConversationsStore(state => state.messages)
   const activeConversationId = activeConversation?.id || ''
   const currentConversation = activeConversation
   const model = useModelConfigStore(state => state.model)
-  const messages = currentConversation?.messages || []
 
   const isLoading = requestStatus === 'loading'
 
@@ -44,6 +44,7 @@ export default function Chat() {
       role,
       content,
       key,
+      loading: status === 'loading',
       header: <div className="text-xs flex items-center">{formatTime(createAt)}</div>,
       footer: <BubbleFooter message={msg} onClick={handleFooterButtonClick} />,
     }
@@ -68,7 +69,7 @@ export default function Chat() {
     const mapping = {
       copy: () => copyMessage(message),
       refresh: () => refreshRequest(activeConversationId, message, model),
-      delete: () => deleteMessage(activeConversationId, message.id),
+      delete: () => deleteMessage(message.id),
     }
     mapping[buttonName as keyof typeof mapping]?.()
   }
@@ -90,7 +91,7 @@ export default function Chat() {
     // 如果当前没有会话，则创建一个
     if (!activeConversationId) {
       const conversation = createConversation()
-      addConversation(conversation)
+      await addConversation(conversation)
       id = conversation.id
       isNewConversation = true
     }

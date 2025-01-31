@@ -1,10 +1,10 @@
 import db from './db'
 
-export async function getConversation(id: string) {
+export async function getConversationsById(id: string) {
   return await db.conversations.get(id)
 }
 
-export async function addConversation(conversation: IConversation) {
+export async function addConversations(conversation: IConversation) {
   try {
     return await db.conversations.add(conversation)
   }
@@ -13,7 +13,7 @@ export async function addConversation(conversation: IConversation) {
   }
 }
 
-export async function deleteConversation(id: string) {
+export async function deleteConversations(id: string) {
   return db.transaction('readwrite', db.conversations, db.messages, async () => {
     await Promise.all([
       db.conversations.delete(id),
@@ -22,7 +22,7 @@ export async function deleteConversation(id: string) {
   })
 }
 
-export async function renameConversation(id: string, newName: string) {
+export async function renameConversations(id: string, newName: string) {
   const conversation = await db.conversations.where({ id }).first()
 
   if (!conversation) {
@@ -32,4 +32,13 @@ export async function renameConversation(id: string, newName: string) {
   conversation.title = newName
 
   return await db.conversations.put(conversation)
+}
+
+export async function fetchConversations(pageIndex: number, pageSize: number = 10) {
+  return await db.conversations
+    .orderBy('createAt')
+    .reverse()
+    .offset((pageIndex - 1) * pageSize)
+    .limit(pageSize)
+    .toArray()
 }

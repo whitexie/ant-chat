@@ -1,3 +1,5 @@
+import { Stream } from '@/utils'
+
 interface GeminiOptions {
   apiHost?: string
   apiKey: string
@@ -29,7 +31,7 @@ interface ModelContent {
 
 interface GeminiRequestBody {
   contents: (UserContent | ModelContent)[]
-  system_instruction: {
+  system_instruction?: {
     parts: TextPart[]
   }
   tools?: [
@@ -37,8 +39,17 @@ interface GeminiRequestBody {
   ]
 }
 
-const DEFAULT_API_HOST = 'https://generativelanguage.googleapis.com/v1beta'
+interface ChatCompletionsCallbacks {
+  onUpdate?: (message: string) => void
+  onSuccess?: (message: string) => void
+  onError?: (message: Error) => void
+}
+
+const DEFAULT_API_HOST = 'https://ysansan-gemini.deno.dev/v1beta'
 const DEFAULT_MODEL = 'gemini-1.5-flash-latest'
+
+const DEFAULT_STREAM_SEPARATOR = '\r\n\r\n'
+const DEFAULT_PART_SEPARATOR = '\r\n'
 
 class GeminiService {
   private apiHost: string
@@ -66,25 +77,16 @@ class GeminiService {
   transformImage(item: (API.TextContent | API.ImageContent)[]) {
     return item.map((item) => {
       if (item.type === 'image_url') {
-        return {
-          inlineData: {
-            mimeType: item.image_url.type,
-            data: item.image_url.url,
-          },
-        }
+        const [, data] = item.image_url.url.split(';base64,')
+        return { inlineData: { mimeType: item.image_url.type, data } }
       }
-      return {
-        text: item.text,
-      }
+      return { text: item.text }
     })
   }
 
   transformMessages(messages: ChatMessage[]) {
     const result: GeminiRequestBody = {
       contents: [],
-      system_instruction: {
-        parts: [],
-      },
     }
 
     messages.forEach((msg) => {
@@ -104,32 +106,80 @@ class GeminiService {
         result.contents.push(content)
       }
       else if (msg.role === 'system') {
+        if (!result.system_instruction) {
+          result.system_instruction = {
+            parts: [],
+          }
+        }
         result.system_instruction.parts.push({ text: msg.content as string })
       }
     })
     return result
   }
 
-  async request(messages: ChatMessage[]) {
+  async sendChatCompletions(messages: ChatMessage[], callbacks?: ChatCompletionsCallbacks) {
     this.validator()
 
-    const { abort, signal } = new AbortController()
+    // const { abort, signal } = new AbortController()
 
-    const url = `${this.apiHost}/models/${this.model}:generateContent?alt=sse&key=${this.apiKey}`
+    const url = `${this.apiHost}/models/${this.model}:streamGenerateContent?alt=sse&key=${this.apiKey}`
     const response = await fetch(url, {
       method: 'POST',
-      body: JSON.stringify({
-        contents: this.transformMessages(messages),
-      }),
-      signal,
+      headers: {
+        'content-type': 'application/json',
+        'Accept': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+      body: JSON.stringify(this.transformMessages(messages)),
+      // signal,
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch ${url}: ${response.statusText}`)
+      const statusText = `${response.status}`
+      if (statusText.startsWith('4') || statusText.startsWith('5')) {
+        const json = await response.json()
+
+        throw new Error(`Failed to fetch. ${json.error.message}`)
+      }
+      else {
+        throw new Error(`Failed to fetch ${url}: ${response.statusText}`)
+      }
     }
 
-    return { response, abort }
+    await parseSse(response.body!, callbacks)
   }
 }
 
 export default GeminiService
+
+async function parseSse(readableStream: ReadableStream, callbacks?: ChatCompletionsCallbacks) {
+  let __content__ = ''
+
+  for await (const chunk of Stream({ readableStream, DEFAULT_STREAM_SEPARATOR, DEFAULT_PART_SEPARATOR })) {
+    if (!chunk.data)
+      continue
+
+    try {
+      const json = JSON.parse(chunk.data)
+      const content = json.candidates?.[0]?.content?.parts?.[0]?.text
+      if (content) {
+        __content__ += content
+        // console.log('onupdate => ', __content__)
+        callbacks?.onUpdate?.(__content__)
+      }
+    }
+    catch (e) {
+      const error = e as Error
+      if (!chunk.data.includes('[DONE]')) {
+        console.error('parse Stream error', error)
+      }
+      callbacks?.onError?.(error)
+    }
+  }
+
+  // console.log('onSuccess => ', __content__)
+  callbacks?.onSuccess?.(__content__)
+
+  return __content__
+}

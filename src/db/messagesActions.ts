@@ -18,3 +18,11 @@ export async function updateMessage(message: ChatMessage) {
 export async function deleteMessage(id: string) {
   return await db.messages.delete(id)
 }
+
+export async function getMessagesByConvId(id: string) {
+  return await db.messages.orderBy('createAt').filter(x => x.convId === id).toArray()
+}
+
+export async function BatchDeleteMessage(ids: string[]) {
+  return await db.messages.bulkDelete(ids)
+}

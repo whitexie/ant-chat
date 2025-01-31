@@ -3,7 +3,6 @@ type CreateAt = number
 interface IConversation {
   id: string
   title: string
-  messages: ChatMessage[]
   createAt: CreateAt
 }
 
@@ -13,7 +12,7 @@ interface ChatMessage {
   role: Role
   content: API.MessageContent
   createAt: CreateAt
-  status?: 'success' | 'error'
+  status?: 'success' | 'error' | 'loading'
 }
 
 interface ModelConfig {

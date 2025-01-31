@@ -16,9 +16,25 @@ import { useConversationsListHeight } from './useConversationsListHeight'
 const RenameModal = lazy(() => import('./RenameModal'))
 
 export default function ConversationsManage() {
-  const { conversations, activeConversationId, setActiveConversationId, addConversation, renameConversation, deleteConversation, importConversations, clearConversations } = useConversationsStore(useShallow(conversationsSelector))
+  const {
+    conversations,
+    activeConversationId,
+    setActiveConversationId,
+    addConversation,
+    renameConversation,
+    deleteConversation,
+    importConversations,
+    clearConversations,
+  } = useConversationsStore(useShallow(conversationsSelector))
   const { message, modal } = App.useApp()
-  const { openRenameModal, changeRename, closeRenameModal, isRenameModalOpen, newName, renameId } = useConversationRename()
+  const {
+    openRenameModal,
+    changeRename,
+    closeRenameModal,
+    isRenameModalOpen,
+    newName,
+    renameId,
+  } = useConversationRename()
 
   const { headerDivRef, footerDivRef, listHeight } = useConversationsListHeight()
 
@@ -103,8 +119,8 @@ export default function ConversationsManage() {
     func ? func() : console.error('unknown key', key)
   }
 
-  function onActiveChange(value: string) {
-    setActiveConversationId(value)
+  async function onActiveChange(value: string) {
+    await setActiveConversationId(value)
   }
 
   const buttonsRender = ([,rightButton]: React.ReactNode[]) => [
@@ -112,10 +128,10 @@ export default function ConversationsManage() {
       type="primary"
       key={0}
       className="flex-1"
-      onClick={() => {
+      onClick={async () => {
         const item = createConversation({ title: DEFAULT_TITLE })
-        addConversation(item)
-        setActiveConversationId(item.id)
+        await addConversation(item)
+        await setActiveConversationId(item.id)
       }}
     >
       新对话

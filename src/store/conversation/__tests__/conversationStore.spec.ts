@@ -4,9 +4,9 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { createConversation, useConversationsStore } from '../conversationsStore'
 
 describe('conversationStore', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     const { result } = renderHook(() => useConversationsStore())
-    result.current.reset()
+    await result.current.reset()
   })
 
   it('should be a function', () => {
@@ -15,51 +15,51 @@ describe('conversationStore', () => {
     expect(result.current.conversations).toEqual([])
   })
 
-  it('add conversation', () => {
+  it('add conversation', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
     const conversation = createConversation()
 
-    act(() => {
-      result.current.addConversation(conversation)
+    await act(async () => {
+      await result.current.addConversation(conversation)
     })
 
     expect(result.current.conversations).toHaveLength(1)
     expect(result.current.conversations).toEqual([conversation])
   })
 
-  it('rename conversation', () => {
+  it('rename conversation', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
     const conversation = createConversation()
 
-    act(() => {
-      result.current.addConversation(conversation)
+    await act(async () => {
+      await result.current.addConversation(conversation)
     })
 
     expect(result.current.conversations).toHaveLength(1)
     expect(result.current.conversations).toEqual([conversation])
 
-    act(() => {
-      result.current.renameConversation(conversation.id, 'new name')
+    await act(async () => {
+      await result.current.renameConversation(conversation.id, 'new name')
     })
 
     expect(result.current.conversations[0].title).toEqual('new name')
   })
 
-  it('delete conversation', () => {
+  it('delete conversation', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
     const conversation = createConversation()
 
-    act(() => {
-      result.current.addConversation(conversation)
+    await act(async () => {
+      await result.current.addConversation(conversation)
     })
 
     expect(result.current.conversations).toHaveLength(1)
 
-    act(() => {
-      result.current.deleteConversation(conversation.id)
+    await act(async () => {
+      await result.current.deleteConversation(conversation.id)
     })
 
     expect(result.current.conversations).toHaveLength(0)
@@ -79,26 +79,26 @@ describe('conversationStore', () => {
     expect(result.current.conversations).toEqual([conversation, conversation2])
   })
 
-  it('clear conversations', () => {
+  it('clear conversations', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
     const conversation = createConversation()
 
-    act(() => {
-      result.current.addConversation(conversation)
+    await act(async () => {
+      await result.current.addConversation(conversation)
     })
 
     expect(result.current.conversations).toHaveLength(1)
 
-    act(() => {
-      result.current.clearConversations()
+    await act(async () => {
+      await result.current.clearConversations()
     })
 
     expect(result.current.conversations).toHaveLength(0)
     expect(result.current.activeConversationId).toEqual('')
   })
 
-  it('add text message', () => {
+  it('add text message', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
     const conversation = createConversation()
@@ -110,18 +110,18 @@ describe('conversationStore', () => {
       convId: conversation.id,
     }
 
-    act(() => {
-      result.current.addConversation(conversation)
+    await act(async () => {
+      await result.current.addConversation(conversation)
     })
 
-    act(() => {
-      result.current.addMessage(conversation.id, message)
+    await act(async () => {
+      await result.current.addMessage(message)
     })
 
-    expect(result.current.conversations[0].messages).toEqual([message])
+    expect(result.current.messages).toEqual([message])
   })
 
-  it('add image message', () => {
+  it('add image message', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
     const conversation = createConversation()
@@ -137,11 +137,14 @@ describe('conversationStore', () => {
       createAt: 1,
     }
 
-    act(() => {
-      result.current.addConversation(conversation)
-      result.current.addMessage(conversation.id, message)
+    await act(async () => {
+      await result.current.addConversation(conversation)
     })
 
-    expect(result.current.conversations[0].messages).toEqual([message])
+    await act(async () => {
+      await result.current.addMessage(message)
+    })
+
+    expect(result.current.messages).toEqual([message])
   })
 })

@@ -70,7 +70,11 @@ export async function chatCompletions(messages: API.MessageItem[], modelId: stri
 
 async function request(url: string, options?: RequestInit) {
   const { apiHost, apiKey } = useModelConfigStore.getState()
-  const _url = new URL(url, apiHost).toString()
+  // const _url = new URL(url, apiHost).toString()
+  const _url: URL | string = new URL(apiHost)
+  _url.pathname += url
+
+  // _url = _url.toString()
   const _option = {
     ...options,
     headers: {

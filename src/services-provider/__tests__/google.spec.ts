@@ -15,7 +15,6 @@ describe('gemini Service 测试', () => {
 
     expect(result).toEqual({
       contents: [{ role: 'user', parts: [{ text: 'Hello, how are you?' }] }],
-      system_instruction: { parts: [] },
     })
   })
 
@@ -34,21 +33,19 @@ describe('gemini Service 测试', () => {
         { role: 'model', parts: [{ text: 'Hi there!' }] },
         { role: 'user', parts: [{ text: 'How are you?' }] },
       ],
-      system_instruction: { parts: [] },
     })
   })
 
   it('应该正确转换包含图片的用户消息', () => {
     const messages: ChatMessage[] = [createMessage({ convId: '1', role: 'user', content: [
       { type: 'text', text: 'Hello, how are you?' },
-      { type: 'image_url', image_url: { uid: '123', name: 'test.png', size: 100, type: 'image/png', url: 'https://example.com/test.png' } },
+      { type: 'image_url', image_url: { uid: '123', name: 'test.png', size: 100, type: 'image/png', url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABgI' } },
     ] })]
     const service = new GeminiService()
     const result = service.transformMessages(messages)
 
     expect(result).toEqual({
-      contents: [{ role: 'user', parts: [{ text: 'Hello, how are you?' }, { inlineData: { mimeType: 'image/png', data: 'https://example.com/test.png' } }] }],
-      system_instruction: { parts: [] },
+      contents: [{ role: 'user', parts: [{ text: 'Hello, how are you?' }, { inlineData: { mimeType: 'image/png', data: 'iVBORw0KGgoAAAANSUhEUgAABgI' } }] }],
     })
   })
 
@@ -71,7 +68,6 @@ describe('gemini Service 测试', () => {
 
     expect(result).toEqual({
       contents: [{ role: 'user', parts: [{ text: '' }] }],
-      system_instruction: { parts: [] },
     })
   })
 })
