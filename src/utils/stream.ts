@@ -1,5 +1,6 @@
 /**
- * @see fock https://github.com/ant-design/x/blob/main/components/x-stream/index.ts
+ * @author ant-design
+ * @from https://github.com/ant-design/x/blob/main/components/x-stream/index.ts
  */
 
 /**
@@ -34,7 +35,7 @@ const isValidString = (str: string) => (str ?? '').trim() !== ''
  *
  * `
  */
-function splitStream() {
+function splitStream(_DEFAULT_STREAM_SEPARATOR = DEFAULT_STREAM_SEPARATOR) {
   // Buffer to store incomplete data chunks between transformations
   let buffer = ''
 
@@ -43,7 +44,7 @@ function splitStream() {
       buffer += streamChunk
 
       // Split the buffer based on the separator
-      const parts = buffer.split(DEFAULT_STREAM_SEPARATOR)
+      const parts = buffer.split(_DEFAULT_STREAM_SEPARATOR)
 
       // Enqueue all complete parts except for the last incomplete one
       parts.slice(0, -1).forEach((part) => {
@@ -91,11 +92,11 @@ export type SSEOutput = Partial<Record<SSEFields, any>>
  * - Double newline characters (`\n\n`) are used to separate individual events.
  * - Single newline characters (`\n`) are employed to separate line within an event.
  */
-function splitPart() {
+function splitPart(_DEFAULT_PART_SEPARATOR = DEFAULT_PART_SEPARATOR) {
   return new TransformStream<string, SSEOutput>({
     transform(partChunk, controller) {
       // Split the chunk into key-value pairs using the partSeparator
-      const lines = partChunk.split(DEFAULT_PART_SEPARATOR)
+      const lines = partChunk.split(_DEFAULT_PART_SEPARATOR).filter(Boolean)
 
       const sseEvent = lines.reduce<SSEOutput>((acc, line) => {
         const separatorIndex = line.indexOf(DEFAULT_KV_SEPARATOR)
@@ -141,6 +142,8 @@ export interface XStreamOptions<Output> {
    * @link https://developer.mozilla.org/en-US/docs/Web/API/TransformStream
    */
   transformStream?: TransformStream<string, Output>
+  DEFAULT_PART_SEPARATOR?: string
+  DEFAULT_STREAM_SEPARATOR?: string
 }
 
 type XReadableStream<R = SSEOutput> = ReadableStream<R> & AsyncGenerator<R>
@@ -164,8 +167,8 @@ function Stream<Output = SSEOutput>(options: XStreamOptions<Output>) {
       ? readableStream.pipeThrough(decoderStream).pipeThrough(transformStream)
       : readableStream
           .pipeThrough(decoderStream)
-          .pipeThrough(splitStream())
-          .pipeThrough(splitPart())
+          .pipeThrough(splitStream(options.DEFAULT_STREAM_SEPARATOR))
+          .pipeThrough(splitPart(options.DEFAULT_PART_SEPARATOR))
   ) as XReadableStream<Output>
 
   /** support async iterator */
