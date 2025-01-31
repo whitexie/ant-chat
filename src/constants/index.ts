@@ -5,6 +5,7 @@ export enum Role {
 }
 
 export const DEFAULT_TITLE = 'Untitled'
+export const DEFAULT_SYSTEM_MESSAGE = 'You are a helpful assistant.'
 
 export const ANT_CHAT_STRUCTURE = {
   type: 'Ant Chat',

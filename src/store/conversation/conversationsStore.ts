@@ -53,11 +53,17 @@ export const useConversationsStore = create<ConversationsStore>()(
 
     addConversation: async (conversation) => {
       await addConversations(conversation)
+
       set((state) => {
         state.conversations.splice(0, 0, conversation)
-        // 自动设置为当前会话
-        state.activeConversationId = conversation.id
       })
+
+      await get().setActiveConversationId(conversation.id)
+      await get().addMessage(createMessage({
+        convId: conversation.id,
+        role: Role.SYSTEM,
+        content: useModelConfigStore.getState().systemMessage,
+      }))
     },
 
     renameConversation: async (id, title) => {

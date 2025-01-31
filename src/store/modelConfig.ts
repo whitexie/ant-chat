@@ -1,3 +1,4 @@
+import { DEFAULT_SYSTEM_MESSAGE } from '@/constants'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
@@ -13,6 +14,7 @@ const initialState: ModelConfig = {
   apiHost: '',
   apiKey: '',
   temperature: 0.7,
+  systemMessage: DEFAULT_SYSTEM_MESSAGE,
 }
 
 export type ModelConfigStore = ModelConfig & Action

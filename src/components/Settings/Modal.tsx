@@ -118,6 +118,11 @@ export default function SettingsModal({ open, onClose, config, onSave }: Setting
             tooltip={{ zIndex: 1001 }}
           />
         </Form.Item>
+        <div className="block pt-3">
+          <Form.Item label="默认提示词" name="systemMessage">
+            <Input.TextArea placeholder="创建新对话时默认的提示词" />
+          </Form.Item>
+        </div>
       </Form>
     </Modal>
   )

@@ -20,6 +20,7 @@ interface ModelConfig {
   apiKey: string
   model: string
   temperature: number
+  systemMessage: string
 }
 
 type RequireKey<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
