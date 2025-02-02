@@ -1,9 +1,9 @@
 import type { FormInstance, SelectProps } from 'antd'
-import { getModels } from '@/api'
+import { getProviderModels } from '@/services-provider'
+import { useModelConfigStore } from '@/store/modelConfig'
 import { ReloadOutlined } from '@ant-design/icons'
-import { useRequest } from 'ahooks'
 import { App, Button, Form, Input, Select, Slider } from 'antd'
-import { forwardRef, Suspense, useImperativeHandle, useMemo } from 'react'
+import { forwardRef, Suspense, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 
 function TemperatureHelp() {
   return (
@@ -48,52 +48,61 @@ interface SettingsModalProps {
 export default forwardRef<FormInstance, SettingsModalProps>(({ initialValues, header, children }, ref) => {
   const [form] = Form.useForm<ModelConfig>()
   const { message } = App.useApp()
+  const active = useModelConfigStore(state => state.active)
+  const [models, setModels] = useState<API.ChatModel[]>([])
+  const [loading, setLoading] = useState(false)
 
   const apiHost = Form.useWatch('apiHost', form)
   const apiKey = Form.useWatch('apiKey', form)
-
-  const { data: models, refresh, loading } = useRequest(
-    () => {
-      if (!apiHost || !apiKey || !open)
-        return Promise.resolve([])
-
-      try {
-        const result = getModels(apiHost, apiKey)
-        return result
-      }
-      catch (error) {
-        return Promise.reject(error)
-      }
-    },
-    {
-      debounceWait: 300,
-      // manual: true,
-      refreshDeps: [apiHost, apiKey, open],
-      onError: (error) => {
-        message.error(`获取模型失败，请检查 API Host 和 API Key\n${error.message}`)
-      },
-    },
-  )
 
   const modelOptions = useMemo(() => {
     return models?.map(model => ({ label: model.id, value: model.id }))
   }, [models])
 
+  async function handleRefreshModels() {
+    if (!apiHost || !apiKey) {
+      console.log('no apiHost or apiKey')
+      return
+    }
+    await initModels(apiHost, apiKey)
+  }
+
+  async function initModels(apiHost: string, apiKey: string) {
+    try {
+      setLoading(true)
+      const models = await getProviderModels(active, apiHost, apiKey)
+      setModels(models)
+    }
+    catch (e) {
+      const error = e as Error
+      message.error(`获取模型失败，请检查 API Host 和 API Key\n${error.message}`)
+    }
+    finally {
+      setLoading(false)
+    }
+  }
+
   useImperativeHandle(ref, () => form)
+
+  useEffect(() => {
+    if (initialValues.apiHost && initialValues.apiKey) {
+      initModels(initialValues.apiHost, initialValues.apiKey)
+    }
+  }, [active])
 
   return (
     <Form requiredMark form={form} layout="vertical" initialValues={initialValues}>
       {header}
       <Form.Item label="API Host" name="apiHost" rules={apiHostRules}>
-        <Input />
+        <Input onBlur={handleRefreshModels} />
       </Form.Item>
       <Form.Item label="API Key" name="apiKey" rules={[CommonRules]}>
-        <Input.Password />
+        <Input.Password onBlur={handleRefreshModels} />
       </Form.Item>
       <Form.Item label="Model" name="model" rules={[CommonRules]}>
         <SelectHoc
           showSearch
-          onRefresh={refresh}
+          onRefresh={handleRefreshModels}
           loading={loading}
           options={modelOptions}
           placeholder="请选择模型"

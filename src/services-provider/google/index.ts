@@ -4,6 +4,7 @@ import type {
 } from '../interface'
 import type {
   GeminiRequestBody,
+  GetModelsResponse,
   ModelContent,
   UserContent,
 } from './interface'
@@ -36,6 +37,23 @@ class GeminiService extends BaseService<GeminiRequestBody> {
     if (!this.apiHost) {
       throw new Error('apiHost is required')
     }
+  }
+
+  async getModels(apiHost: string, apiKey: string): Promise<API.ChatModel[]> {
+    const url = `${apiHost}/models?key=${apiKey}`
+    const response = await fetch(url, {
+      method: 'GET',
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${url}: ${response.statusText}`)
+    }
+    const data = await response.json() as GetModelsResponse
+
+    return data.models.map((model) => {
+      const id = model.name.replace('models/', '')
+      return { id, object: 'model', owned_by: 'google' }
+    })
   }
 
   transformImage(item: (API.TextContent | API.ImageContent)[]) {

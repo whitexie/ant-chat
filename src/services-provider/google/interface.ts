@@ -30,3 +30,19 @@ export interface GeminiRequestBody {
     { googleSearch: object },
   ]
 }
+
+export interface GeminiModel {
+  name: string
+  version: string
+  displayName: string
+  description: string
+  inputTokenLimit: number
+  outputTokenLimit: number
+  temperature: number
+  topP: number
+  topK: number
+}
+
+export interface GetModelsResponse {
+  models: GeminiModel[]
+}

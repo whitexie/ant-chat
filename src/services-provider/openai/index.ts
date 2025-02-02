@@ -11,7 +11,11 @@ interface OpenAIRequestBody {
   model: string
   messages: MessageItem[]
   stream: boolean
+}
 
+interface ModelsResponse {
+  object: 'list'
+  data: API.ChatModel[]
 }
 
 const DEFAULT_OPTIONS = {
@@ -24,6 +28,22 @@ export default class OpenAIService extends BaseService<OpenAIRequestBody> {
   constructor(options?: Partial<ServiceConstructorOptions>) {
     const _options = Object.assign({ ...DEFAULT_OPTIONS }, options)
     super(_options)
+  }
+
+  async getModels(apiHost: string, apiKey: string): Promise<API.ChatModel[]> {
+    const url = `${apiHost}/models`
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${url}: ${response.statusText}`)
+    }
+
+    return ((await response.json()) as ModelsResponse).data
   }
 
   transformMessages(_messages: ChatMessage[]): MessageItem[] {
