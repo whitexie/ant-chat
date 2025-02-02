@@ -1,49 +1,14 @@
-import { Stream } from '@/utils'
-
-interface GeminiOptions {
-  apiHost?: string
-  apiKey: string
-  model?: string
-}
-
-interface TextPart {
-  text: string
-}
-
-interface ImagePart {
-  inlineData: {
-    mimeType: string
-    data: string
-  }
-}
-
-type Part = TextPart | ImagePart
-
-interface UserContent {
-  role: 'user'
-  parts: Part[]
-}
-
-interface ModelContent {
-  role: 'model'
-  parts: TextPart[]
-}
-
-interface GeminiRequestBody {
-  contents: (UserContent | ModelContent)[]
-  system_instruction?: {
-    parts: TextPart[]
-  }
-  tools?: [
-    { googleSearch: object },
-  ]
-}
-
-interface ChatCompletionsCallbacks {
-  onUpdate?: (message: string) => void
-  onSuccess?: (message: string) => void
-  onError?: (message: Error) => void
-}
+import type {
+  ChatCompletionsCallbacks,
+  ServiceConstructorOptions,
+} from '../interface'
+import type {
+  GeminiRequestBody,
+  ModelContent,
+  UserContent,
+} from './interface'
+import BaseService from '../base'
+import { parseSse } from '../util'
 
 const DEFAULT_API_HOST = 'https://ysansan-gemini.deno.dev/v1beta'
 const DEFAULT_MODEL = 'gemini-1.5-flash-latest'
@@ -51,15 +16,14 @@ const DEFAULT_MODEL = 'gemini-1.5-flash-latest'
 const DEFAULT_STREAM_SEPARATOR = '\r\n\r\n'
 const DEFAULT_PART_SEPARATOR = '\r\n'
 
-class GeminiService {
-  private apiHost: string
-  private apiKey: string
-  private model: string
-
-  constructor(options?: GeminiOptions) {
-    this.apiHost = options?.apiHost || DEFAULT_API_HOST
-    this.apiKey = options?.apiKey || ''
-    this.model = options?.model || DEFAULT_MODEL
+class GeminiService extends BaseService<GeminiRequestBody> {
+  constructor(options?: Partial<ServiceConstructorOptions>) {
+    const _options = Object.assign({
+      apiHost: DEFAULT_API_HOST,
+      apiKey: '',
+      model: DEFAULT_MODEL,
+    }, options)
+    super(_options)
   }
 
   validator() {
@@ -120,8 +84,6 @@ class GeminiService {
   async sendChatCompletions(messages: ChatMessage[], callbacks?: ChatCompletionsCallbacks) {
     this.validator()
 
-    // const { abort, signal } = new AbortController()
-
     const url = `${this.apiHost}/models/${this.model}:streamGenerateContent?alt=sse&key=${this.apiKey}`
     const response = await fetch(url, {
       method: 'POST',
@@ -132,7 +94,6 @@ class GeminiService {
         'Connection': 'keep-alive',
       },
       body: JSON.stringify(this.transformMessages(messages)),
-      // signal,
     })
 
     if (!response.ok) {
@@ -147,39 +108,12 @@ class GeminiService {
       }
     }
 
-    await parseSse(response.body!, callbacks)
+    await parseSse({ readableStream: response.body!, DEFAULT_STREAM_SEPARATOR, DEFAULT_PART_SEPARATOR }, callbacks)
+  }
+
+  transformRequestBody(_messages: ChatMessage[]): GeminiRequestBody {
+    return this.transformMessages(_messages)
   }
 }
 
 export default GeminiService
-
-async function parseSse(readableStream: ReadableStream, callbacks?: ChatCompletionsCallbacks) {
-  let __content__ = ''
-
-  for await (const chunk of Stream({ readableStream, DEFAULT_STREAM_SEPARATOR, DEFAULT_PART_SEPARATOR })) {
-    if (!chunk.data)
-      continue
-
-    try {
-      const json = JSON.parse(chunk.data)
-      const content = json.candidates?.[0]?.content?.parts?.[0]?.text
-      if (content) {
-        __content__ += content
-        // console.log('onupdate => ', __content__)
-        callbacks?.onUpdate?.(__content__)
-      }
-    }
-    catch (e) {
-      const error = e as Error
-      if (!chunk.data.includes('[DONE]')) {
-        console.error('parse Stream error', error)
-      }
-      callbacks?.onError?.(error)
-    }
-  }
-
-  // console.log('onSuccess => ', __content__)
-  callbacks?.onSuccess?.(__content__)
-
-  return __content__
-}
