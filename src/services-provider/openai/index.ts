@@ -2,7 +2,7 @@ import type {
   ChatCompletionsCallbacks,
   ServiceConstructorOptions,
 } from '../interface'
-import type { MessageItem } from './interface'
+import type { MessageContent, MessageItem } from './interface'
 import { pick } from 'lodash-es'
 import BaseService from '../base'
 import { parseSse } from '../util'
@@ -15,7 +15,7 @@ interface OpenAIRequestBody {
 
 interface ModelsResponse {
   object: 'list'
-  data: API.IModel[]
+  data: IModel[]
 }
 
 const DEFAULT_OPTIONS = {
@@ -30,7 +30,7 @@ export default class OpenAIService extends BaseService<OpenAIRequestBody> {
     super(_options)
   }
 
-  async getModels(apiHost: string, apiKey: string): Promise<API.IModel[]> {
+  async getModels(apiHost: string, apiKey: string): Promise<IModel[]> {
     const url = `${apiHost}/models`
     const response = await fetch(url, {
       method: 'GET',
@@ -92,11 +92,11 @@ function hasImageMessages(messages: ChatMessage[]): boolean {
   )
 }
 
-function convertTextToContentArray(content: string): MessageItem['content'] {
+function convertTextToContentArray(content: string): MessageContent {
   return [{ type: 'text', text: content }]
 }
 
-function mergeContentArrayToString(contents: Exclude<ChatMessage['content'], string>): string {
+function mergeContentArrayToString(contents: Exclude<MessageContent, string>): string {
   return contents.reduce((acc, content) =>
     content.type === 'text' ? acc + content.text : acc, '')
 }
@@ -105,7 +105,7 @@ function transformMessageItem(message: ChatMessage, hasImage: boolean): MessageI
   const base = { role: message.role }
 
   if (hasImage) {
-    const content: MessageItem['content'] = typeof message.content === 'string'
+    const content: MessageContent = typeof message.content === 'string'
       ? convertTextToContentArray(message.content)
       : message.content.map((c) => {
           if (c.type === 'image_url') {

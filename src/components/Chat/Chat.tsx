@@ -19,10 +19,11 @@ import BubbleFooter from './BubbleFooter'
 import ChatSender from './ChatSender'
 import { roles } from './roles'
 
-function createMessageContent(message: string, images: API.IImage[]) {
+function createMessageContent(message: string, images: IImage[]) {
   if (!images.length)
     return message
-  const content: (API.ImageContent | API.TextContent)[] = images.map((item) => {
+
+  const content: (ImageContent | TextContent)[] = images.map((item) => {
     return {
       type: 'image_url',
       image_url: { ...item },
@@ -89,7 +90,7 @@ export default function Chat() {
     }
   }
 
-  async function onSubmit(message: string, images: API.IImage[]) {
+  async function onSubmit(message: string, images: IImage[]) {
     let id = activeConversationId
     let isNewConversation = false
     // 如果当前没有会话，则创建一个

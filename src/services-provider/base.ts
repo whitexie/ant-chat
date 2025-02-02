@@ -38,7 +38,7 @@ export default abstract class BaseService<TransformRequestBodyResult> {
     this.model = model
   }
 
-  abstract getModels(_apiHost: string, _apiKey: string): Promise<API.IModel[]>
+  abstract getModels(_apiHost: string, _apiKey: string): Promise<IModel[]>
 
   abstract transformRequestBody(messages: ChatMessage[]): TransformRequestBodyResult
 

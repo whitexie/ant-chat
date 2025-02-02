@@ -1,5 +1,5 @@
 // 提取消息渲染逻辑到独立组件
-export default function MessageContent({ content }: { content: API.MessageContent }) {
+export default function MessageContent({ content }: { content: MessageContent }) {
   if (typeof content === 'string') {
     return <span>{content}</span>
   }

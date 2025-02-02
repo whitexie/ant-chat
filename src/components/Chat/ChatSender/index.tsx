@@ -7,14 +7,14 @@ import ImageUpload from './ImageUpload'
 
 interface ChatSenderProps {
   loading: boolean
-  onSubmit: (message: string, images: API.IImage[]) => void
+  onSubmit: (message: string, images: IImage[]) => void
   onCancel?: () => void
 }
 export default function ChatSender({ loading, onSubmit, onCancel }: ChatSenderProps) {
   const { token } = useToken()
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
-  const [images, setImages] = useState<API.IImage[]>([])
+  const [images, setImages] = useState<IImage[]>([])
 
   const prefix = (
     <div className="flex items-center h-full gap-1">

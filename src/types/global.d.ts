@@ -1,5 +1,36 @@
 type CreateAt = number
 
+interface IModel {
+  id: string
+  object: 'model'
+  owned_by: string
+}
+
+interface TextContent {
+  type: 'text'
+  text: string
+}
+
+interface ImageContent {
+  type: 'image_url'
+  image_url: IImage
+}
+
+interface IImage {
+  uid: string
+  name: string
+  size: number
+  type: string
+  url: string
+}
+
+type MessageContent = string | (TextContent | ImageContent)[]
+
+interface MessageItem {
+  role: string
+  content: MessageContent
+}
+
 interface IConversation {
   id: string
   title: string
@@ -10,7 +41,7 @@ interface ChatMessage {
   id: string
   convId: string
   role: Role
-  content: API.MessageContent
+  content: MessageContent
   createAt: CreateAt
   status?: 'success' | 'error' | 'loading'
 }

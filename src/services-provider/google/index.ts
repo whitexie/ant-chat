@@ -39,7 +39,7 @@ class GeminiService extends BaseService<GeminiRequestBody> {
     }
   }
 
-  async getModels(apiHost: string, apiKey: string): Promise<API.IModel[]> {
+  async getModels(apiHost: string, apiKey: string): Promise<IModel[]> {
     const url = `${apiHost}/models?key=${apiKey}`
     const response = await fetch(url, {
       method: 'GET',
@@ -56,7 +56,7 @@ class GeminiService extends BaseService<GeminiRequestBody> {
     })
   }
 
-  transformImage(item: (API.TextContent | API.ImageContent)[]) {
+  transformImage(item: (TextContent | ImageContent)[]) {
     return item.map((item) => {
       if (item.type === 'image_url') {
         const [, data] = item.image_url.url.split(';base64,')

@@ -6,8 +6,8 @@ import { pick } from 'lodash-es'
 import { useState } from 'react'
 
 interface ImagePreviewProps {
-  items: API.IImage[]
-  onChange: (files: API.IImage[]) => void
+  items: IImage[]
+  onChange: (files: IImage[]) => void
 }
 
 function imageFileToBase64(file: File) {
@@ -37,17 +37,17 @@ export default function ImageUpload({ items = [], onChange }: ImagePreviewProps)
     </button>
   )
 
-  async function handleChange(info: UploadChangeParam<UploadFile<API.IImage>>) {
+  async function handleChange(info: UploadChangeParam<UploadFile<IImage>>) {
     const { fileList } = info
     const files = await Promise.all(fileList.map(async (file) => {
       if (file.url) {
-        return pick(file, ['uid', 'name', 'size', 'type', 'url']) as API.IImage
+        return pick(file, ['uid', 'name', 'size', 'type', 'url']) as IImage
       }
       const url = await imageFileToBase64(file.originFileObj as File)
       return {
         ...pick(file, ['uid', 'name', 'size', 'type']),
         url,
-      } as API.IImage
+      } as IImage
     }))
     onChange(files)
   }

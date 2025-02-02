@@ -49,7 +49,7 @@ export default forwardRef<FormInstance, SettingsModalProps>(({ initialValues, he
   const [form] = Form.useForm<ModelConfig>()
   const { message } = App.useApp()
   const active = useModelConfigStore(state => state.active)
-  const [models, setModels] = useState<API.IModel[]>([])
+  const [models, setModels] = useState<IModel[]>([])
   const [loading, setLoading] = useState(false)
 
   const apiHost = Form.useWatch('apiHost', form)
