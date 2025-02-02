@@ -1,4 +1,5 @@
 /**
+ * @description 基于ant-design/x 的 Stream 修改
  * @author ant-design
  * @from https://github.com/ant-design/x/blob/main/components/x-stream/index.ts
  */
