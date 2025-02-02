@@ -1,6 +1,7 @@
 import { DEFAULT_TITLE, Role } from '@/constants'
 import { getNow, uuid } from '@/utils'
 import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
 import { initialState, type StoreState } from './initialState'
 
 interface StoreActions {
@@ -9,12 +10,19 @@ interface StoreActions {
 export type ConversationsStore = StoreState & StoreActions
 
 // 创建基础 store
-export const useConversationsStore = create<ConversationsStore>()(set => ({
-  ...initialState,
-  reset: () => {
-    set(initialState)
-  },
-}))
+export const useConversationsStore = create<ConversationsStore>()(
+  devtools(
+    set => ({
+      ...initialState,
+      reset: () => {
+        set(initialState)
+      },
+    }),
+    {
+      enabled: true,
+    },
+  ),
+)
 
 export function createConversation(option?: Partial<IConversation>) {
   return Object.assign({

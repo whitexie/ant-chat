@@ -1,7 +1,7 @@
 import Chat from '@/components/Chat'
 import ConversationsManage from '@/components/Conversations/ConversationsManage'
 import Header from '@/components/Header'
-import { initConversationsAction } from '@/store/conversation'
+import { initConversationsListAction } from '@/store/conversation'
 import { useThemeStore } from '@/store/theme'
 import { App, ConfigProvider, Layout, theme } from 'antd'
 import { useEffect } from 'react'
@@ -14,7 +14,7 @@ function AntChatApp() {
     : theme.defaultAlgorithm
 
   useEffect(() => {
-    initConversationsAction()
+    initConversationsListAction()
   }, [])
 
   return (

@@ -4,6 +4,7 @@ import {
   addConversationsAction,
   createConversation,
   deleteMessageAction,
+  initCoversationsTitle,
   onRequestAction,
   refreshRequestAction,
   setRequestStatus,
@@ -112,16 +113,8 @@ export default function Chat() {
 
     // 初始化会话标题
     if (currentConversation?.title === DEFAULT_TITLE || isNewConversation) {
-      initConversationTitle(id, messageItem)
+      initCoversationsTitle()
     }
-  }
-
-  async function initConversationTitle(id: string, message: ChatMessage) {
-    // TODO 获取会话标题
-    // const title = await getConversationTitle([...messages, message], model)
-
-    // renameConversationsAction(id, title)
-    console.log('initConversationTitle', id, message)
   }
 
   return (

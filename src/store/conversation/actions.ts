@@ -1,5 +1,5 @@
 import type { StoreState } from './initialState'
-import { Role } from '@/constants'
+import { Role, TITLE_PROMPT } from '@/constants'
 import {
   addConversations,
   addMessage,
@@ -12,9 +12,10 @@ import {
   renameConversations,
   updateMessage,
 } from '@/db'
+import { getServiceProviderConstructor } from '@/services-provider'
 import GeminiService from '@/services-provider/google'
 import { produce } from 'immer'
-import { getActiveModelConfig } from '../modelConfig'
+import { getActiveModelConfig, useModelConfigStore } from '../modelConfig'
 import { createMessage, useConversationsStore } from './conversationsStore'
 
 export async function setActiveConversationsId(id: string) {
@@ -34,6 +35,8 @@ export function setRequestStatus(status: StoreState['requestStatus']) {
 
 export async function addConversationsAction(conversation: IConversation) {
   await addConversations(conversation)
+  const content = getActiveModelConfig().systemMessage
+  await addMessage(createMessage({ convId: conversation.id, role: Role.SYSTEM, content }))
 
   useConversationsStore.setState(state => produce(state, (draft) => {
     draft.conversations.splice(0, 0, conversation)
@@ -79,11 +82,43 @@ export async function clearConversationsAction() {
   }))
 }
 
-export async function initConversationsAction() {
+export async function initConversationsListAction() {
   useConversationsStore.getState().reset()
   const conversations = await fetchConversations(1, 100)
-  await clearConversationsAction()
-  await importConversationsAction(conversations)
+
+  useConversationsStore.setState(state => produce(state, (draft) => {
+    draft.conversations = conversations
+  }))
+}
+
+export async function initCoversationsTitle() {
+  const { messages } = useConversationsStore.getState()
+  const { active } = useModelConfigStore.getState()
+  const config = getActiveModelConfig()
+
+  const text = messages.map((item) => {
+    const { content } = item
+
+    if (typeof content === 'string') {
+      return content
+    }
+    return content.filter(item => item.type === 'text').map(item => item.text).filter(Boolean).join('\n')
+  }).join('\n————————————————————\n')
+
+  const content = TITLE_PROMPT.replace('pGqat5J/L@~U', text)
+  const Service = getServiceProviderConstructor(active)
+  const service = new Service(config)
+
+  service.sendChatCompletions(
+    [
+      { ...messages[0], content },
+    ],
+    {
+      onSuccess: (title) => {
+        renameConversationsAction(messages[0].convId, title)
+      },
+    },
+  )
 }
 
 /* ============================== messages ============================== */

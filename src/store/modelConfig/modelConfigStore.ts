@@ -31,29 +31,31 @@ const initialState: ModelConfigV2 = {
 export type ModelConfigStore = ModelConfigV2 & Action
 
 export const useModelConfigStore = create<ModelConfigStore>()(
-  devtools(persist(
-    set => ({
-      ...structuredClone(initialState),
-      reset: () => {
-        set(structuredClone(initialState))
-      },
-    }),
-    {
-      name: 'model-config',
-      storage: createJSONStorage(() => localStorage),
-      version: 1,
-      migrate: (state, version) => {
-        if (version === 0) {
-          const newState = structuredClone(initialState)
-          Object.assign(newState.configMapping.Gemini, state as ModelConfig)
+  devtools(
+    persist(
+      set => ({
+        ...structuredClone(initialState),
+        reset: () => {
+          set(structuredClone(initialState))
+        },
+      }),
+      {
+        name: 'model-config',
+        storage: createJSONStorage(() => localStorage),
+        version: 1,
+        migrate: (state, version) => {
+          if (version === 0) {
+            const newState = structuredClone(initialState)
+            Object.assign(newState.configMapping.Gemini, state as ModelConfig)
 
-          return newState
-        }
+            return newState
+          }
 
-        return state
+          return state
+        },
       },
-    },
-  )),
+    ),
+  ),
 )
 
 export function setConfigAction(config: ModelConfig) {

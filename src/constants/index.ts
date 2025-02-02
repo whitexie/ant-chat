@@ -16,3 +16,18 @@ export const ANT_CHAT_STRUCTURE = {
 }
 
 export const ANT_CHAT_FILE_TYPE = { description: 'ant chat files', appcept: { 'text/plain': ['.antchat'] } }
+
+export const TITLE_PROMPT = `Based on the chat history, give this conversation a name.
+Keep it short - 10 characters max, no quotes.
+Use 简体中文.
+Just provide the name, nothing else.
+
+Here's the conversation:
+--------------------------------
+pGqat5J/L@~U
+--------------------------------
+Name this conversation in 10 characters or less.
+Use 简体中文.
+Only give the name, nothing else.
+The name is:
+`
