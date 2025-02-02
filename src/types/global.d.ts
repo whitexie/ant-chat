@@ -16,11 +16,24 @@ interface ChatMessage {
 }
 
 interface ModelConfig {
+  name?: string
   apiHost: string
   apiKey: string
   model: string
   temperature: number
   systemMessage: string
+}
+
+interface ModelConfigMapping {
+  [key in 'Gemini' | 'DeepSeek' | 'openAI']: ModelConfig
+  [key: string]: ModelConfig
+}
+
+type ModelConfigMappingKey = keyof ModelConfigMapping
+
+interface ModelConfigV2 {
+  active: ModelConfigMappingKey
+  configMapping: ModelConfigMapping
 }
 
 type RequireKey<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>

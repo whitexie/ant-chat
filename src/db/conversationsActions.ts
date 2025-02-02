@@ -4,6 +4,10 @@ export async function getConversationsById(id: string) {
   return await db.conversations.get(id)
 }
 
+export async function conversationsExists(id: string) {
+  return !!(await getConversationsById(id))
+}
+
 export async function addConversations(conversation: IConversation) {
   try {
     return await db.conversations.add(conversation)

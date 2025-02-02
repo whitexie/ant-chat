@@ -1,13 +1,19 @@
 import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
-import { getConversationTitle } from '@/api'
 import { DEFAULT_TITLE, Role } from '@/constants'
-import { activeConversationSelector, createConversation, requestStatusSelector, useConversationsStore } from '@/store/conversation'
-import { useModelConfigStore } from '@/store/modelConfig'
+import {
+  addConversationsAction,
+  createConversation,
+  deleteMessageAction,
+  onRequestAction,
+  refreshRequestAction,
+  setRequestStatus,
+  useConversationsStore,
+} from '@/store/conversation'
+import { useActiveModelConfig } from '@/store/modelConfig'
 import { clipboardWriteText, formatTime, getNow, uuid } from '@/utils'
 import { Bubble } from '@ant-design/x'
 import { App, Typography } from 'antd'
 import { useRef } from 'react'
-import { useShallow } from 'zustand/shallow'
 import BubbleFooter from './BubbleFooter'
 import ChatSender from './ChatSender'
 import { roles } from './roles'
@@ -28,15 +34,12 @@ function createMessageContent(message: string, images: API.IImage[]) {
 export default function Chat() {
   const abortRef = useRef<() => void>(() => {})
   const { message: messageFunc } = App.useApp()
-  const { activeConversation, onRequest, refreshRequest, deleteMessage, renameConversation } = useConversationsStore(useShallow(activeConversationSelector))
-  const { requestStatus, setRequestStatus } = useConversationsStore(useShallow(requestStatusSelector))
-  const addConversation = useConversationsStore(state => state.addConversation)
   const messages = useConversationsStore(state => state.messages)
-  const activeConversationId = activeConversation?.id || ''
-  const currentConversation = activeConversation
-  const model = useModelConfigStore(state => state.model)
+  const activeConversationId = useConversationsStore(state => state.activeConversationId)
+  const currentConversation = useConversationsStore(state => state.conversations.find(item => item.id === activeConversationId))
+  const { model } = useActiveModelConfig()
 
-  const isLoading = requestStatus === 'loading'
+  const isLoading = useConversationsStore(state => state.requestStatus === 'loading')
 
   const bubbleList = messages.map((msg) => {
     const { id: key, role, content, status, createAt } = msg
@@ -68,8 +71,8 @@ export default function Chat() {
   async function handleFooterButtonClick(buttonName: string, message: ChatMessage) {
     const mapping = {
       copy: () => copyMessage(message),
-      refresh: () => refreshRequest(activeConversationId, message, model),
-      delete: () => deleteMessage(message.id),
+      refresh: () => refreshRequestAction(activeConversationId, message, model),
+      delete: () => deleteMessageAction(message.id),
     }
     mapping[buttonName as keyof typeof mapping]?.()
   }
@@ -91,7 +94,7 @@ export default function Chat() {
     // 如果当前没有会话，则创建一个
     if (!activeConversationId) {
       const conversation = createConversation()
-      await addConversation(conversation)
+      await addConversationsAction(conversation)
       id = conversation.id
       isNewConversation = true
     }
@@ -105,21 +108,20 @@ export default function Chat() {
     }
 
     // 发送请求
-    await onRequest(id, messageItem, model)
+    await onRequestAction(id, messageItem, model)
 
     // 初始化会话标题
-    if (
-      (currentConversation && currentConversation.title === DEFAULT_TITLE)
-      || isNewConversation
-    ) {
+    if (currentConversation?.title === DEFAULT_TITLE || isNewConversation) {
       initConversationTitle(id, messageItem)
     }
   }
 
   async function initConversationTitle(id: string, message: ChatMessage) {
-    const title = await getConversationTitle([...messages, message], model)
+    // TODO 获取会话标题
+    // const title = await getConversationTitle([...messages, message], model)
 
-    renameConversation(id, title)
+    // renameConversationsAction(id, title)
+    console.log('initConversationTitle', id, message)
   }
 
   return (

@@ -1,18 +1,13 @@
 import { Role } from '@/constants'
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { createConversation, useConversationsStore } from '../conversationsStore'
+import { addConversationsAction, addMessageAction, clearConversationsAction, deleteConversationsAction, deleteMessageAction, importConversationsAction, renameConversationsAction, updateMessageAction } from '../actions'
+import { createConversation, createMessage, useConversationsStore } from '../conversationsStore'
 
 describe('conversationStore', () => {
   beforeEach(async () => {
     const { result } = renderHook(() => useConversationsStore())
     await result.current.reset()
-  })
-
-  it('should be a function', () => {
-    const { result } = renderHook(() => useConversationsStore())
-
-    expect(result.current.conversations).toEqual([])
   })
 
   it('add conversation', async () => {
@@ -21,7 +16,7 @@ describe('conversationStore', () => {
     const conversation = createConversation()
 
     await act(async () => {
-      await result.current.addConversation(conversation)
+      await addConversationsAction(conversation)
     })
 
     expect(result.current.conversations).toHaveLength(1)
@@ -34,14 +29,14 @@ describe('conversationStore', () => {
     const conversation = createConversation()
 
     await act(async () => {
-      await result.current.addConversation(conversation)
+      await addConversationsAction(conversation)
     })
 
     expect(result.current.conversations).toHaveLength(1)
     expect(result.current.conversations).toEqual([conversation])
 
     await act(async () => {
-      await result.current.renameConversation(conversation.id, 'new name')
+      await renameConversationsAction(conversation.id, 'new name')
     })
 
     expect(result.current.conversations[0].title).toEqual('new name')
@@ -53,30 +48,30 @@ describe('conversationStore', () => {
     const conversation = createConversation()
 
     await act(async () => {
-      await result.current.addConversation(conversation)
+      await addConversationsAction(conversation)
     })
 
     expect(result.current.conversations).toHaveLength(1)
 
     await act(async () => {
-      await result.current.deleteConversation(conversation.id)
+      await deleteConversationsAction(conversation.id)
     })
 
     expect(result.current.conversations).toHaveLength(0)
   })
 
-  it('import conversation', () => {
+  it('import conversation', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
     const conversation = createConversation()
     const conversation2 = createConversation()
 
-    act(() => {
-      result.current.importConversations([conversation, conversation2])
+    await act(async () => {
+      await importConversationsAction([conversation, conversation2])
     })
 
     expect(result.current.conversations).toHaveLength(2)
-    expect(result.current.conversations).toEqual([conversation, conversation2])
+    expect(result.current.conversations).toEqual([conversation2, conversation])
   })
 
   it('clear conversations', async () => {
@@ -85,66 +80,105 @@ describe('conversationStore', () => {
     const conversation = createConversation()
 
     await act(async () => {
-      await result.current.addConversation(conversation)
+      await addConversationsAction(conversation)
     })
 
     expect(result.current.conversations).toHaveLength(1)
 
     await act(async () => {
-      await result.current.clearConversations()
+      await clearConversationsAction()
     })
 
     expect(result.current.conversations).toHaveLength(0)
     expect(result.current.activeConversationId).toEqual('')
   })
 
-  it('add text message', async () => {
-    const { result } = renderHook(() => useConversationsStore())
+  describe('messages actions', () => {
+    it('add text message', async () => {
+      const { result } = renderHook(() => useConversationsStore())
 
-    const conversation = createConversation()
-    const message: ChatMessage = {
-      id: '1',
-      role: Role.USER,
-      content: 'test',
-      createAt: 1,
-      convId: conversation.id,
-    }
+      const conversation = createConversation()
+      const message: ChatMessage = {
+        id: '1',
+        role: Role.USER,
+        content: 'test',
+        createAt: 1,
+        convId: conversation.id,
+      }
 
-    await act(async () => {
-      await result.current.addConversation(conversation)
+      await act(async () => {
+        await addConversationsAction(conversation)
+      })
+
+      await act(async () => {
+        await addMessageAction(message)
+      })
+
+      expect(result.current.messages).toEqual([message])
     })
 
-    await act(async () => {
-      await result.current.addMessage(message)
+    it('add image message', async () => {
+      const { result } = renderHook(() => useConversationsStore())
+
+      const conversation = createConversation()
+
+      const message: ChatMessage = createMessage({
+        content: [
+          { type: 'image_url', image_url: { uid: '1', name: 'test', url: 'https://example.com/image.jpg', size: 100, type: 'image/jpeg' } },
+          { type: 'text', text: 'test' },
+        ],
+        convId: conversation.id,
+      })
+
+      await act(async () => {
+        await addConversationsAction(conversation)
+      })
+
+      await act(async () => {
+        await addMessageAction(message)
+      })
+
+      expect(result.current.messages).toEqual([message])
     })
 
-    expect(result.current.messages).toEqual([message])
-  })
+    it('update message', async () => {
+      const { result } = renderHook(() => useConversationsStore())
 
-  it('add image message', async () => {
-    const { result } = renderHook(() => useConversationsStore())
+      const conversation = createConversation()
+      const message = createMessage({ convId: conversation.id, role: Role.USER, content: 'test', createAt: 1 })
 
-    const conversation = createConversation()
+      const newMessage = { ...message, content: 'new content' }
 
-    const message: ChatMessage = {
-      id: '1',
-      role: Role.USER,
-      content: [
-        { type: 'image_url', image_url: { uid: '1', name: 'test', url: 'https://example.com/image.jpg', size: 100, type: 'image/jpeg' } },
-        { type: 'text', text: 'test' },
-      ],
-      convId: conversation.id,
-      createAt: 1,
-    }
+      await act(async () => {
+        await addConversationsAction(conversation)
+        await addMessageAction(message)
+      })
 
-    await act(async () => {
-      await result.current.addConversation(conversation)
+      await act(async () => {
+        await updateMessageAction(newMessage)
+      })
+
+      expect(result.current.messages).toEqual([newMessage])
     })
 
-    await act(async () => {
-      await result.current.addMessage(message)
-    })
+    it('delete message', async () => {
+      const { result } = renderHook(() => useConversationsStore())
 
-    expect(result.current.messages).toEqual([message])
+      const conversation = createConversation()
+      const message = createMessage({ convId: conversation.id, role: Role.USER, content: 'test', createAt: 1 })
+
+      await act(async () => {
+        await addConversationsAction(conversation)
+        await addMessageAction(message)
+      })
+
+      expect(result.current.messages).toEqual([message])
+
+      await act(async () => {
+        await deleteMessageAction(message.id)
+      })
+
+      expect(result.current.messages).toEqual([])
+    })
   })
 })

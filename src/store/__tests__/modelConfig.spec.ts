@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { useModelConfigStore } from '../modelConfig'
+import { setConfigAction, setModelAction, useModelConfigStore } from '../modelConfig'
 
 describe('modelConfig', () => {
   beforeEach(() => {
@@ -13,21 +13,21 @@ describe('modelConfig', () => {
   it('should be able to set model', () => {
     const { result } = renderHook(() => useModelConfigStore())
     act(() => {
-      result.current.setModel('gpt-4o')
+      setModelAction('gpt-4o')
     })
-    expect(result.current.model).toBe('gpt-4o')
+    expect(result.current.configMapping.Gemini.model).toBe('gpt-4o')
   })
 
   it('setConfig', () => {
     const { result } = renderHook(() => useModelConfigStore())
-    const config = { model: 'gpt-4o', apiHost: 'https://api.openai.com', apiKey: 'sk-1234567890', temperature: 0.1 }
+    const config = { model: 'gpt-4o', apiHost: 'https://api.openai.com', apiKey: 'sk-1234567890', temperature: 0.1, systemMessage: 'You are a helpful assistant.' }
     act(() => {
-      result.current.setConfig(config)
+      setConfigAction(config)
     })
 
-    expect(result.current.model).toBe(config.model)
-    expect(result.current.apiHost).toBe(config.apiHost)
-    expect(result.current.apiKey).toBe(config.apiKey)
-    expect(result.current.temperature).toBe(config.temperature)
+    expect(result.current.configMapping.Gemini.model).toBe(config.model)
+    expect(result.current.configMapping.Gemini.apiHost).toBe(config.apiHost)
+    expect(result.current.configMapping.Gemini.apiKey).toBe(config.apiKey)
+    expect(result.current.configMapping.Gemini.temperature).toBe(config.temperature)
   })
 })

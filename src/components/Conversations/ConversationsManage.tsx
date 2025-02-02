@@ -2,13 +2,12 @@ import type { MenuProps } from 'antd'
 import Settings from '@/components/Settings'
 import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
 import { useConversationRename } from '@/hooks/useConversationRename'
-import { conversationsSelector, createConversation, useConversationsStore } from '@/store/conversation'
+import { addConversationsAction, clearConversationsAction, createConversation, deleteConversationsAction, importConversationsAction, renameConversationsAction, setActiveConversationsId, useConversationsStore } from '@/store/conversation'
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
 import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations, type ConversationsProps } from '@ant-design/x'
 import { App, Button, Dropdown } from 'antd'
 import { lazy, Suspense } from 'react'
-import { useShallow } from 'zustand/shallow'
 import Loading from '../Loading'
 import { VersionButton } from '../Version'
 import { useConversationsListHeight } from './useConversationsListHeight'
@@ -16,16 +15,6 @@ import { useConversationsListHeight } from './useConversationsListHeight'
 const RenameModal = lazy(() => import('./RenameModal'))
 
 export default function ConversationsManage() {
-  const {
-    conversations,
-    activeConversationId,
-    setActiveConversationId,
-    addConversation,
-    renameConversation,
-    deleteConversation,
-    importConversations,
-    clearConversations,
-  } = useConversationsStore(useShallow(conversationsSelector))
   const { message, modal } = App.useApp()
   const {
     openRenameModal,
@@ -35,6 +24,9 @@ export default function ConversationsManage() {
     newName,
     renameId,
   } = useConversationRename()
+
+  const conversations = useConversationsStore(state => state.conversations)
+  const activeConversationId = useConversationsStore(state => state.activeConversationId)
 
   const { headerDivRef, footerDivRef, listHeight } = useConversationsListHeight()
 
@@ -63,7 +55,7 @@ export default function ConversationsManage() {
           okType: 'danger',
           okText: '删除',
           onOk: () => {
-            deleteConversation(conversation.key)
+            deleteConversationsAction(conversation.key)
           },
         })
       }
@@ -79,7 +71,7 @@ export default function ConversationsManage() {
     async function handleImport() {
       try {
         const data = await importAntChatFile()
-        importConversations(data.conversations)
+        importConversationsAction(data.conversations)
 
         message.success('导入成功')
       }
@@ -102,7 +94,7 @@ export default function ConversationsManage() {
         okType: 'danger',
         okText: '清空',
         onOk: () => {
-          clearConversations()
+          clearConversationsAction()
           message.success('清空成功')
         },
       })
@@ -120,7 +112,7 @@ export default function ConversationsManage() {
   }
 
   async function onActiveChange(value: string) {
-    await setActiveConversationId(value)
+    await setActiveConversationsId(value)
   }
 
   const buttonsRender = ([,rightButton]: React.ReactNode[]) => [
@@ -130,8 +122,8 @@ export default function ConversationsManage() {
       className="flex-1"
       onClick={async () => {
         const item = createConversation({ title: DEFAULT_TITLE })
-        await addConversation(item)
-        await setActiveConversationId(item.id)
+        await addConversationsAction(item)
+        await setActiveConversationsId(item.id)
       }}
     >
       新对话
@@ -162,7 +154,7 @@ export default function ConversationsManage() {
         <RenameModal
           isRenameModalOpen={isRenameModalOpen}
           closeRenameModal={closeRenameModal}
-          renameConversation={renameConversation}
+          renameConversation={renameConversationsAction}
           renameId={renameId}
           newName={newName}
           onChange={changeRename}

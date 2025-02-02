@@ -1,8 +1,6 @@
-import type { ModelConfigStore } from '@/store/modelConfig'
-import { useModelConfigStore } from '@/store/modelConfig'
+import { setConfigAction, useModelConfigStore } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
 import { lazy, useState } from 'react'
-import { useShallow } from 'zustand/shallow'
 
 import { SideButton } from '../SideButton'
 
@@ -10,13 +8,7 @@ const SettingsModal = lazy(() => import('./Modal'))
 
 export default function Settings() {
   const [open, setOpen] = useState(false)
-  const setConfig = useModelConfigStore(state => state.setConfig)
-  const config = useModelConfigStore(useShallow((state: ModelConfigStore) => ({
-    apiHost: state.apiHost,
-    apiKey: state.apiKey,
-    model: state.model,
-    temperature: state.temperature,
-  })))
+  const config = useModelConfigStore(state => state.configMapping[state.active])
 
   return (
     <>
@@ -29,7 +21,7 @@ export default function Settings() {
       <SettingsModal
         open={open}
         config={config}
-        onSave={setConfig}
+        onSave={setConfigAction}
         onClose={() => setOpen(false)}
       />
     </>
