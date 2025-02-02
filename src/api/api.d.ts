@@ -1,6 +1,6 @@
 namespace API {
 
-  interface ChatModel {
+  interface IModel {
     id: string
     object: 'model'
     owned_by: string

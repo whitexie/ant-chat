@@ -15,7 +15,7 @@ interface OpenAIRequestBody {
 
 interface ModelsResponse {
   object: 'list'
-  data: API.ChatModel[]
+  data: API.IModel[]
 }
 
 const DEFAULT_OPTIONS = {
@@ -30,7 +30,7 @@ export default class OpenAIService extends BaseService<OpenAIRequestBody> {
     super(_options)
   }
 
-  async getModels(apiHost: string, apiKey: string): Promise<API.ChatModel[]> {
+  async getModels(apiHost: string, apiKey: string): Promise<API.IModel[]> {
     const url = `${apiHost}/models`
     const response = await fetch(url, {
       method: 'GET',

@@ -39,7 +39,7 @@ class GeminiService extends BaseService<GeminiRequestBody> {
     }
   }
 
-  async getModels(apiHost: string, apiKey: string): Promise<API.ChatModel[]> {
+  async getModels(apiHost: string, apiKey: string): Promise<API.IModel[]> {
     const url = `${apiHost}/models?key=${apiKey}`
     const response = await fetch(url, {
       method: 'GET',

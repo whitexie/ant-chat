@@ -58,5 +58,5 @@ async function request(url: string, options?: RequestInit) {
 
 interface ModelsResponse {
   object: 'list'
-  data: API.ChatModel[]
+  data: API.IModel[]
 }
