@@ -17,7 +17,7 @@ const DEFAULT_MODEL = 'gemini-1.5-flash-latest'
 const DEFAULT_STREAM_SEPARATOR = '\r\n\r\n'
 const DEFAULT_PART_SEPARATOR = '\r\n'
 
-class GeminiService extends BaseService<GeminiRequestBody> {
+class GeminiService extends BaseService {
   constructor(options?: Partial<ServiceConstructorOptions>) {
     const _options = Object.assign({
       apiHost: DEFAULT_API_HOST,

@@ -5,7 +5,7 @@ import OpenAIService from './openai'
 
 export const SERVICE_PROVIDER_MAPPING: Record<
   ModelConfigMappingKey,
-  new (options?: Partial<ServiceConstructorOptions>) => BaseService<any>
+  new (options?: Partial<ServiceConstructorOptions>) => BaseService
 > = {
   Gemini: GeminiService,
   openAI: OpenAIService,

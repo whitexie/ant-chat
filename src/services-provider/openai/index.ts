@@ -24,7 +24,7 @@ const DEFAULT_OPTIONS = {
   apiKey: '',
 }
 
-export default class OpenAIService extends BaseService<OpenAIRequestBody> {
+export default class OpenAIService extends BaseService {
   constructor(options?: Partial<ServiceConstructorOptions>) {
     const _options = Object.assign({ ...DEFAULT_OPTIONS }, options)
     super(_options)
@@ -107,15 +107,12 @@ function transformMessageItem(message: ChatMessage, hasImage: boolean): MessageI
   if (hasImage) {
     const content: MessageContent = typeof message.content === 'string'
       ? convertTextToContentArray(message.content)
-      : message.content.map((c) => {
-          if (c.type === 'image_url') {
-            return {
-              type: c.type,
-              image_url: pick(c.image_url, ['url']), // { url: c.image_url.url },
-            }
-          }
-          return pick(c, ['type', 'text'])
-        })
+      : message.content.map(
+          c => c.type === 'image_url'
+            ? { type: c.type, image_url: pick(c.image_url, ['url']) }
+            : pick(c, ['type', 'text']),
+        )
+
     return { ...base, content }
   }
 

@@ -3,7 +3,7 @@ import type {
   ServiceConstructorOptions,
 } from './interface'
 
-export default abstract class BaseService<TransformRequestBodyResult> {
+export default abstract class BaseService {
   protected apiHost: string
   protected apiKey: string
   protected model: string
@@ -40,7 +40,7 @@ export default abstract class BaseService<TransformRequestBodyResult> {
 
   abstract getModels(_apiHost: string, _apiKey: string): Promise<IModel[]>
 
-  abstract transformRequestBody(messages: ChatMessage[]): TransformRequestBodyResult
+  abstract transformRequestBody(messages: ChatMessage[]): unknown
 
   abstract sendChatCompletions(messages: ChatMessage[], callbacks?: ChatCompletionsCallbacks): Promise<void>
 }
