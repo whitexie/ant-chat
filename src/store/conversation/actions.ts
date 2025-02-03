@@ -96,13 +96,23 @@ export async function initCoversationsTitle() {
   const { active } = useModelConfigStore.getState()
   const config = getActiveModelConfig()
 
+  const userMessage = messages.find(item => item.role === Role.USER)
+
+  if (!userMessage) {
+    console.error('current conversation not found user message')
+    return
+  }
+
   const text = messages.map((item) => {
     const { content } = item
 
     if (typeof content === 'string') {
       return content
     }
-    return content.filter(item => item.type === 'text').map(item => item.text).filter(Boolean).join('\n')
+    return content.filter(item => item.type === 'text')
+      .map(item => item.text)
+      .filter(Boolean)
+      .join('\n')
   }).join('\n————————————————————\n')
 
   const content = TITLE_PROMPT.replace('pGqat5J/L@~U', text)
@@ -111,7 +121,7 @@ export async function initCoversationsTitle() {
 
   service.sendChatCompletions(
     [
-      { ...messages[0], content },
+      { ...userMessage, content },
     ],
     {
       onSuccess: (title) => {
