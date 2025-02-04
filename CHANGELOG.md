@@ -1,3 +1,25 @@
+# [0.2.0](https://github.com/whitexie/ant-chat/compare/v0.1.0...v0.2.0) (2025-02-04)
+
+
+### Bug Fixes
+
+* 调整ChatMessage ([b615596](https://github.com/whitexie/ant-chat/commit/b6155961ce42039f7b22faefbba63a022d29b867))
+* improve conversation title generation robustness ([86a4092](https://github.com/whitexie/ant-chat/commit/86a4092ca85852e379bce3d2f71130ac39002333))
+* stream 支持自定义分隔符 ([951a4ff](https://github.com/whitexie/ant-chat/commit/951a4ff0ad9305ee5aff8ab6aea7651a815b6aa4))
+
+
+### Features
+
+* 加密存储模型配置 ([86f1d38](https://github.com/whitexie/ant-chat/commit/86f1d38dd9fea2250eb81b600b880ed2e0d6a92e))
+* 添加基于 Dexie 的 IndexedDB 数据库以存储Conversations 和 Messages ([ae54643](https://github.com/whitexie/ant-chat/commit/ae54643d654729ee6ff7e7280a0757af52a4ce50))
+* 增加OpenAIService ([bc8a7b9](https://github.com/whitexie/ant-chat/commit/bc8a7b9fb179b8f1f06036af5c4adbd5c6369e72))
+* 支持多AI提供商配置 ([5f7d7b0](https://github.com/whitexie/ant-chat/commit/5f7d7b06fc74f788435b59e36c4faa1ae52d536a))
+* 支持设置系统提示词 ([409a607](https://github.com/whitexie/ant-chat/commit/409a607a694ca491d781474d06c57173ae355d38))
+* 自动生成会话标题功能 ([93223a7](https://github.com/whitexie/ant-chat/commit/93223a787a7f7629fc958a81888b9cf7247acc61))
+* add google gemini services ([2b7174c](https://github.com/whitexie/ant-chat/commit/2b7174c2383fb2a45484e016cbfd0641fecada50))
+
+
+
 # [0.1.0](https://github.com/whitexie/ant-chat/compare/v0.0.2...v0.1.0) (2025-01-23)
 
 
