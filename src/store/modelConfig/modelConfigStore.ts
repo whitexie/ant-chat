@@ -2,6 +2,7 @@ import { DEFAULT_SYSTEM_MESSAGE } from '@/constants'
 import { produce } from 'immer'
 import { create } from 'zustand'
 import { createJSONStorage, devtools, persist } from 'zustand/middleware'
+import storage from './storage'
 
 interface Action {
   reset: () => void
@@ -41,7 +42,7 @@ export const useModelConfigStore = create<ModelConfigStore>()(
       }),
       {
         name: 'model-config',
-        storage: createJSONStorage(() => localStorage),
+        storage: createJSONStorage(() => storage),
         version: 1,
         migrate: (state, version) => {
           if (version === 0) {
