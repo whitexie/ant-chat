@@ -1,8 +1,8 @@
 export function Logo() {
   return (
-    <div className="logo flex justify-center items-center gap-2 w-[var(--conversationWidth)]">
+    <div className="logo flex select-none justify-center items-center gap-2 w-[var(--conversationWidth)]">
       <div className="w-7 h-7">
-        <img src="/logo.svg" alt="logo" className="w-full h-full" />
+        <img src="/logo.svg" alt="logo" className="w-full h-full" draggable={false} />
       </div>
       <div
         className="text-5 line-height-32px"

@@ -2,7 +2,7 @@ import { setConfigAction, useModelConfigStore } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
 import { lazy, useState } from 'react'
 
-import { SideButton } from '../SideButton'
+import SideButton from '../SideButton'
 
 const SettingsModal = lazy(() => import('./Modal'))
 

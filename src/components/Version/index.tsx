@@ -5,7 +5,7 @@ import { Modal, Typography } from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import Loading from '../Loading'
 import { Logo } from '../Logo'
-import { SideButton } from '../SideButton'
+import SideButton from '../SideButton'
 
 const RenderMarkdown = lazy(() => import('../Chat/RenderMarkdown'))
 

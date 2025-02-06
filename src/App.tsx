@@ -1,10 +1,8 @@
 import Chat from '@/components/Chat'
 import ConversationsManage from '@/components/Conversations/ConversationsManage'
-import Header from '@/components/Header'
-import { initConversationsListAction } from '@/store/conversation'
 import { useThemeStore } from '@/store/theme'
 import { App, ConfigProvider, Layout, theme } from 'antd'
-import { useEffect } from 'react'
+import { Logo } from './components/Logo'
 
 function AntChatApp() {
   const currentTheme = useThemeStore(state => state.theme)
@@ -13,19 +11,19 @@ function AntChatApp() {
     ? theme.darkAlgorithm
     : theme.defaultAlgorithm
 
-  useEffect(() => {
-    initConversationsListAction()
-  }, [])
-
   return (
     <ConfigProvider theme={{ algorithm, cssVar: true, hashed: false }}>
       <App>
         <Layout>
           <div className="w-full h-full">
-            <Header />
-            <div className="grid w-full h-[var(--mainHeight)] grid-cols-[var(--conversationWidth)_1fr]">
-              <div className="shadow h-full">
-                <ConversationsManage />
+            <div className="grid w-full grid-cols-[var(--conversationWidth)_1fr]">
+              <div className="shadow">
+                <div className="h-50px flex justify-center items-center">
+                  <Logo />
+                </div>
+                <div className=" h-[var(--mainHeight)]">
+                  <ConversationsManage />
+                </div>
               </div>
               <Chat />
             </div>

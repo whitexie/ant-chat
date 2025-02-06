@@ -2,12 +2,13 @@ import type { MenuProps } from 'antd'
 import Settings from '@/components/Settings'
 import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
 import { useConversationRename } from '@/hooks/useConversationRename'
-import { addConversationsAction, clearConversationsAction, createConversation, deleteConversationsAction, importConversationsAction, renameConversationsAction, setActiveConversationsId, useConversationsStore } from '@/store/conversation'
+import { addConversationsAction, clearConversationsAction, createConversation, deleteConversationsAction, importConversationsAction, initConversationsListAction, renameConversationsAction, setActiveConversationsId, useConversationsStore } from '@/store/conversation'
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
 import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations, type ConversationsProps } from '@ant-design/x'
 import { App, Button, Dropdown } from 'antd'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
+import DarkButton from '../DarkButton'
 import Loading from '../Loading'
 import { VersionButton } from '../Version'
 import { useConversationsListHeight } from './useConversationsListHeight'
@@ -131,6 +132,10 @@ export default function ConversationsManage() {
     rightButton,
   ]
 
+  useEffect(() => {
+    initConversationsListAction()
+  }, [])
+
   return (
     <div className="h-full grid grid-rows-[auto_1fr_auto]">
       <div ref={headerDivRef} className="w-full py-2 px-1">
@@ -147,6 +152,7 @@ export default function ConversationsManage() {
         </div>
       </div>
       <div ref={footerDivRef} className="footer flex flex-col gap-1 px-1 py-2">
+        <DarkButton />
         <Settings />
         <VersionButton />
       </div>

@@ -1,10 +1,10 @@
 interface SideButtonProps {
   icon: React.ReactNode
-  children: React.ReactNode
+  children?: React.ReactNode
   onClick?: () => void
 }
 
-export function SideButton({ icon, children, onClick }: SideButtonProps) {
+function SideButton({ icon, children, onClick }: SideButtonProps) {
   return (
     <div className="flex w-full items-center gap-4 cursor-pointer hover:bg-gray-300 p-2 rounded-md" onClick={onClick}>
       <div className="flex-shrink-0 flex justify-center items-center">
@@ -16,3 +16,5 @@ export function SideButton({ icon, children, onClick }: SideButtonProps) {
     </div>
   )
 }
+
+export default SideButton
