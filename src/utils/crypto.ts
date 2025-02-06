@@ -10,5 +10,5 @@ export function encryptData(data: string) {
 // 解密函数
 export function decryptData(ciphertext: string) {
   const bytes = CryptoJS.AES.decrypt(ciphertext, SECRET_KEY)
-  return JSON.parse(bytes.toString(CryptoJS.enc.Utf8))
+  return bytes.toString(CryptoJS.enc.Utf8)
 }
