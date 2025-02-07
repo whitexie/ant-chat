@@ -4,6 +4,7 @@ import {
   addConversationsAction,
   createConversation,
   deleteMessageAction,
+  executeAbortCallbacks,
   initCoversationsTitle,
   onRequestAction,
   refreshRequestAction,
@@ -14,7 +15,6 @@ import { useActiveModelConfig } from '@/store/modelConfig'
 import { clipboardWriteText, formatTime, getNow, uuid } from '@/utils'
 import { Bubble } from '@ant-design/x'
 import { App, Typography } from 'antd'
-import { useRef } from 'react'
 import BubbleFooter from './BubbleFooter'
 import ChatSender from './ChatSender'
 import { roles } from './roles'
@@ -34,7 +34,6 @@ function createMessageContent(message: string, images: IImage[]) {
 }
 
 export default function Chat() {
-  const abortRef = useRef<() => void>(() => {})
   const { message: messageFunc } = App.useApp()
   const messages = useConversationsStore(state => state.messages)
   const activeConversationId = useConversationsStore(state => state.activeConversationId)
@@ -134,7 +133,7 @@ export default function Chat() {
           loading={isLoading}
           onSubmit={(message, images) => onSubmit(message, images)}
           onCancel={() => {
-            abortRef.current()
+            executeAbortCallbacks()
             setRequestStatus('cancel')
           }}
         />

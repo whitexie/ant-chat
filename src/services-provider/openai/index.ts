@@ -1,11 +1,12 @@
+import type { SSEOutput } from '@/utils/stream'
 import type {
   ChatCompletionsCallbacks,
   ServiceConstructorOptions,
 } from '../interface'
 import type { MessageContent, MessageItem } from './interface'
+import { Stream } from '@/utils'
 import { pick } from 'lodash-es'
 import BaseService from '../base'
-import { parseSse } from '../util'
 
 interface OpenAIRequestBody {
   model: string
@@ -46,9 +47,20 @@ export default class OpenAIService extends BaseService {
     return ((await response.json()) as ModelsResponse).data
   }
 
-  transformMessages(_messages: ChatMessage[]): MessageItem[] {
+  private transformMessages(_messages: ChatMessage[]): MessageItem[] {
     const hasImage = hasImageMessages(_messages)
     return _messages.map(message => transformMessageItem(message, hasImage))
+  }
+
+  extractContent(output: SSEOutput): string {
+    try {
+      const json = JSON.parse(output.data)
+      return json.choices?.[0]?.delta?.content || ''
+    }
+    catch (e) {
+      console.log('extractContent error => ', e)
+    }
+    return ''
   }
 
   transformRequestBody(_messages: ChatMessage[]): OpenAIRequestBody {
@@ -59,7 +71,7 @@ export default class OpenAIService extends BaseService {
     }
   }
 
-  async sendChatCompletions(_messages: ChatMessage[], callbacks: ChatCompletionsCallbacks) {
+  async sendChatCompletions(_messages: ChatMessage[], callbacks: ChatCompletionsCallbacks, addAbortCallback?: (callback: () => void) => void) {
     this.validator()
     const messages = this.transformMessages(_messages)
     const response = await fetch(`${this.apiHost}/chat/completions`, {
@@ -76,11 +88,30 @@ export default class OpenAIService extends BaseService {
     })
 
     if (!response.ok) {
-      const error = new Error('Failed to send chat completions')
-      callbacks.onError?.(error)
+      if (response.status === 429) {
+        const error = new Error('Too Many Requests(HTTP status 429)')
+        callbacks?.onError?.(error)
+      }
+      else if (response.statusText.startsWith('4')) {
+        const json = await response.json()
+        const error = new Error(json.error.message)
+        callbacks.onError?.(error)
+      }
+      else {
+        const error = new Error(`Failed to fetch ${response.statusText}`)
+        callbacks.onError?.(error)
+      }
     }
 
-    await parseSse({ readableStream: response.body! }, callbacks)
+    const stream = Stream({ readableStream: response.body! })
+
+    const reader = stream.getReader()
+
+    addAbortCallback?.(() => {
+      reader.cancel()
+    })
+
+    await this.parseSse(reader, callbacks)
   }
 }
 

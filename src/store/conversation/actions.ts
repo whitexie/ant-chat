@@ -13,7 +13,6 @@ import {
   updateMessage,
 } from '@/db'
 import { getServiceProviderConstructor } from '@/services-provider'
-import GeminiService from '@/services-provider/google'
 import { produce } from 'immer'
 import { getActiveModelConfig, useModelConfigStore } from '../modelConfig'
 import { createMessage, useConversationsStore } from './conversationsStore'
@@ -164,39 +163,75 @@ export async function updateMessageAction(message: ChatMessage) {
   }))
 }
 
+export function addAbortCallback(callback: () => void) {
+  useConversationsStore.setState(state => produce(state, (draft) => {
+    draft.abortCallbacks.push(callback)
+  }))
+}
+
+export function resetAbortCallbacks() {
+  useConversationsStore.setState(state => produce(state, (draft) => {
+    draft.abortCallbacks = []
+  }))
+}
+
+export function executeAbortCallbacks() {
+  useConversationsStore.getState().abortCallbacks.forEach((callback) => {
+    if (typeof callback === 'function') {
+      try {
+        callback()
+      }
+      catch (e) {
+        console.log('execute abort callback fail => ', e)
+      }
+    }
+    else {
+      console.log('callback is not function', callback)
+    }
+  })
+
+  resetAbortCallbacks()
+}
+
 export async function sendChatCompletions(conversationId: string, model: string) {
   const messages = useConversationsStore.getState().messages
   const aiMessage = createMessage({ convId: conversationId, role: Role.AI, status: 'loading' })
   try {
     setRequestStatus('loading')
 
+    const { active } = useModelConfigStore.getState()
     const { apiHost, apiKey } = getActiveModelConfig()
-    const gemini = new GeminiService({ model, apiKey, apiHost })
+    const Service = getServiceProviderConstructor(active)
+    const instance = new Service({ model, apiKey, apiHost })
 
     // 这里aiMessage需要展开，避免被冻结， 后面的updateMessage同理
     await addMessageAction({ ...aiMessage })
 
-    await gemini.sendChatCompletions(messages, {
-      onUpdate: (content) => {
-        aiMessage.content = content
-        updateMessageAction({ ...aiMessage, status: 'success' })
+    await instance.sendChatCompletions(
+      messages,
+      {
+        onUpdate: (content) => {
+          aiMessage.content = content
+          updateMessageAction({ ...aiMessage, status: 'success' })
+        },
+        onSuccess: () => {
+          setRequestStatus('success')
+          resetAbortCallbacks()
+        },
+        onError: (error) => {
+          throw error
+        },
       },
-      onSuccess: () => {
-        setRequestStatus('success')
-      },
-    })
+      addAbortCallback,
+    )
   }
   catch (e) {
     const error = e as Error
-    console.log('chatCompletions fail', error)
     aiMessage.content = error.message
     aiMessage.status = 'error'
     updateMessageAction(aiMessage)
     setRequestStatus('error')
-    return
   }
-
-  setRequestStatus('success')
 }
 
 export async function onRequestAction(conversationId: string, message: ChatMessage, model: string) {

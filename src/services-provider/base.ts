@@ -1,3 +1,4 @@
+import type { SSEOutput } from '@/utils/stream'
 import type {
   ChatCompletionsCallbacks,
   ServiceConstructorOptions,
@@ -38,9 +39,34 @@ export default abstract class BaseService {
     this.model = model
   }
 
+  async parseSse(reader: ReadableStreamDefaultReader<SSEOutput>, callbacks?: ChatCompletionsCallbacks) {
+    let __content__ = ''
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) {
+          callbacks?.onSuccess?.(__content__)
+          break
+        }
+
+        if (value) {
+          __content__ += this.extractContent(value)
+          callbacks?.onUpdate?.(__content__)
+        }
+      }
+    }
+    catch (e) {
+      const error = e as Error
+      callbacks?.onError?.(error)
+    }
+  }
+
+  abstract extractContent(output: unknown): string
+
   abstract getModels(_apiHost: string, _apiKey: string): Promise<IModel[]>
 
   abstract transformRequestBody(messages: ChatMessage[]): unknown
 
-  abstract sendChatCompletions(messages: ChatMessage[], callbacks?: ChatCompletionsCallbacks): Promise<void>
+  abstract sendChatCompletions(messages: ChatMessage[], callbacks?: ChatCompletionsCallbacks, addAbortCallback?: (callback: () => void) => void): Promise<void>
 }

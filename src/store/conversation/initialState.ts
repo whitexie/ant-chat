@@ -3,6 +3,7 @@ export interface StoreState {
   activeConversationId: string
   requestStatus: 'loading' | 'success' | 'error' | 'cancel'
   messages: ChatMessage[]
+  abortCallbacks: (() => void)[]
 }
 
 export const initialState: StoreState = {
@@ -10,4 +11,5 @@ export const initialState: StoreState = {
   activeConversationId: '',
   requestStatus: 'success',
   messages: [],
+  abortCallbacks: [],
 }

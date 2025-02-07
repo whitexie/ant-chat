@@ -1,3 +1,4 @@
+import type { SSEOutput } from '@/utils/stream'
 import type {
   ChatCompletionsCallbacks,
   ServiceConstructorOptions,
@@ -8,8 +9,8 @@ import type {
   ModelContent,
   UserContent,
 } from './interface'
+import Stream from '@/utils/stream'
 import BaseService from '../base'
-import { parseSse } from '../util'
 
 const DEFAULT_API_HOST = 'https://ysansan-gemini.deno.dev/v1beta'
 const DEFAULT_MODEL = 'gemini-1.5-flash-latest'
@@ -56,7 +57,7 @@ class GeminiService extends BaseService {
     })
   }
 
-  transformImage(item: (TextContent | ImageContent)[]) {
+  private transformImage(item: (TextContent | ImageContent)[]) {
     return item.map((item) => {
       if (item.type === 'image_url') {
         const [, data] = item.image_url.url.split(';base64,')
@@ -66,7 +67,7 @@ class GeminiService extends BaseService {
     })
   }
 
-  transformMessages(messages: ChatMessage[]) {
+  private transformMessages(messages: ChatMessage[]) {
     const result: GeminiRequestBody = {
       contents: [],
     }
@@ -99,8 +100,12 @@ class GeminiService extends BaseService {
     return result
   }
 
-  async sendChatCompletions(messages: ChatMessage[], callbacks?: ChatCompletionsCallbacks) {
+  async sendChatCompletions(messages: ChatMessage[], callbacks?: ChatCompletionsCallbacks, addAbortCallback?: (abort: () => void) => void) {
     this.validator()
+
+    const abortController = new AbortController()
+
+    addAbortCallback?.(() => abortController.abort())
 
     const url = `${this.apiHost}/models/${this.model}:streamGenerateContent?alt=sse&key=${this.apiKey}`
     const response = await fetch(url, {
@@ -111,6 +116,7 @@ class GeminiService extends BaseService {
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
       },
+      signal: abortController.signal,
       body: JSON.stringify(this.transformMessages(messages)),
     })
 
@@ -126,11 +132,25 @@ class GeminiService extends BaseService {
       }
     }
 
-    await parseSse({ readableStream: response.body!, DEFAULT_STREAM_SEPARATOR, DEFAULT_PART_SEPARATOR }, callbacks)
+    const stream = Stream({ readableStream: response.body!, DEFAULT_STREAM_SEPARATOR, DEFAULT_PART_SEPARATOR })
+
+    const reader = stream.getReader()
+
+    addAbortCallback?.(() => {
+      reader.cancel()
+    })
+
+    this.parseSse(reader, callbacks)
   }
 
   transformRequestBody(_messages: ChatMessage[]): GeminiRequestBody {
     return this.transformMessages(_messages)
+  }
+
+  extractContent(output: unknown): string {
+    const json = JSON.parse((output as SSEOutput).data)
+    const content = json.candidates?.[0]?.content?.parts?.[0]?.text
+    return content
   }
 }
 
