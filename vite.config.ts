@@ -14,8 +14,6 @@ const plugins: PluginOption[] = [
 
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
-  console.log('command => ', command)
-
   if (command === 'build') {
     plugins.push(compression({
       verbose: true, // 输出压缩日志
