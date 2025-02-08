@@ -52,7 +52,9 @@ export default function BubbleFooter({ message, onClick }: BubbleFooterProps) {
     finallyButtons.push(refreshButton)
   }
 
-  finallyButtons.push(deleteButton)
+  if (message.role !== Role.SYSTEM) {
+    finallyButtons.push(deleteButton)
+  }
 
   return (
     <Flex>
