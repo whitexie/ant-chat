@@ -1,6 +1,5 @@
 import type { FormInstance, SelectProps } from 'antd'
 import { getProviderModels } from '@/services-provider'
-import { useModelConfigStore } from '@/store/modelConfig'
 import { ReloadOutlined } from '@ant-design/icons'
 import { App, Button, Form, Input, Select, Slider } from 'antd'
 import { forwardRef, Suspense, useEffect, useImperativeHandle, useMemo, useState } from 'react'
@@ -40,15 +39,15 @@ function SelectHoc({ onRefresh, loading, ...props }: SelectProps & { onRefresh: 
 }
 
 interface SettingsModalProps {
+  active: ModelConfigMappingKey
   initialValues: ModelConfig
   header?: React.ReactNode
   children?: React.ReactNode
 }
 
-export default forwardRef<FormInstance, SettingsModalProps>(({ initialValues, header, children }, ref) => {
+export default forwardRef<FormInstance, SettingsModalProps>(({ initialValues, active, header, children }, ref) => {
   const [form] = Form.useForm<ModelConfig>()
   const { message } = App.useApp()
-  const active = useModelConfigStore(state => state.active)
   const [models, setModels] = useState<IModel[]>([])
   const [loading, setLoading] = useState(false)
 

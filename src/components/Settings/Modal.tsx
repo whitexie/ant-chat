@@ -1,5 +1,5 @@
 import type { FormInstance } from 'antd'
-import { useActiveModelConfig, useModelConfigStore } from '@/store/modelConfig'
+import { setActiveAction, useActiveModelConfig, useModelConfigStore } from '@/store/modelConfig'
 import { Modal } from 'antd'
 import { useRef } from 'react'
 import { useShallow } from 'zustand/shallow'
@@ -30,9 +30,10 @@ export default function SettingsModal({ open, onClose, onSave }: SettingsModalPr
     <Modal open={open} title="设置" onOk={onOk} onCancel={onClose} okText="保存" cancelText="取消">
       <ModelSettingsForm
         key={active}
+        active={active}
         initialValues={config}
         ref={formRef}
-        header={<ProviderDropdown />}
+        header={<ProviderDropdown value={active} onChange={setActiveAction} />}
       />
     </Modal>
   )

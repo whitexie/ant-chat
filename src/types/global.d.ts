@@ -31,10 +31,16 @@ interface MessageItem {
   content: MessageContent
 }
 
-interface IConversation {
+interface IConversationsSettings {
+  active: ModelConfigMappingKey
+  modelConfig: ModelConfig
+}
+
+interface IConversations {
   id: string
   title: string
   createAt: CreateAt
+  settings?: IConversationsSettings
 }
 
 interface ChatMessage {

@@ -47,7 +47,7 @@ export default class OpenAIService extends BaseService {
     return ((await response.json()) as ModelsResponse).data
   }
 
-  private transformMessages(_messages: ChatMessage[]): MessageItem[] {
+  transformMessages(_messages: ChatMessage[]): MessageItem[] {
     const hasImage = hasImageMessages(_messages)
     return _messages.map(message => transformMessageItem(message, hasImage))
   }

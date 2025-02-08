@@ -25,7 +25,9 @@ function AntChatApp() {
                   <ConversationsManage />
                 </div>
               </div>
-              <Chat />
+              <div className="relative">
+                <Chat />
+              </div>
             </div>
           </div>
         </Layout>

@@ -24,7 +24,7 @@ export const useConversationsStore = create<ConversationsStore>()(
   ),
 )
 
-export function createConversation(option?: Partial<IConversation>) {
+export function createConversation(option?: Partial<IConversations>) {
   return Object.assign({
     id: uuid(),
     title: DEFAULT_TITLE,

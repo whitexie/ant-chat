@@ -1,5 +1,5 @@
 export interface StoreState {
-  conversations: IConversation[]
+  conversations: IConversations[]
   activeConversationId: string
   requestStatus: 'loading' | 'success' | 'error' | 'cancel'
   messages: ChatMessage[]

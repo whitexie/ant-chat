@@ -1,7 +1,8 @@
 import { Role } from '@/constants'
+import { getConversationsById, getMessagesByConvId } from '@/db'
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { addConversationsAction, addMessageAction, clearConversationsAction, deleteConversationsAction, deleteMessageAction, importConversationsAction, renameConversationsAction, updateMessageAction } from '../actions'
+import { addConversationsAction, addMessageAction, clearConversationsAction, deleteConversationsAction, deleteMessageAction, importConversationsAction, renameConversationsAction, setActiveConversationsId, updateConversationsSettingsACtion, updateMessageAction } from '../actions'
 import { createConversation, createMessage, useConversationsStore } from '../conversationsStore'
 
 describe('conversationStore', () => {
@@ -91,6 +92,36 @@ describe('conversationStore', () => {
 
     expect(result.current.conversations).toHaveLength(0)
     expect(result.current.activeConversationId).toEqual('')
+  })
+
+  it('upate conversations settings', async () => {
+    const conversations = createConversation()
+
+    await addConversationsAction(conversations)
+
+    await setActiveConversationsId(conversations.id)
+
+    const newModelConfig = {
+      active: 'DeepSeek',
+      modelConfig: {
+        apiHost: 'https://api.deepseek.com',
+        apiKey: '12306',
+        systemMessage: '你是一个乐于助人的AI助理',
+        model: 'deepseek-chat',
+        temperature: 0,
+      },
+    }
+
+    await updateConversationsSettingsACtion(conversations.id, newModelConfig)
+
+    const result = await getConversationsById(conversations.id)
+
+    expect(result?.settings).toBeDefined()
+    expect(result?.settings).toEqual(newModelConfig)
+
+    const messages = await getMessagesByConvId(conversations.id)
+
+    expect(messages[0].content).toBe(newModelConfig.modelConfig.systemMessage)
   })
 
   describe('messages actions', () => {

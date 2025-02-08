@@ -1,7 +1,7 @@
 import Dexie, { type EntityTable } from 'dexie'
 
 const db = new Dexie('antChat') as Dexie & {
-  conversations: EntityTable<IConversation, 'id'>
+  conversations: EntityTable<IConversations, 'id'>
   messages: EntityTable<ChatMessage, 'id'>
 }
 

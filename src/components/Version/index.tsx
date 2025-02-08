@@ -24,11 +24,9 @@ export function VersionButton() {
         open={open}
         onCancel={() => {
           setOpen(false)
-          console.log('cancel')
         }}
         onClose={() => {
           setOpen(false)
-          console.log('close')
         }}
         title="版本信息"
         footer={null}

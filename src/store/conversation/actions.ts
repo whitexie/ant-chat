@@ -10,6 +10,7 @@ import {
   fetchConversations,
   getMessagesByConvId,
   renameConversations,
+  updateConversationsSettings,
   updateMessage,
 } from '@/db'
 import { getServiceProviderConstructor } from '@/services-provider'
@@ -18,7 +19,7 @@ import { getActiveModelConfig, useModelConfigStore } from '../modelConfig'
 import { createMessage, useConversationsStore } from './conversationsStore'
 
 export async function setActiveConversationsId(id: string) {
-  const messages = await getMessagesByConvId(id)
+  const messages = id ? await getMessagesByConvId(id) : []
 
   useConversationsStore.setState(state => produce(state, (draft) => {
     draft.activeConversationId = id
@@ -32,7 +33,7 @@ export function setRequestStatus(status: StoreState['requestStatus']) {
   }))
 }
 
-export async function addConversationsAction(conversation: IConversation) {
+export async function addConversationsAction(conversation: IConversations) {
   await addConversations(conversation)
   const content = getActiveModelConfig().systemMessage
   await addMessage(createMessage({ convId: conversation.id, role: Role.SYSTEM, content }))
@@ -56,12 +57,14 @@ export async function renameConversationsAction(id: string, title: string) {
 export async function deleteConversationsAction(id: string) {
   await deleteConversations(id)
 
+  setActiveConversationsId('')
+
   useConversationsStore.setState(state => produce(state, (draft) => {
     draft.conversations = draft.conversations.filter(c => c.id !== id)
   }))
 }
 
-export async function importConversationsAction(conversations: IConversation[]) {
+export async function importConversationsAction(conversations: IConversations[]) {
   const list = await Promise.all(conversations.filter(async (item) => {
     return await conversationsExists(item.id)
   }))
@@ -130,6 +133,35 @@ export async function initCoversationsTitle() {
   )
 }
 
+export async function updateConversationsSettingsACtion(id: string, config: IConversationsSettings) {
+  await updateConversationsSettings(id, config)
+
+  const messages = await getMessagesByConvId(id)
+  const oldSystemMessage = messages.find(item => item.role === Role.SYSTEM)
+  let systemMessageIschanged = false
+
+  // 判断是否修改了系统提示词
+  if (oldSystemMessage && oldSystemMessage.content !== config.modelConfig.systemMessage) {
+    await updateMessageAction({ ...oldSystemMessage, content: config.modelConfig.systemMessage })
+    systemMessageIschanged = true
+  }
+
+  useConversationsStore.setState(state => produce(state, (draft) => {
+    const conversation = draft.conversations.find(c => c.id === id)
+    if (conversation) {
+      conversation.settings = config
+    }
+
+    // 同步更新messages中的系统提示词
+    if (oldSystemMessage && systemMessageIschanged) {
+      const index = draft.messages.findIndex(msg => msg.id === oldSystemMessage.id)
+      if (index > -1) {
+        draft.messages[index].content = config.modelConfig.systemMessage
+      }
+    }
+  }))
+}
+
 /* ============================== messages ============================== */
 
 export async function addMessageAction(message: ChatMessage) {
@@ -193,16 +225,14 @@ export function executeAbortCallbacks() {
   resetAbortCallbacks()
 }
 
-export async function sendChatCompletions(conversationId: string, model: string) {
+export async function sendChatCompletions(conversationId: string, config: IConversationsSettings) {
   const messages = useConversationsStore.getState().messages
   const aiMessage = createMessage({ convId: conversationId, role: Role.AI, status: 'loading' })
   try {
     setRequestStatus('loading')
-
-    const { active } = useModelConfigStore.getState()
-    const { apiHost, apiKey } = getActiveModelConfig()
+    const { active, modelConfig } = config
     const Service = getServiceProviderConstructor(active)
-    const instance = new Service({ model, apiKey, apiHost })
+    const instance = new Service(modelConfig)
 
     // 这里aiMessage需要展开，避免被冻结， 后面的updateMessage同理
     await addMessageAction({ ...aiMessage })
@@ -234,12 +264,12 @@ export async function sendChatCompletions(conversationId: string, model: string)
   }
 }
 
-export async function onRequestAction(conversationId: string, message: ChatMessage, model: string) {
+export async function onRequestAction(conversationId: string, message: ChatMessage, config: IConversationsSettings) {
   await addMessageAction(message)
-  await sendChatCompletions(conversationId, model)
+  await sendChatCompletions(conversationId, config)
 }
 
-export async function refreshRequestAction(conversationId: string, message: ChatMessage, model: string) {
+export async function refreshRequestAction(conversationId: string, message: ChatMessage, config: IConversationsSettings) {
   await deleteMessageAction(message.id)
-  await sendChatCompletions(conversationId, model)
+  await sendChatCompletions(conversationId, config)
 }

@@ -8,7 +8,7 @@ export async function conversationsExists(id: string) {
   return !!(await getConversationsById(id))
 }
 
-export async function addConversations(conversation: IConversation) {
+export async function addConversations(conversation: IConversations) {
   try {
     return await db.conversations.add(conversation)
   }
@@ -24,6 +24,16 @@ export async function deleteConversations(id: string) {
       db.messages.filter(item => item.convId === id).delete(),
     ])
   })
+}
+
+export async function updateConversationsSettings(id: string, config: IConversationsSettings) {
+  const conversation = await getConversationsById(id)
+  if (!conversation) {
+    throw new Error(`conversations not exists: ${id}`)
+  }
+  conversation.settings = config
+
+  return await db.conversations.put(conversation)
 }
 
 export async function renameConversations(id: string, newName: string) {

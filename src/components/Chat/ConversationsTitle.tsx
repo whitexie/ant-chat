@@ -1,0 +1,64 @@
+import type { ItemType } from 'antd/es/menu/interface'
+import { renameConversationsAction } from '@/store/conversation'
+import { CheckOutlined, EditOutlined, MoreOutlined } from '@ant-design/icons'
+import { App, Button, Dropdown, Input } from 'antd'
+import React from 'react'
+
+interface ConversationsTitleProps {
+  conversation?: IConversations
+  items?: ItemType[]
+}
+
+const ConversationsTitle: React.FunctionComponent<ConversationsTitleProps> = ({ conversation, items }) => {
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [title, setTitle] = React.useState(conversation?.title || '')
+  const { message } = App.useApp()
+
+  if (!conversation) {
+    return null
+  }
+
+  async function handleRename() {
+    if (!conversation)
+      return
+
+    if (!title.length) {
+      message.error('标题不能为空')
+      return
+    }
+
+    await renameConversationsAction(conversation.id, title)
+    setIsEditing(false)
+  }
+
+  const menu = {
+    items,
+  }
+
+  return (
+    <div className="h-[var(--headerHeight)]">
+      <div className="absolute z-1 h-[var(--headerHeight)] bg-[var(--ant-layout-color-bg-body)] top-0 left-0 right-0 shadow px-3 flex justify-between items-center">
+        {isEditing
+          ? (
+              <div className="flex items-center gap-2">
+                <Input value={title} onChange={e => setTitle(e.target.value)} />
+                <Button type="text" icon={<CheckOutlined />} onClick={handleRename} />
+              </div>
+            )
+          : (
+              <div className="flex items-center gap-2">
+                {conversation?.title}
+                <Button type="text" icon={<EditOutlined />} onClick={() => setIsEditing(true)} />
+              </div>
+            )}
+        <div className="more-actions">
+          <Dropdown menu={menu} trigger={['click']} placement="bottomRight" arrow>
+            <Button type="text" icon={<MoreOutlined style={{ fontSize: 24 }} />} />
+          </Dropdown>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default ConversationsTitle

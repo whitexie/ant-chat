@@ -67,7 +67,7 @@ class GeminiService extends BaseService {
     })
   }
 
-  private transformMessages(messages: ChatMessage[]) {
+  transformMessages(messages: ChatMessage[]) {
     const result: GeminiRequestBody = {
       contents: [],
     }

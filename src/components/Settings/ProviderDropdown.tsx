@@ -1,16 +1,19 @@
-import { setActiveAction, useModelConfigStore } from '@/store/modelConfig'
+import { useModelConfigStore } from '@/store/modelConfig'
 import { PlusOutlined } from '@ant-design/icons'
 import { App, Button, Divider, Form, Input, Select, Space } from 'antd'
 import { useState } from 'react'
 import { useShallow } from 'zustand/shallow'
 
-export default function ProviderDropdown() {
+interface ProviderDropdownProps {
+  value: ModelConfigMappingKey
+  onChange: (value: ModelConfigMappingKey) => void
+}
+
+export default function ProviderDropdown(props: ProviderDropdownProps) {
   const { message } = App.useApp()
   const [providerName, setProviderName] = useState('')
-  const { active, configMapping } = useModelConfigStore(useShallow((state) => {
-    const active = state.active
+  const { configMapping } = useModelConfigStore(useShallow((state) => {
     return {
-      active,
       configMapping: state.configMapping,
     }
   }))
@@ -28,10 +31,10 @@ export default function ProviderDropdown() {
   return (
     <Form.Item label="模型提供方">
       <Select
-        value={active}
+        value={props.value}
         options={options}
         onSelect={(value) => {
-          setActiveAction(value as 'Gemini' | 'DeepSeek' | 'openAI')
+          props.onChange(value)
         }}
         className="w-40"
         dropdownRender={menu => (
