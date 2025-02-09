@@ -12,19 +12,19 @@ import type {
 import Stream from '@/utils/stream'
 import BaseService from '../base'
 
-const DEFAULT_API_HOST = 'https://ysansan-gemini.deno.dev/v1beta'
-const DEFAULT_MODEL = 'gemini-1.5-flash-latest'
-
 const DEFAULT_STREAM_SEPARATOR = '\r\n\r\n'
 const DEFAULT_PART_SEPARATOR = '\r\n'
 
+const DEFAULT_OPTIONS = {
+  apiHost: 'https://generativelanguage.googleapis.com/v1beta',
+  apiKey: '',
+  model: 'gemini-1.5-flash-latest',
+  temperature: 0.7,
+}
+
 class GeminiService extends BaseService {
-  constructor(options?: ServiceConstructorOptions) {
-    const _options = Object.assign({
-      apiHost: DEFAULT_API_HOST,
-      apiKey: '',
-      model: DEFAULT_MODEL,
-    }, options)
+  constructor(options?: Partial<ServiceConstructorOptions>) {
+    const _options = Object.assign({ ...DEFAULT_OPTIONS }, options)
     super(_options)
   }
 
