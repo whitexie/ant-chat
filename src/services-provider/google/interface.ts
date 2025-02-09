@@ -26,9 +26,13 @@ export interface GeminiRequestBody {
   system_instruction?: {
     parts: TextPart[]
   }
+  generationConfig?: {
+    temperature?: number
+  }
   tools?: [
     { googleSearch: object },
   ]
+
 }
 
 export interface GeminiModel {

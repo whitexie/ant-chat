@@ -8,11 +8,13 @@ export default abstract class BaseService {
   protected apiHost: string
   protected apiKey: string
   protected model: string
+  protected temperature: number = 0.7
 
   constructor(options: ServiceConstructorOptions) {
     this.apiHost = options.apiHost
     this.apiKey = options.apiKey
     this.model = options.model
+    this.temperature = options.temperature
   }
 
   validator() {

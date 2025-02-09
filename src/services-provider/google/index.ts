@@ -19,25 +19,13 @@ const DEFAULT_STREAM_SEPARATOR = '\r\n\r\n'
 const DEFAULT_PART_SEPARATOR = '\r\n'
 
 class GeminiService extends BaseService {
-  constructor(options?: Partial<ServiceConstructorOptions>) {
+  constructor(options?: ServiceConstructorOptions) {
     const _options = Object.assign({
       apiHost: DEFAULT_API_HOST,
       apiKey: '',
       model: DEFAULT_MODEL,
     }, options)
     super(_options)
-  }
-
-  validator() {
-    if (!this.apiKey) {
-      throw new Error('apiKey is required')
-    }
-    if (!this.model) {
-      throw new Error('model is required')
-    }
-    if (!this.apiHost) {
-      throw new Error('apiHost is required')
-    }
   }
 
   async getModels(apiHost: string, apiKey: string): Promise<IModel[]> {
@@ -144,7 +132,11 @@ class GeminiService extends BaseService {
   }
 
   transformRequestBody(_messages: ChatMessage[]): GeminiRequestBody {
-    return this.transformMessages(_messages)
+    const body = this.transformMessages(_messages)
+    body.generationConfig = {
+      temperature: this.temperature,
+    }
+    return body
   }
 
   extractContent(output: unknown): string {

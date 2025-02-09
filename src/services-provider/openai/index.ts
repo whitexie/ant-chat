@@ -12,6 +12,7 @@ interface OpenAIRequestBody {
   model: string
   messages: MessageItem[]
   stream: boolean
+  temperature?: number
 }
 
 interface ModelsResponse {
@@ -23,6 +24,7 @@ const DEFAULT_OPTIONS = {
   apiHost: 'https://api.openai.com/v1',
   model: 'gpt-4o',
   apiKey: '',
+  temperature: 0.7,
 }
 
 export default class OpenAIService extends BaseService {
@@ -68,6 +70,7 @@ export default class OpenAIService extends BaseService {
       model: this.model,
       messages: this.transformMessages(_messages),
       stream: true,
+      temperature: this.temperature,
     }
   }
 

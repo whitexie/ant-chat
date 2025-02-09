@@ -2,6 +2,7 @@ export interface ServiceConstructorOptions {
   apiHost: string
   apiKey: string
   model: string
+  temperature: number
 }
 
 export interface ChatCompletionsCallbacks {
