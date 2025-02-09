@@ -16,14 +16,10 @@ export const roles: GetProp<BubbleListProps, 'roles'> = {
       marginInlineEnd: 44,
       marginInlineStart: 10,
     },
-    messageRender: content => typeof content === 'string'
-      ? (
-          <Suspense fallback={<Loading />}>
-            <RenderMarkdown content={content} />
-          </Suspense>
-        )
-      : content,
+    // @ts-expect-error 类型错误, 等antdesign-x更新
+    messageRender: (message: ChatMessage) => <MessageContent content={message} />,
   },
+
   [Role.AI]: {
     placement: 'start',
     avatar: { icon: <RobotFilled size={14} />, style: { background: '#69b1ff' } },
@@ -32,6 +28,7 @@ export const roles: GetProp<BubbleListProps, 'roles'> = {
       marginInlineStart: 10,
     },
     messageRender: content => typeof content === 'string'
+
       ? (
           <Suspense fallback={<Loading />}>
             <RenderMarkdown content={content} />
@@ -39,6 +36,7 @@ export const roles: GetProp<BubbleListProps, 'roles'> = {
         )
       : content,
   },
+
   [Role.USER]: {
     placement: 'end',
     avatar: { icon: <UserOutlined />, style: { background: '#87d068' } },

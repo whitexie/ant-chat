@@ -1,7 +1,7 @@
 // 提取消息渲染逻辑到独立组件
 export default function MessageContent({ content }: { content: MessageContent }) {
   if (typeof content === 'string') {
-    return <span>{content}</span>
+    return <div className="whitespace-pre-wrap">{content}</div>
   }
 
   const images = content.filter(item => item.type === 'image_url')
@@ -28,7 +28,9 @@ export default function MessageContent({ content }: { content: MessageContent })
         </>
       )}
       {texts.map((item, index) => (
-        <div key={index}>{item.text}</div>
+        <div key={index} className="whitespace-pre-wrap">
+          {item.text}
+        </div>
       ))}
     </div>
   )
