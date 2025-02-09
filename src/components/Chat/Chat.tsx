@@ -18,23 +18,19 @@ import { clipboardWriteText, formatTime } from '@/utils'
 import { SettingOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
 import { App, Typography } from 'antd'
-import { useState } from 'react'
+import { lazy, useState } from 'react'
 import BubbleFooter from './BubbleFooter'
 import ChatSender from './ChatSender'
-import ConversationsSettings from './ConversationsSettings'
 import ConversationsTitle from './ConversationsTitle'
 import { roles } from './roles'
+
+const ConversationsSettings = lazy(() => import('./ConversationsSettings'))
 
 function createMessageContent(message: string, images: IImage[]) {
   if (!images.length)
     return message
 
-  const content: (ImageContent | TextContent)[] = images.map((item) => {
-    return {
-      type: 'image_url',
-      image_url: { ...item },
-    }
-  })
+  const content: (ImageContent | TextContent)[] = images.map(item => ({ type: 'image_url', image_url: { ...item } }))
   content.push({ type: 'text', text: message })
   return content
 }

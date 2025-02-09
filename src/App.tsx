@@ -2,6 +2,7 @@ import Chat from '@/components/Chat'
 import ConversationsManage from '@/components/Conversations/ConversationsManage'
 import { useThemeStore } from '@/store/theme'
 import { App, ConfigProvider, Layout, theme } from 'antd'
+import zhCN from 'antd/locale/zh_CN'
 import { Logo } from './components/Logo'
 
 function AntChatApp() {
@@ -12,7 +13,7 @@ function AntChatApp() {
     : theme.defaultAlgorithm
 
   return (
-    <ConfigProvider theme={{ algorithm, cssVar: true, hashed: false }}>
+    <ConfigProvider locale={zhCN} theme={{ algorithm, cssVar: true, hashed: false }}>
       <App>
         <Layout>
           <div className="w-full h-full">
