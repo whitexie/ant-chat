@@ -1,3 +1,4 @@
+import type { IImage } from '@/db/interface'
 import type { UploadChangeParam, UploadFile } from 'antd/es/upload'
 import { useToken } from '@/utils'
 import { PlusOutlined } from '@ant-design/icons'

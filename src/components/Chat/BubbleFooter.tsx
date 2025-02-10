@@ -1,11 +1,12 @@
+import type { IMessage } from '@/db/interface'
 import { Role } from '@/constants'
 import { CopyOutlined, DeleteOutlined, SyncOutlined } from '@ant-design/icons'
 import { Button, Flex } from 'antd'
 import { useMemo } from 'react'
 
 interface BubbleFooterProps {
-  message: ChatMessage
-  onClick?: (buttonName: string, message: ChatMessage) => void
+  message: IMessage
+  onClick?: (buttonName: string, message: IMessage) => void
 }
 
 export default function BubbleFooter({ message, onClick }: BubbleFooterProps) {

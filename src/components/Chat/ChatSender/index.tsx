@@ -1,3 +1,4 @@
+import type { IImage } from '@/db/interface'
 import { useToken } from '@/utils'
 import { PictureOutlined } from '@ant-design/icons'
 import { Sender } from '@ant-design/x'

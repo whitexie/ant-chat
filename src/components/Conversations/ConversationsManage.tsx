@@ -1,3 +1,4 @@
+import type { ConversationsId } from '@/db/interface'
 import type { MenuProps } from 'antd'
 import Settings from '@/components/Settings'
 import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
@@ -56,7 +57,7 @@ export default function ConversationsManage() {
           okType: 'danger',
           okText: '删除',
           onOk: () => {
-            deleteConversationsAction(conversation.key)
+            deleteConversationsAction(conversation.key as ConversationsId)
           },
         })
       }
@@ -112,7 +113,7 @@ export default function ConversationsManage() {
     func ? func() : console.error('unknown key', key)
   }
 
-  async function onActiveChange(value: string) {
+  async function onActiveChange(value: ConversationsId) {
     await setActiveConversationsId(value)
   }
 
@@ -146,7 +147,7 @@ export default function ConversationsManage() {
           <Conversations
             activeKey={activeConversationId}
             menu={conversationsMenuConfig}
-            onActiveChange={onActiveChange}
+            onActiveChange={(value: string) => onActiveChange(value as ConversationsId)}
             items={items}
           />
         </div>
@@ -161,7 +162,7 @@ export default function ConversationsManage() {
           isRenameModalOpen={isRenameModalOpen}
           closeRenameModal={closeRenameModal}
           renameConversation={renameConversationsAction}
-          renameId={renameId}
+          renameId={renameId as string}
           newName={newName}
           onChange={changeRename}
         />

@@ -1,3 +1,4 @@
+import type { ConversationsId, IConversationsSettings, IImage, IImageContent, IMessage, ITextContent } from '@/db/interface'
 import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
 import { DEFAULT_TITLE, Role } from '@/constants'
 import {
@@ -10,10 +11,10 @@ import {
   onRequestAction,
   refreshRequestAction,
   setRequestStatus,
-  updateConversationsSettingsACtion,
+  updateConversationsSettingsAction,
   useConversationsStore,
 } from '@/store/conversation'
-import { useActiveModelConfig, useModelConfigStore } from '@/store/modelConfig'
+import { useActiveModelConfig } from '@/store/modelConfig'
 import { clipboardWriteText, formatTime } from '@/utils'
 import { SettingOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
@@ -30,7 +31,7 @@ function createMessageContent(message: string, images: IImage[]) {
   if (!images.length)
     return message
 
-  const content: (ImageContent | TextContent)[] = images.map(item => ({ type: 'image_url', image_url: { ...item } }))
+  const content: (IImageContent | ITextContent)[] = images.map(item => ({ type: 'image_url', image_url: { ...item } }))
   content.push({ type: 'text', text: message })
   return content
 }
@@ -41,7 +42,6 @@ export default function Chat() {
   const messages = useConversationsStore(state => state.messages)
   const activeConversationId = useConversationsStore(state => state.activeConversationId)
   const currentConversation = useConversationsStore(state => state.conversations.find(item => item.id === activeConversationId))
-  const active = useModelConfigStore(state => state.active)
   const defaultModelConfig = useActiveModelConfig()
 
   const isLoading = useConversationsStore(state => state.requestStatus === 'loading')
@@ -57,7 +57,7 @@ export default function Chat() {
     },
   ]
 
-  const config = currentConversation?.settings || { active, modelConfig: defaultModelConfig }
+  const config = currentConversation?.settings?.modelConfig || defaultModelConfig
 
   const bubbleList = messages.map((msg) => {
     const { id: key, role, content, status, createAt } = msg
@@ -86,16 +86,16 @@ export default function Chat() {
     return item
   })
 
-  async function handleFooterButtonClick(buttonName: string, message: ChatMessage) {
+  async function handleFooterButtonClick(buttonName: string, message: IMessage) {
     const mapping = {
       copy: () => copyMessage(message),
-      refresh: () => refreshRequestAction(activeConversationId, message, config),
+      refresh: () => refreshRequestAction(activeConversationId as ConversationsId, message, config),
       delete: () => deleteMessageAction(message.id),
     }
     mapping[buttonName as keyof typeof mapping]?.()
   }
 
-  async function copyMessage(message: ChatMessage) {
+  async function copyMessage(message: IMessage) {
     const content = message.content as string
     const result = await clipboardWriteText(content)
     if (result.ok) {
@@ -117,10 +117,10 @@ export default function Chat() {
       isNewConversation = true
     }
 
-    const messageItem: ChatMessage = createMessage({ content: createMessageContent(message, images), convId: id })
+    const messageItem: IMessage = createMessage({ content: createMessageContent(message, images), convId: id as ConversationsId })
 
     // 发送请求
-    await onRequestAction(id, messageItem, config)
+    await onRequestAction(id as ConversationsId, messageItem, config)
 
     // 初始化会话标题
     if (currentConversation?.title === DEFAULT_TITLE || isNewConversation) {
@@ -134,7 +134,7 @@ export default function Chat() {
       return
     }
     const id = currentConversation?.id
-    await updateConversationsSettingsACtion(id, config)
+    await updateConversationsSettingsAction(id, config)
   }
 
   return (

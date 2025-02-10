@@ -10,3 +10,9 @@ export interface ChatCompletionsCallbacks {
   onSuccess?: (message: string) => void
   onError?: (message: Error) => void
 }
+
+export interface IModel {
+  id: string
+  object: 'model'
+  owned_by: string
+}

@@ -1,3 +1,4 @@
+import type { ModelConfig, ModelConfigId } from '@/db/interface'
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { setConfigAction, setModelAction, useModelConfigStore } from '../modelConfig'
@@ -20,14 +21,14 @@ describe('modelConfig', () => {
 
   it('setConfig', () => {
     const { result } = renderHook(() => useModelConfigStore())
-    const config = { model: 'gpt-4o', apiHost: 'https://api.openai.com', apiKey: 'sk-1234567890', temperature: 0.1, systemMessage: 'You are a helpful assistant.' }
+    const config: ModelConfig = { id: 'OpenAI' as ModelConfigId, model: 'gpt-4o', apiHost: 'https://api.openai.com', apiKey: 'sk-1234567890', temperature: 0.1 }
     act(() => {
-      setConfigAction(config)
+      setConfigAction(config.id, config)
     })
 
-    expect(result.current.configMapping.Gemini.model).toBe(config.model)
-    expect(result.current.configMapping.Gemini.apiHost).toBe(config.apiHost)
-    expect(result.current.configMapping.Gemini.apiKey).toBe(config.apiKey)
-    expect(result.current.configMapping.Gemini.temperature).toBe(config.temperature)
+    expect(result.current.configMapping.OpenAI.model).toBe(config.model)
+    expect(result.current.configMapping.OpenAI.apiHost).toBe(config.apiHost)
+    expect(result.current.configMapping.OpenAI.apiKey).toBe(config.apiKey)
+    expect(result.current.configMapping.OpenAI.temperature).toBe(config.temperature)
   })
 })

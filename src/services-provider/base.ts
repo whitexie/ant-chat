@@ -1,6 +1,8 @@
+import type { IMessage } from '@/db/interface'
 import type { SSEOutput } from '@/utils/stream'
 import type {
   ChatCompletionsCallbacks,
+  IModel,
   ServiceConstructorOptions,
 } from './interface'
 
@@ -68,7 +70,7 @@ export default abstract class BaseService {
 
   abstract getModels(_apiHost: string, _apiKey: string): Promise<IModel[]>
 
-  abstract transformRequestBody(messages: ChatMessage[]): unknown
+  abstract transformRequestBody(messages: IMessage[]): unknown
 
-  abstract sendChatCompletions(messages: ChatMessage[], callbacks?: ChatCompletionsCallbacks, addAbortCallback?: (callback: () => void) => void): Promise<void>
+  abstract sendChatCompletions(messages: IMessage[], callbacks?: ChatCompletionsCallbacks, addAbortCallback?: (callback: () => void) => void): Promise<void>
 }

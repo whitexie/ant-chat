@@ -1,4 +1,4 @@
-import { setConfigAction, useModelConfigStore } from '@/store/modelConfig'
+import { setConfigAction } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
 import { lazy, useState } from 'react'
 
@@ -8,7 +8,6 @@ const SettingsModal = lazy(() => import('./Modal'))
 
 export default function Settings() {
   const [open, setOpen] = useState(false)
-  const config = useModelConfigStore(state => state.configMapping[state.active])
 
   return (
     <>
@@ -20,7 +19,6 @@ export default function Settings() {
       </SideButton>
       <SettingsModal
         open={open}
-        config={config}
         onSave={setConfigAction}
         onClose={() => setOpen(false)}
       />

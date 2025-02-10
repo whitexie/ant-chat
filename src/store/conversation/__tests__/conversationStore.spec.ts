@@ -1,8 +1,9 @@
+import type { IConversationsSettings, IMessage, MessageId, ModelConfigId } from '@/db/interface'
 import { Role } from '@/constants'
 import { getConversationsById, getMessagesByConvId } from '@/db'
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { addConversationsAction, addMessageAction, clearConversationsAction, deleteConversationsAction, deleteMessageAction, importConversationsAction, renameConversationsAction, setActiveConversationsId, updateConversationsSettingsACtion, updateMessageAction } from '../actions'
+import { addConversationsAction, addMessageAction, clearConversationsAction, deleteConversationsAction, deleteMessageAction, importConversationsAction, renameConversationsAction, setActiveConversationsId, updateConversationsSettingsAction, updateMessageAction } from '../actions'
 import { createConversation, createMessage, useConversationsStore } from '../conversationsStore'
 
 describe('conversationStore', () => {
@@ -101,18 +102,18 @@ describe('conversationStore', () => {
 
     await setActiveConversationsId(conversations.id)
 
-    const newModelConfig = {
-      active: 'DeepSeek',
+    const newModelConfig: IConversationsSettings = {
       modelConfig: {
+        id: 'DeepSeek' as ModelConfigId,
         apiHost: 'https://api.deepseek.com',
         apiKey: '12306',
-        systemMessage: '你是一个乐于助人的AI助理',
         model: 'deepseek-chat',
         temperature: 0,
       },
+      systemMessage: '你是一个乐于助人的AI助理',
     }
 
-    await updateConversationsSettingsACtion(conversations.id, newModelConfig)
+    await updateConversationsSettingsAction(conversations.id, newModelConfig as IConversationsSettings)
 
     const result = await getConversationsById(conversations.id)
 
@@ -120,8 +121,9 @@ describe('conversationStore', () => {
     expect(result?.settings).toEqual(newModelConfig)
 
     const messages = await getMessagesByConvId(conversations.id)
+    const content = messages.find(message => message.role === Role.SYSTEM)?.content
 
-    expect(messages[0].content).toBe(newModelConfig.modelConfig.systemMessage)
+    expect(content).toBe(newModelConfig.systemMessage)
   })
 
   describe('messages actions', () => {
@@ -129,8 +131,8 @@ describe('conversationStore', () => {
       const { result } = renderHook(() => useConversationsStore())
 
       const conversation = createConversation()
-      const message: ChatMessage = {
-        id: '1',
+      const message: IMessage = {
+        id: '1' as MessageId,
         role: Role.USER,
         content: 'test',
         createAt: 1,
@@ -153,7 +155,7 @@ describe('conversationStore', () => {
 
       const conversation = createConversation()
 
-      const message: ChatMessage = createMessage({
+      const message: IMessage = createMessage({
         content: [
           { type: 'image_url', image_url: { uid: '1', name: 'test', url: 'https://example.com/image.jpg', size: 100, type: 'image/jpeg' } },
           { type: 'text', text: 'test' },

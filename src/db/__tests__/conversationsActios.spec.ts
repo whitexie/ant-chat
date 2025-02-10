@@ -1,5 +1,6 @@
-import { createConversation } from '@/store/conversation'
+import type { ConversationsId } from '../interface'
 
+import { createConversation } from '@/store/conversation'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { addConversations, deleteConversations, fetchConversations, getConversationsById, renameConversations } from '../conversationsActions'
 import db from '../db'
@@ -43,7 +44,7 @@ describe('conversationActions', () => {
   })
 
   it('测试分页', async () => {
-    const conversations = Array.from({ length: 20 }).map((_, index) => createConversation({ id: `${index}`, createAt: index }))
+    const conversations = Array.from({ length: 20 }).map((_, index) => createConversation({ id: `${index}` as ConversationsId, createAt: index }))
 
     await Promise.all(conversations.map(addConversations))
 

@@ -1,3 +1,4 @@
+import type { ModelConfig, ModelConfigId } from '@/db/interface'
 import type { FormInstance } from 'antd'
 import { setActiveAction, useActiveModelConfig, useModelConfigStore } from '@/store/modelConfig'
 import { Modal } from 'antd'
@@ -9,8 +10,7 @@ import ProviderDropdown from './ProviderDropdown'
 interface SettingsModalProps {
   open: boolean
   onClose?: () => void
-  config: ModelConfig
-  onSave?: (config: ModelConfig) => void
+  onSave?: (active: ModelConfigId, config: ModelConfig) => void
 }
 
 export default function SettingsModal({ open, onClose, onSave }: SettingsModalProps) {
@@ -21,7 +21,7 @@ export default function SettingsModal({ open, onClose, onSave }: SettingsModalPr
 
   function onOk() {
     formRef.current?.validateFields().then((values) => {
-      onSave?.(values)
+      onSave?.(active, values)
       onClose?.()
     })
   }

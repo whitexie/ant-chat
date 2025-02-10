@@ -1,3 +1,4 @@
+import type { IConversationsSettings } from '@/db/interface'
 import type { FormInstance } from 'antd'
 import ModelSettingsForm from '@/components/Settings/ModelSettingsForm'
 import ProviderDropdown from '@/components/Settings/ProviderDropdown'
@@ -15,12 +16,12 @@ interface ConversationsSettingsProps {
 
 function ConversationsSettings(props: ConversationsSettingsProps) {
   const formRef = useRef<FormInstance>(null)
-  const [active, setActive] = useState(props.initialValues?.active || 'Gemini')
+  const [active, setActive] = useState(props.initialValues?.modelConfig.id || 'Gemini')
   const initialValues = merge({}, getActiveModelConfig(), props.initialValues?.modelConfig)
 
   function onOk() {
     formRef.current?.validateFields().then((values) => {
-      props.onSave?.({ active, modelConfig: values })
+      props.onSave?.({ modelConfig: values, systemMessage: props.initialValues?.systemMessage || '' })
       props.onClose?.()
     })
   }

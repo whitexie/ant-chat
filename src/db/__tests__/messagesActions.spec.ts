@@ -1,3 +1,5 @@
+import type { ConversationsId } from '../interface'
+import { Role } from '@/constants'
 import { createConversation, createMessage } from '@/store/conversation'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { addConversations } from '../conversationsActions'
@@ -12,7 +14,7 @@ describe('消息操作', () => {
   it('添加消息', async () => {
     const conversation = createConversation()
     await addConversations(conversation)
-    const message = createMessage({ convId: conversation.id, content: 'asdfsd', role: 'user' })
+    const message = createMessage({ convId: conversation.id, content: 'asdfsd', role: Role.USER })
 
     await addMessage(message)
 
@@ -20,7 +22,7 @@ describe('消息操作', () => {
   })
 
   it('添加消息到不存在的会话', async () => {
-    const message = createMessage({ convId: '' })
+    const message = createMessage({ convId: '' as ConversationsId })
 
     await expect(addMessage(message)).rejects.toThrowError('conversation not found')
   })

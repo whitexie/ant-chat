@@ -1,5 +1,8 @@
+import type { ModelConfig, ModelConfigId } from '@/db/interface'
 import { DEFAULT_SYSTEM_MESSAGE } from '@/constants'
+import { uuid } from '@/utils'
 import { produce } from 'immer'
+import { pick } from 'lodash-es'
 import { create } from 'zustand'
 import { createJSONStorage, devtools, persist } from 'zustand/middleware'
 import storage from './storage'
@@ -8,28 +11,45 @@ interface Action {
   reset: () => void
 }
 
-export function createModelConfig(options: Partial<ModelConfig>) {
+export function createModelConfig(options: Partial<ModelConfig>): ModelConfig {
   return {
+    id: uuid() as ModelConfigId,
     name: '',
     apiHost: '',
     apiKey: '',
     model: '',
     temperature: 0.7,
-    systemMessage: DEFAULT_SYSTEM_MESSAGE,
     ...options,
   }
 }
 
-const initialState: ModelConfigV2 = {
-  active: 'Gemini',
-  configMapping: {
-    Gemini: createModelConfig({ name: 'Gemini', apiHost: 'https://generativelanguage.googleapis.com/v1beta' }),
-    DeepSeek: createModelConfig({ name: 'DeepSeek', apiHost: 'https://api.deepseek.com' }),
-    openAI: createModelConfig({ name: 'openAI', apiHost: 'https://api.openai.com' }),
-  },
+interface ConfigMapping {
+  Gemini: ModelConfig
+  DeepSeek: ModelConfig
+  OpenAI: ModelConfig
 }
 
-export type ModelConfigStore = ModelConfigV2 & Action
+type ModelConfigMappingKey = keyof ConfigMapping
+
+interface ModelConfigInitialState {
+  active: ModelConfigId
+  configMapping: ConfigMapping
+  systemMessage: string
+}
+
+const initialState: ModelConfigInitialState = {
+  active: 'Gemini' as ModelConfigId,
+  configMapping: {
+    Gemini: createModelConfig({ id: 'Gemini' as ModelConfigId, name: 'Gemini', apiHost: 'https://generativelanguage.googleapis.com/v1beta' }),
+    DeepSeek: createModelConfig({ id: 'DeepSeek' as ModelConfigId, name: 'DeepSeek', apiHost: 'https://api.deepseek.com' }),
+    OpenAI: createModelConfig({ id: 'OpenAI' as ModelConfigId, name: 'OpenAI', apiHost: 'https://api.openai.com' }),
+  },
+  systemMessage: DEFAULT_SYSTEM_MESSAGE,
+}
+
+const MODEL_CONFIG_WHITE_KEYS = Object.keys(createModelConfig({})) as (keyof ModelConfig)[]
+
+export type ModelConfigStore = ModelConfigInitialState & Action
 
 export const useModelConfigStore = create<ModelConfigStore>()(
   devtools(
@@ -59,11 +79,17 @@ export const useModelConfigStore = create<ModelConfigStore>()(
   ),
 )
 
-export function setConfigAction(config: ModelConfig) {
+export function setConfigAction(id: ModelConfigId, config: ModelConfig & { systemMessage?: string }) {
   useModelConfigStore.setState(state => produce(state, (draft) => {
-    if (draft.configMapping[draft.active]) {
-      draft.configMapping[draft.active] = config
+    if (!draft.configMapping[id]) {
+      throw new Error(`id not found. ${id}`)
     }
+
+    if (config.systemMessage) {
+      draft.systemMessage = config.systemMessage
+    }
+
+    draft.configMapping[id] = pick(config, MODEL_CONFIG_WHITE_KEYS)
   }))
 }
 
@@ -78,7 +104,7 @@ export function setActiveAction(active: ModelConfigMappingKey) {
     if (!draft.configMapping[active]) {
       throw new Error(`Model config ${active} not found`)
     }
-    draft.active = active
+    draft.active = active as ModelConfigId
   }))
 }
 
@@ -87,6 +113,10 @@ export function useActiveModelConfig() {
 }
 
 export function getActiveModelConfig() {
-  const { configMapping, active } = useModelConfigStore.getState()
-  return configMapping[active]
+  const { configMapping, active, systemMessage } = useModelConfigStore.getState()
+  return {
+    modelConfig: configMapping[active],
+    active,
+    systemMessage,
+  }
 }

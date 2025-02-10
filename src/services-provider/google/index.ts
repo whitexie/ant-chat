@@ -1,6 +1,8 @@
+import type { IImageContent, IMessage, ITextContent } from '@/db/interface'
 import type { SSEOutput } from '@/utils/stream'
 import type {
   ChatCompletionsCallbacks,
+  IModel,
   ServiceConstructorOptions,
 } from '../interface'
 import type {
@@ -45,7 +47,7 @@ class GeminiService extends BaseService {
     })
   }
 
-  private transformImage(item: (TextContent | ImageContent)[]) {
+  private transformImage(item: (ITextContent | IImageContent)[]) {
     return item.map((item) => {
       if (item.type === 'image_url') {
         const [, data] = item.image_url.url.split(';base64,')
@@ -55,7 +57,7 @@ class GeminiService extends BaseService {
     })
   }
 
-  transformMessages(messages: ChatMessage[]) {
+  transformMessages(messages: IMessage[]) {
     const result: GeminiRequestBody = {
       contents: [],
     }
@@ -88,7 +90,7 @@ class GeminiService extends BaseService {
     return result
   }
 
-  async sendChatCompletions(messages: ChatMessage[], callbacks?: ChatCompletionsCallbacks, addAbortCallback?: (abort: () => void) => void) {
+  async sendChatCompletions(messages: IMessage[], callbacks?: ChatCompletionsCallbacks, addAbortCallback?: (abort: () => void) => void) {
     this.validator()
 
     const abortController = new AbortController()
@@ -131,7 +133,7 @@ class GeminiService extends BaseService {
     this.parseSse(reader, callbacks)
   }
 
-  transformRequestBody(_messages: ChatMessage[]): GeminiRequestBody {
+  transformRequestBody(_messages: IMessage[]): GeminiRequestBody {
     const body = this.transformMessages(_messages)
     body.generationConfig = {
       temperature: this.temperature,
@@ -141,7 +143,7 @@ class GeminiService extends BaseService {
 
   extractContent(output: unknown): string {
     const json = JSON.parse((output as SSEOutput).data)
-    const content = json.candidates?.[0]?.content?.parts?.[0]?.text
+    const content = json.candidates?.[0]?.content?.parts?.[0]?.text || ''
     return content
   }
 }

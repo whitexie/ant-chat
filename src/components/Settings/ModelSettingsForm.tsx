@@ -1,3 +1,5 @@
+import type { ModelConfig, ModelConfigId } from '@/db/interface'
+import type { IModel } from '@/services-provider/interface'
 import type { FormInstance, SelectProps } from 'antd'
 import { getProviderModels } from '@/services-provider'
 import { ReloadOutlined } from '@ant-design/icons'
@@ -39,7 +41,7 @@ function SelectHoc({ onRefresh, loading, ...props }: SelectProps & { onRefresh: 
 }
 
 interface SettingsModalProps {
-  active: ModelConfigMappingKey
+  active: ModelConfigId
   initialValues: ModelConfig
   header?: React.ReactNode
   children?: React.ReactNode
@@ -94,6 +96,7 @@ export default forwardRef<FormInstance, SettingsModalProps>(({ initialValues, ac
       {header}
       <Form.Item label="API Host" name="apiHost" rules={apiHostRules}>
         <Input onBlur={handleRefreshModels} />
+
       </Form.Item>
       <Form.Item label="API Key" name="apiKey" rules={[CommonRules]}>
         <Input.Password onBlur={handleRefreshModels} />

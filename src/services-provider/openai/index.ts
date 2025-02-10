@@ -1,6 +1,8 @@
+import type { IMessage } from '@/db/interface'
 import type { SSEOutput } from '@/utils/stream'
 import type {
   ChatCompletionsCallbacks,
+  IModel,
   ServiceConstructorOptions,
 } from '../interface'
 import type { MessageContent, MessageItem } from './interface'
@@ -49,7 +51,7 @@ export default class OpenAIService extends BaseService {
     return ((await response.json()) as ModelsResponse).data
   }
 
-  transformMessages(_messages: ChatMessage[]): MessageItem[] {
+  transformMessages(_messages: IMessage[]): MessageItem[] {
     const hasImage = hasImageMessages(_messages)
     return _messages.map(message => transformMessageItem(message, hasImage))
   }
@@ -65,7 +67,7 @@ export default class OpenAIService extends BaseService {
     return ''
   }
 
-  transformRequestBody(_messages: ChatMessage[]): OpenAIRequestBody {
+  transformRequestBody(_messages: IMessage[]): OpenAIRequestBody {
     return {
       model: this.model,
       messages: this.transformMessages(_messages),
@@ -74,7 +76,7 @@ export default class OpenAIService extends BaseService {
     }
   }
 
-  async sendChatCompletions(_messages: ChatMessage[], callbacks: ChatCompletionsCallbacks, addAbortCallback?: (callback: () => void) => void) {
+  async sendChatCompletions(_messages: IMessage[], callbacks: ChatCompletionsCallbacks, addAbortCallback?: (callback: () => void) => void) {
     this.validator()
     const messages = this.transformMessages(_messages)
     const response = await fetch(`${this.apiHost}/chat/completions`, {
@@ -119,7 +121,7 @@ export default class OpenAIService extends BaseService {
 }
 
 // 新增类型守卫和工具函数
-function hasImageMessages(messages: ChatMessage[]): boolean {
+function hasImageMessages(messages: IMessage[]): boolean {
   return messages.some(item =>
     Array.isArray(item.content)
     && item.content.some(content => content.type === 'image_url'),
@@ -135,7 +137,7 @@ function mergeContentArrayToString(contents: Exclude<MessageContent, string>): s
     content.type === 'text' ? acc + content.text : acc, '')
 }
 
-function transformMessageItem(message: ChatMessage, hasImage: boolean): MessageItem {
+function transformMessageItem(message: IMessage, hasImage: boolean): MessageItem {
   const base = { role: message.role }
 
   if (hasImage) {

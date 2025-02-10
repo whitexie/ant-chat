@@ -1,10 +1,11 @@
+import type { ConversationsId, IConversations, IConversationsSettings } from './interface'
 import db from './db'
 
-export async function getConversationsById(id: string) {
+export async function getConversationsById(id: ConversationsId) {
   return await db.conversations.get(id)
 }
 
-export async function conversationsExists(id: string) {
+export async function conversationsExists(id: ConversationsId) {
   return !!(await getConversationsById(id))
 }
 
@@ -17,7 +18,7 @@ export async function addConversations(conversation: IConversations) {
   }
 }
 
-export async function deleteConversations(id: string) {
+export async function deleteConversations(id: ConversationsId) {
   return db.transaction('readwrite', db.conversations, db.messages, async () => {
     await Promise.all([
       db.conversations.delete(id),
@@ -26,7 +27,7 @@ export async function deleteConversations(id: string) {
   })
 }
 
-export async function updateConversationsSettings(id: string, config: IConversationsSettings) {
+export async function updateConversationsSettings(id: ConversationsId, config: IConversationsSettings) {
   const conversation = await getConversationsById(id)
   if (!conversation) {
     throw new Error(`conversations not exists: ${id}`)

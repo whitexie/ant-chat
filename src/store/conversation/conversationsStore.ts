@@ -1,3 +1,4 @@
+import type { IConversations, IMessage } from '@/db/interface'
 import { DEFAULT_TITLE, Role } from '@/constants'
 import { getNow, uuid } from '@/utils'
 import { create } from 'zustand'
@@ -32,7 +33,7 @@ export function createConversation(option?: Partial<IConversations>) {
   }, option)
 }
 
-export function createMessage(option?: RequireKey<Partial<ChatMessage>, 'convId'>): ChatMessage {
+export function createMessage(option?: RequireKey<Partial<IMessage>, 'convId'>): IMessage {
   return Object.assign({
     id: uuid(),
     role: Role.USER,

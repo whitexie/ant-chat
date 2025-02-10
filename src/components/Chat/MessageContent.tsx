@@ -1,5 +1,7 @@
+import type { IMessageContent } from '@/db/interface'
+
 // 提取消息渲染逻辑到独立组件
-export default function MessageContent({ content }: { content: MessageContent }) {
+export default function MessageContent({ content }: { content: IMessageContent }) {
   if (typeof content === 'string') {
     return <div className="whitespace-pre-wrap">{content}</div>
   }

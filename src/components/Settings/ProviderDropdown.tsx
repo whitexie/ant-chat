@@ -1,17 +1,16 @@
+import type { ModelConfigId } from '@/db/interface'
 import { useModelConfigStore } from '@/store/modelConfig'
-import { PlusOutlined } from '@ant-design/icons'
-import { App, Button, Divider, Form, Input, Select, Space } from 'antd'
-import { useState } from 'react'
+import { Divider, Form, Select } from 'antd'
 import { useShallow } from 'zustand/shallow'
 
 interface ProviderDropdownProps {
-  value: ModelConfigMappingKey
-  onChange: (value: ModelConfigMappingKey) => void
+  value?: ModelConfigId
+  onChange?: (value: ModelConfigId) => void
 }
 
 export default function ProviderDropdown(props: ProviderDropdownProps) {
-  const { message } = App.useApp()
-  const [providerName, setProviderName] = useState('')
+  // const { message } = App.useApp()
+  // const [providerName, setProviderName] = useState('')
   const { configMapping } = useModelConfigStore(useShallow((state) => {
     return {
       configMapping: state.configMapping,
@@ -23,25 +22,26 @@ export default function ProviderDropdown(props: ProviderDropdownProps) {
     value: key,
   }))
 
-  function addItem() {
-    // TODO 添加自定义提供商
-    message.error('功能开发中...')
-  }
+  // function addItem() {
+  //   // TODO 添加自定义提供商
+  //   message.error('功能开发中...')
+  // }
 
   return (
-    <Form.Item label="模型提供方">
+    <Form.Item label="模型提供方" name="id">
       <Select
-        value={props.value}
+        value={props?.value}
         options={options}
         onSelect={(value) => {
-          props.onChange(value)
+          props?.onChange?.(value)
         }}
+
         className="w-40"
         dropdownRender={menu => (
           <>
             {menu}
             <Divider style={{ margin: '8px 0' }} />
-            <Space>
+            {/* <Space>
               <Input
                 placeholder="请输入提供商名称"
                 value={providerName}
@@ -52,12 +52,10 @@ export default function ProviderDropdown(props: ProviderDropdownProps) {
               <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
                 自定义提供商
               </Button>
-            </Space>
+            </Space> */}
           </>
         )}
-
       />
-
     </Form.Item>
   )
 }

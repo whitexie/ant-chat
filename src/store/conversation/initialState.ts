@@ -1,8 +1,10 @@
+import type { IConversations, IMessage } from '@/db/interface'
+
 export interface StoreState {
   conversations: IConversations[]
   activeConversationId: string
   requestStatus: 'loading' | 'success' | 'error' | 'cancel'
-  messages: ChatMessage[]
+  messages: IMessage[]
   abortCallbacks: (() => void)[]
 }
 

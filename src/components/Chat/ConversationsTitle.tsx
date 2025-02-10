@@ -1,3 +1,4 @@
+import type { IConversations } from '@/db/interface'
 import type { ItemType } from 'antd/es/menu/interface'
 import { renameConversationsAction } from '@/store/conversation'
 import { CheckOutlined, EditOutlined, MoreOutlined } from '@ant-design/icons'

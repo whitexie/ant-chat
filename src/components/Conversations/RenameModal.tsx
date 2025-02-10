@@ -1,12 +1,14 @@
+import type { ConversationsId } from '@/db/interface'
 import { App, Input, Modal } from 'antd'
 
 interface RenameModalProps {
   isRenameModalOpen: boolean
   closeRenameModal: () => void
-  renameConversation: (renameId: string, newName: string) => void
+  renameConversation: (renameId: ConversationsId, newName: string) => void
   renameId: string
   newName: string
   onChange: (value: string) => void
+
 }
 
 export default function RenameModal({ onChange, isRenameModalOpen, closeRenameModal, renameConversation, renameId, newName }: RenameModalProps) {
@@ -21,7 +23,7 @@ export default function RenameModal({ onChange, isRenameModalOpen, closeRenameMo
           message.error('名称不能为空')
           throw new Error('名称不能为空')
         }
-        renameConversation(renameId, newName)
+        renameConversation(renameId as ConversationsId, newName)
         closeRenameModal()
       }}
       cancelText="取消"
