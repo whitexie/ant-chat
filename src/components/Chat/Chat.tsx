@@ -1,31 +1,24 @@
 import type { ConversationsId, IConversationsSettings, IImage, IImageContent, IMessage, ITextContent } from '@/db/interface'
-import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
-import { DEFAULT_TITLE, Role } from '@/constants'
+import { DEFAULT_TITLE } from '@/constants'
 import {
   addConversationsAction,
   createConversation,
   createMessage,
-  deleteMessageAction,
   executeAbortCallbacks,
   initCoversationsTitle,
   onRequestAction,
-  refreshRequestAction,
   setRequestStatus,
   updateConversationsSettingsAction,
   useConversationsStore,
 } from '@/store/conversation'
 import { useActiveModelConfig } from '@/store/modelConfig'
-import { clipboardWriteText, formatTime } from '@/utils'
 import { SettingOutlined } from '@ant-design/icons'
-import { Bubble } from '@ant-design/x'
-import { App, Typography } from 'antd'
-import { lazy, useState } from 'react'
-import BubbleFooter from './BubbleFooter'
+import { lazy, Suspense, useState } from 'react'
 import ChatSender from './ChatSender'
 import ConversationsTitle from './ConversationsTitle'
-import { roles } from './roles'
 
 const ConversationsSettings = lazy(() => import('./ConversationsSettings'))
+const BubbleList = lazy(() => import('./BubbleList'))
 
 function createMessageContent(message: string, images: IImage[]) {
   if (!images.length)
@@ -38,7 +31,6 @@ function createMessageContent(message: string, images: IImage[]) {
 
 export default function Chat() {
   const [open, setOpen] = useState(false)
-  const { message: messageFunc } = App.useApp()
   const messages = useConversationsStore(state => state.messages)
   const activeConversationId = useConversationsStore(state => state.activeConversationId)
   const currentConversation = useConversationsStore(state => state.conversations.find(item => item.id === activeConversationId))
@@ -58,53 +50,6 @@ export default function Chat() {
   ]
 
   const config = currentConversation?.settings?.modelConfig || defaultModelConfig
-
-  const bubbleList = messages.map((msg) => {
-    const { id: key, role, content, status, createAt } = msg
-    const item: BubbleDataType = {
-      role,
-      content,
-      key,
-      loading: status === 'loading',
-      header: <div className="text-xs flex items-center">{formatTime(createAt)}</div>,
-      footer: <BubbleFooter message={msg} onClick={handleFooterButtonClick} />,
-    }
-
-    if (item.role === Role.AI && status === 'error') {
-      item.content = (
-        <>
-          <Typography.Paragraph>
-            <Typography.Text type="danger">{content as string}</Typography.Text>
-          </Typography.Paragraph>
-          <Typography.Paragraph>
-            <Typography.Text type="danger">请求失败，请检查配置是否正确</Typography.Text>
-          </Typography.Paragraph>
-        </>
-      )
-    }
-
-    return item
-  })
-
-  async function handleFooterButtonClick(buttonName: string, message: IMessage) {
-    const mapping = {
-      copy: () => copyMessage(message),
-      refresh: () => refreshRequestAction(activeConversationId as ConversationsId, message, config),
-      delete: () => deleteMessageAction(message.id),
-    }
-    mapping[buttonName as keyof typeof mapping]?.()
-  }
-
-  async function copyMessage(message: IMessage) {
-    const content = message.content as string
-    const result = await clipboardWriteText(content)
-    if (result.ok) {
-      messageFunc.success(result.message)
-    }
-    else {
-      messageFunc.error(result.message)
-    }
-  }
 
   async function onSubmit(message: string, images: IImage[]) {
     let id = activeConversationId
@@ -145,13 +90,19 @@ export default function Chat() {
           conversation={currentConversation}
           items={items}
         />
-        <div>
-          <Bubble.List
-            items={bubbleList}
-            roles={roles}
-            className="h-[var(--bubbleListHeight)] scroll-hidden"
-          />
-        </div>
+        {
+          messages.length > 0
+            ? (
+                <Suspense>
+                  <BubbleList
+                    messages={messages}
+                    config={config}
+                    currentConversations={currentConversation}
+                  />
+                </Suspense>
+              )
+            : null
+        }
       </div>
       <div className={`w-full px-2 flex-shrink-0 w-full h-[var(--senderHeight)] relative `}>
         <ChatSender
