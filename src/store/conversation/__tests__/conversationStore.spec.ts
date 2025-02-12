@@ -110,7 +110,7 @@ describe('conversationStore', () => {
         model: 'deepseek-chat',
         temperature: 0,
       },
-      systemMessage: '你是一个乐于助人的AI助理',
+      systemPrompt: '你是一个乐于助人的AI助理',
     }
 
     await updateConversationsSettingsAction(conversations.id, newModelConfig as IConversationsSettings)
@@ -123,7 +123,7 @@ describe('conversationStore', () => {
     const messages = await getMessagesByConvId(conversations.id)
     const content = messages.find(message => message.role === Role.SYSTEM)?.content
 
-    expect(content).toBe(newModelConfig.systemMessage)
+    expect(content).toBe(newModelConfig.systemPrompt)
   })
 
   describe('messages actions', () => {

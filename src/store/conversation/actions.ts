@@ -1,4 +1,4 @@
-import type { ConversationsId, IConversations, IConversationsSettings, IMessage, MessageId, ModelConfig } from '@/db/interface'
+import type { ConversationsId, IConversations, IMessage, MessageId, ModelConfig } from '@/db/interface'
 import type { StoreState } from './initialState'
 import { Role, TITLE_PROMPT } from '@/constants'
 import {
@@ -9,13 +9,16 @@ import {
   deleteConversations,
   deleteMessage,
   fetchConversations,
+  getConversationsById,
   getMessagesByConvId,
   renameConversations,
-  updateConversationsSettings,
+  setConversationsModelConfig,
+  setConversationsSystemPrompt,
   updateMessage,
 } from '@/db'
 import { getServiceProviderConstructor } from '@/services-provider'
 import { produce } from 'immer'
+import { isEqual } from 'lodash-es'
 import { getActiveModelConfig, useModelConfigStore } from '../modelConfig'
 import { createMessage, useConversationsStore } from './conversationsStore'
 
@@ -134,17 +137,44 @@ export async function initCoversationsTitle() {
   )
 }
 
-export async function updateConversationsSettingsAction(id: ConversationsId, config: IConversationsSettings) {
-  await updateConversationsSettings(id, config)
+export interface UpdateConversationsSettingsConfig {
+  title?: string
+  systemPrompt?: string
+  modelConfig?: ModelConfig | null
+}
 
+export async function updateConversationsSettingsAction(id: ConversationsId, config: UpdateConversationsSettingsConfig) {
+  const { title, systemPrompt, modelConfig } = config
+  const conversations = await getConversationsById(id)
+  let systemPromptChanged = false
+  if (!conversations) {
+    console.error('conversations not found')
+    return
+  }
+
+  if (title && conversations.title !== title) {
+    await renameConversationsAction(id, title)
+  }
+
+  if (systemPrompt && conversations.settings?.systemPrompt !== systemPrompt) {
+    systemPromptChanged = true
+    await setConversationsSystemPrompt(id, systemPrompt)
+  }
+
+  if (modelConfig === null) {
+    await setConversationsModelConfig(id, null)
+  }
+
+  else if (modelConfig !== undefined && !(isEqual(conversations.settings?.modelConfig, modelConfig))) {
+    await setConversationsModelConfig(id, modelConfig)
+  }
+
+  // 更新conversationsStore.messages的系统提示词
   const messages = await getMessagesByConvId(id)
-  const oldSystemMessage = messages.find(item => item.role === Role.SYSTEM)
-  let systemMessageIschanged = false
+  const messageIndex = messages.findIndex(item => item.role === Role.SYSTEM)
 
-  // 判断是否修改了系统提示词
-  if (oldSystemMessage && oldSystemMessage.content !== config.systemMessage) {
-    await updateMessageAction({ ...oldSystemMessage, content: config.systemMessage })
-    systemMessageIschanged = true
+  if (messageIndex === -1) {
+    throw new Error('当前对话没有系统提示词。')
   }
 
   useConversationsStore.setState(state => produce(state, (draft) => {
@@ -154,11 +184,8 @@ export async function updateConversationsSettingsAction(id: ConversationsId, con
     }
 
     // 同步更新messages中的系统提示词
-    if (oldSystemMessage && systemMessageIschanged) {
-      const index = draft.messages.findIndex(msg => msg.id === oldSystemMessage.id)
-      if (index > -1) {
-        draft.messages[index].content = config.systemMessage
-      }
+    if (systemPrompt && systemPromptChanged) {
+      draft.messages[messageIndex].content = systemPrompt
     }
   }))
 }

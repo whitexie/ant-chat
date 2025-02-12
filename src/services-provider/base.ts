@@ -43,6 +43,10 @@ export default abstract class BaseService {
     this.model = model
   }
 
+  getApiHost(): string {
+    return this.apiHost
+  }
+
   async parseSse(reader: ReadableStreamDefaultReader<SSEOutput>, callbacks?: ChatCompletionsCallbacks) {
     let __content__ = ''
 

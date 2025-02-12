@@ -1,5 +1,7 @@
-import type { ConversationsId, IConversations, IConversationsSettings } from './interface'
+import type { ConversationsId, IConversations, IConversationsSettings, ModelConfig } from './interface'
+import { Role } from '@/constants'
 import db from './db'
+import { getMessagesByConvId, updateMessage } from './messagesActions'
 
 export async function getConversationsById(id: ConversationsId) {
   return await db.conversations.get(id)
@@ -25,6 +27,42 @@ export async function deleteConversations(id: ConversationsId) {
       db.messages.filter(item => item.convId === id).delete(),
     ])
   })
+}
+
+export async function setConversationsSystemPrompt(id: ConversationsId, systemPrompt: string) {
+  const conversation = await getConversationsById(id)
+  if (!conversation) {
+    throw new Error(`conversations not exists: ${id}`)
+  }
+
+  if (!conversation.settings) {
+    conversation.settings = {}
+  }
+
+  conversation.settings.systemPrompt = systemPrompt
+  const systemMessage = (await getMessagesByConvId(id)).find(item => item.role === Role.SYSTEM)
+
+  if (systemMessage) {
+    systemMessage.content = systemPrompt
+    await updateMessage(systemMessage)
+  }
+
+  return await db.conversations.put(conversation)
+}
+
+export async function setConversationsModelConfig(id: ConversationsId, modelConfig: ModelConfig | null) {
+  const conversation = await getConversationsById(id)
+  if (!conversation) {
+    throw new Error(`conversations not exists: ${id}`)
+  }
+
+  if (!conversation.settings) {
+    conversation.settings = {}
+  }
+
+  conversation.settings.modelConfig = modelConfig
+
+  return await db.conversations.put(conversation)
 }
 
 export async function updateConversationsSettings(id: ConversationsId, config: IConversationsSettings) {
