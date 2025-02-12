@@ -32,17 +32,13 @@ const ConversationsTitle: React.FunctionComponent<ConversationsTitleProps> = ({ 
     setIsEditing(false)
   }
 
-  const menu = {
-    items,
-  }
-
   return (
     <div className="h-[var(--headerHeight)]">
       <div className="absolute z-1 h-[var(--headerHeight)] bg-[var(--ant-layout-color-bg-body)] top-0 left-0 right-0 shadow px-3 flex justify-between items-center">
         {isEditing
           ? (
               <div className="flex items-center gap-2">
-                <Input value={title} onChange={e => setTitle(e.target.value)} />
+                <Input value={title} onChange={e => setTitle(e.target.value)} onPressEnter={handleRename} />
                 <Button type="text" icon={<CheckOutlined />} onClick={handleRename} />
               </div>
             )
@@ -53,7 +49,7 @@ const ConversationsTitle: React.FunctionComponent<ConversationsTitleProps> = ({ 
               </div>
             )}
         <div className="more-actions">
-          <Dropdown menu={menu} trigger={['click']} placement="bottomRight" arrow>
+          <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight" arrow>
             <Button type="text" icon={<MoreOutlined style={{ fontSize: 24 }} />} />
           </Dropdown>
         </div>
