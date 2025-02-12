@@ -38,7 +38,7 @@ const ConversationsTitle: React.FunctionComponent<ConversationsTitleProps> = ({ 
         {isEditing
           ? (
               <div className="flex items-center gap-2">
-                <Input value={title} onChange={e => setTitle(e.target.value)} onPressEnter={handleRename} />
+                <Input autoFocus value={title} onBlur={() => setIsEditing(false)} onChange={e => setTitle(e.target.value)} onPressEnter={handleRename} />
                 <Button type="text" icon={<CheckOutlined />} onClick={handleRename} />
               </div>
             )
