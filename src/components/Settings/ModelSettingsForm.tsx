@@ -48,6 +48,7 @@ interface SettingsModalProps {
 export interface ModelSettingsFormInstance {
   getValues: () => ModelConfig | null
   validateFields: () => Promise<ModelConfig | null>
+  resetFields: () => void
 }
 
 export default function ModelSettingsForm({ header, ref, showReset, ...props }: SettingsModalProps) {
@@ -114,6 +115,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
       return
     }
     try {
+      setModels([])
       setLoading(true)
       const models = await getProviderModels(_active, apiHost, apiKey)
       setModels(models)
@@ -130,11 +132,13 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
   function onProviderChange(value: string) {
     const apiHost = getProviderDefaultApiHost(value)
     form.setFieldsValue({ apiHost })
+    props.onProviderChange?.(value)
   }
 
   useImperativeHandle(ref, () => ({
     getValues: () => form.getFieldsValue(),
     validateFields: () => form.validateFields(),
+    resetFields: () => form.resetFields(),
   }))
 
   useEffect(() => {
@@ -153,7 +157,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
         />
       </Form.Item>
       <Form.Item label="API Host" name="apiHost" rules={apiHostRules}>
-        <Input onBlur={handleRefreshModels} />
+        <Input type="text" onBlur={handleRefreshModels} />
       </Form.Item>
       <Form.Item label="API Key" name="apiKey" rules={[CommonRules]}>
         <Input.Password onBlur={handleRefreshModels} />
@@ -183,6 +187,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
                       e.stopPropagation()
                       const value = e.currentTarget.value
                       setModels(prev => [...prev, { id: value, name: value, object: 'model', owned_by: 'user' }])
+
                       modelInputRef.current?.blur()
                       form.setFieldValue('model', value)
                       setModelName('')
@@ -208,6 +213,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
           }}
         />
       </Form.Item>
+      {props.children}
     </Form>
   )
 }

@@ -93,6 +93,12 @@ export function setConfigAction(id: ModelConfigId, config: ModelConfig & { syste
   }))
 }
 
+export function setSystemPromptAction(prompt: string) {
+  useModelConfigStore.setState(state => produce(state, (draft) => {
+    draft.systemMessage = prompt
+  }))
+}
+
 export function setModelAction(model: string) {
   useModelConfigStore.setState(state => produce(state, (draft) => {
     draft.configMapping[draft.active].model = model

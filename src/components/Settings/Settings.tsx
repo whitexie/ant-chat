@@ -1,4 +1,4 @@
-import { setConfigAction } from '@/store/modelConfig'
+import { setConfigAction, setSystemPromptAction } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
 import { lazy, useState } from 'react'
 
@@ -19,7 +19,12 @@ export default function Settings() {
       </SideButton>
       <SettingsModal
         open={open}
-        onSave={setConfigAction}
+        onSave={(active, config) => {
+          const { systemPrompt, modelConfig } = config
+
+          setSystemPromptAction(systemPrompt)
+          setConfigAction(active, modelConfig)
+        }}
         onClose={() => setOpen(false)}
       />
     </>
