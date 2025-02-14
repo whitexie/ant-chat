@@ -1,3 +1,22 @@
+## [0.2.1](https://github.com/whitexie/ant-chat/compare/v0.2.0...v0.2.1) (2025-02-14)
+
+
+### Bug Fixes
+
+* 改进系统提示词和用户消息的展示效果 ([5c5732f](https://github.com/whitexie/ant-chat/commit/5c5732f52919f12fa9ee076c89e4bfa142f2b445))
+* 系统提示词消息不支持删除 ([71ade30](https://github.com/whitexie/ant-chat/commit/71ade3039fd466c0f25b84acf2646e9a605197e2))
+* 修复AI回答时无法中止 ([94d961b](https://github.com/whitexie/ant-chat/commit/94d961b7786522739af75856095e6d0fd279c79a))
+* 修复temperature不生效 ([ce5196f](https://github.com/whitexie/ant-chat/commit/ce5196f135e2b1afcf23eb1124e7c6d61592f311))
+* add onPressEnter handler to ConversationsTitle input ([1dc6591](https://github.com/whitexie/ant-chat/commit/1dc65911c9a4e6161301c5092bda8eff43c09bfc))
+* decryptData 现在返回原始字符串，不再进行 JSON 解析 ([1e3cc50](https://github.com/whitexie/ant-chat/commit/1e3cc5007d2803cecc5fb1071a30c05046630122))
+
+
+### Features
+
+* 通过语法高亮和改进的代码块支持增强 Markdown 渲染 ([cf077bf](https://github.com/whitexie/ant-chat/commit/cf077bf46c80b5f6e7b1238fae3886c5b91b1daa))
+
+
+
 # [0.2.0](https://github.com/whitexie/ant-chat/compare/v0.1.0...v0.2.0) (2025-02-04)
 
 
