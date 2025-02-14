@@ -1,13 +1,11 @@
 import changelog from '@/../CHANGELOG.md?raw'
 import { version } from '@/../package.json'
+import RenderMarkdown from '@/components/RenderMarkdown'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { Modal, Typography } from 'antd'
-import { lazy, Suspense, useState } from 'react'
-import Loading from '../Loading'
+import { useState } from 'react'
 import { Logo } from '../Logo'
 import SideButton from '../SideButton'
-
-const RenderMarkdown = lazy(() => import('../Chat/RenderMarkdown'))
 
 const { Title, Paragraph } = Typography
 
@@ -41,9 +39,7 @@ export function VersionButton() {
                 <Title className="text-center" level={5}>更新日志</Title>
               </Paragraph>
             </Typography>
-            <Suspense fallback={<Loading />}>
-              <RenderMarkdown content={changelog} />
-            </Suspense>
+            <RenderMarkdown content={changelog} />
           </div>
         </div>
       </Modal>

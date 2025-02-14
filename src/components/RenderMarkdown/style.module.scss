@@ -1,0 +1,9 @@
+.markdown-typography {
+  &:global(.ant-typography) {
+    // 代码块外框
+    pre {
+      border: none;
+      padding: 0px;
+    }
+  }
+}

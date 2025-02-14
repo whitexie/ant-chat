@@ -1,12 +1,9 @@
 import type { BubbleListProps } from '@ant-design/x/es/bubble/BubbleList'
 import type { GetProp } from 'antd'
+import RenderMarkdown from '@/components/RenderMarkdown'
 import { Role } from '@/constants'
 import { RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
-import { lazy, Suspense } from 'react'
-import Loading from '../Loading'
 import MessageContent from './MessageContent'
-
-const RenderMarkdown = lazy(() => import('./RenderMarkdown'))
 
 export const roles: GetProp<BubbleListProps, 'roles'> = {
   [Role.SYSTEM]: {
@@ -29,11 +26,7 @@ export const roles: GetProp<BubbleListProps, 'roles'> = {
     },
     messageRender: content => typeof content === 'string'
 
-      ? (
-          <Suspense fallback={<Loading />}>
-            <RenderMarkdown content={content} />
-          </Suspense>
-        )
+      ? <RenderMarkdown content={content} />
       : content,
   },
 

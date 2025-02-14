@@ -1,13 +1,19 @@
 import type { IMessageContent } from '@/db/interface'
+import RenderMarkdown from '@/components/RenderMarkdown'
+import React from 'react'
 
 // 提取消息渲染逻辑到独立组件
 export default function MessageContent({ content }: { content: IMessageContent }) {
   if (typeof content === 'string') {
-    return <div className="whitespace-pre-wrap">{content}</div>
+    return (
+      <RenderMarkdown content={content} />
+    )
   }
 
   const images = content.filter(item => item.type === 'image_url')
-  const texts = content.filter(item => item.type === 'text')
+  const _content = content.filter(item => item.type === 'text').reduce((a, b) => {
+    return `${a}${b.text}`
+  }, '')
 
   return (
     <div>
@@ -29,11 +35,9 @@ export default function MessageContent({ content }: { content: IMessageContent }
           <hr className="my-2" />
         </>
       )}
-      {texts.map((item, index) => (
-        <div key={index} className="whitespace-pre-wrap">
-          {item.text}
-        </div>
-      ))}
+      <React.Suspense>
+        <RenderMarkdown content={_content} />
+      </React.Suspense>
     </div>
   )
 }
