@@ -1,4 +1,5 @@
 import type { IConversations, IMessage } from '@/db/interface'
+import type { RequireKey } from '@/types/global'
 import { DEFAULT_TITLE, Role } from '@/constants'
 import { getNow, uuid } from '@/utils'
 import { create } from 'zustand'
@@ -41,5 +42,7 @@ export function createMessage(option?: RequireKey<Partial<IMessage>, 'convId'>):
     createAt: getNow(),
     status: 'success',
     convId: '',
+    images: [],
+    attachments: [],
   }, option)
 }
