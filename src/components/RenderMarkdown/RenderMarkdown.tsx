@@ -1,6 +1,7 @@
 import { useThemeStore } from '@/store/theme'
 import { Typography } from 'antd'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { visit } from 'unist-util-visit'
 import CodeBlock from './CodeBlock'
 import style from './style.module.scss'
@@ -33,6 +34,7 @@ export default function RenderMarkdown({ content }: RenderMarkdownProps) {
               node.lang = node.lang ?? 'plaintext'
             })
           },
+          remarkGfm,
         ]}
         components={{
           code: (props) => {

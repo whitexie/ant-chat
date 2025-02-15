@@ -6,4 +6,16 @@
       padding: 0px;
     }
   }
+  table {
+    border-collapse: collapse; /* 让表格边框合并 */
+    width: 100%; /* 设置表格宽度 */
+    margin-bottom: 1em;
+  }
+
+  th,
+  td {
+    /* 定义表头和单元格的样式 */
+    border: 1px solid #ddd; /* 边框样式 */
+    padding: 8px; /* 内边距 */
+  }
 }
