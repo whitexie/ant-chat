@@ -2,14 +2,14 @@ export interface TextPart {
   text: string
 }
 
-export interface ImagePart {
-  inlineData: {
+export interface IFilePart {
+  inline_data: {
     mimeType: string
     data: string
   }
 }
 
-export type Part = TextPart | ImagePart
+export type Part = TextPart | IFilePart
 
 export interface UserContent {
   role: 'user'

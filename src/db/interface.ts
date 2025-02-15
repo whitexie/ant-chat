@@ -30,13 +30,25 @@ export interface IConversations {
   settings?: IConversationsSettings
 }
 
+export interface IAttachment {
+  uid: string
+  name: string
+  size: number
+  type: string
+  data: string
+}
+
+export type IImage = IAttachment
+
 export interface IMessage {
   id: MessageId
   convId: ConversationsId
   role: Role
-  content: IMessageContent
+  content: string
   createAt: CreateAt
   status?: 'success' | 'error' | 'loading'
+  images: IAttachment[]
+  attachments: IAttachment[]
 }
 
 export interface ITextContent {
@@ -47,14 +59,6 @@ export interface ITextContent {
 export interface IImageContent {
   type: 'image_url'
   image_url: IImage
-}
-
-export interface IImage {
-  uid: string
-  name: string
-  size: number
-  type: string
-  url: string
 }
 
 export type IMessageContent = string | (ITextContent | IImageContent)[]

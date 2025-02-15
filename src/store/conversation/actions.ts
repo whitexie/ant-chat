@@ -109,17 +109,7 @@ export async function initCoversationsTitle() {
     return
   }
 
-  const text = messages.map((item) => {
-    const { content } = item
-
-    if (typeof content === 'string') {
-      return content
-    }
-    return content.filter(item => item.type === 'text')
-      .map(item => item.text)
-      .filter(Boolean)
-      .join('\n')
-  }).join('\n————————————————————\n')
+  const text = messages.map(item => item.content).join('\n————————————————————\n')
 
   const content = TITLE_PROMPT.replace('pGqat5J/L@~U', text)
   const Service = getServiceProviderConstructor(active)

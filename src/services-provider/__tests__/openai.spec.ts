@@ -8,7 +8,7 @@ describe('openAI service', () => {
     it('messages 包含图片', () => {
       const messages = [
         createMessage({ convId: '0' as ConversationsId, content: 'test1' }),
-        createMessage({ convId: '0' as ConversationsId, content: [{ type: 'text', text: 'test2' }, { type: 'image_url', image_url: { uid: '0', name: 'test', type: 'image/png', size: 123, url: 'https://example.com/image.jpg' } }] }),
+        createMessage({ convId: '0' as ConversationsId, content: 'test2', images: [{ uid: '0', name: 'test', type: 'image/png', size: 123, data: 'https://example.com/image.jpg' }] }),
       ]
 
       const result = new OpenAIService().transformMessages(messages)
@@ -20,8 +20,8 @@ describe('openAI service', () => {
 
     it('messages 都是text数组', () => {
       const messages = [
-        createMessage({ convId: '0' as ConversationsId, content: [{ type: 'text', text: 'test1' }] }),
-        createMessage({ convId: '0' as ConversationsId, content: [{ type: 'text', text: 'test2' }] }),
+        createMessage({ convId: '0' as ConversationsId, content: 'test1' }),
+        createMessage({ convId: '0' as ConversationsId, content: 'test2' }),
       ]
 
       const result = new OpenAIService().transformMessages(messages)

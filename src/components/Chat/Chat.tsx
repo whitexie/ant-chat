@@ -1,7 +1,5 @@
-import type { ConversationsId, IImage, IImageContent, IMessage, ITextContent } from '@/db/interface'
-import type {
-  UpdateConversationsSettingsConfig,
-} from '@/store/conversation'
+import type { ConversationsId, IAttachment, IImage, IMessage } from '@/db/interface'
+import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import { DEFAULT_TITLE } from '@/constants'
 import {
   addConversationsAction,
@@ -23,15 +21,6 @@ import ConversationsTitle from './ConversationsTitle'
 const ConversationsSettings = lazy(() => import('./ConversationsSettings'))
 const BubbleList = lazy(() => import('./BubbleList'))
 
-function createMessageContent(message: string, images: IImage[]) {
-  if (!images.length)
-    return message
-
-  const content: (IImageContent | ITextContent)[] = images.map(item => ({ type: 'image_url', image_url: { ...item } }))
-  content.push({ type: 'text', text: message })
-  return content
-}
-
 export default function Chat() {
   const [open, setOpen] = useState(false)
   const messages = useConversationsStore(state => state.messages)
@@ -40,6 +29,7 @@ export default function Chat() {
   const defaultModelConfig = useActiveModelConfig()
 
   const isLoading = useConversationsStore(state => state.requestStatus === 'loading')
+  const config = currentConversations?.settings?.modelConfig || defaultModelConfig
 
   const items = [
     {
@@ -52,9 +42,7 @@ export default function Chat() {
     },
   ]
 
-  const config = currentConversations?.settings?.modelConfig || defaultModelConfig
-
-  async function onSubmit(message: string, images: IImage[]) {
+  async function onSubmit(message: string, images: IImage[], attachments: IAttachment[]) {
     let id = activeConversationId
     let isNewConversation = false
     // 如果当前没有会话，则创建一个
@@ -65,7 +53,7 @@ export default function Chat() {
       isNewConversation = true
     }
 
-    const messageItem: IMessage = createMessage({ content: createMessageContent(message, images), convId: id as ConversationsId })
+    const messageItem: IMessage = createMessage({ images, attachments, content: message, convId: id as ConversationsId })
 
     // 发送请求
     await onRequestAction(id as ConversationsId, messageItem, config)
@@ -108,7 +96,7 @@ export default function Chat() {
       <div className={`w-full px-2 flex-shrink-0 w-full h-[var(--senderHeight)] relative `}>
         <ChatSender
           loading={isLoading}
-          onSubmit={(message, images) => onSubmit(message, images)}
+          onSubmit={onSubmit}
           onCancel={() => {
             executeAbortCallbacks()
             setRequestStatus('cancel')

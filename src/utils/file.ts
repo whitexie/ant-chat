@@ -41,3 +41,38 @@ function parseAntFile(text: string) {
   }
   return data
 }
+
+/**
+ * 将 File 对象转换为 Base64 字符串
+ * @param file 要转换的 File 对象
+ * @returns 返回一个 Promise，解析为 Base64 字符串
+ */
+export function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // 添加文件类型校验
+    if (!(file instanceof Blob)) {
+      reject(new Error('无效的文件对象'))
+      return
+    }
+
+    const reader = new FileReader()
+
+    // 当文件读取成功时，调用 resolve 并传递 Base64 数据
+    reader.onload = (event) => {
+      if (event.target && typeof event.target.result === 'string') {
+        resolve(event.target.result)
+      }
+      else {
+        reject(new Error('无法读取文件数据'))
+      }
+    }
+
+    // 如果读取过程中发生错误，调用 reject
+    reader.onerror = () => {
+      reject(new Error('文件读取失败'))
+    }
+
+    // 以 Data URL 的形式读取文件，结果会以 Base64 编码
+    reader.readAsDataURL(file)
+  })
+}

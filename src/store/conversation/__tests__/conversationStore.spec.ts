@@ -131,13 +131,13 @@ describe('conversationStore', () => {
       const { result } = renderHook(() => useConversationsStore())
 
       const conversation = createConversation()
-      const message: IMessage = {
+      const message: IMessage = createMessage({
         id: '1' as MessageId,
         role: Role.USER,
         content: 'test',
         createAt: 1,
         convId: conversation.id,
-      }
+      })
 
       await act(async () => {
         await addConversationsAction(conversation)
@@ -156,10 +156,8 @@ describe('conversationStore', () => {
       const conversation = createConversation()
 
       const message: IMessage = createMessage({
-        content: [
-          { type: 'image_url', image_url: { uid: '1', name: 'test', url: 'https://example.com/image.jpg', size: 100, type: 'image/jpeg' } },
-          { type: 'text', text: 'test' },
-        ],
+        content: 'text',
+        images: [{ uid: '1', name: 'test', data: 'https://example.com/image.jpg', size: 100, type: 'image/jpeg' }],
         convId: conversation.id,
       })
 

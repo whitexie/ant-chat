@@ -5,9 +5,8 @@ import type {
   IModel,
   ServiceConstructorOptions,
 } from '../interface'
-import type { MessageContent, MessageItem } from './interface'
+import type { ImageContent, MessageItem, TextContent } from './interface'
 import { Stream } from '@/utils'
-import { pick } from 'lodash-es'
 import BaseService from '../base'
 
 interface OpenAIRequestBody {
@@ -52,8 +51,9 @@ export default class OpenAIService extends BaseService {
   }
 
   transformMessages(_messages: IMessage[]): MessageItem[] {
-    const hasImage = hasImageMessages(_messages)
-    return _messages.map(message => transformMessageItem(message, hasImage))
+    // const hasImage = hasImageMessages(_messages)
+    const isHasFile = _messages.some(message => message.images.length > 0 || message.attachments.length > 0)
+    return _messages.map(message => transformMessageItem(message, isHasFile))
   }
 
   extractContent(output: SSEOutput): string {
@@ -120,41 +120,20 @@ export default class OpenAIService extends BaseService {
   }
 }
 
-// 新增类型守卫和工具函数
-function hasImageMessages(messages: IMessage[]): boolean {
-  return messages.some(item =>
-    Array.isArray(item.content)
-    && item.content.some(content => content.type === 'image_url'),
-  )
-}
-
-function convertTextToContentArray(content: string): MessageContent {
-  return [{ type: 'text', text: content }]
-}
-
-function mergeContentArrayToString(contents: Exclude<MessageContent, string>): string {
-  return contents.reduce((acc, content) =>
-    content.type === 'text' ? acc + content.text : acc, '')
-}
-
-function transformMessageItem(message: IMessage, hasImage: boolean): MessageItem {
-  const base = { role: message.role }
-
-  if (hasImage) {
-    const content: MessageContent = typeof message.content === 'string'
-      ? convertTextToContentArray(message.content)
-      : message.content.map(
-          c => c.type === 'image_url'
-            ? { type: c.type, image_url: pick(c.image_url, ['url']) }
-            : pick(c, ['type', 'text']),
-        )
-
-    return { ...base, content }
+function transformMessageItem(message: IMessage, isHasFile: boolean): MessageItem {
+  if (!isHasFile) {
+    return { role: message.role, content: message.content }
   }
 
-  const content = typeof message.content === 'string'
-    ? message.content
-    : mergeContentArrayToString(message.content)
+  const content: (TextContent | ImageContent)[] = [
+    { type: 'text', text: message.content },
+  ]
 
-  return { ...base, content }
+  const imageMessages: ImageContent[] = message.images.map((item) => {
+    return { type: 'image_url', image_url: { url: item.data } }
+  })
+
+  content.push(...imageMessages)
+
+  return { role: message.role, content }
 }

@@ -1,4 +1,4 @@
-import type { IImageContent, IMessage, ITextContent } from '@/db/interface'
+import type { IAttachment, IMessage } from '@/db/interface'
 import type { SSEOutput } from '@/utils/stream'
 import type {
   ChatCompletionsCallbacks,
@@ -47,13 +47,11 @@ class GeminiService extends BaseService {
     })
   }
 
-  private transformImage(item: (ITextContent | IImageContent)[]) {
-    return item.map((item) => {
-      if (item.type === 'image_url') {
-        const [, data] = item.image_url.url.split(';base64,')
-        return { inlineData: { mimeType: item.image_url.type, data } }
-      }
-      return { text: item.text }
+  private transformFilePart(attachments: IAttachment[]) {
+    return attachments.map((item) => {
+      const { type: mimeType, data } = item
+      const _data = data.replace(`data:${mimeType};base64,`, '')
+      return { inline_data: { mimeType, data: _data } }
     })
   }
 
@@ -66,8 +64,16 @@ class GeminiService extends BaseService {
       if (msg.role === 'user') {
         const content: UserContent = {
           role: 'user',
-          parts: typeof msg.content === 'string' ? [{ text: msg.content }] : this.transformImage(msg.content),
+          parts: [],
         }
+
+        if (msg.content) {
+          content.parts.push({ text: msg.content as string })
+        }
+
+        content.parts.push(...this.transformFilePart(msg.images))
+        content.parts.push(...this.transformFilePart(msg.attachments))
+
         result.contents.push(content)
       }
 

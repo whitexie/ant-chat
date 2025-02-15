@@ -5,7 +5,12 @@
       border: none;
       padding: 0px;
     }
+
+    > :last-child {
+      margin-bottom: 0;
+    }
   }
+
   table {
     border-collapse: collapse; /* 让表格边框合并 */
     width: 100%; /* 设置表格宽度 */

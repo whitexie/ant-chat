@@ -19,10 +19,10 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
   const activeConversationId = currentConversations?.id || ''
 
   const bubbleList = messages.map((msg) => {
-    const { id: key, role, content, status, createAt } = msg
+    const { id: key, role, content, images, attachments, status, createAt } = msg
     const item: BubbleDataType = {
       role,
-      content,
+      content: { content, images, attachments },
       key,
       loading: status === 'loading',
       header: <div className="text-xs flex items-center">{formatTime(createAt)}</div>,
@@ -33,10 +33,10 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
       item.content = (
         <>
           <Typography.Paragraph>
-            <Typography.Text type="danger">{content as string}</Typography.Text>
+            <Typography.Text type="danger">请求失败，请检查配置是否正确</Typography.Text>
           </Typography.Paragraph>
           <Typography.Paragraph>
-            <Typography.Text type="danger">请求失败，请检查配置是否正确</Typography.Text>
+            <Typography.Text type="danger">{content as string}</Typography.Text>
           </Typography.Paragraph>
         </>
       )
@@ -70,6 +70,7 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
       <Bubble.List
         items={bubbleList}
         roles={roles}
+
         className="h-[var(--bubbleListHeight)] scroll-hidden"
       />
     </div>
