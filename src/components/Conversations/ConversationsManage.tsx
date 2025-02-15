@@ -152,7 +152,7 @@ export default function ConversationsManage() {
           />
         </div>
       </div>
-      <div ref={footerDivRef} className="footer flex flex-col gap-1 px-1 py-2">
+      <div ref={footerDivRef} className="footer border-t-solid border-1px border-black/10 flex flex-col gap-1 px-1 py-2">
         <DarkButton />
         <Settings />
         <VersionButton />

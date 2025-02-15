@@ -21,9 +21,12 @@ export default function ChatSender({ loading, onSubmit, onCancel }: ChatSenderPr
   const [message, setMessage] = useState('')
   const senderRef = useRef<GetRef<typeof Sender>>(null)
 
+  const radius = token.borderRadius * 2
+
   const headerNode = (
     <Sender.Header
       style={{
+        borderRadius: `${radius}px ${radius}px 0px 0px`,
         backgroundColor: token.colorBgContainer,
       }}
       title="附件"
