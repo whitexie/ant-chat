@@ -1,6 +1,12 @@
+<div align="center">
+
+<img height="180" src="./public/logo.svg" />
+
 # Ant Chat
 
 基于`ant-design-x`的现代化 AI 聊天客户端，支持多模型提供商和本地数据加密存储
+
+</div>
 
 ## 功能特性 ✨
 
