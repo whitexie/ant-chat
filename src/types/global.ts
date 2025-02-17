@@ -6,4 +6,5 @@ export interface BubbleContent {
   content: string
   images: IAttachment[]
   attachments: IAttachment[]
+  status: 'loading' | 'success' | 'error'
 }

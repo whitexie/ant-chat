@@ -5,7 +5,7 @@ import type { UploadFile } from 'antd/lib'
 import { fileToBase64, useToken } from '@/utils'
 import { CloudUploadOutlined, LinkOutlined } from '@ant-design/icons'
 import { Attachments, Sender } from '@ant-design/x'
-import { Badge, Button } from 'antd'
+import { App, Badge, Button } from 'antd'
 import { useRef, useState } from 'react'
 
 interface ChatSenderProps {
@@ -19,6 +19,7 @@ export default function ChatSender({ loading, onSubmit, onCancel }: ChatSenderPr
   const { token } = useToken()
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
+  const { message: messageApi } = App.useApp()
   const senderRef = useRef<GetRef<typeof Sender>>(null)
 
   const radius = token.borderRadius * 2
@@ -34,11 +35,26 @@ export default function ChatSender({ loading, onSubmit, onCancel }: ChatSenderPr
       onOpenChange={setOpen}
     >
       <Attachments
+        multiple
         beforeUpload={() => false}
         items={attachmentList}
         onChange={({ fileList }) => {
-          console.log('fileList chagned => ')
-          setAttachmentList(fileList)
+          const result: UploadFile[] = []
+          fileList.forEach((item) => {
+            if (item.size && item.size > 1024 * 1024 * 20) {
+              messageApi.warning('文件大小不能超过20MB')
+              return
+            }
+
+            // 识别Markdown文件
+            if (item.name.toLowerCase().endsWith('.md')) {
+              item.type = 'text/md'
+            }
+
+            result.push(item)
+          })
+
+          setAttachmentList(result)
         }}
         placeholder={type =>
           type === 'drop'
@@ -47,10 +63,11 @@ export default function ChatSender({ loading, onSubmit, onCancel }: ChatSenderPr
               }
             : {
                 icon: <CloudUploadOutlined />,
-                title: '上传文件',
-                description: '单击或将文件拖到此区域以上传',
+                title: '上传图片或文档',
+                description: '单击或将文件拖到此区域以上传(文档仅支持PDF、Markdown)',
               }}
         getDropContainer={() => senderRef.current?.nativeElement}
+        accept="image/*,application/pdf,text/*,.md,.mp4"
       />
     </Sender.Header>
   )

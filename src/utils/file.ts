@@ -76,3 +76,7 @@ export function fileToBase64(file: File): Promise<string> {
     reader.readAsDataURL(file)
   })
 }
+
+export function isImageMIME(mime: string) {
+  return mime.startsWith('image/')
+}

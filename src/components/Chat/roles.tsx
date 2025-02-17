@@ -1,8 +1,8 @@
 import type { BubbleContent } from '@/types/global'
 import type { BubbleListProps } from '@ant-design/x/es/bubble/BubbleList'
-import type { GetProp } from 'antd'
 import { Role } from '@/constants'
 import { RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
+import { type GetProp, Typography } from 'antd'
 import MessageContent from './MessageContent'
 
 export const roles: GetProp<BubbleListProps, 'roles'> = {
@@ -25,7 +25,21 @@ export const roles: GetProp<BubbleListProps, 'roles'> = {
       marginInlineStart: 10,
     },
     // @ts-expect-error 忽略错误
-    messageRender: (content: BubbleContent) => <MessageContent {...content} />,
+    messageRender: (content: BubbleContent) => {
+      console.log('content => ', content)
+      return content.status === 'error'
+        ? (
+            <>
+              <Typography.Paragraph>
+                <Typography.Text type="danger">请求失败，请检查配置是否正确</Typography.Text>
+              </Typography.Paragraph>
+              <Typography.Paragraph>
+                <Typography.Text type="danger">{content.content}</Typography.Text>
+              </Typography.Paragraph>
+            </>
+          )
+        : <MessageContent {...content} />
+    },
   },
 
   [Role.USER]: {
