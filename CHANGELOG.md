@@ -1,3 +1,14 @@
+# [0.3.0](https://github.com/whitexie/ant-chat/compare/v0.2.1...v0.3.0) (2025-02-18)
+
+
+### Features
+
+* 增加附件上传功能(图片与附件合并)，适用于Gemini模型 ([7f659a5](https://github.com/whitexie/ant-chat/commit/7f659a5cb9c311418de59a6df14ca293c5bd4234))
+* 集成 remark-gfm 插件以增强 Markdown 渲染 ([b2e7898](https://github.com/whitexie/ant-chat/commit/b2e78987ebc547928ebdad7c41318194a846ffb8))
+* 移动端适配 ([ea4bd19](https://github.com/whitexie/ant-chat/commit/ea4bd19af913fc733a5f9ab493365c6bb3270562))
+
+
+
 ## [0.2.1](https://github.com/whitexie/ant-chat/compare/v0.2.0...v0.2.1) (2025-02-14)
 
 
