@@ -2,17 +2,17 @@ import { MenuOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 
 interface LogoProps {
-  show: boolean
-  onChange: (show: boolean) => void
+  show?: boolean
+  onChange?: (show: boolean) => void
 }
 
-export function Logo({ show, onChange }: LogoProps) {
+export function Logo(props: LogoProps) {
   return (
     <div className="relative logo flex select-none justify-center w-full items-center gap-2 w-[var(--conversationWidth)]">
       <Button
         type="text"
         className="block md:hidden absolute left-2 top-0"
-        onClick={() => onChange(!show)}
+        onClick={() => props.onChange?.(!props.show)}
         icon={<MenuOutlined />}
       />
 
