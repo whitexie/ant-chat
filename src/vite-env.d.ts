@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+import type { AttributifyAttributes } from '@unocss/preset-attributify'
+
 interface ImportMetaEnv {
   // readonly VITE_APP_TITLE: string
   // readonly VITE_API_HOST: string
@@ -11,4 +13,6 @@ interface ImportMeta {
   readonly env: ImportMetaEnv
 }
 
-declare module 'markdown-it';
+declare module '@vue/runtime-dom' {
+  interface HTMLAttributes extends AttributifyAttributes {}
+}

@@ -8,7 +8,7 @@ import MessageContent from './MessageContent'
 export const roles: GetProp<BubbleListProps, 'roles'> = {
   [Role.SYSTEM]: {
     placement: 'start',
-    avatar: { icon: <SmileFilled size={14} />, style: { background: '#DE732D' } },
+    avatar: { icon: <SmileFilled />, style: { background: '#DE732D' } },
     style: {
       marginInlineEnd: 44,
       marginInlineStart: 10,
@@ -19,7 +19,7 @@ export const roles: GetProp<BubbleListProps, 'roles'> = {
 
   [Role.AI]: {
     placement: 'start',
-    avatar: { icon: <RobotFilled size={14} />, style: { background: '#69b1ff' } },
+    avatar: { icon: <RobotFilled />, style: { background: '#69b1ff' } },
     style: {
       marginInlineEnd: 44,
       marginInlineStart: 10,

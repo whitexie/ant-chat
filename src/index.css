@@ -10,6 +10,20 @@
   --senderHeight: 65px;
   --bubbleListHeight: calc(var(--mainHeight) - var(--senderHeight));
   --conversationWidth: 200px;
+  --chat-width: calc(100vw - var(--conversationWidth));
+}
+
+@media (max-width: 768px) {
+  :root {
+    /* --mainHeight: calc(100vh - var(--headerHeight) * 2); */
+    --chat-width: 100vw;
+  }
+}
+
+@media (min-width: 1096px) {
+  :root {
+    --chat-width: 56rem;
+  }
 }
 
 body,
@@ -26,7 +40,6 @@ body,
 .scroll-hidden::-webkit-scrollbar {
   display: none; /* Chrome, Safari 和 Opera */
 }
-
 
 .ant-bubble-list::before,
 .ant-bubble-list::after {

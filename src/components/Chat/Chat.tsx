@@ -74,7 +74,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="flex flex-col h-full w-full max-w-4xl m-auto">
+    <div className="flex flex-col h-full w-[var(--chat-width)] m-auto">
       <div className="flex-1 overflow-y-auto">
         <ConversationsTitle
           key={currentConversations?.id}
