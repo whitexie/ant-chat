@@ -2,6 +2,7 @@ name: Build and Release
 
 # on: workflow_dispatch
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
