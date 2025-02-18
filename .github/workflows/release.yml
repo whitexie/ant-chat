@@ -4,11 +4,13 @@ name: Build and Release
 on:
   push:
     tags:
-       - "v*"
+      - 'v*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      VITE_BAIDU_CODE: ${{ secrets.VITE_BAIDU_CODE }}
 
     steps:
       - name: Checkout
