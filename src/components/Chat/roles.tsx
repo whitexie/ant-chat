@@ -26,7 +26,6 @@ export const roles: GetProp<BubbleListProps, 'roles'> = {
     },
     // @ts-expect-error 忽略错误
     messageRender: (content: BubbleContent) => {
-      console.log('content => ', content)
       return content.status === 'error'
         ? (
             <>
