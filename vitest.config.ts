@@ -5,6 +5,14 @@ export default defineConfig({
   test: {
     coverage: {
       provider: 'v8',
+      include: [
+        'src/**/*.{ts,tsx}',
+      ],
+      exclude: [
+        'src/**/*.d.ts',
+        'src/**/interface.ts',
+        'src/types/**',
+      ],
     },
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

@@ -6,7 +6,7 @@ jobs:
   unit-test:
     runs-on: ubuntu-latest
     env:
-      TZ: 'Asia/Shanghai'
+      TZ: Asia/Shanghai
 
     steps:
       - name: Checkout
@@ -29,4 +29,9 @@ jobs:
         run: pnpm tsc -b
 
       - name: Unit Test
-        run: pnpm test
+        run: pnpm coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
