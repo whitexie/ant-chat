@@ -1,3 +1,20 @@
+# [0.4.0](https://github.com/whitexie/ant-chat/compare/v0.3.0...v0.4.0) (2025-02-21)
+
+
+### Bug Fixes
+
+* 移除百度统计代码 ([caeed10](https://github.com/whitexie/ant-chat/commit/caeed109570212be5d84e5464ab85277ef94fcd0))
+* 优化黑暗模式mask背景适配 ([350a86c](https://github.com/whitexie/ant-chat/commit/350a86cbbaad43c9c48ccfdebe3d49c3e29fe28a))
+* 优化主题切换边框适配 ([668d383](https://github.com/whitexie/ant-chat/commit/668d383c541a67ff18d8317e3954b6288e28edce))
+
+
+### Features
+
+* 增加`联网搜索`功能(仅Gemini支持) ([174ff77](https://github.com/whitexie/ant-chat/commit/174ff77408bd795935b138954b11815a7d0fd76f))
+* 升级输入框组件 ([4f0541d](https://github.com/whitexie/ant-chat/commit/4f0541d27c1ea233f6224e2fe9a0084c627c99fa))
+
+
+
 # [0.3.0](https://github.com/whitexie/ant-chat/compare/v0.2.1...v0.3.0) (2025-02-18)
 
 
