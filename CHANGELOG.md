@@ -1,3 +1,12 @@
+## [0.4.1](https://github.com/whitexie/ant-chat/compare/v0.4.0...v0.4.1) (2025-02-21)
+
+
+### Bug Fixes
+
+* 移动端提示被输入框遮挡 ([e9b5c45](https://github.com/whitexie/ant-chat/commit/e9b5c45ff72bc5ea9818f80895e4b92cc3ccd8ee))
+
+
+
 # [0.4.0](https://github.com/whitexie/ant-chat/compare/v0.3.0...v0.4.0) (2025-02-21)
 
 
