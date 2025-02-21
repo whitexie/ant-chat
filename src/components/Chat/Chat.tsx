@@ -15,7 +15,7 @@ import {
 import { useActiveModelConfig } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
 import { lazy, Suspense, useState } from 'react'
-import ChatSender from './ChatSender'
+import Sender from '../Sender'
 import ConversationsTitle from './ConversationsTitle'
 
 const ConversationsSettings = lazy(() => import('./ConversationsSettings'))
@@ -74,27 +74,30 @@ export default function Chat() {
   }
 
   return (
-    <div className="flex flex-col h-full w-[var(--chat-width)] m-auto">
-      <div className="flex-1 overflow-y-auto">
+    <div key={currentConversations?.id} className="flex flex-col h-full relative w-[var(--chat-width)] mx-auto">
+      <div className="flex-shrink-0">
         <ConversationsTitle
-          key={currentConversations?.id}
           conversation={currentConversations}
           items={items}
         />
-        {
-          messages.length > 0 && (
-            <Suspense>
-              <BubbleList
-                messages={messages}
-                config={config}
-                currentConversations={currentConversations}
-              />
-            </Suspense>
-          )
-        }
       </div>
-      <div className={`w-full px-2 flex-shrink-0 w-full h-[var(--senderHeight)] relative `}>
-        <ChatSender
+      <div className="h-[var(--bubbleListHeight)] mx-auto">
+        <div className="h-full">
+          {
+            messages.length > 0 && (
+              <Suspense>
+                <BubbleList
+                  messages={messages}
+                  config={config}
+                  currentConversations={currentConversations}
+                />
+              </Suspense>
+            )
+          }
+        </div>
+      </div>
+      <div className="px-2 flex-shrink-0">
+        <Sender
           loading={isLoading}
           onSubmit={onSubmit}
           onCancel={() => {
@@ -114,7 +117,6 @@ export default function Chat() {
           />
         )
       }
-
     </div>
   )
 }

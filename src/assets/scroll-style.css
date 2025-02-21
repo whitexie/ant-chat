@@ -1,0 +1,37 @@
+/* 整个滚动条 */
+*::-webkit-scrollbar {
+  width: 5px; /* 竖向滚动条宽度 */
+  height: 5px; /* 横向滚动条高度 */
+}
+
+/* 滚动槽 */
+*::-webkit-scrollbar-track {
+  background: #f1f1f1; /* 滚动槽背景色 */
+  border-radius: 5px; /* 圆角 */
+}
+
+/* 滚动滑块 */
+*::-webkit-scrollbar-thumb {
+  background: #888; /* 滑块背景色 */
+  border-radius: 5px; /* 圆角 */
+}
+
+/* 鼠标悬停在滚动滑块上 */
+*::-webkit-scrollbar-thumb:hover {
+  background: #555; /* 滑块悬停背景色 */
+}
+
+/* 鼠标按下滚动滑块 */
+*::-webkit-scrollbar-thumb:active {
+  background: #333; /* 滑块点击背景色 */
+}
+
+/* 滚动条两端的按钮 */
+*::-webkit-scrollbar-button {
+  display: none; /* 隐藏按钮 */
+}
+
+/* 滚动条角落 */
+*::-webkit-scrollbar-corner {
+  background: transparent; /* 角落背景色 */
+}

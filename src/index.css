@@ -1,3 +1,5 @@
+@import './assets/scroll-style.css';
+
 * {
   margin: 0;
   padding: 0;
@@ -7,16 +9,21 @@
 :root {
   --headerHeight: 50px;
   --mainHeight: calc(100vh - var(--headerHeight));
-  --senderHeight: 65px;
+  --senderHeight: 115px;
   --bubbleListHeight: calc(var(--mainHeight) - var(--senderHeight));
   --conversationWidth: 200px;
   --chat-width: calc(100vw - var(--conversationWidth));
+  --titleLeft: var(--conversationWidth);
+  --titleTop: 0px;
+  --titleHeight: 50px;
 }
 
 @media (max-width: 768px) {
   :root {
-    /* --mainHeight: calc(100vh - var(--headerHeight) * 2); */
+    --bubbleListHeight: calc(var(--mainHeight) - var(--senderHeight) - var(--headerHeight));
     --chat-width: 100vw;
+    --titleLeft: 0px;
+    --titleTop: var(--headerHeight);
   }
 }
 

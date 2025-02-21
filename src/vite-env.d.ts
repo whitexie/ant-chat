@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="vite-plugin-svgr/client" />
 
 import type { AttributifyAttributes } from '@unocss/preset-attributify'
 

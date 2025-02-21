@@ -52,12 +52,12 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
   }
 
   return (
-    <div>
+    <div className="h-full">
       <Bubble.List
         items={bubbleList}
         roles={roles}
 
-        className="h-[var(--bubbleListHeight)] scroll-hidden"
+        className="h-full"
       />
     </div>
   )

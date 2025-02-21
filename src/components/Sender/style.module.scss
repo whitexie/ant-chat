@@ -1,0 +1,21 @@
+.sender {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+
+  &:focus-within {
+    border-color: var(--ant-color-primary);
+    box-shadow: var(--ant-box-shadow-secondary);
+
+    &::after {
+      border-width: 2px;
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 0px solid var(--ant-color-primary);
+    pointer-events: none;
+  }
+}

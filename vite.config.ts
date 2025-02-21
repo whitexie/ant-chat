@@ -6,10 +6,14 @@ import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import compression from 'vite-plugin-compression'
+import svgr from 'vite-plugin-svgr'
 
 const plugins: PluginOption[] = [
   react(),
   UnoCSS(),
+  svgr({
+    svgrOptions: { icon: false },
+  }),
 ]
 
 // https://vite.dev/config/

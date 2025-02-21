@@ -33,12 +33,12 @@ const ConversationsTitle: React.FunctionComponent<ConversationsTitleProps> = ({ 
   }
 
   return (
-    <div className="h-[var(--headerHeight)]">
-      <div className="absolute z-1 h-[var(--headerHeight)] bg-[var(--ant-layout-color-bg-body)] top-0 left-0 right-0 shadow px-3 flex justify-between items-center">
+    <div className="h-[var(--titleHeight)]">
+      <div className="fixed z-1 h-[var(--titleHeight)] bg-[var(--ant-layout-color-bg-body)] top-[var(--titleTop)] left-[var(--titleLeft)] right-0 border-b-solid border-black/10 border-1px dark:(border-white/40) px-3 flex justify-between items-center">
         {isEditing
           ? (
               <div className="flex items-center gap-2">
-                <Input autoFocus value={title} onBlur={() => setIsEditing(false)} onChange={e => setTitle(e.target.value)} onPressEnter={handleRename} />
+                <Input autoFocus value={title} onBlur={handleRename} onChange={e => setTitle(e.target.value)} onPressEnter={handleRename} />
                 <Button type="text" icon={<CheckOutlined />} onClick={handleRename} />
               </div>
             )

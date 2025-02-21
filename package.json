@@ -70,6 +70,7 @@
     "vite": "^6.0.7",
     "vite-bundle-analyzer": "^0.16.0",
     "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-svgr": "^4.3.0",
     "vitest": "^3.0.2"
   }
 }
