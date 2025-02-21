@@ -1,6 +1,7 @@
 import type { ConversationsId, IConversations, IMessage, ModelConfig } from '@/db/interface'
 import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
 import { deleteMessageAction, refreshRequestAction } from '@/store/conversation'
+import { getFeatures } from '@/store/features'
 import { clipboardWriteText, formatTime } from '@/utils'
 import { Bubble } from '@ant-design/x'
 import { App } from 'antd'
@@ -45,7 +46,7 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
   async function handleFooterButtonClick(buttonName: string, message: IMessage) {
     const mapping = {
       copy: () => copyMessage(message),
-      refresh: () => refreshRequestAction(activeConversationId as ConversationsId, message, config),
+      refresh: () => refreshRequestAction(activeConversationId as ConversationsId, message, config, getFeatures()),
       delete: () => deleteMessageAction(message.id),
     }
     mapping[buttonName as keyof typeof mapping]?.()

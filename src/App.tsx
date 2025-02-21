@@ -23,7 +23,7 @@ function AntChatApp() {
   }, [activeConversationId])
 
   return (
-    <ConfigProvider locale={zhCN} theme={{ algorithm, cssVar: true, hashed: false }}>
+    <ConfigProvider locale={zhCN} theme={{ algorithm, cssVar: { key: 'antd-css-var' }, hashed: false }}>
       <App>
         <Layout>
           <div className="w-full h-full">

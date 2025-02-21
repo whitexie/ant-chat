@@ -1,8 +1,9 @@
 import type { IAttachment, IMessage } from '@/db/interface'
 import type { SSEOutput } from '@/utils/stream'
 import type {
-  ChatCompletionsCallbacks,
+  ChatFeatures,
   IModel,
+  SendChatCompletionsOptions,
   ServiceConstructorOptions,
 } from '../interface'
 import type {
@@ -96,7 +97,8 @@ class GeminiService extends BaseService {
     return result
   }
 
-  async sendChatCompletions(messages: IMessage[], callbacks?: ChatCompletionsCallbacks, addAbortCallback?: (abort: () => void) => void) {
+  async sendChatCompletions(messages: IMessage[], options?: SendChatCompletionsOptions) {
+    const { features, callbacks, addAbortCallback } = options || {}
     this.validator()
 
     const abortController = new AbortController()
@@ -113,7 +115,7 @@ class GeminiService extends BaseService {
         'Connection': 'keep-alive',
       },
       signal: abortController.signal,
-      body: JSON.stringify(this.transformMessages(messages)),
+      body: JSON.stringify(this.transformRequestBody(messages, features)),
     })
 
     if (!response.ok) {
@@ -139,10 +141,15 @@ class GeminiService extends BaseService {
     this.parseSse(reader, callbacks)
   }
 
-  transformRequestBody(_messages: IMessage[]): GeminiRequestBody {
+  transformRequestBody(_messages: IMessage[], features?: ChatFeatures): GeminiRequestBody {
     const body = this.transformMessages(_messages)
     body.generationConfig = {
       temperature: this.temperature,
+    }
+    if (features?.onlieSearch) {
+      body.tools = [
+        { googleSearch: {} },
+      ]
     }
     return body
   }

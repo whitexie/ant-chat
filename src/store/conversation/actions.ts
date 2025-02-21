@@ -1,4 +1,5 @@
 import type { ConversationsId, IConversations, IMessage, MessageId, ModelConfig } from '@/db/interface'
+import type { ChatFeatures } from '@/services-provider/interface'
 import type { StoreState } from './initialState'
 import { Role, TITLE_PROMPT } from '@/constants'
 import {
@@ -117,11 +118,13 @@ export async function initCoversationsTitle() {
 
   service.sendChatCompletions(
     [
-      { ...userMessage, content },
+      { ...userMessage, content, images: [], attachments: [] },
     ],
     {
-      onSuccess: (title) => {
-        renameConversationsAction(messages[0].convId, title)
+      callbacks: {
+        onSuccess: (title) => {
+          renameConversationsAction(messages[0].convId, title)
+        },
       },
     },
   )
@@ -243,7 +246,7 @@ export function executeAbortCallbacks() {
   resetAbortCallbacks()
 }
 
-export async function sendChatCompletions(conversationId: ConversationsId, config: ModelConfig) {
+export async function sendChatCompletions(conversationId: ConversationsId, config: ModelConfig, features: ChatFeatures) {
   const messages = useConversationsStore.getState().messages
   const aiMessage = createMessage({ convId: conversationId, role: Role.AI, status: 'loading' })
 
@@ -258,19 +261,22 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
     await instance.sendChatCompletions(
       messages,
       {
-        onUpdate: (content) => {
-          aiMessage.content = content
-          updateMessageAction({ ...aiMessage, status: 'success' })
+        callbacks: {
+          onUpdate: (content) => {
+            aiMessage.content = content
+            updateMessageAction({ ...aiMessage, status: 'success' })
+          },
+          onSuccess: () => {
+            setRequestStatus('success')
+            resetAbortCallbacks()
+          },
+          onError: (error) => {
+            throw error
+          },
         },
-        onSuccess: () => {
-          setRequestStatus('success')
-          resetAbortCallbacks()
-        },
-        onError: (error) => {
-          throw error
-        },
+        addAbortCallback,
+        features,
       },
-      addAbortCallback,
     )
   }
   catch (e) {
@@ -282,12 +288,12 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
   }
 }
 
-export async function onRequestAction(conversationId: ConversationsId, message: IMessage, config: ModelConfig) {
+export async function onRequestAction(conversationId: ConversationsId, message: IMessage, config: ModelConfig, features: ChatFeatures) {
   await addMessageAction(message)
-  await sendChatCompletions(conversationId, config)
+  await sendChatCompletions(conversationId, config, features)
 }
 
-export async function refreshRequestAction(conversationId: ConversationsId, message: IMessage, config: ModelConfig) {
+export async function refreshRequestAction(conversationId: ConversationsId, message: IMessage, config: ModelConfig, features: ChatFeatures) {
   await deleteMessageAction(message.id)
-  await sendChatCompletions(conversationId, config)
+  await sendChatCompletions(conversationId, config, features)
 }

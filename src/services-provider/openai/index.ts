@@ -1,8 +1,8 @@
 import type { IMessage } from '@/db/interface'
 import type { SSEOutput } from '@/utils/stream'
 import type {
-  ChatCompletionsCallbacks,
   IModel,
+  SendChatCompletionsOptions,
   ServiceConstructorOptions,
 } from '../interface'
 import type { ImageContent, MessageItem, TextContent } from './interface'
@@ -76,8 +76,9 @@ export default class OpenAIService extends BaseService {
     }
   }
 
-  async sendChatCompletions(_messages: IMessage[], callbacks: ChatCompletionsCallbacks, addAbortCallback?: (callback: () => void) => void) {
+  async sendChatCompletions(_messages: IMessage[], options?: SendChatCompletionsOptions) {
     this.validator()
+    const { callbacks, addAbortCallback } = options || {}
     const messages = this.transformMessages(_messages)
     const response = await fetch(`${this.apiHost}/chat/completions`, {
       method: 'POST',
@@ -100,11 +101,11 @@ export default class OpenAIService extends BaseService {
       else if (response.statusText.startsWith('4')) {
         const json = await response.json()
         const error = new Error(json.error.message)
-        callbacks.onError?.(error)
+        callbacks?.onError?.(error)
       }
       else {
         const error = new Error(`Failed to fetch ${response.statusText}`)
-        callbacks.onError?.(error)
+        callbacks?.onError?.(error)
       }
     }
 

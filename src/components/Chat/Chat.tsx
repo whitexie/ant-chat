@@ -1,4 +1,5 @@
 import type { ConversationsId, IAttachment, IImage, IMessage } from '@/db/interface'
+import type { ChatFeatures } from '@/services-provider/interface'
 import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import { DEFAULT_TITLE } from '@/constants'
 import {
@@ -8,6 +9,7 @@ import {
   executeAbortCallbacks,
   initCoversationsTitle,
   onRequestAction,
+  setActiveConversationsId,
   setRequestStatus,
   updateConversationsSettingsAction,
   useConversationsStore,
@@ -42,7 +44,7 @@ export default function Chat() {
     },
   ]
 
-  async function onSubmit(message: string, images: IImage[], attachments: IAttachment[]) {
+  async function onSubmit(message: string, images: IImage[], attachments: IAttachment[], features: ChatFeatures) {
     let id = activeConversationId
     let isNewConversation = false
     // 如果当前没有会话，则创建一个
@@ -55,8 +57,10 @@ export default function Chat() {
 
     const messageItem: IMessage = createMessage({ images, attachments, content: message, convId: id as ConversationsId })
 
+    setActiveConversationsId(id as ConversationsId)
+
     // 发送请求
-    await onRequestAction(id as ConversationsId, messageItem, config)
+    await onRequestAction(id as ConversationsId, messageItem, config, features)
 
     // 初始化会话标题
     if (currentConversations?.title === DEFAULT_TITLE || isNewConversation) {
@@ -81,18 +85,22 @@ export default function Chat() {
           items={items}
         />
       </div>
-      <div className="h-[var(--bubbleListHeight)] mx-auto">
+      <div className="h-[var(--bubbleListHeight)] w-full mx-auto">
         <div className="h-full">
           {
-            messages.length > 0 && (
-              <Suspense>
-                <BubbleList
-                  messages={messages}
-                  config={config}
-                  currentConversations={currentConversations}
-                />
-              </Suspense>
-            )
+            messages.length > 0
+              ? (
+                  <Suspense>
+                    <BubbleList
+                      messages={messages}
+                      config={config}
+                      currentConversations={currentConversations}
+                    />
+                  </Suspense>
+                )
+              : (
+                  <h1 className="text-center absolute top-[35%] left-0 right-0 text-gray-500">有什么可以帮忙的？</h1>
+                )
           }
         </div>
       </div>

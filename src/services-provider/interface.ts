@@ -1,3 +1,7 @@
+import type { ChatFeatures as _ChatFeatures } from '@/store/features'
+
+export type ChatFeatures = _ChatFeatures
+
 export interface ServiceConstructorOptions {
   apiHost: string
   apiKey: string
@@ -15,4 +19,10 @@ export interface IModel {
   id: string
   object: 'model'
   owned_by: string
+}
+
+export interface SendChatCompletionsOptions {
+  features?: ChatFeatures
+  callbacks?: ChatCompletionsCallbacks
+  addAbortCallback?: (callback: () => void) => void
 }

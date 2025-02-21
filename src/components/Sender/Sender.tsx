@@ -1,20 +1,25 @@
 import type { IAttachment, IImage } from '@/db/interface'
+import type { ChatFeatures } from '@/services-provider/interface'
 import type { UploadFile } from 'antd'
 import StopSvg from '@/assets/images/stop.svg?react'
+import { useConversationsStore } from '@/store/conversation'
+import { useFeatures, useFeaturesState } from '@/store/features'
 import { fileToBase64 } from '@/utils'
 import {
   ArrowUpOutlined,
   CloudUploadOutlined,
+  GlobalOutlined,
   LinkOutlined,
 } from '@ant-design/icons'
 import { Attachments } from '@ant-design/x'
 import { App, Badge, Button, Tooltip } from 'antd'
 import { useRef, useState } from 'react'
+import SwitchButton from '../SwitchButton'
 import styles from './style.module.scss'
 
 interface SenderProps {
   loading?: boolean
-  onSubmit?: (message: string, images: IImage[], attachments: IAttachment[]) => void
+  onSubmit?: (message: string, images: IImage[], attachments: IAttachment[], features: ChatFeatures) => void
   onCancel?: () => void
 }
 
@@ -25,10 +30,13 @@ function Sender({ loading = false, ...props }: SenderProps) {
   const [attachmentList, setAttachmentList] = useState<UploadFile[]>([])
   const [rows, setRows] = useState(2)
   const containerRef = useRef<HTMLDivElement>(null)
+  const hasMessage = useConversationsStore(state => !!state.messages.length)
+  const features = useFeaturesState()
+  const { setOnlieSearch } = useFeatures()
 
   async function handleSubmit() {
     const { images, attachments } = await transformAttachments()
-    props?.onSubmit?.(text, images, attachments)
+    props?.onSubmit?.(text, images, attachments, features)
     setAttachmentList([])
     setText('')
     setOpenHeader(false)
@@ -59,7 +67,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
   return (
     <div ref={containerRef} className="sender-container">
       <div
-        className={`${styles.sender} absolute left-2 right-2 bottom-2 p-xs bg-white dark:bg-[var(--ant-layout-color-bg-body)] rounded-xl overflow-hidden shadow-lg`}
+        className={`${styles.sender} absolute left-2 right-2 ${hasMessage ? 'bottom-2' : 'bottom-50%'} transition transition-duration-500 p-xs bg-white dark:bg-[var(--ant-layout-color-bg-body)] rounded-xl overflow-hidden shadow-lg`}
       >
         <div className={`header transition-height overflow-hidden h-0 ${openHeader && 'h-100px'}`}>
           <div className="title"></div>
@@ -130,6 +138,13 @@ function Sender({ loading = false, ...props }: SenderProps) {
                   icon={<LinkOutlined />}
                 />
               </Badge>
+            </Tooltip>
+            <Tooltip title="联网搜索(目前仅Gemini支持)">
+              <SwitchButton
+                checked={features.onlieSearch}
+                onChange={setOnlieSearch}
+                icon={<GlobalOutlined />}
+              />
             </Tooltip>
           </div>
           <div>
