@@ -99,7 +99,7 @@ export default function Chat() {
                   </Suspense>
                 )
               : (
-                  <h1 className="text-center absolute top-[35%] left-0 right-0 text-gray-500">有什么可以帮忙的？</h1>
+                  <h1 className="text-center absolute bottom-[70%] left-0 right-0 text-gray-500">有什么可以帮忙的？</h1>
                 )
           }
         </div>
