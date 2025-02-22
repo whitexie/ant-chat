@@ -56,15 +56,20 @@ export default class OpenAIService extends BaseService {
     return _messages.map(message => transformMessageItem(message, isHasFile))
   }
 
-  extractContent(output: SSEOutput): string {
+  extractContent(output: SSEOutput) {
+    const result = {
+      message: '',
+      reasoningContent: '',
+    }
     try {
       const json = JSON.parse(output.data)
-      return json.choices?.[0]?.delta?.content || ''
+      result.message = json.choices?.[0]?.delta?.content || ''
+      result.reasoningContent = json.choices?.[0]?.delta?.reasoning_content || ''
     }
     catch (e) {
       console.log('extractContent error => ', e)
     }
-    return ''
+    return result
   }
 
   transformRequestBody(_messages: IMessage[]): OpenAIRequestBody {

@@ -1,12 +1,45 @@
 import type { BubbleContent } from '@/types/global'
 import RenderMarkdown from '@/components/RenderMarkdown'
+import { ReloadOutlined } from '@ant-design/icons'
 import { Attachments } from '@ant-design/x'
-import { Image } from 'antd'
+import { Collapse, Image } from 'antd'
 
 // 提取消息渲染逻辑到独立组件
-export default function MessageContent({ content, images, attachments }: BubbleContent) {
+export default function MessageContent({ content, images, attachments, reasoningContent }: BubbleContent) {
+  const items = [
+    {
+      key: '1',
+      label: content
+        ? '已深度思考'
+        : (
+            <span>
+              思考中...
+              <ReloadOutlined spin className="ml-1" />
+            </span>
+          ),
+      children: (
+        <div className="pl-4 relative">
+          <div className="absolute left-0 top-0 w-1 h-full bg-gray-400/20"></div>
+          <p className="whitespace-pre-wrap text-xs">{reasoningContent}</p>
+        </div>
+      ),
+      styles: {
+        header: {
+          alignItems: 'center',
+          padding: '4px',
+          fontSize: '12px',
+          lineHeight: '16px',
+        },
+      },
+    },
+  ]
   return (
     <div>
+      {
+        reasoningContent && (
+          <Collapse items={items} defaultActiveKey={['1']} size="small" />
+        )
+      }
       <RenderMarkdown content={content} />
       {
         images.length > 0 && (

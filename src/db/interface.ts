@@ -45,6 +45,8 @@ export interface IMessage {
   convId: ConversationsId
   role: Role
   content: string
+  /** 推理内容 */
+  reasoningContent?: string
   createAt: CreateAt
   status?: 'success' | 'error' | 'loading'
   images: IAttachment[]

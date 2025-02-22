@@ -122,7 +122,8 @@ export async function initCoversationsTitle() {
     ],
     {
       callbacks: {
-        onSuccess: (title) => {
+        onSuccess: (result) => {
+          const title = result.message
           renameConversationsAction(messages[0].convId, title)
         },
       },
@@ -262,8 +263,9 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
       messages,
       {
         callbacks: {
-          onUpdate: (content) => {
-            aiMessage.content = content
+          onUpdate: (result) => {
+            aiMessage.content = result.message
+            aiMessage.reasoningContent = result.reasoningContent
             updateMessageAction({ ...aiMessage, status: 'success' })
           },
           onSuccess: () => {

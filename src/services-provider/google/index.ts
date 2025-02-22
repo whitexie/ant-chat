@@ -154,10 +154,11 @@ class GeminiService extends BaseService {
     return body
   }
 
-  extractContent(output: unknown): string {
-    const json = JSON.parse((output as SSEOutput).data)
-    const content = json.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    return content
+  extractContent(output: SSEOutput) {
+    const json = JSON.parse(output.data)
+    const message = json.candidates?.[0]?.content?.parts?.[0]?.text || ''
+
+    return { message, reasoningContent: '' }
   }
 }
 

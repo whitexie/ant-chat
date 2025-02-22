@@ -1,4 +1,5 @@
 import type { ConversationsId, IConversations, IMessage, ModelConfig } from '@/db/interface'
+import type { BubbleContent } from '@/types/global'
 import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
 import { deleteMessageAction, refreshRequestAction } from '@/store/conversation'
 import { getFeatures } from '@/store/features'
@@ -19,10 +20,10 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
   const activeConversationId = currentConversations?.id || ''
 
   const bubbleList = messages.map((msg) => {
-    const { id: key, role, content, images, attachments, status, createAt } = msg
+    const { id: key, role, content, images, attachments, status, createAt, reasoningContent = '' } = msg
     const item: BubbleDataType = {
       role,
-      content: { content, images, attachments, status },
+      content: { content, images, attachments, status, reasoningContent } as BubbleContent,
       key,
       loading: status === 'loading',
       header: <div className="text-xs flex items-center">{formatTime(createAt)}</div>,

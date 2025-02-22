@@ -10,8 +10,8 @@ export interface ServiceConstructorOptions {
 }
 
 export interface ChatCompletionsCallbacks {
-  onUpdate?: (message: string) => void
-  onSuccess?: (message: string) => void
+  onUpdate?: (message: { message: string, reasoningContent: string }) => void
+  onSuccess?: (message: { message: string, reasoningContent: string }) => void
   onError?: (message: Error) => void
 }
 

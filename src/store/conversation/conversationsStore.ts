@@ -39,6 +39,7 @@ export function createMessage(option?: RequireKey<Partial<IMessage>, 'convId'>):
     id: uuid(),
     role: Role.USER,
     content: '',
+    reasoningContent: '',
     createAt: getNow(),
     status: 'success',
     convId: '',

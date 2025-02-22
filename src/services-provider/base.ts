@@ -49,19 +49,22 @@ export default abstract class BaseService {
   }
 
   async parseSse(reader: ReadableStreamDefaultReader<SSEOutput>, callbacks?: ChatCompletionsCallbacks) {
-    let __content__ = ''
+    let message = ''
+    let reasoningContent = ''
 
     try {
       while (true) {
         const { done, value } = await reader.read()
         if (done) {
-          callbacks?.onSuccess?.(__content__)
+          callbacks?.onSuccess?.({ message, reasoningContent })
           break
         }
 
         if (value) {
-          __content__ += this.extractContent(value)
-          callbacks?.onUpdate?.(__content__)
+          const result = this.extractContent(value)
+          message += result.message
+          reasoningContent += result.reasoningContent
+          callbacks?.onUpdate?.({ message, reasoningContent })
         }
       }
     }
@@ -71,7 +74,7 @@ export default abstract class BaseService {
     }
   }
 
-  abstract extractContent(output: unknown): string
+  abstract extractContent(output: unknown): { message: string, reasoningContent: string }
 
   abstract getModels(_apiHost: string, _apiKey: string): Promise<IModel[]>
 
