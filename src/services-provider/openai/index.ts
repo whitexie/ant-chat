@@ -67,7 +67,9 @@ export default class OpenAIService extends BaseService {
       result.reasoningContent = json.choices?.[0]?.delta?.reasoning_content || ''
     }
     catch (e) {
-      console.log('extractContent error => ', e)
+      if (!output.data.includes('[DONE]')) {
+        console.log('extractContent error => ', e)
+      }
     }
     return result
   }

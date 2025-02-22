@@ -147,7 +147,7 @@ export interface XStreamOptions<Output> {
   DEFAULT_STREAM_SEPARATOR?: string
 }
 
-type XReadableStream<R = SSEOutput> = ReadableStream<R> & AsyncGenerator<R>
+export type XReadableStream<R = SSEOutput> = ReadableStream<R> & AsyncGenerator<R>
 
 /**
  * @description Transform Uint8Array binary stream to {@link SSEOutput} by default
