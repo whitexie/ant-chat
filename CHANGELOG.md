@@ -1,3 +1,17 @@
+## [0.4.2](https://github.com/whitexie/ant-chat/compare/v0.4.1...v0.4.2) (2025-02-22)
+
+
+### Bug Fixes
+
+* `联网搜索`tooltip不生效 ([9346f12](https://github.com/whitexie/ant-chat/commit/9346f12be30f872cd38c4af976cf62ef91dfae22))
+
+
+### Features
+
+* 支持`深度思考`过程显示 ([dc3d3e1](https://github.com/whitexie/ant-chat/commit/dc3d3e1a1c48a8f52b84a7bcd4f377162c6dc9b5))
+
+
+
 ## [0.4.1](https://github.com/whitexie/ant-chat/compare/v0.4.0...v0.4.1) (2025-02-21)
 
 
