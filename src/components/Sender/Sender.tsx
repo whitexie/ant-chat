@@ -140,11 +140,13 @@ function Sender({ loading = false, ...props }: SenderProps) {
               </Badge>
             </Tooltip>
             <Tooltip title="联网搜索(目前仅Gemini支持)">
-              <SwitchButton
-                checked={features.onlieSearch}
-                onChange={setOnlieSearch}
-                icon={<GlobalOutlined />}
-              />
+              <div>
+                <SwitchButton
+                  checked={features.onlieSearch}
+                  onChange={setOnlieSearch}
+                  icon={<GlobalOutlined />}
+                />
+              </div>
             </Tooltip>
           </div>
           <div>
