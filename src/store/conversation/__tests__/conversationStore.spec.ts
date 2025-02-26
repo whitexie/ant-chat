@@ -1,5 +1,5 @@
 import type { IConversationsSettings, IMessage, MessageId, ModelConfigId } from '@/db/interface'
-import { Role } from '@/constants'
+import { ANT_CHAT_STRUCTURE, Role } from '@/constants'
 import { getConversationsById, getMessagesByConvId } from '@/db'
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -67,13 +67,14 @@ describe('conversationStore', () => {
 
     const conversation = createConversation()
     const conversation2 = createConversation()
+    const importData = Object.assign({}, ANT_CHAT_STRUCTURE, { conversations: [conversation, conversation2] })
 
     await act(async () => {
-      await importConversationsAction([conversation, conversation2])
+      await importConversationsAction(importData)
     })
 
     expect(result.current.conversations).toHaveLength(2)
-    expect(result.current.conversations).toEqual([conversation2, conversation])
+    expect(result.current.conversations).toEqual([conversation, conversation2])
   })
 
   it('clear conversations', async () => {
