@@ -6,13 +6,13 @@ interface LogoProps {
   onChange?: (show: boolean) => void
 }
 
-export function Logo(props: LogoProps) {
+export function Logo({ show, onChange }: LogoProps) {
   return (
-    <div className="relative logo flex select-none justify-center w-full items-center gap-2 w-[var(--conversationWidth)]">
+    <div className="relative logo flex select-none justify-center items-center gap-2 w-[var(--conversationWidth)]">
       <Button
         type="text"
         className="block md:hidden absolute left-2 top-0"
-        onClick={() => props.onChange?.(!props.show)}
+        onClick={() => onChange?.(!show)}
         icon={<MenuOutlined />}
       />
 

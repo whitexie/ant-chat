@@ -20,7 +20,7 @@ export default function BubbleFooter({ message, onClick }: BubbleFooterProps) {
         onClick?.('copy', message)
       }}
     />
-  ), [onClick])
+  ), [onClick, message])
 
   const refreshButton = useMemo(() => (
     <Button
@@ -32,7 +32,7 @@ export default function BubbleFooter({ message, onClick }: BubbleFooterProps) {
         onClick?.('refresh', message)
       }}
     />
-  ), [onClick])
+  ), [onClick, message])
 
   const deleteButton = useMemo(() => (
     <Button
@@ -45,7 +45,7 @@ export default function BubbleFooter({ message, onClick }: BubbleFooterProps) {
         onClick?.('delete', message)
       }}
     />
-  ), [onClick])
+  ), [onClick, message])
 
   const finallyButtons: React.ReactNode[] = [copyButton]
 
