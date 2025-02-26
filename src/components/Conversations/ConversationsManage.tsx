@@ -2,6 +2,7 @@ import type { ConversationsId } from '@/db/interface'
 import type { MenuProps } from 'antd'
 import Settings from '@/components/Settings'
 import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
+import { exportMessages } from '@/db'
 import { useConversationRename } from '@/hooks/useConversationRename'
 import { addConversationsAction, clearConversationsAction, createConversation, deleteConversationsAction, importConversationsAction, initConversationsListAction, renameConversationsAction, setActiveConversationsId, useConversationsStore } from '@/store/conversation'
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
@@ -73,7 +74,7 @@ export default function ConversationsManage() {
     async function handleImport() {
       try {
         const data = await importAntChatFile()
-        importConversationsAction(data.conversations)
+        importConversationsAction(data)
 
         message.success('导入成功')
       }
@@ -82,9 +83,10 @@ export default function ConversationsManage() {
       }
     }
 
-    function handleExport() {
-      const data = Object.assign({}, ANT_CHAT_STRUCTURE, { conversations, exportTime: getNow() })
-      exportAntChatFile(JSON.stringify(data, null, 2), 'ant-chat.antchat')
+    async function handleExport() {
+      const messages = await exportMessages()
+      const data = Object.assign({}, ANT_CHAT_STRUCTURE, { conversations, messages, exportTime: getNow() })
+      await exportAntChatFile(JSON.stringify(data, null, 2), 'ant-chat.antchat')
       message.success('导出成功')
     }
 

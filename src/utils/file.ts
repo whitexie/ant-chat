@@ -1,3 +1,4 @@
+import type { AntChatFileStructure } from '@/constants'
 import { ANT_CHAT_FILE_TYPE, ANT_CHAT_STRUCTURE } from '@/constants'
 import { pick } from 'lodash-es'
 
@@ -16,7 +17,7 @@ export async function exportAntChatFile(fileContent: string, fileName: string) {
   await writableStream.close()
 }
 
-export async function importAntChatFile() {
+export async function importAntChatFile(): Promise<AntChatFileStructure> {
   const fileHandle = await showOpenFilePicker({
     types: [ANT_CHAT_FILE_TYPE],
   })
@@ -33,8 +34,8 @@ export async function importAntChatFile() {
   }
 }
 
-function parseAntFile(text: string) {
-  const data = pick(JSON.parse(text), Object.keys(ANT_CHAT_STRUCTURE))
+function parseAntFile(text: string): AntChatFileStructure {
+  const data: AntChatFileStructure = Object.assign({}, ANT_CHAT_STRUCTURE, pick(JSON.parse(text), Object.keys(ANT_CHAT_STRUCTURE)))
   const { type, version, conversations } = data
   if (type !== 'Ant Chat' || version !== '1' || !Array.isArray(conversations)) {
     throw new Error('antchat文件解析失败～')

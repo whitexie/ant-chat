@@ -7,7 +7,7 @@ import {
   createConversation,
   createMessage,
   executeAbortCallbacks,
-  initCoversationsTitle,
+  initConversationsTitle,
   onRequestAction,
   setActiveConversationsId,
   setRequestStatus,
@@ -64,7 +64,7 @@ export default function Chat() {
 
     // 初始化会话标题
     if (currentConversations?.title === DEFAULT_TITLE || isNewConversation) {
-      initCoversationsTitle()
+      initConversationsTitle()
     }
   }
 

@@ -1,3 +1,4 @@
+import type { AntChatFileStructure } from '@/constants'
 import type { ConversationsId, IConversations, IMessage, MessageId, ModelConfig } from '@/db/interface'
 import type { ChatFeatures } from '@/services-provider/interface'
 import type { StoreState } from './initialState'
@@ -12,6 +13,8 @@ import {
   fetchConversations,
   getConversationsById,
   getMessagesByConvId,
+  importMessages,
+  messageIsExists,
   renameConversations,
   setConversationsModelConfig,
   setConversationsSystemPrompt,
@@ -69,12 +72,25 @@ export async function deleteConversationsAction(id: ConversationsId) {
   }))
 }
 
-export async function importConversationsAction(conversations: IConversations[]) {
-  const list = await Promise.all(conversations.filter(async (item) => {
+export async function importConversationsAction(data: AntChatFileStructure) {
+  const { conversations, messages } = data
+  const conversationsList = await Promise.all(conversations.filter(async (item) => {
     return await conversationsExists(item.id)
   }))
 
-  await Promise.all(list.map(async item => await addConversationsAction(item)))
+  const messagesList = await Promise.all(messages.filter(async (item) => {
+    return await messageIsExists(item.id)
+  }))
+
+  await Promise.all(conversationsList.map(async item => await addConversations(item)))
+
+  await importMessages(messagesList)
+
+  useConversationsStore.setState(state => produce(state, (draft) => {
+    draft.conversations.splice(0, 0, ...conversationsList)
+
+    draft.conversations.sort((a, b) => b.createAt - a.createAt)
+  }))
 }
 
 export async function clearConversationsAction() {
@@ -83,9 +99,10 @@ export async function clearConversationsAction() {
     db.messages.clear(),
   ])
 
+  await setActiveConversationsId('')
+
   useConversationsStore.setState(state => produce(state, (draft) => {
     draft.conversations = []
-    draft.activeConversationId = ''
   }))
 }
 
@@ -98,7 +115,7 @@ export async function initConversationsListAction() {
   }))
 }
 
-export async function initCoversationsTitle() {
+export async function initConversationsTitle() {
   const { messages } = useConversationsStore.getState()
   const { active } = useModelConfigStore.getState()
   const config = getActiveModelConfig()
@@ -116,7 +133,7 @@ export async function initCoversationsTitle() {
   const Service = getServiceProviderConstructor(active)
   const service = new Service(config.modelConfig)
 
-  service.sendChatCompletions(
+  await service.sendChatCompletions(
     [
       { ...userMessage, content, images: [], attachments: [] },
     ],

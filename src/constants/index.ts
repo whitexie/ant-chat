@@ -1,3 +1,5 @@
+import type { IConversations, IMessage } from '@/db/interface'
+
 export enum Role {
   SYSTEM = 'system',
   USER = 'user',
@@ -11,9 +13,12 @@ export const ANT_CHAT_STRUCTURE = {
   type: 'Ant Chat',
   version: '1',
   modelConfig: {},
-  conversations: [],
+  conversations: [] as IConversations[],
+  messages: [] as IMessage[],
   exportTime: -1,
 }
+
+export type AntChatFileStructure = typeof ANT_CHAT_STRUCTURE
 
 export const ANT_CHAT_FILE_TYPE = { description: 'ant chat files', appcept: { 'text/plain': ['.antchat'] } }
 
