@@ -1,3 +1,12 @@
+## [0.4.3](https://github.com/whitexie/ant-chat/compare/v0.4.2...v0.4.3) (2025-02-26)
+
+
+### Bug Fixes
+
+* 修复对话导出缺少messages数据 ([32c7b20](https://github.com/whitexie/ant-chat/commit/32c7b200c4d7640386bb2c7241859868a16f8e6b))
+
+
+
 ## [0.4.2](https://github.com/whitexie/ant-chat/compare/v0.4.1...v0.4.2) (2025-02-22)
 
 
