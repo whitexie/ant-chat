@@ -23,7 +23,7 @@ interface ChangeRenameAction {
 
 type RenameInitialState = typeof initialState
 
-type RenameReducerAction = StartRenameAction | EndRenameAction | ChangeRenameAction | ChangeRenameAction
+type RenameReducerAction = StartRenameAction | EndRenameAction | ChangeRenameAction
 
 function renameReducer(draft: RenameInitialState, action: RenameReducerAction) {
   switch (action.type) {
