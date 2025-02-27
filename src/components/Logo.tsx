@@ -8,7 +8,7 @@ interface LogoProps {
 
 export function Logo({ show, onChange }: LogoProps) {
   return (
-    <div className="relative logo flex select-none justify-center items-center gap-2 w-[var(--conversationWidth)]">
+    <div className="relative logo w-full flex select-none justify-center items-center gap-2 md:w-[var(--conversationWidth)]">
       <Button
         type="text"
         className="block md:hidden absolute left-2 top-0"
