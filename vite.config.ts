@@ -1,7 +1,7 @@
 import type { PluginOption } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
 import react from '@vitejs/plugin-react'
-
+import { codeInspectorPlugin } from 'code-inspector-plugin'
 import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
 import { analyzer } from 'vite-bundle-analyzer'
@@ -26,6 +26,14 @@ export default defineConfig(({ command, mode }) => {
       algorithm: 'gzip', // 使用gzip压缩
       ext: '.gz', // 压缩后文件的扩展名
     }))
+  }
+
+  if (mode === 'development') {
+    plugins.push(
+      codeInspectorPlugin({
+        bundler: 'vite',
+      }),
+    )
   }
 
   if (mode === 'preview') {
