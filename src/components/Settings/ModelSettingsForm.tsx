@@ -40,7 +40,7 @@ interface SettingsModalProps {
   header?: React.ReactNode
   children?: React.ReactNode
   showReset?: boolean
-  ref?: React.RefObject<ModelSettingsFormInstance>
+  ref?: React.RefObject<ModelSettingsFormInstance | null>
   onProviderChange?: (value: string) => void
   onReset?: () => void
 }

@@ -6,7 +6,7 @@ import { useEffect, useImperativeHandle } from 'react'
 interface ConversationsFormProps {
   title: string
   systemPrompt: string
-  ref?: RefObject<ConversationsFormInstance>
+  ref?: RefObject<ConversationsFormInstance | null>
 }
 
 export interface ConversationsFormInstance {
