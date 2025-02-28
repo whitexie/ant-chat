@@ -29,7 +29,7 @@ function AntChatApp() {
           <div className="w-full h-full">
             <div className="grid h-full w-full grid-cols-[0px_1fr] md:grid-cols-[var(--conversationWidth)_1fr]">
               <div className="md:(border-r-solid border-black/10 dark:border-white/40) border-r-1px  overflow-hidden h-0  md:(block h-full)">
-                <div className="absolute border-b-solid border-b-1px border-black/10 dark:border-white/40 w-full top-0 left-0 z-10 md:(relative) h-50px flex justify-center items-center">
+                <div className="fixed border-b-solid bg-[var(--ant-layout-body-bg)] border-b-1px border-black/10 dark:border-white/40 w-full top-0 left-0 z-10 md:(relative) h-50px flex justify-center items-center">
                   <Logo show={showSidebar} onChange={setShowSidebar} />
                 </div>
                 <div className={`h-[var(--mainHeight)] w-50vw md:w-full ${showSidebar ? 'absolute z-20 top-[var(--headerHeight)] left-0' : ''}`}>
