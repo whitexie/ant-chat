@@ -16,11 +16,6 @@ export default defineConfig({
     },
     globals: true,
     alias: {
-      'antd/es/style/motion': 'antd/es/style/motion/index.js',
-      'antd/es/theme/useToken': 'antd/es/theme/useToken.js',
-      'antd/es/theme/util/alias': 'antd/es/theme/util/alias.js',
-      'antd': 'antd/es',
-      'antd/es': 'antd/es',
       '@ant-design/x': '@ant-design/x/es',
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
