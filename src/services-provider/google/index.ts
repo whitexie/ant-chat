@@ -146,7 +146,7 @@ class GeminiService extends BaseService {
     body.generationConfig = {
       temperature: this.temperature,
     }
-    if (features?.onlieSearch) {
+    if (features?.onlineSearch) {
       body.tools = [
         { googleSearch: {} },
       ]

@@ -1,7 +1,6 @@
 import type { IAttachment, IImage } from '@/db/interface'
 import type { ChatFeatures } from '@/services-provider/interface'
 import type { UploadFile } from 'antd'
-import StopSvg from '@/assets/images/stop.svg?react'
 import { useConversationsStore } from '@/store/conversation'
 import { useFeatures, useFeaturesState } from '@/store/features'
 import { fileToBase64 } from '@/utils'
@@ -70,41 +69,45 @@ function Sender({ loading = false, ...props }: SenderProps) {
         className={`${styles.sender} absolute left-2 right-2 ${hasMessage ? 'bottom-2' : 'bottom-50%'} transition transition-duration-500 p-xs bg-white dark:(bg-[var(--ant-layout-color-bg-body)] border-white/40) rounded-xl overflow-hidden shadow-lg`}
       >
         <div className={`header transition-height overflow-hidden h-0 ${openHeader && 'h-100px'}`}>
-          <div className="title"></div>
-          <div className="content">
-            <Attachments
-              multiple
-              overflow="scrollX"
-              beforeUpload={() => false}
-              items={attachmentList}
-              onChange={({ fileList }) => {
-                const result: UploadFile[] = []
-                fileList.forEach((item) => {
-                  if (item.size && item.size > 1024 * 1024 * 20) {
-                    message.warning('文件大小不能超过20MB')
-                    return
-                  }
+          {
+            openHeader && (
+              <div data-testid="header-content" className="content">
+                <Attachments
+                  multiple
+                  overflow="scrollX"
+                  beforeUpload={() => false}
+                  items={attachmentList}
+                  onChange={({ fileList }) => {
+                    const result: UploadFile[] = []
+                    fileList.forEach((item) => {
+                      if (item.size && item.size > 1024 * 1024 * 20) {
+                        message.warning('文件大小不能超过20MB')
+                        return
+                      }
 
-                  // 识别Markdown文件
-                  if (item.name.toLowerCase().endsWith('.md')) {
-                    item.type = 'text/md'
-                  }
+                      // 识别Markdown文件
+                      if (item.name.toLowerCase().endsWith('.md')) {
+                        item.type = 'text/md'
+                      }
 
-                  result.push(item)
-                })
+                      result.push(item)
+                    })
 
-                setAttachmentList(result)
-              }}
-              placeholder={{
-                icon: <CloudUploadOutlined />,
-                title: '上传图片或文档',
-              }}
-              accept="image/*,application/pdf,text/*,.md,.mp4"
-            />
-          </div>
+                    setAttachmentList(result)
+                  }}
+                  placeholder={{
+                    icon: <CloudUploadOutlined />,
+                    title: '上传图片或文档',
+                  }}
+                  accept="image/*,application/pdf,text/*,.md,.mp4"
+                />
+              </div>
+            )
+          }
         </div>
         <div className="input-wrapper">
           <textarea
+            data-testid="textarea"
             value={text}
             rows={rows}
             onChange={(e) => {
@@ -116,11 +119,9 @@ function Sender({ loading = false, ...props }: SenderProps) {
               }
             }}
             onKeyDown={async (e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
+              if (e.key === 'Enter' && !e.shiftKey && text.length > 0) {
                 e.preventDefault()
                 await handleSubmit()
-                setText('')
-                setRows(2)
               }
             }}
             placeholder="Enter发送消息，Shift+Enter换行"
@@ -132,6 +133,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
             <Tooltip title="附件(支持文档与图片)">
               <Badge dot={(attachmentList.length > 0) && !openHeader}>
                 <Button
+                  data-testid="toggle-header"
                   onClick={() => {
                     setOpenHeader(!openHeader)
                   }}
@@ -142,7 +144,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
             <Tooltip title="联网搜索(目前仅Gemini支持)">
               <div>
                 <SwitchButton
-                  checked={features.onlieSearch}
+                  checked={features.onlineSearch}
                   onChange={setOnlieSearch}
                   icon={<GlobalOutlined />}
                 />
@@ -151,6 +153,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
           </div>
           <div>
             <Button
+              data-testid="sendBtn"
               type={loading ? 'text' : 'primary'}
               shape={loading ? 'default' : 'circle'}
               disabled={text.length === 0 && !loading}
@@ -169,6 +172,59 @@ function Sender({ loading = false, ...props }: SenderProps) {
         </div>
       </div>
     </div>
+  )
+}
+
+function StopSvg({ className }: { className: string }) {
+  return (
+    <svg
+      role="cancel"
+      className={className}
+      color="currentColor"
+      viewBox="0 0 1000 1000"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+    >
+      <title>取消</title>
+      <rect
+        fill="currentColor"
+        height="250"
+        rx="24"
+        ry="24"
+        width="250"
+        x="375"
+        y="375"
+      >
+      </rect>
+      <circle
+        cx="500"
+        cy="500"
+        fill="none"
+        r="450"
+        stroke="currentColor"
+        strokeWidth="100"
+        opacity="0.45"
+      >
+      </circle>
+      <circle
+        cx="500"
+        cy="500"
+        fill="none"
+        r="450"
+        stroke="currentColor"
+        strokeWidth="100"
+        strokeDasharray="600 9999999"
+      >
+        <animateTransform
+          attributeName="transform"
+          dur="1s"
+          from="0 500 500"
+          repeatCount="indefinite"
+          to="360 500 500"
+          type="rotate"
+        />
+      </circle>
+    </svg>
   )
 }
 

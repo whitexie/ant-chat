@@ -4,7 +4,7 @@ import { useShallow } from 'zustand/shallow'
 
 export const initialState = {
   /** 联网搜索 */
-  onlieSearch: false,
+  onlineSearch: false,
   /** 深度思考 */
   deepThinking: false,
 }
@@ -20,7 +20,7 @@ interface Action {
 
 const useFeaturesStore = create<ChatFeatures & Action>()(set => ({
   ...initialState,
-  setOnlieSearch: (value: boolean) => set({ onlieSearch: value }),
+  setOnlieSearch: (value: boolean) => set({ onlineSearch: value }),
   setDeepThinking: (value: boolean) => set({ deepThinking: value }),
 }))
 

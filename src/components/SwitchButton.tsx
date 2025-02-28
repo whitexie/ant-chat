@@ -11,6 +11,7 @@ function SwitchButton({ checked, onChange, icon }: SwitchButtonProps) {
 
   return (
     <div
+      role="switchButton"
       className="ant-btn antd-css-var w-8 h-8 flex justify-center items-center border-1 border-solid cursor-pointer"
       style={{
         borderRadius: token.borderRadius,
