@@ -28,10 +28,11 @@ exports[`sender > initstate component 1`] = `
           class="flex gap-1"
         >
           <span
-            class="ant-badge css-dev-only-do-not-override-1htoz2s"
+            aria-describedby="test-id"
+            class="ant-badge css-dev-only-do-not-override-1v613y0"
           >
             <button
-              class="ant-btn css-dev-only-do-not-override-1htoz2s ant-btn-default ant-btn-color-default ant-btn-variant-outlined ant-btn-icon-only"
+              class="ant-btn css-dev-only-do-not-override-1v613y0 ant-btn-default ant-btn-color-default ant-btn-variant-outlined ant-btn-icon-only"
               data-testid="toggle-header"
               type="button"
             >
@@ -60,7 +61,9 @@ exports[`sender > initstate component 1`] = `
               </span>
             </button>
           </span>
-          <div>
+          <div
+            aria-describedby="test-id"
+          >
             <div
               class="ant-btn antd-css-var w-8 h-8 flex justify-center items-center border-1 border-solid cursor-pointer"
               role="switchButton"
@@ -90,7 +93,7 @@ exports[`sender > initstate component 1`] = `
         </div>
         <div>
           <button
-            class="ant-btn css-dev-only-do-not-override-1htoz2s ant-btn-circle ant-btn-primary ant-btn-color-primary ant-btn-variant-solid ant-btn-icon-only"
+            class="ant-btn css-dev-only-do-not-override-1v613y0 ant-btn-circle ant-btn-primary ant-btn-color-primary ant-btn-variant-solid ant-btn-icon-only"
             data-testid="sendBtn"
             disabled=""
             type="button"
