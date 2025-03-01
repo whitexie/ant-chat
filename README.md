@@ -6,6 +6,9 @@
 
 基于`ant-design-x`的现代化 AI 聊天Web应用，支持多模型提供商和本地数据加密存储
 
+[![codecov](https://codecov.io/gh/whitexie/ant-chat/branch/main/graph/badge.svg?token=ZF0U1B9XI1)](https://codecov.io/gh/whitexie/ant-chat)
+[![CI](https://github.com/whitexie/ant-chat/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/whitexie/ant-chat/actions/workflows/ci.yml)
+
 </div>
 
 ## 功能特性 ✨
