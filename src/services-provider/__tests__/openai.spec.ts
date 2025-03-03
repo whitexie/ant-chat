@@ -1,11 +1,19 @@
-import type { ConversationsId } from '@/db/interface'
+/* eslint-disable perfectionist/sort-imports */
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createMockResponse, createMockStream } from './util'
+import request from '@/utils/request'
 
+import type { ConversationsId } from '@/db/interface'
 import { createMessage } from '@/store/conversation'
-import { describe, expect, it } from 'vitest'
 import OpenAIService from '../openai'
-import { createMockStream } from './util'
+
+vi.mock('@/utils/request')
 
 describe('openAI service', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   describe('transformMessages', () => {
     it('messages 包含图片', () => {
       const messages = [
@@ -44,6 +52,26 @@ describe('openAI service', () => {
         { role: 'user', content: 'test1' },
         { role: 'user', content: 'test2' },
       ])
+    })
+  })
+
+  describe('sendChatCompletions', async () => {
+    describe('异常处理', () => {
+      it('错误的apiKey', async () => {
+        vi.mocked(request).mockResolvedValue(
+          createMockResponse({
+            error: {
+              message: 'Authentication Fails (no such user)',
+              type: 'authentication_error',
+              param: null,
+              code: 'invalid_request_error',
+            },
+          }, { status: 401, statusText: 'Unauthorized', headers: { 'Content-Type': 'application/json' } }),
+        )
+        const service = new OpenAIService({ apiHost: 'https://api.deepseek.com/v1', apiKey: 'test' })
+
+        await expect(service.sendChatCompletions([])).rejects.toThrowError(new Error('401 Authentication Fails (no such user)'))
+      })
     })
   })
 

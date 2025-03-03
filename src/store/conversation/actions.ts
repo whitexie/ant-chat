@@ -276,27 +276,29 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
     const Service = getServiceProviderConstructor(config.id)
     const instance = new Service(config)
 
-    await instance.sendChatCompletions(
-      messages,
-      {
-        callbacks: {
-          onUpdate: (result) => {
-            aiMessage.content = result.message
-            aiMessage.reasoningContent = result.reasoningContent
-            updateMessageAction({ ...aiMessage, status: 'success' })
-          },
-          onSuccess: () => {
-            setRequestStatus('success')
-            resetAbortCallbacks()
-          },
-          onError: (error) => {
-            throw error
-          },
-        },
-        addAbortCallback,
-        features,
+    const stream = await instance.sendChatCompletions(messages, { features })
+
+    if (!stream) {
+      throw new Error('stream is null')
+    }
+
+    const reader = stream.getReader()
+
+    addAbortCallback(() => {
+      reader.cancel()
+    })
+
+    await instance.parseSse(reader, {
+      onUpdate: (result) => {
+        aiMessage.content = result.message
+        aiMessage.reasoningContent = result.reasoningContent
+        updateMessageAction({ ...aiMessage, status: 'success' })
       },
-    )
+      onSuccess: () => {
+        setRequestStatus('success')
+        resetAbortCallbacks()
+      },
+    })
   }
   catch (e) {
     const error = e as Error

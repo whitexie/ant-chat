@@ -1,5 +1,5 @@
 import type { XReadableStream } from '@/utils/stream'
-import { Stream } from '@/utils'
+import Stream from '@/utils/stream'
 
 export function createMockStream(lines: string[], DEFAULT_STREAM_SEPARATOR = '\n\n'): XReadableStream {
   const encoder = new TextEncoder()
@@ -15,5 +15,15 @@ export function createMockStream(lines: string[], DEFAULT_STREAM_SEPARATOR = '\n
         controller.close()
       },
     }),
+  })
+}
+
+export function createMockResponse(body?: unknown, options?: ResponseInit): Response {
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...options,
   })
 }
