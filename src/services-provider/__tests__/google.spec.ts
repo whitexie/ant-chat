@@ -1,8 +1,12 @@
 import type { ConversationsId, IMessage } from '@/db/interface'
 import { Role } from '@/constants'
 import { createMessage } from '@/store/conversation'
-import { describe, expect, it } from 'vitest'
+import request from '@/utils/request'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import GeminiService from '../google'
+import { createMockResponse } from './util'
+
+vi.mock('@/utils/request')
 
 describe('gemini Service 测试', () => {
   it('当未提供 API Key 时，验证器应该抛出错误', () => {
@@ -73,6 +77,38 @@ describe('gemini Service 测试', () => {
 
     expect(result).toEqual({
       contents: [{ role: 'user', parts: [] }],
+    })
+  })
+
+  describe('sendChatCompletions', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
+
+    it('开启联网功能', async () => {
+      const mockRequest = vi.mocked(request).mockImplementation(vi.fn(async () => createMockResponse({})))
+      const service = new GeminiService({ apiKey: 'test' })
+
+      await service.sendChatCompletions([], { features: { onlineSearch: true } })
+
+      const requestBody = JSON.parse(mockRequest.mock.calls[0][1].body as string)
+      expect(requestBody.tools[0]).toHaveProperty('googleSearch', {})
+    })
+
+    describe('错误处理', () => {
+      it('response 400', async () => {
+        vi.mocked(request).mockResolvedValue(createMockResponse({ error: { message: 'Bad Request' } }, { status: 400, statusText: 'Bad Request' }))
+        const service = new GeminiService({ apiKey: 'test' })
+
+        await expect(service.sendChatCompletions([])).rejects.toThrowError('请求失败. Bad Request')
+      })
+
+      it('response 500', async () => {
+        vi.mocked(request).mockResolvedValue(createMockResponse({ error: { message: 'Bad Request' } }, { status: 500, statusText: 'Bad Request' }))
+        const service = new GeminiService({ apiKey: 'test' })
+
+        await expect(service.sendChatCompletions([])).rejects.toThrowError('请求失败. Bad Request')
+      })
     })
   })
 })

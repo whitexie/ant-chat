@@ -56,16 +56,30 @@ describe('openAI service', () => {
   })
 
   describe('sendChatCompletions', async () => {
+    it('验证request接受到正确的请求参数', async () => {
+      const mockRequest = vi.mocked(request).mockImplementation(vi.fn(async () => createMockResponse({})))
+      const service = new OpenAIService({ apiHost: 'https://api.deepseek.com/v1', apiKey: 'test' })
+
+      service.setModel('test-model')
+      service.setTemperature(0.5)
+      await service.sendChatCompletions([createMessage({ convId: '0' as ConversationsId, content: 'test1' })])
+
+      expect(mockRequest).toHaveBeenCalledWith('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'Authorization': `Bearer ${'test'}`,
+        },
+        body: JSON.stringify({ messages: [{ role: 'user', content: 'test1' }], model: 'test-model', stream: true, temperature: 0.5,
+        }),
+      })
+    })
+
     describe('异常处理', () => {
       it('错误的apiKey', async () => {
         vi.mocked(request).mockResolvedValue(
           createMockResponse({
-            error: {
-              message: 'Authentication Fails (no such user)',
-              type: 'authentication_error',
-              param: null,
-              code: 'invalid_request_error',
-            },
+            error: { message: 'Authentication Fails (no such user)' },
           }, { status: 401, statusText: 'Unauthorized', headers: { 'Content-Type': 'application/json' } }),
         )
         const service = new OpenAIService({ apiHost: 'https://api.deepseek.com/v1', apiKey: 'test' })
@@ -77,7 +91,7 @@ describe('openAI service', () => {
 
   describe('parseSse', () => {
     it('parseSse', async () => {
-      // 创建模拟的 ReadableStream
+      // 创建模拟的 ReadableStream·
       const stream = createMockStream([
         // 这里的数据是简化过的，实际数据会包含很多字段
         'data: {"choices":[{"delta":{"content":"","reasoning_content":"这是思考过程...","role":"assistant"},"index":0}]}',

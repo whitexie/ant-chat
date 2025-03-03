@@ -22,7 +22,7 @@ export interface IModel {
 }
 
 export interface SendChatCompletionsOptions {
-  features?: ChatFeatures
+  features?: Partial<ChatFeatures>
   callbacks?: ChatCompletionsCallbacks
   addAbortCallback?: (callback: () => void) => void
 }

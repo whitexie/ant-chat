@@ -32,6 +32,10 @@ export default abstract class BaseService {
     }
   }
 
+  setTemperature(temperature: number) {
+    this.temperature = temperature
+  }
+
   setApiKey(apiKey: string) {
     this.apiKey = apiKey
   }

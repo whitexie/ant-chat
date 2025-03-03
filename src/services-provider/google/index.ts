@@ -1,5 +1,5 @@
 import type { IAttachment, IMessage } from '@/db/interface'
-import type { SSEOutput } from '@/utils/stream'
+import type { SSEOutput, XReadableStream } from '@/utils/stream'
 import type {
   ChatFeatures,
   IModel,
@@ -12,6 +12,7 @@ import type {
   ModelContent,
   UserContent,
 } from './interface'
+import { request } from '@/utils'
 import Stream from '@/utils/stream'
 import BaseService from '../base'
 
@@ -97,51 +98,39 @@ class GeminiService extends BaseService {
     return result
   }
 
-  async sendChatCompletions(messages: IMessage[], options?: SendChatCompletionsOptions) {
-    const { features, callbacks, addAbortCallback } = options || {}
+  async sendChatCompletions(messages: IMessage[], options?: SendChatCompletionsOptions): Promise<XReadableStream> {
+    const { features } = options || {}
     this.validator()
 
-    const abortController = new AbortController()
-
-    addAbortCallback?.(() => abortController.abort())
-
     const url = `${this.apiHost}/models/${this.model}:streamGenerateContent?alt=sse&key=${this.apiKey}`
-    const response = await fetch(url, {
+    const response = await request(url, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'Accept': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
       },
-      signal: abortController.signal,
       body: JSON.stringify(this.transformRequestBody(messages, features)),
     })
+
+    console.log('============ => ', response.ok, response.status)
 
     if (!response.ok) {
       const statusText = `${response.status}`
       if (statusText.startsWith('4') || statusText.startsWith('5')) {
         const json = await response.json()
 
-        throw new Error(`Failed to fetch. ${json.error.message}`)
+        console.log('============ => ', json)
+
+        throw new Error(`请求失败. ${json.error.message}`)
       }
       else {
-        throw new Error(`Failed to fetch ${url}: ${response.statusText}`)
+        throw new Error(`请求失败： ${response.statusText}`)
       }
     }
 
-    const stream = Stream({ readableStream: response.body!, DEFAULT_STREAM_SEPARATOR, DEFAULT_PART_SEPARATOR })
-
-    const reader = stream.getReader()
-
-    addAbortCallback?.(() => {
-      reader.cancel()
-    })
-
-    this.parseSse(reader, callbacks)
+    return Stream({ readableStream: response.body!, DEFAULT_STREAM_SEPARATOR, DEFAULT_PART_SEPARATOR })
   }
 
-  transformRequestBody(_messages: IMessage[], features?: ChatFeatures): GeminiRequestBody {
+  transformRequestBody(_messages: IMessage[], features?: Partial<ChatFeatures>): GeminiRequestBody {
     const body = this.transformMessages(_messages)
     body.generationConfig = {
       temperature: this.temperature,
