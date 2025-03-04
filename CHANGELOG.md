@@ -1,3 +1,17 @@
+## [0.4.5](https://github.com/whitexie/ant-chat/compare/v0.4.4...v0.4.5) (2025-03-04)
+
+
+### Bug Fixes
+
+* 完善模型配置检查和设置弹窗管理 ([3552460](https://github.com/whitexie/ant-chat/commit/355246053c58260921d729a8369bad92e9888a65))
+
+
+### Features
+
+* 优化聊天气泡列表和消息状态展示 ([0c60a90](https://github.com/whitexie/ant-chat/commit/0c60a90b1461cc3a430b4d57cce2df389c8c5ae0))
+
+
+
 ## [0.4.4](https://github.com/whitexie/ant-chat/compare/v0.4.3...v0.4.4) (2025-03-04)
 
 
