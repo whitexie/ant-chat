@@ -3,6 +3,7 @@ import type { ChatFeatures } from '@/services-provider/interface'
 import type { UploadFile } from 'antd'
 import { useConversationsStore } from '@/store/conversation'
 import { useFeatures, useFeaturesState } from '@/store/features'
+import { checkModelConfig, setOpenSettingsModalAction } from '@/store/modelConfig'
 import { fileToBase64 } from '@/utils'
 import {
   ArrowUpOutlined,
@@ -23,7 +24,7 @@ interface SenderProps {
 }
 
 function Sender({ loading = false, ...props }: SenderProps) {
-  const { message } = App.useApp()
+  const { message, notification } = App.useApp()
   const [text, setText] = useState('')
   const [openHeader, setOpenHeader] = useState(false)
   const [attachmentList, setAttachmentList] = useState<UploadFile[]>([])
@@ -34,6 +35,16 @@ function Sender({ loading = false, ...props }: SenderProps) {
   const { setOnlieSearch } = useFeatures()
 
   async function handleSubmit() {
+    const { ok, errMsg } = checkModelConfig()
+    if (!ok) {
+      notification.error({
+        message: '模型配置未完善',
+        description: errMsg,
+        placement: 'bottomRight',
+      })
+      setOpenSettingsModalAction(true)
+      return
+    }
     const { images, attachments } = await transformAttachments()
     props?.onSubmit?.(text, images, attachments, features)
     setAttachmentList([])

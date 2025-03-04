@@ -1,19 +1,19 @@
-import { setConfigAction, setSystemPromptAction } from '@/store/modelConfig'
+import { setConfigAction, setOpenSettingsModalAction, setSystemPromptAction, useModelConfigStore } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
-import { lazy, useState } from 'react'
+import { lazy } from 'react'
 
 import SideButton from '../SideButton'
 
 const SettingsModal = lazy(() => import('./Modal'))
 
 export default function Settings() {
-  const [open, setOpen] = useState(false)
+  const open = useModelConfigStore(state => state.openSettingsModal)
 
   return (
     <>
       <SideButton
         icon={<SettingOutlined className="w-4 h-4" />}
-        onClick={() => setOpen(true)}
+        onClick={() => setOpenSettingsModalAction(true)}
       >
         设置
       </SideButton>
@@ -25,7 +25,7 @@ export default function Settings() {
           setSystemPromptAction(systemPrompt)
           setConfigAction(active, modelConfig)
         }}
-        onClose={() => setOpen(false)}
+        onClose={() => setOpenSettingsModalAction(false)}
       />
     </>
   )

@@ -35,10 +35,12 @@ interface ModelConfigInitialState {
   active: ModelConfigId
   configMapping: ConfigMapping
   systemMessage: string
+  openSettingsModal: boolean
 }
 
 const initialState: ModelConfigInitialState = {
   active: 'Gemini' as ModelConfigId,
+  openSettingsModal: false,
   configMapping: {
     Gemini: createModelConfig({ id: 'Gemini' as ModelConfigId, name: 'Gemini', apiHost: 'https://generativelanguage.googleapis.com/v1beta' }),
     DeepSeek: createModelConfig({ id: 'DeepSeek' as ModelConfigId, name: 'DeepSeek', apiHost: 'https://api.deepseek.com' }),
@@ -125,4 +127,24 @@ export function getActiveModelConfig() {
     active,
     systemMessage,
   }
+}
+
+export function checkModelConfig() {
+  const { configMapping, active } = useModelConfigStore.getState()
+  const modelConfig = configMapping[active]
+  if (!modelConfig) {
+    return { ok: false, errMsg: `${active} 配置不存在` }
+  }
+
+  if (!modelConfig.apiKey) {
+    return { ok: false, errMsg: `${active} apiKey 为空` }
+  }
+
+  return { ok: true }
+}
+
+export function setOpenSettingsModalAction(open: boolean) {
+  useModelConfigStore.setState(state => produce(state, (draft) => {
+    draft.openSettingsModal = open
+  }))
 }
