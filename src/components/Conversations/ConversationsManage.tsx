@@ -1,10 +1,10 @@
 import type { ConversationsId } from '@/db/interface'
 import type { MenuProps } from 'antd'
 import Settings from '@/components/Settings'
-import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
+import { ANT_CHAT_STRUCTURE } from '@/constants'
 import { exportMessages } from '@/db'
 import { useConversationRename } from '@/hooks/useConversationRename'
-import { addConversationsAction, clearConversationsAction, createConversations, deleteConversationsAction, importConversationsAction, initConversationsListAction, renameConversationsAction, setActiveConversationsId, useConversationsStore } from '@/store/conversation'
+import { clearConversationsAction, deleteConversationsAction, importConversationsAction, initConversationsListAction, renameConversationsAction, setActiveConversationsId, useConversationsStore } from '@/store/conversation'
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
 import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations, type ConversationsProps } from '@ant-design/x'
@@ -125,9 +125,7 @@ export default function ConversationsManage() {
       key={0}
       className="flex-1"
       onClick={async () => {
-        const item = createConversations({ title: DEFAULT_TITLE })
-        await addConversationsAction(item)
-        await setActiveConversationsId(item.id)
+        await setActiveConversationsId('')
       }}
     >
       新对话

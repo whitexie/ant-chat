@@ -18,6 +18,7 @@ import { useActiveModelConfig } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
 import { lazy, Suspense, useState } from 'react'
 import Sender from '../Sender'
+import TypingEffect from '../TypingEffect'
 import ConversationsTitle from './ConversationsTitle'
 
 const ConversationsSettings = lazy(() => import('./ConversationsSettings'))
@@ -99,7 +100,9 @@ export default function Chat() {
                   </Suspense>
                 )
               : (
-                  <h1 className="text-center absolute bottom-[70%] left-0 right-0 text-gray-500">有什么可以帮忙的？</h1>
+                  <h1 className="text-center absolute bottom-[70%] left-0 right-0 text-gray-500">
+                    <TypingEffect text="有什么可以帮忙的？" />
+                  </h1>
                 )
           }
         </div>
