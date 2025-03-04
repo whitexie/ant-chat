@@ -1,5 +1,5 @@
 import type { IMessage } from '@/db/interface'
-import type { SSEOutput } from '@/utils/stream'
+import type { SSEOutput, XReadableStream } from '@/utils/stream'
 import type {
   ChatCompletionsCallbacks,
   IModel,
@@ -30,6 +30,10 @@ export default abstract class BaseService {
     if (!this.apiHost) {
       throw new Error('apiHost is required')
     }
+  }
+
+  setTemperature(temperature: number) {
+    this.temperature = temperature
   }
 
   setApiKey(apiKey: string) {
@@ -80,5 +84,5 @@ export default abstract class BaseService {
 
   abstract transformRequestBody(messages: IMessage[]): unknown
 
-  abstract sendChatCompletions(messages: IMessage[], options?: SendChatCompletionsOptions): Promise<void>
+  abstract sendChatCompletions(messages: IMessage[], options?: SendChatCompletionsOptions): Promise<XReadableStream>
 }

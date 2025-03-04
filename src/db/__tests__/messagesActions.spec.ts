@@ -1,6 +1,6 @@
 import type { ConversationsId } from '../interface'
 import { Role } from '@/constants'
-import { createConversation, createMessage } from '@/store/conversation'
+import { createConversations, createMessage } from '@/store/conversation'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { addConversations } from '../conversationsActions'
 import db from '../db'
@@ -12,7 +12,7 @@ describe('消息操作', () => {
   })
 
   it('添加消息', async () => {
-    const conversation = createConversation()
+    const conversation = createConversations()
     await addConversations(conversation)
     const message = createMessage({ convId: conversation.id, content: 'asdfsd', role: Role.USER })
 
@@ -28,7 +28,7 @@ describe('消息操作', () => {
   })
 
   it('删除消息', async () => {
-    const conversation = createConversation()
+    const conversation = createConversations()
     await addConversations(conversation)
     const message = createMessage({ convId: conversation.id })
     await addMessage(message)

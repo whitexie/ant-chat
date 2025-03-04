@@ -1,6 +1,6 @@
 import type { ConversationsId } from '../interface'
 
-import { createConversation } from '@/store/conversation'
+import { createConversations } from '@/store/conversation'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { addConversations, deleteConversations, fetchConversations, getConversationsById, renameConversations } from '../conversationsActions'
 import db from '../db'
@@ -10,7 +10,7 @@ describe('conversationActions', () => {
     db.conversations.clear()
   })
   it('add conversation', async () => {
-    const conversation = createConversation({ title: 'test add' })
+    const conversation = createConversations({ title: 'test add' })
     const result = await addConversations(conversation)
 
     expect(result).toBe(conversation.id)
@@ -18,14 +18,14 @@ describe('conversationActions', () => {
   })
 
   it('repeat the addition', async () => {
-    const conversation = createConversation({ title: 'test add' })
+    const conversation = createConversations({ title: 'test add' })
     await addConversations(conversation)
 
     await expect(() => addConversations(conversation)).rejects.toThrow(`${conversation.id} already exists`)
   })
 
   it('rename conversation', async () => {
-    const conversation = createConversation({ title: 'old name' })
+    const conversation = createConversations({ title: 'old name' })
     await addConversations(conversation)
 
     await renameConversations(conversation.id, 'new name')
@@ -35,7 +35,7 @@ describe('conversationActions', () => {
   })
 
   it('delete conversatio', async () => {
-    const conversation = createConversation()
+    const conversation = createConversations()
     await addConversations(conversation)
 
     await deleteConversations(conversation.id)
@@ -44,7 +44,7 @@ describe('conversationActions', () => {
   })
 
   it('测试分页', async () => {
-    const conversations = Array.from({ length: 20 }).map((_, index) => createConversation({ id: `${index}` as ConversationsId, createAt: index }))
+    const conversations = Array.from({ length: 20 }).map((_, index) => createConversations({ id: `${index}` as ConversationsId, createAt: index }))
 
     await Promise.all(conversations.map(addConversations))
 
