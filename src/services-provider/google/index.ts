@@ -111,14 +111,10 @@ class GeminiService extends BaseService {
       body: JSON.stringify(this.transformRequestBody(messages, features)),
     })
 
-    console.log('============ => ', response.ok, response.status)
-
     if (!response.ok) {
       const statusText = `${response.status}`
       if (statusText.startsWith('4') || statusText.startsWith('5')) {
         const json = await response.json()
-
-        console.log('============ => ', json)
 
         throw new Error(`请求失败. ${json.error.message}`)
       }
