@@ -1,13 +1,15 @@
 import type { ConversationsId, IConversations, IMessage, ModelConfig } from '@/db/interface'
 import type { BubbleContent } from '@/types/global'
-import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList'
+import { Role } from '@/constants'
 import { deleteMessageAction, refreshRequestAction } from '@/store/conversation'
 import { getFeatures } from '@/store/features'
 import { clipboardWriteText, formatTime } from '@/utils'
+import { RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
 import { App } from 'antd'
+import { useEffect, useRef } from 'react'
 import BubbleFooter from './BubbleFooter'
-import { roles } from './roles'
+import MessageContent from './MessageContent'
 
 interface BubbleListProps {
   currentConversations: IConversations | undefined
@@ -18,20 +20,7 @@ interface BubbleListProps {
 function BubbleList({ messages, currentConversations, config }: BubbleListProps) {
   const { message: messageFunc } = App.useApp()
   const activeConversationId = currentConversations?.id || ''
-
-  const bubbleList = messages.map((msg) => {
-    const { id: key, role, content, images, attachments, status, createAt, reasoningContent = '' } = msg
-    const item: BubbleDataType = {
-      role,
-      content: { content, images, attachments, status, reasoningContent } as BubbleContent,
-      key,
-      loading: status === 'loading',
-      header: <div className="text-xs flex items-center">{formatTime(createAt)}</div>,
-      footer: <BubbleFooter message={msg} onClick={handleFooterButtonClick} />,
-    }
-
-    return item
-  })
+  const divRef = useRef<HTMLDivElement>(null)
 
   async function copyMessage(message: IMessage) {
     const content = message.content as string
@@ -53,16 +42,65 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
     mapping[buttonName as keyof typeof mapping]?.()
   }
 
-  return (
-    <div className="h-full">
-      <Bubble.List
-        items={bubbleList}
-        roles={roles}
+  useEffect(() => {
+    setTimeout(() => {
+      if (divRef.current) {
+        divRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end',
+        })
+      }
+    }, 100)
+  }, [messages])
 
-        className="h-full"
-      />
+  return (
+    <div className="ant-bubble-list-container flex flex-col gap-2 h-full overflow-y-auto">
+      {
+        messages.map((msg) => {
+          return (
+            <Bubble<BubbleContent>
+              key={msg.id}
+              loading={msg.status === 'loading'}
+              placement={msg.role === Role.USER ? 'end' : 'start'}
+              style={{
+                marginInlineEnd: msg.role === Role.USER ? 10 : 44,
+                marginInlineStart: msg.role === Role.USER ? 44 : 10,
+              }}
+              avatar={getRoleAvatar(msg.role)}
+              messageRender={() => {
+                return (
+                  <MessageContent
+                    images={msg.images}
+                    attachments={msg.attachments}
+                    content={msg.content}
+                    reasoningContent={msg.reasoningContent || ''}
+                    status={msg.status || 'success'}
+                  />
+                )
+              }}
+              content={msg.content}
+              header={<div className="text-xs flex items-center">{formatTime(msg.createAt)}</div>}
+              footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
+              typing={msg.status === 'typing' ? { step: 1, interval: 100 } : false}
+            />
+          )
+        })
+      }
+      <div ref={divRef} className="h-1 w-full"></div>
     </div>
   )
+}
+
+function getRoleAvatar(role: Role) {
+  if (role === Role.USER) {
+    return { icon: <UserOutlined />, style: { background: '#87d068' } }
+  }
+  else if (role === Role.SYSTEM) {
+    return { icon: <SmileFilled />, style: { background: '#DE732D' } }
+  }
+  else if (role === Role.AI) {
+    return { icon: <RobotFilled />, style: { background: '#69b1ff' } }
+  }
 }
 
 export default BubbleList

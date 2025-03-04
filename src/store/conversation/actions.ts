@@ -133,19 +133,19 @@ export async function initConversationsTitle() {
   const Service = getServiceProviderConstructor(active)
   const service = new Service(config.modelConfig)
 
-  await service.sendChatCompletions(
+  const stream = await service.sendChatCompletions(
     [
       { ...userMessage, content, images: [], attachments: [] },
     ],
-    {
-      callbacks: {
-        onSuccess: (result) => {
-          const title = result.message
-          renameConversationsAction(messages[0].convId, title)
-        },
-      },
-    },
   )
+
+  const reader = stream.getReader()
+  service.parseSse(reader, {
+    onSuccess: (result) => {
+      const title = result.message
+      renameConversationsAction(messages[0].convId, title)
+    },
+  })
 }
 
 export interface UpdateConversationsSettingsConfig {
@@ -292,10 +292,11 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
       onUpdate: (result) => {
         aiMessage.content = result.message
         aiMessage.reasoningContent = result.reasoningContent
-        updateMessageAction({ ...aiMessage, status: 'success' })
+        updateMessageAction({ ...aiMessage, status: 'typing' })
       },
       onSuccess: () => {
         setRequestStatus('success')
+        updateMessageAction({ ...aiMessage, status: 'success' })
         resetAbortCallbacks()
       },
     })

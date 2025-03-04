@@ -28,6 +28,7 @@ export default function BubbleFooter({ message, onClick }: BubbleFooterProps) {
       shape="circle"
       size="small"
       icon={<SyncOutlined />}
+      disabled={!['success', 'error'].includes(message.status || '')}
       onClick={() => {
         onClick?.('refresh', message)
       }}

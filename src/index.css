@@ -39,17 +39,12 @@ body,
   height: 100vh;
 }
 
-/* 自定义样式 */
-.scroll-hidden {
-  /* scrollbar-width: none; */
-}
-
 .scroll-hidden::-webkit-scrollbar {
   display: none; /* Chrome, Safari 和 Opera */
 }
 
-.ant-bubble-list::before,
-.ant-bubble-list::after {
+.ant-bubble-list-container::before,
+.ant-bubble-list-container::after {
   display: block;
   content: '';
   height: 5px;

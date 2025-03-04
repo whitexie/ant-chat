@@ -48,7 +48,7 @@ export interface IMessage {
   /** 推理内容 */
   reasoningContent?: string
   createAt: CreateAt
-  status?: 'success' | 'error' | 'loading'
+  status?: 'success' | 'error' | 'loading' | 'typing'
   images: IAttachment[]
   attachments: IAttachment[]
 }

@@ -7,5 +7,5 @@ export interface BubbleContent {
   reasoningContent: string
   images: IAttachment[]
   attachments: IAttachment[]
-  status: 'loading' | 'success' | 'error'
+  status: 'loading' | 'success' | 'error' | 'typing'
 }
