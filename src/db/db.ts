@@ -6,6 +6,7 @@ export function createDb() {
   return new Dexie('antChat') as Dexie & {
     conversations: EntityTable<IConversations, 'id'>
     messages: EntityTable<IMessage, 'id'>
+    customModels: EntityTable<{ id: string, ownedBy: string, createAt: number }, 'id'>
   }
 }
 
@@ -49,9 +50,18 @@ export function upgradeToV2(db: Dexie) {
   })
 }
 
+export function upgradeToV3(db: Dexie) {
+  db.version(3).stores({
+    conversations: '&id, title, createAt',
+    messages: '&id, convId, content, createAt',
+    customModels: '&id, ownedBy, createAt',
+  })
+}
+
 const db = createDb()
 
 upgradeToV1(db)
 upgradeToV2(db)
+upgradeToV3(db)
 
 export default db

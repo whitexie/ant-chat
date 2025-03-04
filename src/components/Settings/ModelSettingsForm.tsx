@@ -1,12 +1,13 @@
-import type { ModelConfig } from '@/db/interface'
+import type { ModelConfig, ModelConfigId } from '@/db/interface'
 import type { IModel } from '@/services-provider/interface'
 import type { InputRef, SelectProps } from 'antd'
-import { getProviderDefaultApiHost, getProviderModels } from '@/services-provider'
+import DEFAULT_MODELS_MAPPING from '@/constants/models'
+import { addCustomModel, createCustomModel, getCustomModelsByOwnedBy } from '@/db'
+import { getProviderDefaultApiHost } from '@/services-provider'
 import { useModelConfigStore } from '@/store/modelConfig'
-import { ReloadOutlined } from '@ant-design/icons'
+import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { App, Button, Form, Input, Select, Slider } from 'antd'
-import { debounce } from 'lodash-es'
-import { Suspense, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { Suspense, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { useShallow } from 'zustand/shallow'
 
 const CommonRules = {
@@ -95,44 +96,61 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
   )
 
   const modelOptions = useMemo(() => {
-    return models?.map(model => ({ label: model.id, value: model.id }))
+    return models?.map(model => ({ value: model.id }))
   }, [models])
-
-  const initModelsDebounce = useCallback(debounce(_initModels, 1000), [])
 
   async function handleRefreshModels() {
     if (!apiHost || !apiKey) {
       console.log('no apiHost or apiKey')
       return
     }
-    await initModelsDebounce(apiHost, apiKey)
+    await initModels(apiHost, apiKey)
   }
 
-  async function _initModels(apiHost: string, apiKey: string) {
-    const _active = form.getFieldValue('id')
+  async function initModels(apiHost: string, apiKey: string) {
+    const _active = form.getFieldValue('id') as ModelConfigId
     if (!_active) {
       console.debug('no active', _active, apiHost, apiKey)
       return
     }
-    try {
-      setModels([])
-      setLoading(true)
-      const models = await getProviderModels(_active, apiHost, apiKey)
-      setModels(models)
-    }
-    catch (e) {
-      const error = e as Error
-      message.error(`获取模型失败，请检查 API Host 和 API Key\n${error.message}`)
-    }
-    finally {
-      setLoading(false)
-    }
+
+    setModels([])
+    setLoading(true)
+
+    const models = DEFAULT_MODELS_MAPPING[_active]
+    const customModels = await getCustomModelsByOwnedBy(_active)
+    setModels([
+      ...customModels,
+      ...models.map(model => ({ id: model.id, ownedBy: _active, createAt: model.createAt })),
+    ])
+    setLoading(false)
   }
 
   function onProviderChange(value: string) {
     const apiHost = getProviderDefaultApiHost(value)
     form.setFieldsValue({ apiHost })
     props.onProviderChange?.(value)
+  }
+
+  async function handleAddModel() {
+    const ownedBy = form.getFieldValue('id') as ModelConfigId
+
+    if (models.some(model => model.id === modelName)) {
+      message.error(`模型 ${modelName} 已存在`)
+      return
+    }
+
+    const _model = createCustomModel(modelName, ownedBy)
+    await addCustomModel(_model)
+
+    setModels(prev => [
+      _model,
+      ...prev,
+    ])
+
+    modelInputRef.current?.blur()
+    form.setFieldValue('model', modelName)
+    setModelName('')
   }
 
   useImperativeHandle(ref, () => ({
@@ -143,7 +161,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
 
   useEffect(() => {
     if (initialValues?.id && initialValues?.apiHost && initialValues?.apiKey) {
-      initModelsDebounce(initialValues.apiHost, initialValues.apiKey)
+      initModels(initialValues.apiHost, initialValues.apiKey)
     }
   }, [])
 
@@ -174,7 +192,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
             return (
               <div>
                 {menu}
-                <div>
+                <div className="mt-1 flex gap-1">
                   <Input
                     value={modelName}
                     ref={modelInputRef}
@@ -185,16 +203,11 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
                     onPressEnter={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
-                      const value = e.currentTarget.value
-                      setModels(prev => [...prev, { id: value, name: value, object: 'model', owned_by: 'user' }])
-
-                      modelInputRef.current?.blur()
-                      form.setFieldValue('model', value)
-                      setModelName('')
+                      handleAddModel()
                     }}
                   />
+                  <Button type="text" icon={<PlusOutlined />} onClick={handleAddModel} />
                 </div>
-
               </div>
             )
           }}

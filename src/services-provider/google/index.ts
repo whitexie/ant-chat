@@ -2,13 +2,11 @@ import type { IAttachment, IMessage } from '@/db/interface'
 import type { SSEOutput, XReadableStream } from '@/utils/stream'
 import type {
   ChatFeatures,
-  IModel,
   SendChatCompletionsOptions,
   ServiceConstructorOptions,
 } from '../interface'
 import type {
   GeminiRequestBody,
-  GetModelsResponse,
   ModelContent,
   UserContent,
 } from './interface'
@@ -30,23 +28,6 @@ class GeminiService extends BaseService {
   constructor(options?: Partial<ServiceConstructorOptions>) {
     const _options = Object.assign({ ...DEFAULT_OPTIONS }, options)
     super(_options)
-  }
-
-  async getModels(apiHost: string, apiKey: string): Promise<IModel[]> {
-    const url = `${apiHost}/models?key=${apiKey}`
-    const response = await fetch(url, {
-      method: 'GET',
-    })
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch ${url}: ${response.statusText}`)
-    }
-    const data = await response.json() as GetModelsResponse
-
-    return data.models.map((model) => {
-      const id = model.name.replace('models/', '')
-      return { id, object: 'model', owned_by: 'google' }
-    })
   }
 
   private transformFilePart(attachments: IAttachment[]) {

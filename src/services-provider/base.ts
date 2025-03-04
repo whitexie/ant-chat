@@ -2,7 +2,6 @@ import type { IMessage } from '@/db/interface'
 import type { SSEOutput, XReadableStream } from '@/utils/stream'
 import type {
   ChatCompletionsCallbacks,
-  IModel,
   SendChatCompletionsOptions,
   ServiceConstructorOptions,
 } from './interface'
@@ -79,8 +78,6 @@ export default abstract class BaseService {
   }
 
   abstract extractContent(output: unknown): { message: string, reasoningContent: string }
-
-  abstract getModels(_apiHost: string, _apiKey: string): Promise<IModel[]>
 
   abstract transformRequestBody(messages: IMessage[]): unknown
 

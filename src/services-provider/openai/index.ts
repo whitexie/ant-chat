@@ -1,7 +1,6 @@
 import type { IMessage } from '@/db/interface'
 import type { SSEOutput, XReadableStream } from '@/utils/stream'
 import type {
-  IModel,
   ServiceConstructorOptions,
 } from '../interface'
 import type { ImageContent, MessageItem, TextContent } from './interface'
@@ -15,11 +14,6 @@ interface OpenAIRequestBody {
   temperature?: number
 }
 
-interface ModelsResponse {
-  object: 'list'
-  data: IModel[]
-}
-
 const DEFAULT_OPTIONS = {
   apiHost: 'https://api.openai.com/v1',
   model: 'gpt-4o',
@@ -31,22 +25,6 @@ export default class OpenAIService extends BaseService {
   constructor(options?: Partial<ServiceConstructorOptions>) {
     const _options = Object.assign({ ...DEFAULT_OPTIONS }, options)
     super(_options)
-  }
-
-  async getModels(apiHost: string, apiKey: string): Promise<IModel[]> {
-    const url = `${apiHost}/models`
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch ${url}: ${response.statusText}`)
-    }
-
-    return ((await response.json()) as ModelsResponse).data
   }
 
   transformMessages(_messages: IMessage[]): MessageItem[] {

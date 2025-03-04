@@ -17,8 +17,8 @@ export interface ChatCompletionsCallbacks {
 
 export interface IModel {
   id: string
-  object: 'model'
-  owned_by: string
+  ownedBy: string
+  createAt: number
 }
 
 export interface SendChatCompletionsOptions {

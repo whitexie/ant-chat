@@ -17,11 +17,6 @@ export function getServiceProviderConstructor(provider: ProviderName) {
   throw new Error(`Provider ${provider} not found`)
 }
 
-export async function getProviderModels(provider: ProviderName, apiHost: string, apiKey: string) {
-  const ServiceClass = getServiceProviderConstructor(provider)
-  return new ServiceClass().getModels(apiHost, apiKey)
-}
-
 export function getProviderDefaultApiHost(provider: string) {
   if (provider in SERVICE_PROVIDER_MAPPING) {
     const ServiceClass = getServiceProviderConstructor(provider as ProviderName)
