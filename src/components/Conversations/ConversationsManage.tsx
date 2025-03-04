@@ -4,7 +4,7 @@ import Settings from '@/components/Settings'
 import { ANT_CHAT_STRUCTURE, DEFAULT_TITLE } from '@/constants'
 import { exportMessages } from '@/db'
 import { useConversationRename } from '@/hooks/useConversationRename'
-import { addConversationsAction, clearConversationsAction, createConversation, deleteConversationsAction, importConversationsAction, initConversationsListAction, renameConversationsAction, setActiveConversationsId, useConversationsStore } from '@/store/conversation'
+import { addConversationsAction, clearConversationsAction, createConversations, deleteConversationsAction, importConversationsAction, initConversationsListAction, renameConversationsAction, setActiveConversationsId, useConversationsStore } from '@/store/conversation'
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
 import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations, type ConversationsProps } from '@ant-design/x'
@@ -125,7 +125,7 @@ export default function ConversationsManage() {
       key={0}
       className="flex-1"
       onClick={async () => {
-        const item = createConversation({ title: DEFAULT_TITLE })
+        const item = createConversations({ title: DEFAULT_TITLE })
         await addConversationsAction(item)
         await setActiveConversationsId(item.id)
       }}

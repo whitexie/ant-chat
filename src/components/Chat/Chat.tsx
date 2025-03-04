@@ -4,7 +4,7 @@ import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import { DEFAULT_TITLE } from '@/constants'
 import {
   addConversationsAction,
-  createConversation,
+  createConversations,
   createMessage,
   executeAbortCallbacks,
   initConversationsTitle,
@@ -49,7 +49,7 @@ export default function Chat() {
     let isNewConversation = false
     // 如果当前没有会话，则创建一个
     if (!activeConversationId) {
-      const conversation = createConversation()
+      const conversation = createConversations()
       await addConversationsAction(conversation)
       id = conversation.id
       isNewConversation = true

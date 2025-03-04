@@ -4,7 +4,7 @@ import { getConversationsById, getMessagesByConvId } from '@/db'
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { addConversationsAction, addMessageAction, clearConversationsAction, deleteConversationsAction, deleteMessageAction, importConversationsAction, renameConversationsAction, setActiveConversationsId, updateConversationsSettingsAction, updateMessageAction } from '../actions'
-import { createConversation, createMessage, useConversationsStore } from '../conversationsStore'
+import { createConversations, createMessage, useConversationsStore } from '../conversationsStore'
 
 describe('conversationStore', () => {
   beforeEach(async () => {
@@ -15,7 +15,7 @@ describe('conversationStore', () => {
   it('add conversation', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
-    const conversation = createConversation()
+    const conversation = createConversations()
 
     await act(async () => {
       await addConversationsAction(conversation)
@@ -28,7 +28,7 @@ describe('conversationStore', () => {
   it('rename conversation', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
-    const conversation = createConversation()
+    const conversation = createConversations()
 
     await act(async () => {
       await addConversationsAction(conversation)
@@ -47,7 +47,7 @@ describe('conversationStore', () => {
   it('delete conversation', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
-    const conversation = createConversation()
+    const conversation = createConversations()
 
     await act(async () => {
       await addConversationsAction(conversation)
@@ -65,8 +65,8 @@ describe('conversationStore', () => {
   it('import conversation', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
-    const conversation = createConversation()
-    const conversation2 = createConversation()
+    const conversation = createConversations()
+    const conversation2 = createConversations()
     const importData = Object.assign({}, ANT_CHAT_STRUCTURE, { conversations: [conversation, conversation2] })
 
     await act(async () => {
@@ -80,7 +80,7 @@ describe('conversationStore', () => {
   it('clear conversations', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
-    const conversation = createConversation()
+    const conversation = createConversations()
 
     await act(async () => {
       await addConversationsAction(conversation)
@@ -97,7 +97,7 @@ describe('conversationStore', () => {
   })
 
   it('upate conversations settings', async () => {
-    const conversations = createConversation()
+    const conversations = createConversations()
 
     await addConversationsAction(conversations)
 
@@ -131,7 +131,7 @@ describe('conversationStore', () => {
     it('add text message', async () => {
       const { result } = renderHook(() => useConversationsStore())
 
-      const conversation = createConversation()
+      const conversation = createConversations()
       const message: IMessage = createMessage({
         id: '1' as MessageId,
         role: Role.USER,
@@ -154,7 +154,7 @@ describe('conversationStore', () => {
     it('add image message', async () => {
       const { result } = renderHook(() => useConversationsStore())
 
-      const conversation = createConversation()
+      const conversation = createConversations()
 
       const message: IMessage = createMessage({
         content: 'text',
@@ -176,7 +176,7 @@ describe('conversationStore', () => {
     it('update message', async () => {
       const { result } = renderHook(() => useConversationsStore())
 
-      const conversation = createConversation()
+      const conversation = createConversations()
       const message = createMessage({ convId: conversation.id, role: Role.USER, content: 'test', createAt: 1 })
 
       const newMessage = { ...message, content: 'new content' }
@@ -196,7 +196,7 @@ describe('conversationStore', () => {
     it('delete message', async () => {
       const { result } = renderHook(() => useConversationsStore())
 
-      const conversation = createConversation()
+      const conversation = createConversations()
       const message = createMessage({ convId: conversation.id, role: Role.USER, content: 'test', createAt: 1 })
 
       await act(async () => {
