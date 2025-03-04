@@ -1,3 +1,19 @@
+## [0.4.4](https://github.com/whitexie/ant-chat/compare/v0.4.3...v0.4.4) (2025-03-04)
+
+
+### Bug Fixes
+
+* 修复消息无法打断问题 ([ec2924c](https://github.com/whitexie/ant-chat/commit/ec2924c5be88cd6017658cbac92e1ea46059224e))
+* **Sender:** 修复文本域为空时，通过回按键触发onSubmit事件 ([8756d27](https://github.com/whitexie/ant-chat/commit/8756d276addf04b37f182b52d041669820097f5c))
+* **types:** 修复组件引用类型 ([6672f1f](https://github.com/whitexie/ant-chat/commit/6672f1f785c3090ad5458b37040779ab2a4570f7))
+
+
+### Features
+
+* 添加打字效果组件并在聊天界面应用 ([7af317e](https://github.com/whitexie/ant-chat/commit/7af317e943dff8d5fcce09afcf6f667eeffe599e))
+
+
+
 ## [0.4.3](https://github.com/whitexie/ant-chat/compare/v0.4.2...v0.4.3) (2025-02-26)
 
 
