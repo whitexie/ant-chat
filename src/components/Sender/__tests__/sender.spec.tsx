@@ -1,9 +1,16 @@
+import { checkModelConfig } from '@/store/modelConfig'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import Sender from '../Sender'
 import '@testing-library/jest-dom'
 
+vi.mock('@/store/modelConfig')
+
 describe('sender', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('initstate component', () => {
     const { asFragment } = render(
       <Sender />,
@@ -22,6 +29,8 @@ describe('sender', () => {
 
   describe('文本输入框', () => {
     it('按回车触发onSubmit', async () => {
+      vi.mocked(checkModelConfig).mockReturnValue({ ok: true })
+
       const onSubmit = vi.fn()
       render(<Sender onSubmit={onSubmit} />)
 
@@ -162,6 +171,8 @@ describe('sender', () => {
     it('激活联网搜索', async () => {
       const onSubmit = vi.fn()
       render(<Sender onSubmit={onSubmit} />)
+
+      vi.mocked(checkModelConfig).mockReturnValue({ ok: true })
 
       const onlineSearchBtn = screen.getByRole('switchButton')
       const input = screen.getByTestId('textarea')
