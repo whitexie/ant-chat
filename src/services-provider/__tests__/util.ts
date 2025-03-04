@@ -1,7 +1,7 @@
 import type { XReadableStream } from '@/utils/stream'
 import Stream from '@/utils/stream'
 
-export function createMockStream(lines: string[], DEFAULT_STREAM_SEPARATOR = '\n\n'): XReadableStream {
+export function createMockStream(lines: string[], DEFAULT_STREAM_SEPARATOR = '\n\n', DEFAULT_PART_SEPARATOR = '\n'): XReadableStream {
   const encoder = new TextEncoder()
   return Stream({
     readableStream: new ReadableStream({
@@ -15,6 +15,8 @@ export function createMockStream(lines: string[], DEFAULT_STREAM_SEPARATOR = '\n
         controller.close()
       },
     }),
+    DEFAULT_STREAM_SEPARATOR,
+    DEFAULT_PART_SEPARATOR,
   })
 }
 
