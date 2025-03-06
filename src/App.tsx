@@ -11,6 +11,7 @@ function AntChatApp() {
   const currentTheme = useThemeStore(state => state.theme)
   const [showSidebar, setShowSidebar] = useState(false)
   const activeConversationId = useConversationsStore(state => state.activeConversationId)
+  const toggleTheme = useThemeStore(state => state.toggleTheme)
 
   const algorithm = currentTheme === 'dark'
     ? theme.darkAlgorithm
@@ -21,6 +22,22 @@ function AntChatApp() {
       setShowSidebar(false)
     }
   }, [activeConversationId])
+
+  useEffect(() => {
+    const handleThemeChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      const theme = e.matches ? 'default' : 'dark'
+      toggleTheme(theme)
+    }
+
+    const themeMedia = window.matchMedia('(prefers-color-scheme: light)')
+    handleThemeChange(themeMedia)
+
+    themeMedia.addEventListener('change', handleThemeChange)
+
+    return () => {
+      themeMedia.removeEventListener('change', handleThemeChange)
+    }
+  }, [])
 
   return (
     <ConfigProvider locale={zhCN} theme={{ algorithm, cssVar: { key: 'antd-css-var' }, hashed: false }}>
