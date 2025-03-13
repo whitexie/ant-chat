@@ -33,6 +33,8 @@ function Sender({ loading = false, ...props }: SenderProps) {
   const hasMessage = useConversationsStore(state => !!state.messages.length)
   const features = useFeaturesState()
   const { setOnlieSearch } = useFeatures()
+  // 新增输入法状态
+  const [isComposing, setIsComposing] = useState(false)
 
   async function handleSubmit() {
     const { ok, errMsg } = checkModelConfig()
@@ -121,6 +123,8 @@ function Sender({ loading = false, ...props }: SenderProps) {
             data-testid="textarea"
             value={text}
             rows={rows}
+            onCompositionStart={() => setIsComposing(true)} // 输入法开始
+            onCompositionEnd={() => setIsComposing(false)} // 输入法结束
             onChange={(e) => {
               const value = e.target.value
               setText(value)
@@ -130,7 +134,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
               }
             }}
             onKeyDown={async (e) => {
-              if (e.key === 'Enter' && !e.shiftKey && text.length > 0) {
+              if (e.key === 'Enter' && !e.shiftKey && text.length > 0 && !isComposing) {
                 e.preventDefault()
                 await handleSubmit()
               }
