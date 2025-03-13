@@ -7,7 +7,7 @@ import { clipboardWriteText, formatTime } from '@/utils'
 import { RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
 import { App } from 'antd'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import BubbleFooter from './BubbleFooter'
 import MessageContent from './MessageContent'
 
@@ -21,6 +21,38 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
   const { message: messageFunc } = App.useApp()
   const activeConversationId = currentConversations?.id || ''
   const divRef = useRef<HTMLDivElement>(null)
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true)
+
+  const handleScroll = () => {
+    const container = divRef.current?.parentElement
+    if (!container)
+      return
+
+    const { scrollTop, scrollHeight, clientHeight } = container
+    const isAtBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 20
+    setShouldAutoScroll(isAtBottom)
+  }
+
+  useEffect(() => {
+    const container = divRef.current?.parentElement
+    if (container) {
+      container.addEventListener('scroll', handleScroll)
+    }
+    return () => container?.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    if (shouldAutoScroll) {
+      setTimeout(() => {
+        if (divRef.current) {
+          divRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'end',
+          })
+        }
+      }, 100)
+    }
+  }, [messages, shouldAutoScroll])
 
   async function copyMessage(message: IMessage) {
     const content = message.content as string
@@ -41,17 +73,6 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
     }
     mapping[buttonName as keyof typeof mapping]?.()
   }
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (divRef.current) {
-        divRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'end',
-        })
-      }
-    }, 100)
-  }, [messages])
 
   return (
     <div className="ant-bubble-list-container flex flex-col gap-2 h-full overflow-y-auto">
