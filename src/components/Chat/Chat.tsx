@@ -19,11 +19,11 @@ import { SettingOutlined } from '@ant-design/icons'
 import { lazy, Suspense, useState } from 'react'
 import Sender from '../Sender'
 import TypingEffect from '../TypingEffect'
+// import BubbleList from './BubbleList'
 import ConversationsTitle from './ConversationsTitle'
 
 const ConversationsSettings = lazy(() => import('./ConversationsSettings'))
-const BubbleList = lazy(() => import('./BubbleList'))
-
+const BubbleList = lazy(() => import(/* vitePrefetch: true */'./BubbleList'))
 export default function Chat() {
   const [open, setOpen] = useState(false)
   const messages = useConversationsStore(state => state.messages)
