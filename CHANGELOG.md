@@ -1,3 +1,14 @@
+## [0.4.6](https://github.com/whitexie/ant-chat/compare/v0.4.5...v0.4.6) (2025-03-13)
+
+
+### Bug Fixes
+
+* 主题跟随系统变化 ([5d28d9d](https://github.com/whitexie/ant-chat/commit/5d28d9d48e5e523d6b7fd1a367137cbdf29101da))
+* 确保在主题更改时正确切换主题类 ([e18d55d](https://github.com/whitexie/ant-chat/commit/e18d55d3afcec4def79aba1ea61279faae1e86a2))
+* 输入法激活时不触发消息发送 ([750d28d](https://github.com/whitexie/ant-chat/commit/750d28d2491c897436b8c7d283dabaee85b3df7b))
+
+
+
 ## [0.4.5](https://github.com/whitexie/ant-chat/compare/v0.4.4...v0.4.5) (2025-03-04)
 
 
