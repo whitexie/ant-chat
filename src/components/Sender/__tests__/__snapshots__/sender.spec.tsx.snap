@@ -15,7 +15,7 @@ exports[`sender > initstate component 1`] = `
         class="input-wrapper"
       >
         <textarea
-          class="w-full h-full scrollbar border-none p-1 outline-none resize-none placeholder-[#b4b4b4] text-size-base dark:(bg-[var(--ant-layout-color-bg-body)] text-[var(--ant-layout-color-text-body)] placeholder-[var(--ant-layout-color-text-body)])"
+          class="w-full h-full scrollbar bg-transparent border-none p-1 outline-none resize-none placeholder-[#b4b4b4] text-size-base dark:(bg-[var(--ant-layout-color-bg-body)] text-[var(--ant-layout-color-text-body)] placeholder-[var(--ant-layout-color-text-body)])"
           data-testid="textarea"
           placeholder="Enter发送消息，Shift+Enter换行"
           rows="2"

@@ -136,7 +136,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
               }
             }}
             placeholder="Enter发送消息，Shift+Enter换行"
-            className="w-full h-full scrollbar border-none p-1 outline-none resize-none placeholder-[#b4b4b4] text-size-base dark:(bg-[var(--ant-layout-color-bg-body)] text-[var(--ant-layout-color-text-body)] placeholder-[var(--ant-layout-color-text-body)])"
+            className="w-full h-full scrollbar bg-transparent border-none p-1 outline-none resize-none placeholder-[#b4b4b4] text-size-base dark:(bg-[var(--ant-layout-color-bg-body)] text-[var(--ant-layout-color-text-body)] placeholder-[var(--ant-layout-color-text-body)])"
           />
         </div>
         <div className="footer flex justify-between">
