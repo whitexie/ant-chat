@@ -49,7 +49,7 @@ interface SettingsModalProps {
 export interface ModelSettingsFormInstance {
   getValues: () => ModelConfig | null
   validateFields: () => Promise<ModelConfig | null>
-  resetFields: () => void
+  resetFields: (fields?: ('apiHost' | 'name' | 'apiKey' | 'model' | 'temperature')[]) => void
 }
 
 export default function ModelSettingsForm({ header, ref, showReset, ...props }: SettingsModalProps) {
@@ -60,7 +60,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
   const [loading, setLoading] = useState(false)
   const modelInputRef = useRef<InputRef>(null)
 
-  const initialValues = props.initialValues // ?? defaultModelConfig
+  const initialValues = props.initialValues
 
   const apiHost = Form.useWatch('apiHost', form)
   const apiKey = Form.useWatch('apiKey', form)
@@ -156,7 +156,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
   useImperativeHandle(ref, () => ({
     getValues: () => form.getFieldsValue(),
     validateFields: () => form.validateFields(),
-    resetFields: () => form.resetFields(),
+    resetFields: fields => form.resetFields(fields),
   }))
 
   useEffect(() => {
@@ -171,7 +171,10 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
       <Form.Item label={providerLabel} name="id">
         <Select
           options={options}
-          onChange={onProviderChange}
+          onChange={(e) => {
+            console.log('onProviderChange', e)
+            onProviderChange(e)
+          }}
         />
       </Form.Item>
       <Form.Item label="API Host" name="apiHost" rules={apiHostRules}>

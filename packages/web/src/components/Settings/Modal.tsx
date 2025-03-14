@@ -1,9 +1,8 @@
 import type { ModelConfig, ModelConfigId } from '@/db/interface'
 import type { ModelSettingsFormInstance } from './ModelSettingsForm'
-import { setActiveAction, useActiveModelConfig, useModelConfigStore } from '@/store/modelConfig'
+import { getActiveModelConfig, useModelConfigStore } from '@/store/modelConfig'
 import { Form, Input, Modal } from 'antd'
 import { useRef, useState } from 'react'
-import { useShallow } from 'zustand/shallow'
 import ModelSettingsForm from './ModelSettingsForm'
 
 interface SettingsModalProps {
@@ -12,32 +11,49 @@ interface SettingsModalProps {
   onSave?: (active: ModelConfigId, config: { systemPrompt: string, modelConfig: ModelConfig }) => void
 }
 
+function getConfigById(id: ModelConfigId): ModelConfig {
+  return useModelConfigStore.getState().configMapping[id]
+}
+
 export default function SettingsModal({ open, onClose, onSave }: SettingsModalProps) {
   const formRef = useRef<ModelSettingsFormInstance>(null)
+  const defaultActive = useRef(getActiveModelConfig().active)
 
   const defaultSystemPrompt = useModelConfigStore(state => state.systemMessage)
   const [systemPrompt, setSystemPrompt] = useState(defaultSystemPrompt)
 
-  const active = useModelConfigStore(useShallow(state => state.active))
-  const config = useActiveModelConfig()
+  const [active, setActive] = useState(defaultActive.current)
+
+  const defaultConfig = getConfigById(active)
 
   function onOk() {
     formRef.current?.validateFields().then((values) => {
       onSave?.(active, { systemPrompt, modelConfig: values! })
       onClose?.()
+      defaultActive.current = active
     })
   }
 
   return (
-    <Modal open={open} title="设置" onOk={onOk} onCancel={onClose} okText="保存" cancelText="取消">
+    <Modal
+      open={open}
+      title="设置"
+      onOk={onOk}
+      destroyOnClose
+      onCancel={() => {
+        onClose?.()
+        setActive(defaultActive.current)
+      }}
+      okText="保存"
+      cancelText="取消"
+    >
       <ModelSettingsForm
         key={active}
-        initialValues={config}
+        initialValues={defaultConfig}
         ref={formRef}
         onProviderChange={
           (value) => {
-            formRef.current?.resetFields()
-            setActiveAction(value as ModelConfigId)
+            setActive(value as ModelConfigId)
           }
         }
       >

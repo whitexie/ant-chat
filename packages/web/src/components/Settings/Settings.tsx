@@ -1,4 +1,4 @@
-import { setConfigAction, setOpenSettingsModalAction, setSystemPromptAction, useModelConfigStore } from '@/store/modelConfig'
+import { setActiveAction, setConfigAction, setOpenSettingsModalAction, setSystemPromptAction, useModelConfigStore } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
 import { lazy } from 'react'
 
@@ -23,6 +23,7 @@ export default function Settings() {
           const { systemPrompt, modelConfig } = config
 
           setSystemPromptAction(systemPrompt)
+          setActiveAction(active)
           setConfigAction(active, modelConfig)
         }}
         onClose={() => setOpenSettingsModalAction(false)}
