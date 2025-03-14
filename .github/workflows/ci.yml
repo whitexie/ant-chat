@@ -38,7 +38,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: analyze bundle size
-        if: ${{ github.event_name == 'pull_request' }}
         env:
           BUNDLE_ANALYZER_UPLOAD_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: pnpm run bundle-analyzer
