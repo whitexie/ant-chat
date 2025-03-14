@@ -8,22 +8,15 @@
 
 :root {
   --headerHeight: 50px;
-  --mainHeight: calc(100vh - var(--headerHeight));
-  --senderHeight: 115px;
-  --bubbleListHeight: calc(var(--mainHeight) - var(--senderHeight));
+  --mainHeight: calc(100dvh - var(--headerHeight));
   --conversationWidth: 200px;
   --chat-width: calc(100vw - var(--conversationWidth));
-  --titleLeft: var(--conversationWidth);
-  --titleTop: 0px;
   --titleHeight: 50px;
 }
 
 @media (max-width: 768px) {
   :root {
-    --bubbleListHeight: calc(var(--mainHeight) - var(--senderHeight) - var(--headerHeight));
     --chat-width: 100vw;
-    --titleLeft: 0px;
-    --titleTop: var(--headerHeight);
   }
 }
 
@@ -36,7 +29,7 @@
 body,
 #root {
   width: 100%;
-  height: 100vh;
+  height: 100dvh;
 }
 
 .scroll-hidden::-webkit-scrollbar {

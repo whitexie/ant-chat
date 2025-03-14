@@ -79,35 +79,33 @@ export default function Chat() {
   }
 
   return (
-    <div key={currentConversations?.id} className="flex flex-col h-full relative w-[var(--chat-width)] mx-auto">
-      <div className="flex-shrink-0">
+    <div key={currentConversations?.id} className="grid grid-rows-[max-content_1fr_max-content] h-[var(--mainHeight)] md:(h-100dvh) relative w-full mx-auto">
+      <div>
         <ConversationsTitle
           conversation={currentConversations}
           items={items}
         />
       </div>
-      <div className="h-[var(--bubbleListHeight)] w-full mx-auto">
-        <div className="h-full">
-          {
-            messages.length > 0
-              ? (
-                  <Suspense>
-                    <BubbleList
-                      messages={messages}
-                      config={config}
-                      currentConversations={currentConversations}
-                    />
-                  </Suspense>
-                )
-              : (
-                  <h1 className="text-center absolute bottom-[70%] left-0 right-0 text-gray-500">
-                    <TypingEffect text="有什么可以帮忙的？" />
-                  </h1>
-                )
-          }
-        </div>
+      <div className="overflow-y-auto overflow-x-hidden">
+        {
+          messages.length > 0
+            ? (
+                <Suspense>
+                  <BubbleList
+                    messages={messages}
+                    config={config}
+                    currentConversations={currentConversations}
+                  />
+                </Suspense>
+              )
+            : (
+                <h1 className="text-center absolute bottom-[70%] left-0 right-0 text-gray-500">
+                  <TypingEffect text="有什么可以帮忙的？" />
+                </h1>
+              )
+        }
       </div>
-      <div className="px-2 flex-shrink-0">
+      <div className="px-2 pb-4">
         <Sender
           loading={isLoading}
           onSubmit={onSubmit}

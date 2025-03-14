@@ -75,7 +75,7 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
   }
 
   return (
-    <div className="ant-bubble-list-container flex flex-col gap-2 h-full overflow-y-auto">
+    <div className="ant-bubble-list-container flex flex-col gap-2 w-[var(--chat-width)] mx-auto">
       {
         messages.map((msg) => {
           return (

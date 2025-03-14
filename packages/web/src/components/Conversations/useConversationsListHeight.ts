@@ -9,7 +9,7 @@ export function useConversationsListHeight() {
     const headerHeight = headerDivRef.current?.getBoundingClientRect().height || 0
     const footerHeight = footerDivRef.current?.getBoundingClientRect().height || 0
 
-    setListHeight({ height: `calc(100vh - ${headerHeight + footerHeight}px - var(--headerHeight))` })
+    setListHeight({ height: `calc(100dvh - ${headerHeight + footerHeight}px - var(--headerHeight))` })
   }
 
   useEffect(() => {
