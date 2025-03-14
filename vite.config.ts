@@ -48,7 +48,7 @@ export default defineConfig(({ command, mode }) => {
       analyzerMode: 'static',
       openAnalyzer: true,
       fileName: `../report-${new Date().getTime()}`,
-      reportTitle:`${pkg.name} - ${pkg.version}`,
+      reportTitle: `${pkg.name} - ${pkg.version}`,
     }))
   }
 
@@ -67,6 +67,6 @@ export default defineConfig(({ command, mode }) => {
           },
         },
       },
-    }
+    },
   }
 })
