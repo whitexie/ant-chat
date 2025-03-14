@@ -8,6 +8,7 @@ import { afterEach, expect } from 'vitest'
 import '@testing-library/jest-dom'
 
 declare module 'vitest' {
+
   interface JestAssertion<T = any>
     extends jest.Matchers<void, T>,
     TestingLibraryMatchers<T, void> {}
