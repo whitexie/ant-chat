@@ -3,6 +3,6 @@
  * @type {import('lint-staged').Configuration}
  */
 export default {
-  '**/*.ts?(x)': () => 'tsc -p tsconfig.json --noEmit',
+  'packages/web/**/*.ts?(x)': () => 'tsc -p packages/web/tsconfig.json --noEmit',
   'src/**/*.{ts,js,jsx,tsx,vue}': 'eslint --fix',
 }
