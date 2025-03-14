@@ -61,6 +61,7 @@
     "vite-bundle-analyzer": "^0.16.0",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-magic-preloader": "^1.0.5",
+    "vite-plugin-mcp": "^0.0.2",
     "vite-plugin-svgr": "^4.3.0"
   }
 }

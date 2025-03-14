@@ -7,6 +7,7 @@ import { defineConfig } from 'vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import compression from 'vite-plugin-compression'
 import magicPreloader from 'vite-plugin-magic-preloader'
+import { ViteMcp } from 'vite-plugin-mcp'
 import svgr from 'vite-plugin-svgr'
 import pkg from './package.json'
 
@@ -41,6 +42,8 @@ export default defineConfig(({ command, mode }) => {
         bundler: 'vite',
       }),
     )
+
+    plugins.push(ViteMcp())
   }
 
   if (mode === 'preview') {
