@@ -6,7 +6,7 @@ import { getFeatures } from '@/store/features'
 import { clipboardWriteText, formatTime } from '@/utils'
 import { RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
-import { App } from 'antd'
+import { App, Typography } from 'antd'
 import { useEffect, useRef, useState } from 'react'
 import BubbleFooter from './BubbleFooter'
 import MessageContent from './MessageContent'
@@ -89,6 +89,18 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
               }}
               avatar={getRoleAvatar(msg.role)}
               messageRender={() => {
+                if (msg.status === 'error') {
+                  return (
+                    <>
+                      <Typography.Paragraph>
+                        <Typography.Text type="danger">请求失败，请检查配置是否正确</Typography.Text>
+                      </Typography.Paragraph>
+                      <Typography.Paragraph>
+                        <Typography.Text type="danger">{msg.content}</Typography.Text>
+                      </Typography.Paragraph>
+                    </>
+                  )
+                }
                 return (
                   <MessageContent
                     images={msg.images}
@@ -102,7 +114,7 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
               content={msg.content}
               header={<div className="text-xs flex items-center">{formatTime(msg.createAt)}</div>}
               footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
-              typing={msg.status === 'typing' ? { step: 1, interval: 100 } : false}
+              typing={msg.status === 'typing' ? { step: 1, interval: 50 } : false}
             />
           )
         })
