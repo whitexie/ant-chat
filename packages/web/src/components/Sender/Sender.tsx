@@ -77,7 +77,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
 
   return (
     <div
-      className={`md:(w-[var(--chat-width)]) mx-auto  ${styles.sender} ${hasMessage ? 'bottom-6' : 'bottom-50%'} transition transition-duration-500 p-xs bg-white dark:(bg-[var(--ant-layout-color-bg-body)] border-white/40) rounded-xl overflow-hidden shadow-lg`}
+      className={`md:(w-[var(--chat-width)]) mx-auto ${styles.sender} ${hasMessage ? 'relative' : 'absolute left-2 right-2 bottom-50%'} transition transition-duration-500 p-xs bg-white dark:(bg-[var(--ant-layout-color-bg-body)] border-white/40) rounded-xl overflow-hidden shadow-lg`}
     >
       <div className={`header transition-height overflow-hidden h-0 ${openHeader && 'h-100px'}`}>
         {
