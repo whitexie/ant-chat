@@ -310,8 +310,7 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
   }
 }
 
-export async function onRequestAction(conversationId: ConversationsId, message: IMessage, config: ModelConfig, features: ChatFeatures) {
-  await addMessageAction(message)
+export async function onRequestAction(conversationId: ConversationsId, config: ModelConfig, features: ChatFeatures) {
   await sendChatCompletions(conversationId, config, features)
 }
 

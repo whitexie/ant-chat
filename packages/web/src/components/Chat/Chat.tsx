@@ -4,6 +4,7 @@ import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import { DEFAULT_TITLE } from '@/constants'
 import {
   addConversationsAction,
+  addMessageAction,
   createConversations,
   createMessage,
   executeAbortCallbacks,
@@ -56,16 +57,20 @@ export default function Chat() {
       isNewConversation = true
     }
 
-    const messageItem: IMessage = createMessage({ images, attachments, content: message, convId: id as ConversationsId })
+    await setActiveConversationsId(id as ConversationsId)
 
-    setActiveConversationsId(id as ConversationsId)
+    const messageItem: IMessage = createMessage({ images, attachments, content: message, convId: id as ConversationsId })
+    await addMessageAction(messageItem)
 
     // 发送请求
-    await onRequestAction(id as ConversationsId, messageItem, config, features)
+    await onRequestAction(id as ConversationsId, config, features)
 
     // 初始化会话标题
     if (currentConversations?.title === DEFAULT_TITLE || isNewConversation) {
-      initConversationsTitle()
+      // 1s后再次初始化会话标题, 避免请求频繁导致的标题未更新
+      setTimeout(() => {
+        initConversationsTitle()
+      }, 1000)
     }
   }
 
