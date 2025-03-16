@@ -43,3 +43,7 @@ body,
   height: 5px;
   width: 100%;
 }
+
+.ant-conversations > li {
+  list-style: none;
+}

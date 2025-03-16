@@ -1,4 +1,4 @@
-import type { ConversationsId } from '@/db/interface'
+import type { ConversationsId, IConversations } from '@/db/interface'
 import type { MenuProps } from 'antd'
 import Settings from '@/components/Settings'
 import { ANT_CHAT_STRUCTURE } from '@/constants'
@@ -9,6 +9,7 @@ import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
 import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations, type ConversationsProps } from '@ant-design/x'
 import { App, Button, Dropdown } from 'antd'
+import dayjs from 'dayjs'
 import { lazy, Suspense, useEffect } from 'react'
 import DarkButton from '../DarkButton'
 import Loading from '../Loading'
@@ -67,7 +68,7 @@ export default function ConversationsManage() {
 
   const items = conversations!.map((item) => {
     const { id: key, title: label } = item
-    return { key, label, icon: <MessageOutlined /> }
+    return { key, label, icon: <MessageOutlined />, group: getGroup(item) }
   })
 
   const onClickMenu: MenuProps['onClick'] = async (e) => {
@@ -145,6 +146,7 @@ export default function ConversationsManage() {
       <div className="overflow-hidden" style={listHeight}>
         <div className="h-full overflow-y-auto">
           <Conversations
+            groupable
             activeKey={activeConversationId}
             menu={conversationsMenuConfig}
             onActiveChange={(value: string) => onActiveChange(value as ConversationsId)}
@@ -169,4 +171,26 @@ export default function ConversationsManage() {
       </Suspense>
     </div>
   )
+}
+
+function getGroup(item: IConversations) {
+  const now = dayjs()
+  const createAtDate = dayjs(item.createAt)
+  const createAtTs = createAtDate.valueOf()
+  const todayStart = now.startOf('day').valueOf()
+  const yesterdayStart = now.subtract(1, 'day').startOf('day').valueOf()
+
+  if (createAtTs >= todayStart)
+    return '今日'
+
+  if (createAtTs >= yesterdayStart)
+    return '昨日'
+
+  if (createAtDate.isSame(now, 'week'))
+    return '本周'
+
+  if (createAtDate.isSame(now, 'month'))
+    return '本月'
+
+  return createAtDate.format('YYYY-MM')
 }
