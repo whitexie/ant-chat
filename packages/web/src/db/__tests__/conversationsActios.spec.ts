@@ -44,16 +44,16 @@ describe('conversationActions', () => {
   })
 
   it('测试分页', async () => {
-    const conversations = Array.from({ length: 20 }).map((_, index) => createConversations({ id: `${index}` as ConversationsId, createAt: index }))
+    const conversations = Array.from({ length: 20 }).map((_, index) => createConversations({ id: `${index}` as ConversationsId, updateAt: index }))
 
     await Promise.all(conversations.map(addConversations))
 
     conversations.sort((a, b) => b.createAt - a.createAt)
 
     const result = (await fetchConversations(1, 10)).map(item => item.id)
-    expect(result).toEqual(conversations.map(item => item.id).slice(0, 10))
+    expect(result).toEqual(conversations.map(item => item.id).slice(10).reverse())
 
     const result2 = (await fetchConversations(2, 10)).map(item => item.id)
-    expect(result2).toEqual(conversations.map(item => item.id).slice(10, 20))
+    expect(result2).toEqual(conversations.map(item => item.id).slice(0, 10).reverse())
   })
 })

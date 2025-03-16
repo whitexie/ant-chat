@@ -7,7 +7,7 @@ export type Branded<T, B> = T & Brand<B>
 export type MessageId = Branded<string, 'MessageId'>
 export type ConversationsId = Branded<string, 'ConversationId'>
 export type ModelConfigId = 'Gemini' | 'OpenAI' | 'DeepSeek'
-type CreateAt = number
+type Timestamp = number
 
 export interface ModelConfig {
   id: ModelConfigId
@@ -26,7 +26,8 @@ export interface IConversationsSettings {
 export interface IConversations {
   id: ConversationsId
   title: string
-  createAt: CreateAt
+  createAt: Timestamp
+  updateAt: Timestamp
   settings?: IConversationsSettings
 }
 
@@ -47,7 +48,7 @@ export interface IMessage {
   content: string
   /** 推理内容 */
   reasoningContent?: string
-  createAt: CreateAt
+  createAt: Timestamp
   status?: 'success' | 'error' | 'loading' | 'typing'
   images: IAttachment[]
   attachments: IAttachment[]

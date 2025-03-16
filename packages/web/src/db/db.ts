@@ -58,10 +58,23 @@ export function upgradeToV3(db: Dexie) {
   })
 }
 
+export function upgradeToV4(db: Dexie) {
+  db.version(4).stores({
+    conversations: '&id, title, createAt, updateAt',
+    messages: '&id, convId, content, createAt',
+    customModels: '&id, ownedBy, createAt',
+  }).upgrade((trans) => {
+    return trans.table('conversations').toCollection().modify((conv) => {
+      conv.updateAt = conv.createAt
+    })
+  })
+}
+
 const db = createDb()
 
 upgradeToV1(db)
 upgradeToV2(db)
 upgradeToV3(db)
+upgradeToV4(db)
 
 export default db

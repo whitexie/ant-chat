@@ -89,9 +89,19 @@ export async function renameConversations(id: string, newName: string) {
 
 export async function fetchConversations(pageIndex: number, pageSize: number = 10) {
   return await db.conversations
-    .orderBy('createAt')
+    .orderBy('updateAt')
     .reverse()
     .offset((pageIndex - 1) * pageSize)
     .limit(pageSize)
     .toArray()
+}
+
+export async function updateConversationsUpdateAt(id: ConversationsId, updateAt: number) {
+  const conversation = await getConversationsById(id)
+  if (!conversation) {
+    throw new Error(`conversations not exists: ${id}`)
+  }
+  conversation.updateAt = updateAt || Date.now()
+
+  return await db.conversations.put(conversation)
 }

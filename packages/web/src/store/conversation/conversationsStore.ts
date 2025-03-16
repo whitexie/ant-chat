@@ -26,11 +26,13 @@ export const useConversationsStore = create<ConversationsStore>()(
   ),
 )
 
-export function createConversations(option?: Partial<IConversations>) {
+export function createConversations(option?: Partial<IConversations>): IConversations {
+  const time = getNow()
   return Object.assign({
     id: uuid(),
     title: DEFAULT_TITLE,
-    createAt: getNow(),
+    createAt: time,
+    updateAt: time,
   }, option)
 }
 

@@ -1,5 +1,6 @@
 import type { ConversationsId, IMessage, MessageId } from './interface'
 import { uuid } from '@/utils'
+import { updateConversationsUpdateAt } from './conversationsActions'
 import db from './db'
 
 export function generateMessageId() {
@@ -22,7 +23,12 @@ export async function addMessage(message: IMessage) {
 }
 
 export async function updateMessage(message: IMessage) {
-  return db.messages.put(message)
+  return await db.transaction('readwrite', db.conversations, db.messages, async () => {
+    await Promise.all([
+      updateConversationsUpdateAt(message.convId, Date.now()),
+      db.messages.put(message),
+    ])
+  })
 }
 
 export async function deleteMessage(id: MessageId) {
