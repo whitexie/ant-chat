@@ -91,7 +91,7 @@ export default function Chat() {
           items={items}
         />
       </div>
-      <div className="overflow-y-auto overflow-x-hidden">
+      <div className="overflow-y-auto overflow-x-hidden relative">
         {
           messages.length > 0
             ? (
