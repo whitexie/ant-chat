@@ -13,6 +13,8 @@ import {
   fetchConversations,
   getConversationsById,
   getMessagesByConvId,
+  getMessagesByConvIdWithPagination,
+  getSystemMessageByConvId,
   importMessages,
   messageIsExists,
   renameConversations,
@@ -27,11 +29,13 @@ import { getActiveModelConfig, useModelConfigStore } from '../modelConfig'
 import { createMessage, useConversationsStore } from './conversationsStore'
 
 export async function setActiveConversationsId(id: ConversationsId | '') {
-  const messages = id ? await getMessagesByConvId(id) : []
+  const { messages, total } = id ? await getMessagesByConvIdWithPagination(id, 0, 5) : { messages: [], total: -1 }
 
   useConversationsStore.setState(state => produce(state, (draft) => {
     draft.activeConversationId = id
     draft.messages.splice(0, draft.messages.length, ...messages)
+    draft.pageIndex = 0
+    draft.messageTotal = total
   }))
 }
 
@@ -317,4 +321,25 @@ export async function onRequestAction(conversationId: ConversationsId, config: M
 export async function refreshRequestAction(conversationId: ConversationsId, message: IMessage, config: ModelConfig, features: ChatFeatures) {
   await deleteMessageAction(message.id)
   await sendChatCompletions(conversationId, config, features)
+}
+
+export async function updateConversationsSystemPrompt(conversationsId: ConversationsId, systemPrompt: string) {
+  const systemMessage = await getSystemMessageByConvId(conversationsId)
+  if (!systemMessage) {
+    console.error('conversations not found system message')
+    return
+  }
+
+  await updateMessage(createMessage({ ...systemMessage, content: systemPrompt }))
+}
+
+export async function nextPageMessagesAction(conversationsId: ConversationsId) {
+  const { pageIndex, pageSize } = useConversationsStore.getState()
+  const { messages, total } = await getMessagesByConvIdWithPagination(conversationsId, pageIndex + 1, pageSize)
+
+  useConversationsStore.setState(state => produce(state, (draft) => {
+    draft.messages.splice(0, 0, ...messages)
+    draft.pageIndex = pageIndex + 1
+    draft.messageTotal = total
+  }))
 }

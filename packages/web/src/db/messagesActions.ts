@@ -1,4 +1,5 @@
 import type { ConversationsId, IMessage, MessageId } from './interface'
+import { Role } from '@/constants'
 import { uuid } from '@/utils'
 import { updateConversationsUpdateAt } from './conversationsActions'
 import db from './db'
@@ -36,7 +37,29 @@ export async function deleteMessage(id: MessageId) {
 }
 
 export async function getMessagesByConvId(id: ConversationsId) {
-  return db.messages.orderBy('createAt').filter(x => x.convId === id).toArray()
+  return db.messages
+    .orderBy('createAt')
+    .filter(x => x.convId === id)
+    .toArray()
+}
+
+export async function getMessagesByConvIdWithPagination(id: ConversationsId, pageIndex: number, pageSize: number) {
+  const result = db.messages
+    .orderBy('createAt')
+    .filter(x => x.convId === id)
+    .reverse()
+
+  const total = await result.count()
+  const messages = await result.offset(pageIndex * pageSize).limit(pageSize).reverse().toArray()
+  return { messages, total }
+}
+
+export async function getSystemMessageByConvId(id: ConversationsId): Promise<IMessage | null> {
+  const messages = await db.messages
+    .orderBy('createAt')
+    .filter(x => x.convId === id && x.role === Role.SYSTEM)
+    .toArray()
+  return messages.length ? messages[0] : null
 }
 
 export async function BatchDeleteMessage(ids: MessageId[]) {

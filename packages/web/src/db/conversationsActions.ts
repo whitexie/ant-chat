@@ -1,7 +1,6 @@
 import type { ConversationsId, IConversations, IConversationsSettings, ModelConfig } from './interface'
-import { Role } from '@/constants'
 import db from './db'
-import { getMessagesByConvId, updateMessage } from './messagesActions'
+import { getSystemMessageByConvId, updateMessage } from './messagesActions'
 
 export async function getConversationsById(id: ConversationsId) {
   return await db.conversations.get(id)
@@ -40,7 +39,7 @@ export async function setConversationsSystemPrompt(id: ConversationsId, systemPr
   }
 
   conversation.settings.systemPrompt = systemPrompt
-  const systemMessage = (await getMessagesByConvId(id)).find(item => item.role === Role.SYSTEM)
+  const systemMessage = (await getSystemMessageByConvId(id))
 
   if (systemMessage) {
     systemMessage.content = systemPrompt

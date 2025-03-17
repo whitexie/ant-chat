@@ -1,10 +1,10 @@
-import type { ConversationsId } from '../interface'
+import type { ConversationsId, IMessage, MessageId } from '../interface'
 import { Role } from '@/constants'
 import { createConversations, createMessage } from '@/store/conversation'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { addConversations } from '../conversationsActions'
 import db from '../db'
-import { addMessage, deleteMessage, messageIsExists } from '../messagesActions'
+import { addMessage, deleteMessage, getMessagesByConvIdWithPagination, messageIsExists } from '../messagesActions'
 
 describe('消息操作', () => {
   beforeEach(() => {
@@ -38,5 +38,28 @@ describe('消息操作', () => {
     await deleteMessage(message.id)
 
     expect(await messageIsExists(message.id)).toBeFalsy()
+  })
+
+  describe('getMessagesByConvIdWithPagination', () => {
+    it('测试翻页', async () => {
+      const conversations = createConversations()
+      await addConversations(conversations)
+
+      const length = 10
+      const messages: IMessage[] = []
+
+      for (let i = 0; i < length; i++) {
+        const message = createMessage({ id: `${i}` as MessageId, convId: conversations.id, content: `message-${i}` })
+        await addMessage(message)
+        messages.push(message)
+      }
+
+      const result1 = await getMessagesByConvIdWithPagination(conversations.id, 0, 5)
+      expect(result1.messages.map(item => item.id)).toEqual(messages.slice(0, 5).map(item => item.id))
+      expect(result1.total).toEqual(10)
+
+      const result2 = await getMessagesByConvIdWithPagination(conversations.id, 1, 5)
+      expect(result2.messages.map(item => item.id)).toEqual(messages.slice(5, 10).map(item => item.id))
+    })
   })
 })
