@@ -1,4 +1,5 @@
 import type { ConversationsId, IConversations } from '@/db/interface'
+import type { ConversationsProps } from '@ant-design/x'
 import type { MenuProps } from 'antd'
 import Settings from '@/components/Settings'
 import { ANT_CHAT_STRUCTURE } from '@/constants'
@@ -7,14 +8,13 @@ import { useConversationRename } from '@/hooks/useConversationRename'
 import { clearConversationsAction, deleteConversationsAction, importConversationsAction, initConversationsListAction, renameConversationsAction, setActiveConversationsId, useConversationsStore } from '@/store/conversation'
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
 import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
-import { Conversations, type ConversationsProps } from '@ant-design/x'
+import { Conversations } from '@ant-design/x'
 import { App, Button, Dropdown } from 'antd'
 import dayjs from 'dayjs'
 import { lazy, Suspense, useEffect } from 'react'
 import DarkButton from '../DarkButton'
 import Loading from '../Loading'
 import { VersionButton } from '../Version'
-import { useConversationsListHeight } from './useConversationsListHeight'
 
 const RenameModal = lazy(() => import('./RenameModal'))
 
@@ -31,8 +31,6 @@ export default function ConversationsManage() {
 
   const conversations = useConversationsStore(state => state.conversations)
   const activeConversationId = useConversationsStore(state => state.activeConversationId)
-
-  const { headerDivRef, footerDivRef, listHeight } = useConversationsListHeight()
 
   const disabledClear = conversations!.length === 0
 
@@ -139,22 +137,20 @@ export default function ConversationsManage() {
   }, [])
 
   return (
-    <div className="h-full grid grid-rows-[auto_1fr_auto]">
-      <div ref={headerDivRef} className="w-full py-2 px-1">
+    <div className="h-full grid grid-rows-[max-content_1fr_max-content]">
+      <div className="w-full py-2 px-1">
         <Dropdown.Button type="primary" buttonsRender={buttonsRender} menu={{ items: dropdownButtons, onClick: onClickMenu }} />
       </div>
-      <div className="overflow-hidden" style={listHeight}>
-        <div className="h-full overflow-y-auto">
-          <Conversations
-            groupable
-            activeKey={activeConversationId}
-            menu={conversationsMenuConfig}
-            onActiveChange={(value: string) => onActiveChange(value as ConversationsId)}
-            items={items}
-          />
-        </div>
+      <div className="overflow-y-auto">
+        <Conversations
+          groupable
+          activeKey={activeConversationId}
+          menu={conversationsMenuConfig}
+          onActiveChange={(value: string) => onActiveChange(value as ConversationsId)}
+          items={items}
+        />
       </div>
-      <div ref={footerDivRef} className="footer border-t-solid border-1px border-black/10 dark:border-white/40 flex flex-col gap-1 px-1 py-2">
+      <div className="footer border-t-solid border-1px border-black/10 dark:border-white/40 flex flex-col gap-1 px-1 py-2">
         <DarkButton />
         <Settings />
         <VersionButton />

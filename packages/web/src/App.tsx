@@ -56,7 +56,7 @@ function AntChatApp() {
                       <div className="mask fixed top-[var(--headerHeight)] left-0 right-0 bottom-0 bg-black/50 dark:bg-white/10 z-10" onClick={() => setShowSidebar(false)} />
                     )
                   }
-                  <div className="relative z-20 bg-[var(--ant-layout-color-bg-body)] md:bg-unset">
+                  <div className="h-full relative z-20 bg-[var(--ant-layout-color-bg-body)] md:bg-unset">
                     <ConversationsManage />
                   </div>
                 </div>
