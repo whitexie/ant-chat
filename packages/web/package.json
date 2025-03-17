@@ -12,6 +12,7 @@
     "test": "vitest",
     "release": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "prepare": "husky",
+    "type-check": "tsc -b",
     "test-coverage": "vitest run --coverage",
     "test-codecov": "vitest --reporter=junit --outputFile=test-report.junit.xml",
     "bundle-analyzer": "pnpm run build && npx @codecov/bundle-analyzer ./dist --bundle-name=ant-chat --upload-token=$BUNDLE_ANALYZER_UPLOAD_TOKEN"

@@ -22,16 +22,16 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 9
+          version: 10
 
       - name: Install dependencies
         run: pnpm install
 
       - name: Build App
-        run: pnpm build
+        run: pnpm -F web build
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.ANT_CHAT_RELEASE }}
-          body_path: ./CHANGELOG.md
+          body_path: ./packages/web/CHANGELOG.md

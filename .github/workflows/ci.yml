@@ -20,25 +20,26 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 9
+          version: 10
 
       - name: Install dependencies
         run: pnpm install
 
       - name: TypeScript Check
-        run: pnpm tsc -b
+        run: pnpm -F web type-check
 
       - name: Unit Test
-        run: pnpm test-codecov
+        run: pnpm -F web test-codecov
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./packages/web/test-report.junit.xml
 
       - name: analyze bundle size
         env:
           BUNDLE_ANALYZER_UPLOAD_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: pnpm run bundle-analyzer
+        run: pnpm -F web bundle-analyzer
         
