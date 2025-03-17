@@ -1,59 +1,49 @@
-import type { ConversationsId, IConversations, IMessage, ModelConfig } from '@/db/interface'
+import type { ConversationsId, IMessage, ModelConfig } from '@/db/interface'
 import type { BubbleContent } from '@/types/global'
 import { Role } from '@/constants'
-import { deleteMessageAction, refreshRequestAction } from '@/store/conversation'
+import { deleteMessageAction, nextPageMessagesAction, refreshRequestAction } from '@/store/conversation/actions'
+import { useConversationsStore } from '@/store/conversation/conversationsStore'
 import { getFeatures } from '@/store/features'
 import { clipboardWriteText, formatTime } from '@/utils'
-import { ArrowDownOutlined, RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
+import { RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
-import { App, Button, Typography } from 'antd'
-import { useEffect, useRef, useState } from 'react'
+import { App, Typography } from 'antd'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { InfiniteScroll } from '../InfiniteScroll'
+import Loading from '../Loading'
 import BubbleFooter from './BubbleFooter'
 import MessageContent from './MessageContent'
 
-interface BubbleListProps {
-  currentConversations: IConversations | undefined
+interface Props {
   messages: IMessage[]
+  conversationsId: string
   config: ModelConfig
 }
 
-function BubbleList({ messages, currentConversations, config }: BubbleListProps) {
+function BubbleList({ config, messages, conversationsId }: Props) {
   const { message: messageFunc } = App.useApp()
-  const activeConversationId = currentConversations?.id || ''
-  const divRef = useRef<HTMLDivElement>(null)
-  const timer = useRef<NodeJS.Timeout | null>(null)
-  const [shouldAutoScroll, setShouldAutoScroll] = useState(true)
+  const infiniteScrollRef = useRef<{ scrollToBottom: () => void }>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const pageIndex = useConversationsStore(state => state.pageIndex)
+  const messageTotal = useConversationsStore(state => state.messageTotal)
 
-  const handleScroll = () => {
-    const container = getScrollElement(divRef.current)
-    if (!container)
-      return
+  // 处理首次加载和新消息时的滚动
+  useEffect(
+    () => {
+      if ((pageIndex === 0 || messages.length > 0)) {
+        infiniteScrollRef.current?.scrollToBottom()
+      }
+    },
+    [pageIndex, messages.length],
+  )
 
-    const { scrollTop, scrollHeight, clientHeight } = container
-    const isAtBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 20
-
-    if (!isAtBottom && timer.current) {
-      clearTimeout(timer.current)
-    }
-    setShouldAutoScroll(isAtBottom)
-  }
-
+  // 检查是否还有更多消息
   useEffect(() => {
-    const container = getScrollElement(divRef.current)
-    if (container) {
-      container.addEventListener('scroll', handleScroll)
+    if (messages.length >= messageTotal) {
+      setHasMore(false)
     }
-    return () => container?.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  useEffect(() => {
-    if (shouldAutoScroll) {
-      timer.current = setTimeout(() => {
-        scrollToBottom(divRef.current)
-        setShouldAutoScroll(true)
-      }, 100)
-    }
-  }, [messages, shouldAutoScroll])
+  }, [messages.length, messageTotal])
 
   async function copyMessage(message: IMessage) {
     const content = message.content as string
@@ -69,71 +59,79 @@ function BubbleList({ messages, currentConversations, config }: BubbleListProps)
   async function handleFooterButtonClick(buttonName: string, message: IMessage) {
     const mapping = {
       copy: () => copyMessage(message),
-      refresh: () => refreshRequestAction(activeConversationId as ConversationsId, message, config, getFeatures()),
+      refresh: () => refreshRequestAction(conversationsId as ConversationsId, message, config, getFeatures()),
       delete: () => deleteMessageAction(message.id),
     }
     mapping[buttonName as keyof typeof mapping]?.()
   }
 
-  return (
-    <>
-      <div ref={divRef} className="ant-bubble-list-container flex flex-col gap-2 w-[var(--chat-width)] mx-auto">
-        {
-          messages.map((msg) => {
-            return (
-              <Bubble<BubbleContent>
-                key={msg.id}
-                loading={msg.status === 'loading'}
-                placement={msg.role === Role.USER ? 'end' : 'start'}
-                style={{
-                  marginInlineEnd: msg.role === Role.USER ? 10 : 44,
-                  marginInlineStart: msg.role === Role.USER ? 44 : 10,
-                }}
-                avatar={getRoleAvatar(msg.role)}
-                messageRender={() => {
-                  if (msg.status === 'error') {
-                    return (
-                      <>
-                        <Typography.Paragraph>
-                          <Typography.Text type="danger">请求失败，请检查配置是否正确</Typography.Text>
-                        </Typography.Paragraph>
-                        <Typography.Paragraph>
-                          <Typography.Text type="danger">{msg.content}</Typography.Text>
-                        </Typography.Paragraph>
-                      </>
-                    )
-                  }
-                  return (
-                    <MessageContent
-                      images={msg.images}
-                      attachments={msg.attachments}
-                      content={msg.content}
-                      reasoningContent={msg.reasoningContent || ''}
-                      status={msg.status || 'success'}
-                    />
-                  )
-                }}
-                content={msg.content}
-                header={<div className="text-xs flex items-center">{formatTime(msg.createAt)}</div>}
-                footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
-                typing={msg.status === 'typing' ? { step: 1, interval: 50 } : false}
-              />
-            )
-          })
-        }
-        <Button
-          variant="outlined"
-          icon={<ArrowDownOutlined />}
-          shape="circle"
-          className={`left-50% transition-bottom overflow-hidden sticky ${shouldAutoScroll ? 'bottom-0px opacity-0' : 'z-10 bottom-20px'}`}
-          onClick={() => {
-            scrollToBottom(divRef.current)
-            setShouldAutoScroll(true)
-          }}
-        />
-      </div>
+  // 加载更多消息
+  const handleLoadMore = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      await nextPageMessagesAction(conversationsId as ConversationsId)
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }, [conversationsId])
 
-    </>
+  return (
+    <InfiniteScroll
+      ref={infiniteScrollRef}
+      className="p-4 w-[var(--chat-width)] mx-auto"
+      hasMore={hasMore}
+      loading={isLoading}
+      onLoadMore={handleLoadMore}
+      direction="bottom"
+      loadingComponent={(
+        <div className="flex justify-center py-2">
+          <Loading />
+        </div>
+      )}
+    >
+      <div className="space-y-4">
+        {messages.map(msg => (
+          <Bubble<BubbleContent>
+            key={msg.id}
+            loading={msg.status === 'loading'}
+            placement={msg.role === Role.USER ? 'end' : 'start'}
+            style={{
+              marginInlineEnd: msg.role === Role.USER ? 10 : 44,
+              marginInlineStart: msg.role === Role.USER ? 44 : 10,
+            }}
+            avatar={getRoleAvatar(msg.role)}
+            messageRender={() => {
+              if (msg.status === 'error') {
+                return (
+                  <>
+                    <Typography.Paragraph>
+                      <Typography.Text type="danger">请求失败，请检查配置是否正确</Typography.Text>
+                    </Typography.Paragraph>
+                    <Typography.Paragraph>
+                      <Typography.Text type="danger">{msg.content}</Typography.Text>
+                    </Typography.Paragraph>
+                  </>
+                )
+              }
+              return (
+                <MessageContent
+                  images={msg.images}
+                  attachments={msg.attachments}
+                  content={msg.content}
+                  reasoningContent={msg.reasoningContent || ''}
+                  status={msg.status || 'success'}
+                />
+              )
+            }}
+            content={msg.content}
+            header={<div className="text-xs flex items-center">{formatTime(msg.createAt)}</div>}
+            footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
+            typing={msg.status === 'typing' ? { step: 1, interval: 50 } : false}
+          />
+        ))}
+      </div>
+    </InfiniteScroll>
   )
 }
 
@@ -149,16 +147,4 @@ function getRoleAvatar(role: Role) {
   }
 }
 
-function getScrollElement(element: HTMLElement | null) {
-  return element?.parentElement
-}
-
-function scrollToBottom(element: HTMLElement | null) {
-  if (element) {
-    element.scrollIntoView({
-      behavior: 'smooth',
-      block: 'end',
-    })
-  }
-}
 export default BubbleList

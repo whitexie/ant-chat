@@ -17,14 +17,14 @@ import {
 } from '@/store/conversation'
 import { useActiveModelConfig } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
-import { lazy, Suspense, useState } from 'react'
+import { lazy, useState } from 'react'
 import Sender from '../Sender'
 import TypingEffect from '../TypingEffect'
-// import BubbleList from './BubbleList'
 import ConversationsTitle from './ConversationsTitle'
 
 const ConversationsSettings = lazy(() => import('./ConversationsSettings'))
-const BubbleList = lazy(() => import(/* vitePrefetch: true */'./BubbleList'))
+const BubbleList = lazy(() => import(/* vitePrefetch: true */ './BubbleList'))
+
 export default function Chat() {
   const [open, setOpen] = useState(false)
   const messages = useConversationsStore(state => state.messages)
@@ -91,25 +91,21 @@ export default function Chat() {
           items={items}
         />
       </div>
-      <div className="overflow-y-auto overflow-x-hidden relative">
-        {
-          messages.length > 0
-            ? (
-                <Suspense>
-                  <BubbleList
-                    messages={messages}
-                    config={config}
-                    currentConversations={currentConversations}
-                  />
-                </Suspense>
-              )
-            : (
-                <h1 className="text-center absolute bottom-[70%] left-0 right-0 text-gray-500">
-                  <TypingEffect text="有什么可以帮忙的？" />
-                </h1>
-              )
-        }
-      </div>
+      {
+        messages.length > 0
+          ? (
+              <BubbleList
+                config={config}
+                messages={messages}
+                conversationsId={activeConversationId}
+              />
+            )
+          : (
+              <h1 className="text-center absolute bottom-[70%] left-0 right-0 text-gray-500">
+                <TypingEffect text="有什么可以帮忙的？" />
+              </h1>
+            )
+      }
       <div className="px-2 pb-4">
         <Sender
           loading={isLoading}

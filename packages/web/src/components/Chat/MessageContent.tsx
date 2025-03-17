@@ -1,5 +1,5 @@
 import type { BubbleContent } from '@/types/global'
-import RenderMarkdown from '@/components/RenderMarkdown'
+import RenderMarkdown from '@/components/RenderMarkdown/RenderMarkdown'
 import { ReloadOutlined } from '@ant-design/icons'
 import { Attachments } from '@ant-design/x'
 import { Collapse, Image } from 'antd'
