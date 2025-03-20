@@ -50,10 +50,10 @@ describe('conversationActions', () => {
 
     conversations.sort((a, b) => a.updateAt - b.updateAt)
 
-    const result = (await fetchConversations(1, 5)).map(item => item.id)
+    const result = (await fetchConversations(0, 5)).conversations.map(item => item.id)
     expect(result).toEqual(['9', '8', '7', '6', '5'])
 
-    const result2 = (await fetchConversations(2, 5)).map(item => item.id)
+    const result2 = (await fetchConversations(1, 5)).conversations.map(item => item.id)
     expect(result2).toEqual(['4', '3', '2', '1', '0'])
   })
 })

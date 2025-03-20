@@ -31,8 +31,8 @@ const BubbleList = lazy(() => import(/* vitePrefetch: true */ './BubbleList'))
 export default function Chat() {
   const [open, setOpen] = useState(false)
   const messages = useMessagesStore(state => state.messages)
-  const activeConversationId = useConversationsStore(state => state.activeConversationId)
-  const currentConversations = useConversationsStore(state => state.conversations.find(item => item.id === activeConversationId))
+  const activeConversationsId = useMessagesStore(state => state.activeConversationsId)
+  const currentConversations = useConversationsStore(state => state.conversations.find(item => item.id === activeConversationsId))
   const defaultModelConfig = useActiveModelConfig()
 
   const isLoading = useConversationsStore(state => state.requestStatus === 'loading')
@@ -50,10 +50,10 @@ export default function Chat() {
   ]
 
   async function onSubmit(message: string, images: IImage[], attachments: IAttachment[], features: ChatFeatures) {
-    let id = activeConversationId
+    let id = activeConversationsId
     let isNewConversation = false
     // 如果当前没有会话，则创建一个
-    if (!activeConversationId) {
+    if (!activeConversationsId) {
       const conversation = createConversations()
       await addConversationsAction(conversation)
       id = conversation.id
@@ -100,7 +100,7 @@ export default function Chat() {
               <BubbleList
                 config={config}
                 messages={messages}
-                conversationsId={activeConversationId}
+                conversationsId={activeConversationsId}
               />
             )
           : (

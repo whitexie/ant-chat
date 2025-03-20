@@ -9,17 +9,17 @@ import {
   clearConversationsAction,
   deleteConversationsAction,
   importConversationsAction,
-  initConversationsListAction,
+  nextPageConversationsAction,
   renameConversationsAction,
   useConversationsStore,
 } from '@/store/conversation'
-import { setActiveConversationsId } from '@/store/messages'
+import { setActiveConversationsId, useMessagesStore } from '@/store/messages'
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
 import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations } from '@ant-design/x'
 import { App, Button, Dropdown } from 'antd'
 import dayjs from 'dayjs'
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import DarkButton from '../DarkButton'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
@@ -38,10 +38,14 @@ export default function ConversationsManage() {
     renameId,
   } = useConversationRename()
 
+  const [loading, setLoading] = useState(false)
   const conversations = useConversationsStore(state => state.conversations)
-  const activeConversationId = useConversationsStore(state => state.activeConversationId)
+  const activeConversationsId = useMessagesStore(state => state.activeConversationsId)
+  const conversationsTotal = useConversationsStore(state => state.conversationsTotal)
 
-  const disabledClear = conversations!.length === 0
+  const hasMore = conversationsTotal > conversations.length
+
+  const disabledClear = conversations.length === 0
 
   const dropdownButtons = [
     { key: 'import', label: '导入', icon: <ImportOutlined /> },
@@ -73,7 +77,7 @@ export default function ConversationsManage() {
     },
   })
 
-  const items = conversations!.map((item) => {
+  const items = [...conversations].sort((a, b) => b.updateAt - a.updateAt).map((item) => {
     const { id: key, title: label } = item
     return { key, label, icon: <MessageOutlined />, group: getGroup(item) }
   })
@@ -141,26 +145,29 @@ export default function ConversationsManage() {
     rightButton,
   ]
 
-  useEffect(() => {
-    initConversationsListAction()
-  }, [])
-
   return (
     <div className="h-full grid grid-rows-[max-content_1fr_max-content]">
       <div className="w-full py-2 px-1">
         <Dropdown.Button type="primary" buttonsRender={buttonsRender} menu={{ items: dropdownButtons, onClick: onClickMenu }} />
       </div>
       <InfiniteScroll
-        hasMore
-        loading={false}
+        hasMore={hasMore}
+        loading={loading}
+        direction="bottom"
+        noMoreComponent={<div className="text-center text-gray-500 py-1">已经到底了~</div>}
         onLoadMore={async () => {
-
+          if (loading) {
+            return
+          }
+          setLoading(true)
+          await nextPageConversationsAction()
+          setLoading(false)
         }}
       >
 
         <Conversations
           groupable
-          activeKey={activeConversationId}
+          activeKey={activeConversationsId}
           menu={conversationsMenuConfig}
           onActiveChange={(value: string) => onActiveChange(value as ConversationsId)}
           items={items}
@@ -187,7 +194,7 @@ export default function ConversationsManage() {
 
 function getGroup(item: IConversations) {
   const now = dayjs()
-  const createAtDate = dayjs(item.createAt)
+  const createAtDate = dayjs(item.updateAt)
   const createAtTs = createAtDate.valueOf()
   const todayStart = now.startOf('day').valueOf()
   const yesterdayStart = now.subtract(1, 'day').startOf('day').valueOf()

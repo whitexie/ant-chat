@@ -77,8 +77,6 @@ export async function importConversationsAction(data: AntChatFileStructure) {
 
   useConversationsStore.setState(state => produce(state, (draft) => {
     draft.conversations.splice(0, 0, ...conversationsList)
-
-    draft.conversations.sort((a, b) => b.updateAt - a.updateAt)
   }))
 }
 
@@ -95,13 +93,18 @@ export async function clearConversationsAction() {
   }))
 }
 
-export async function initConversationsListAction() {
-  useConversationsStore.getState().reset()
-  const conversations = await fetchConversations(1, 100)
+export async function nextPageConversationsAction() {
+  const { pageIndex, pageSize } = useConversationsStore.getState()
+  const { conversations, total } = await fetchConversations(pageIndex, pageSize)
 
   useConversationsStore.setState(state => produce(state, (draft) => {
-    draft.conversations = conversations
+    draft.conversations.push(...conversations)
+
+    draft.conversationsTotal = total
+    draft.pageIndex = pageIndex + 1
+
   }))
+
 }
 
 export async function initConversationsTitle() {

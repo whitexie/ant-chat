@@ -1,7 +1,7 @@
 import type { IConversationsSettings, ModelConfigId } from '@/db/interface'
 import { ANT_CHAT_STRUCTURE, Role } from '@/constants'
 import { getConversationsById, getMessagesByConvId } from '@/db'
-import { setActiveConversationsId } from '@/store/messages'
+import { setActiveConversationsId, useMessagesStore } from '@/store/messages'
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
@@ -82,11 +82,12 @@ describe('conversationStore', () => {
     })
 
     expect(result.current.conversations).toHaveLength(2)
-    expect(result.current.conversations).toEqual([conversation2, conversation])
+    expect(result.current.conversations).toEqual([conversation, conversation2])
   })
 
   it('clear conversations', async () => {
     const { result } = renderHook(() => useConversationsStore())
+    const { result: messagesResult } = renderHook(() => useMessagesStore())
 
     const conversation = createConversations()
 
@@ -101,7 +102,7 @@ describe('conversationStore', () => {
     })
 
     expect(result.current.conversations).toHaveLength(0)
-    expect(result.current.activeConversationId).toEqual('')
+    expect(messagesResult.current.activeConversationsId).toEqual('')
   })
 
   it('upate conversations settings', async () => {

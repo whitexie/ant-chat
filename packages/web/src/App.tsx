@@ -5,12 +5,12 @@ import { App, ConfigProvider, Layout, theme } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { useEffect, useState } from 'react'
 import { Logo } from './components/Logo'
-import { useConversationsStore } from './store/conversation'
+import { useMessagesStore } from './store/messages'
 
 function AntChatApp() {
   const currentTheme = useThemeStore(state => state.theme)
   const [showSidebar, setShowSidebar] = useState(false)
-  const activeConversationId = useConversationsStore(state => state.activeConversationId)
+  const activeConversationsId = useMessagesStore(state => state.activeConversationsId)
   const toggleTheme = useThemeStore(state => state.toggleTheme)
 
   const algorithm = currentTheme === 'dark'
@@ -18,10 +18,10 @@ function AntChatApp() {
     : theme.defaultAlgorithm
 
   useEffect(() => {
-    if (activeConversationId) {
+    if (activeConversationsId) {
       setShowSidebar(false)
     }
-  }, [activeConversationId])
+  }, [activeConversationsId])
 
   useEffect(() => {
     const handleThemeChange = (e: MediaQueryListEvent | MediaQueryList) => {
@@ -37,7 +37,7 @@ function AntChatApp() {
     return () => {
       themeMedia.removeEventListener('change', handleThemeChange)
     }
-  }, [])
+  }, [toggleTheme])
 
   return (
     <ConfigProvider locale={zhCN} theme={{ algorithm, cssVar: { key: 'antd-css-var' }, hashed: false }}>

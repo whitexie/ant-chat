@@ -87,12 +87,14 @@ export async function renameConversations(id: string, newName: string) {
 }
 
 export async function fetchConversations(pageIndex: number, pageSize: number = 10) {
-  return await db.conversations
-    .orderBy('updateAt')
-    .reverse()
-    .offset((pageIndex - 1) * pageSize)
-    .limit(pageSize)
-    .toArray()
+  const conversationsDb = db.conversations.orderBy('updateAt').reverse()
+  const total = await conversationsDb.count()
+  const conversations = await conversationsDb.offset(pageIndex * pageSize).limit(pageSize).toArray()
+
+  return {
+    conversations,
+    total,
+  }
 }
 
 export async function updateConversationsUpdateAt(id: ConversationsId, updateAt: number) {

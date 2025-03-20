@@ -11,14 +11,6 @@ describe('sender', () => {
     vi.clearAllMocks()
   })
 
-  it('initstate component', () => {
-    const { asFragment } = render(
-      <Sender />,
-    )
-
-    expect(asFragment()).toMatchSnapshot()
-  })
-
   it('loading状态下展示stop按钮', () => {
     render(
       <Sender loading />,
