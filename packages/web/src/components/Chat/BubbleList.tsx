@@ -5,9 +5,9 @@ import { deleteMessageAction, nextPageMessagesAction, refreshRequestAction } fro
 import { useConversationsStore } from '@/store/conversation/conversationsStore'
 import { getFeatures } from '@/store/features'
 import { clipboardWriteText, formatTime } from '@/utils'
-import { RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
+import { ArrowDownOutlined, RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
-import { App, Typography } from 'antd'
+import { App, Button, Typography } from 'antd'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
@@ -23,6 +23,8 @@ interface Props {
 function BubbleList({ config, messages, conversationsId }: Props) {
   const { message: messageFunc } = App.useApp()
   const infiniteScrollRef = useRef<{ scrollToBottom: () => void }>(null)
+  const bottomDivRef = useRef<HTMLDivElement>(null)
+  const [autoScrollToBottom, setAutoScrollToBottom] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const pageIndex = useConversationsStore(state => state.pageIndex)
@@ -37,6 +39,13 @@ function BubbleList({ config, messages, conversationsId }: Props) {
     },
     [pageIndex, messages.length],
   )
+
+  // 自动滚动到最底部
+  useEffect(() => {
+    if (autoScrollToBottom) {
+      infiniteScrollRef.current?.scrollToBottom()
+    }
+  }, [autoScrollToBottom])
 
   // 检查是否还有更多消息
   useEffect(() => {
@@ -76,10 +85,25 @@ function BubbleList({ config, messages, conversationsId }: Props) {
     }
   }, [conversationsId])
 
+  useEffect(() => {
+    if (bottomDivRef.current) {
+      const observer = new IntersectionObserver((entries) => {
+        const [entry] = entries
+        setAutoScrollToBottom(!(entry.intersectionRatio < 1))
+      })
+
+      observer.observe(bottomDivRef.current)
+
+      return () => {
+        observer.disconnect()
+      }
+    }
+  }, [])
+
   return (
     <InfiniteScroll
       ref={infiniteScrollRef}
-      className="p-4 w-[var(--chat-width)] mx-auto"
+      className="p-4 w-[var(--chat-width)] mx-auto relative"
       hasMore={hasMore}
       loading={isLoading}
       onLoadMore={handleLoadMore}
@@ -90,7 +114,7 @@ function BubbleList({ config, messages, conversationsId }: Props) {
         </div>
       )}
     >
-      <div className="space-y-4">
+      <div>
         {messages.map(msg => (
           <Bubble<BubbleContent>
             key={msg.id}
@@ -130,7 +154,16 @@ function BubbleList({ config, messages, conversationsId }: Props) {
             typing={msg.status === 'typing' ? { step: 1, interval: 50 } : false}
           />
         ))}
+        <div ref={bottomDivRef} className="h-[1px] w-full"></div>
       </div>
+      <Button
+        className={`sticky left-1/2 bottom-4 -translate-x-1/2 ${autoScrollToBottom ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+        shape="circle"
+        icon={<ArrowDownOutlined />}
+        onClick={() => {
+          infiniteScrollRef.current?.scrollToBottom()
+        }}
+      />
     </InfiniteScroll>
   )
 }
