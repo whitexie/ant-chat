@@ -1,9 +1,8 @@
 import type { ConversationsId, IMessage, ModelConfig } from '@/db/interface'
 import type { BubbleContent } from '@/types/global'
 import { Role } from '@/constants'
-import { deleteMessageAction, nextPageMessagesAction, refreshRequestAction } from '@/store/conversation/actions'
-import { useConversationsStore } from '@/store/conversation/conversationsStore'
 import { getFeatures } from '@/store/features'
+import { deleteMessageAction, nextPageMessagesAction, refreshRequestAction, useMessagesStore } from '@/store/messages'
 import { clipboardWriteText, formatTime } from '@/utils'
 import { ArrowDownOutlined, RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
@@ -27,8 +26,8 @@ function BubbleList({ config, messages, conversationsId }: Props) {
   const [autoScrollToBottom, setAutoScrollToBottom] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
-  const pageIndex = useConversationsStore(state => state.pageIndex)
-  const messageTotal = useConversationsStore(state => state.messageTotal)
+  const pageIndex = useMessagesStore(state => state.pageIndex)
+  const messageTotal = useMessagesStore(state => state.messageTotal)
 
   // 处理首次加载和新消息时的滚动
   useEffect(

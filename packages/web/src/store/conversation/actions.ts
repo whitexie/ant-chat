@@ -1,6 +1,5 @@
 import type { AntChatFileStructure } from '@/constants'
-import type { ConversationsId, IConversations, IMessage, MessageId, ModelConfig } from '@/db/interface'
-import type { ChatFeatures } from '@/services-provider/interface'
+import type { ConversationsId, IConversations, ModelConfig } from '@/db/interface'
 import type { StoreState } from './initialState'
 import { Role, TITLE_PROMPT } from '@/constants'
 import {
@@ -9,35 +8,21 @@ import {
   conversationsExists,
   db,
   deleteConversations,
-  deleteMessage,
   fetchConversations,
   getConversationsById,
   getMessagesByConvId,
-  getMessagesByConvIdWithPagination,
-  getSystemMessageByConvId,
   importMessages,
   messageIsExists,
   renameConversations,
   setConversationsModelConfig,
   setConversationsSystemPrompt,
-  updateMessage,
 } from '@/db'
 import { getServiceProviderConstructor } from '@/services-provider'
 import { produce } from 'immer'
 import { isEqual } from 'lodash-es'
+import { setActiveConversationsId, updateMessageAction, useMessagesStore } from '../messages'
 import { getActiveModelConfig, useModelConfigStore } from '../modelConfig'
 import { createMessage, useConversationsStore } from './conversationsStore'
-
-export async function setActiveConversationsId(id: ConversationsId | '') {
-  const { messages, total } = id ? await getMessagesByConvIdWithPagination(id, 0, 5) : { messages: [], total: -1 }
-
-  useConversationsStore.setState(state => produce(state, (draft) => {
-    draft.activeConversationId = id
-    draft.messages.splice(0, draft.messages.length, ...messages)
-    draft.pageIndex = 0
-    draft.messageTotal = total
-  }))
-}
 
 export function setRequestStatus(status: StoreState['requestStatus']) {
   useConversationsStore.setState(state => produce(state, (draft) => {
@@ -93,7 +78,7 @@ export async function importConversationsAction(data: AntChatFileStructure) {
   useConversationsStore.setState(state => produce(state, (draft) => {
     draft.conversations.splice(0, 0, ...conversationsList)
 
-    draft.conversations.sort((a, b) => b.createAt - a.createAt)
+    draft.conversations.sort((a, b) => b.updateAt - a.updateAt)
   }))
 }
 
@@ -120,7 +105,7 @@ export async function initConversationsListAction() {
 }
 
 export async function initConversationsTitle() {
-  const { messages } = useConversationsStore.getState()
+  const { messages } = useMessagesStore.getState()
   const { active } = useModelConfigStore.getState()
   const config = getActiveModelConfig()
 
@@ -186,10 +171,16 @@ export async function updateConversationsSettingsAction(id: ConversationsId, con
 
   // 更新conversationsStore.messages的系统提示词
   const messages = await getMessagesByConvId(id)
-  const messageIndex = messages.findIndex(item => item.role === Role.SYSTEM)
+  const message = messages.find(item => item.role === Role.SYSTEM)
 
-  if (messageIndex === -1) {
+  if (!message) {
     throw new Error('当前对话没有系统提示词。')
+  }
+
+  // 同步更新messages中的系统提示词
+  if (systemPrompt && systemPromptChanged) {
+    message.content = systemPrompt
+    await updateMessageAction(message)
   }
 
   useConversationsStore.setState(state => produce(state, (draft) => {
@@ -197,149 +188,5 @@ export async function updateConversationsSettingsAction(id: ConversationsId, con
     if (conversation) {
       conversation.settings = config
     }
-
-    // 同步更新messages中的系统提示词
-    if (systemPrompt && systemPromptChanged) {
-      draft.messages[messageIndex].content = systemPrompt
-    }
-  }))
-}
-
-/* ============================== messages ============================== */
-
-export async function addMessageAction(message: IMessage) {
-  await addMessage(message)
-
-  useConversationsStore.setState(state => produce(state, (draft) => {
-    draft.messages.push(message)
-  }))
-}
-
-export async function deleteMessageAction(messageId: MessageId) {
-  await deleteMessage(messageId)
-
-  useConversationsStore.setState(state => produce(state, (draft) => {
-    const index = draft.messages.findIndex(m => m.id === messageId)
-    if (index !== -1) {
-      draft.messages.splice(index, 1)
-    }
-  }))
-}
-
-export async function updateMessageAction(message: IMessage) {
-  await updateMessage(message)
-
-  useConversationsStore.setState(state => produce(state, (draft) => {
-    const index = draft.messages.findIndex(m => m.id === message.id)
-    if (index === -1)
-      throw new Error(`Message not found => ${message.id}`)
-
-    draft.messages[index] = message
-  }))
-}
-
-export function addAbortCallback(callback: () => void) {
-  useConversationsStore.setState(state => produce(state, (draft) => {
-    draft.abortCallbacks.push(callback)
-  }))
-}
-
-export function resetAbortCallbacks() {
-  useConversationsStore.setState(state => produce(state, (draft) => {
-    draft.abortCallbacks = []
-  }))
-}
-
-export function executeAbortCallbacks() {
-  useConversationsStore.getState().abortCallbacks.forEach((callback) => {
-    if (typeof callback === 'function') {
-      try {
-        callback()
-      }
-      catch (e) {
-        console.log('execute abort callback fail => ', e)
-      }
-    }
-    else {
-      console.log('callback is not function', callback)
-    }
-  })
-
-  resetAbortCallbacks()
-}
-
-export async function sendChatCompletions(conversationId: ConversationsId, config: ModelConfig, features: ChatFeatures) {
-  const messages = useConversationsStore.getState().messages
-  const aiMessage = createMessage({ convId: conversationId, role: Role.AI, status: 'loading' })
-
-  // 这里aiMessage需要展开，避免被冻结， 后面的updateMessage同理
-  await addMessageAction({ ...aiMessage })
-
-  try {
-    setRequestStatus('loading')
-    const Service = getServiceProviderConstructor(config.id)
-    const instance = new Service(config)
-
-    const stream = await instance.sendChatCompletions(messages, { features })
-
-    if (!stream) {
-      throw new Error('stream is null')
-    }
-
-    const reader = stream.getReader()
-
-    addAbortCallback(() => {
-      reader.cancel()
-    })
-
-    await instance.parseSse(reader, {
-      onUpdate: (result) => {
-        aiMessage.content = result.message
-        aiMessage.reasoningContent = result.reasoningContent
-        updateMessageAction({ ...aiMessage, status: 'typing' })
-      },
-      onSuccess: () => {
-        setRequestStatus('success')
-        updateMessageAction({ ...aiMessage, status: 'success' })
-        resetAbortCallbacks()
-      },
-    })
-  }
-  catch (e) {
-    const error = e as Error
-    aiMessage.content = error.message
-    aiMessage.status = 'error'
-    updateMessageAction(aiMessage)
-    setRequestStatus('error')
-  }
-}
-
-export async function onRequestAction(conversationId: ConversationsId, config: ModelConfig, features: ChatFeatures) {
-  await sendChatCompletions(conversationId, config, features)
-}
-
-export async function refreshRequestAction(conversationId: ConversationsId, message: IMessage, config: ModelConfig, features: ChatFeatures) {
-  await deleteMessageAction(message.id)
-  await sendChatCompletions(conversationId, config, features)
-}
-
-export async function updateConversationsSystemPrompt(conversationsId: ConversationsId, systemPrompt: string) {
-  const systemMessage = await getSystemMessageByConvId(conversationsId)
-  if (!systemMessage) {
-    console.error('conversations not found system message')
-    return
-  }
-
-  await updateMessage(createMessage({ ...systemMessage, content: systemPrompt }))
-}
-
-export async function nextPageMessagesAction(conversationsId: ConversationsId) {
-  const { pageIndex, pageSize } = useConversationsStore.getState()
-  const { messages, total } = await getMessagesByConvIdWithPagination(conversationsId, pageIndex + 1, pageSize)
-
-  useConversationsStore.setState(state => produce(state, (draft) => {
-    draft.messages.splice(0, 0, ...messages)
-    draft.pageIndex = pageIndex + 1
-    draft.messageTotal = total
   }))
 }

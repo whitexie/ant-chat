@@ -1,8 +1,8 @@
 import type { IAttachment, IImage } from '@/db/interface'
 import type { ChatFeatures } from '@/services-provider/interface'
 import type { UploadFile } from 'antd'
-import { useConversationsStore } from '@/store/conversation'
 import { useFeatures, useFeaturesState } from '@/store/features'
+import { useMessagesStore } from '@/store/messages'
 import { checkModelConfig, setOpenSettingsModalAction } from '@/store/modelConfig'
 import { fileToBase64 } from '@/utils'
 import {
@@ -29,7 +29,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
   const [openHeader, setOpenHeader] = useState(false)
   const [attachmentList, setAttachmentList] = useState<UploadFile[]>([])
   const [rows, setRows] = useState(2)
-  const hasMessage = useConversationsStore(state => !!state.messages.length)
+  const hasMessage = useMessagesStore(state => !!state.messages.length)
   const features = useFeaturesState()
   const { setOnlieSearch } = useFeatures()
   // 新增输入法状态

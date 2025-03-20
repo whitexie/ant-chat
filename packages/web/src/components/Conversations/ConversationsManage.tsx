@@ -5,7 +5,15 @@ import Settings from '@/components/Settings'
 import { ANT_CHAT_STRUCTURE } from '@/constants'
 import { exportMessages } from '@/db'
 import { useConversationRename } from '@/hooks/useConversationRename'
-import { clearConversationsAction, deleteConversationsAction, importConversationsAction, initConversationsListAction, renameConversationsAction, setActiveConversationsId, useConversationsStore } from '@/store/conversation'
+import {
+  clearConversationsAction,
+  deleteConversationsAction,
+  importConversationsAction,
+  initConversationsListAction,
+  renameConversationsAction,
+  useConversationsStore,
+} from '@/store/conversation'
+import { setActiveConversationsId } from '@/store/messages'
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
 import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations } from '@ant-design/x'
@@ -13,6 +21,7 @@ import { App, Button, Dropdown } from 'antd'
 import dayjs from 'dayjs'
 import { lazy, Suspense, useEffect } from 'react'
 import DarkButton from '../DarkButton'
+import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
 import { VersionButton } from '../Version'
 
@@ -141,7 +150,14 @@ export default function ConversationsManage() {
       <div className="w-full py-2 px-1">
         <Dropdown.Button type="primary" buttonsRender={buttonsRender} menu={{ items: dropdownButtons, onClick: onClickMenu }} />
       </div>
-      <div className="overflow-y-auto">
+      <InfiniteScroll
+        hasMore
+        loading={false}
+        onLoadMore={async () => {
+
+        }}
+      >
+
         <Conversations
           groupable
           activeKey={activeConversationId}
@@ -149,7 +165,7 @@ export default function ConversationsManage() {
           onActiveChange={(value: string) => onActiveChange(value as ConversationsId)}
           items={items}
         />
-      </div>
+      </InfiniteScroll>
       <div className="footer border-t-solid border-1px border-black/10 dark:border-white/40 flex flex-col gap-1 px-1 py-2">
         <DarkButton />
         <Settings />

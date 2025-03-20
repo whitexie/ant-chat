@@ -1,10 +1,11 @@
 import type { IConversations, IMessage } from '@/db/interface'
 import type { RequireKey } from '@/types/global'
+import type { StoreState } from './initialState'
 import { DEFAULT_TITLE, Role } from '@/constants'
 import { getNow, uuid } from '@/utils'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { initialState, type StoreState } from './initialState'
+import { initialState } from './initialState'
 
 interface StoreActions {
   reset: () => void

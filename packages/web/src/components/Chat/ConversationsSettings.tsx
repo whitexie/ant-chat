@@ -1,9 +1,10 @@
 import type { IConversations } from '@/db/interface'
+import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import type { TabsProps } from 'antd'
 import type { ConversationsFormInstance } from '../Settings/ConversationsForm'
 import type { ModelSettingsFormInstance } from '../Settings/ModelSettingsForm'
 import { Role } from '@/constants'
-import { type UpdateConversationsSettingsConfig, useConversationsStore } from '@/store/conversation'
+import { useMessagesStore } from '@/store/messages'
 import { useModelConfigStore } from '@/store/modelConfig'
 import { MessageOutlined, SettingOutlined } from '@ant-design/icons'
 import { Modal, Tabs } from 'antd'
@@ -22,7 +23,7 @@ function ConversationsSettings({ open, onClose, conversations, onSave }: Convers
   const defaultSystemPrompt = useModelConfigStore(state => state.systemMessage)
   const configMapping = useModelConfigStore(state => state.configMapping)
 
-  const messages = useConversationsStore(state => state.messages)
+  const messages = useMessagesStore(state => state.messages)
 
   const conversationsFormRef = useRef<ConversationsFormInstance>(null)
   const modelSettingsFormRef = useRef<ModelSettingsFormInstance>(null)

@@ -4,17 +4,20 @@ import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import { DEFAULT_TITLE } from '@/constants'
 import {
   addConversationsAction,
-  addMessageAction,
   createConversations,
   createMessage,
-  executeAbortCallbacks,
   initConversationsTitle,
-  onRequestAction,
-  setActiveConversationsId,
   setRequestStatus,
   updateConversationsSettingsAction,
   useConversationsStore,
 } from '@/store/conversation'
+import {
+  addMessageAction,
+  executeAbortCallbacks,
+  onRequestAction,
+  setActiveConversationsId,
+  useMessagesStore,
+} from '@/store/messages'
 import { useActiveModelConfig } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
 import { lazy, useState } from 'react'
@@ -27,7 +30,7 @@ const BubbleList = lazy(() => import(/* vitePrefetch: true */ './BubbleList'))
 
 export default function Chat() {
   const [open, setOpen] = useState(false)
-  const messages = useConversationsStore(state => state.messages)
+  const messages = useMessagesStore(state => state.messages)
   const activeConversationId = useConversationsStore(state => state.activeConversationId)
   const currentConversations = useConversationsStore(state => state.conversations.find(item => item.id === activeConversationId))
   const defaultModelConfig = useActiveModelConfig()

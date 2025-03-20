@@ -1,6 +1,7 @@
+import type { EntityTable } from 'dexie'
 import type { IAttachment, IConversations, IMessage } from './interface'
 import type { IMessage as IMessageV1 } from './interface.v1'
-import Dexie, { type EntityTable } from 'dexie'
+import Dexie from 'dexie'
 
 export function createDb() {
   return new Dexie('antChat') as Dexie & {
