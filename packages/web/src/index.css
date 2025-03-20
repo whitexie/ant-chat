@@ -10,7 +10,7 @@
   --headerHeight: 50px;
   --mainHeight: calc(100dvh - var(--headerHeight));
   --conversationWidth: 200px;
-  --chat-width: calc(100vw - var(--conversationWidth));
+  --chat-width: calc(100vw - var(--conversationWidth) - 1rem);
   --titleHeight: 50px;
 }
 
