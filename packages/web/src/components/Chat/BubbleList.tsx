@@ -121,11 +121,11 @@ function BubbleList({ config, messages, conversationsId }: Props) {
               marginInlineStart: msg.role === Role.USER ? 44 : 10,
             }}
             avatar={getRoleAvatar(msg.role)}
-            messageRender={() => (
+            messageRender={content => (
               <MessageContent
                 images={msg.images}
                 attachments={msg.attachments}
-                content={msg.content}
+                content={content}
                 reasoningContent={msg.reasoningContent || ''}
                 status={msg.status || 'success'}
               />
