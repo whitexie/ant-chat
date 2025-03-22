@@ -1,6 +1,7 @@
 import type { IMessage } from '@/db/interface'
 import type { SSEOutput, XReadableStream } from '@/utils/stream'
 import type {
+  SendChatCompletionsOptions,
   ServiceConstructorOptions,
 } from '../interface'
 import type { ImageContent, MessageItem, TextContent } from './interface'
@@ -60,8 +61,10 @@ export default class OpenAIService extends BaseService {
     }
   }
 
-  async sendChatCompletions(_messages: IMessage[]): Promise<XReadableStream> {
+  async sendChatCompletions(_messages: IMessage[], options?: SendChatCompletionsOptions): Promise<XReadableStream> {
     this.validator()
+
+    const { abortController } = options || {}
     const messages = this.transformMessages(_messages)
 
     const response = await request(`${this.apiHost}/chat/completions`, {
@@ -70,6 +73,7 @@ export default class OpenAIService extends BaseService {
         'content-type': 'application/json',
         'Authorization': `Bearer ${this.apiKey}`,
       },
+      signal: abortController?.signal,
       body: JSON.stringify({
         messages,
         model: this.model,

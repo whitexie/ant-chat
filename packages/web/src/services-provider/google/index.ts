@@ -80,7 +80,7 @@ class GeminiService extends BaseService {
   }
 
   async sendChatCompletions(messages: IMessage[], options?: SendChatCompletionsOptions): Promise<XReadableStream> {
-    const { features } = options || {}
+    const { features, abortController } = options || {}
     this.validator()
 
     const url = `${this.apiHost}/models/${this.model}:streamGenerateContent?alt=sse&key=${this.apiKey}`
@@ -89,6 +89,7 @@ class GeminiService extends BaseService {
       headers: {
         'content-type': 'application/json',
       },
+      signal: abortController?.signal,
       body: JSON.stringify(this.transformRequestBody(messages, features)),
     })
 

@@ -57,34 +57,28 @@ export async function updateMessageAction(message: IMessage) {
   }))
 }
 
-export function addAbortCallback(callback: () => void) {
+export function setAbortFunction(callback: () => void) {
   useMessagesStore.setState(state => produce(state, (draft) => {
-    draft.abortCallbacks.push(callback)
+    draft.abortFunction = callback
   }))
 }
 
-export function resetAbortCallbacks() {
+export function resetAbortFunction() {
   useMessagesStore.setState(state => produce(state, (draft) => {
-    draft.abortCallbacks = []
+    draft.abortFunction = null
   }))
 }
 
-export function executeAbortCallbacks() {
-  useMessagesStore.getState().abortCallbacks.forEach((callback) => {
-    if (typeof callback === 'function') {
-      try {
-        callback()
-      }
-      catch (e) {
-        console.log('execute abort callback fail => ', e)
-      }
-    }
-    else {
-      console.log('callback is not function', callback)
-    }
-  })
-
-  resetAbortCallbacks()
+export function abortSendChatCompletions() {
+  try {
+    useMessagesStore.getState().abortFunction?.()
+  }
+  catch (e) {
+    console.log('execute abort callback fail => ', e)
+  }
+  finally {
+    resetAbortFunction()
+  }
 }
 
 export async function sendChatCompletions(conversationId: ConversationsId, config: ModelConfig, features: ChatFeatures) {
@@ -99,7 +93,14 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
     const Service = getServiceProviderConstructor(config.id)
     const instance = new Service(config)
 
-    const stream = await instance.sendChatCompletions(messages, { features })
+    const abortController = new AbortController()
+
+    setAbortFunction(() => {
+      abortController.abort()
+      updateMessageAction({ ...aiMessage, status: 'cancel' })
+    })
+
+    const stream = await instance.sendChatCompletions(messages, { features, abortController })
 
     if (!stream) {
       throw new Error('stream is null')
@@ -107,8 +108,9 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
 
     const reader = stream.getReader()
 
-    addAbortCallback(() => {
+    setAbortFunction(() => {
       reader.cancel()
+      updateMessageAction({ ...aiMessage, status: 'cancel' })
     })
 
     await instance.parseSse(reader, {
@@ -118,10 +120,13 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
         updateMessageAction({ ...aiMessage, status: 'typing' })
       },
       onSuccess: () => {
-        console.log('onSuccess')
         setRequestStatus('success')
         updateMessageAction({ ...aiMessage, status: 'success' })
-        resetAbortCallbacks()
+        resetAbortFunction()
+      },
+      onError: () => {
+        setRequestStatus('error')
+        updateMessageAction({ ...aiMessage, status: 'error' })
       },
     })
   }

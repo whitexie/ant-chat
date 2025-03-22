@@ -2,10 +2,22 @@ import type { BubbleContent } from '@/types/global'
 import RenderMarkdown from '@/components/RenderMarkdown/RenderMarkdown'
 import { ReloadOutlined } from '@ant-design/icons'
 import { Attachments } from '@ant-design/x'
-import { Collapse, Image } from 'antd'
+import { Collapse, Image, Typography } from 'antd'
 
 // 提取消息渲染逻辑到独立组件
-export default function MessageContent({ content, images, attachments, reasoningContent }: BubbleContent) {
+export default function MessageContent({ content, images, attachments, reasoningContent, status }: BubbleContent) {
+  if (status === 'error') {
+    return (
+      <>
+        <Typography.Paragraph>
+          <Typography.Text type="danger">请求失败，请检查配置是否正确</Typography.Text>
+        </Typography.Paragraph>
+        <Typography.Paragraph>
+          <Typography.Text type="danger">{content}</Typography.Text>
+        </Typography.Paragraph>
+      </>
+    )
+  }
   const items = [
     {
       key: '1',

@@ -24,5 +24,5 @@ export interface IModel {
 export interface SendChatCompletionsOptions {
   features?: Partial<ChatFeatures>
   callbacks?: ChatCompletionsCallbacks
-  addAbortCallback?: (callback: () => void) => void
+  abortController?: AbortController
 }

@@ -7,15 +7,15 @@ import {
   createConversations,
   createMessage,
   initConversationsTitle,
-  setRequestStatus,
   updateConversationsSettingsAction,
   useConversationsStore,
 } from '@/store/conversation'
 import {
+  abortSendChatCompletions,
   addMessageAction,
-  executeAbortCallbacks,
   onRequestAction,
   setActiveConversationsId,
+  setRequestStatus,
   useMessagesStore,
 } from '@/store/messages'
 import { useActiveModelConfig } from '@/store/modelConfig'
@@ -34,8 +34,8 @@ export default function Chat() {
   const activeConversationsId = useMessagesStore(state => state.activeConversationsId)
   const currentConversations = useConversationsStore(state => state.conversations.find(item => item.id === activeConversationsId))
   const defaultModelConfig = useActiveModelConfig()
+  const isLoading = useMessagesStore(state => state.requestStatus === 'loading')
 
-  const isLoading = useConversationsStore(state => state.requestStatus === 'loading')
   const config = currentConversations?.settings?.modelConfig || defaultModelConfig
 
   const items = [
@@ -114,7 +114,7 @@ export default function Chat() {
           loading={isLoading}
           onSubmit={onSubmit}
           onCancel={() => {
-            executeAbortCallbacks()
+            abortSendChatCompletions()
             setRequestStatus('cancel')
           }}
         />

@@ -49,7 +49,7 @@ export interface IMessage {
   /** 推理内容 */
   reasoningContent?: string
   createAt: Timestamp
-  status?: 'success' | 'error' | 'loading' | 'typing'
+  status?: 'success' | 'error' | 'loading' | 'typing' | 'cancel'
   images: IAttachment[]
   attachments: IAttachment[]
 }

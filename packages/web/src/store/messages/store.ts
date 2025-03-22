@@ -9,7 +9,7 @@ interface InitialState {
   pageIndex: number
   pageSize: number
   messageTotal: number
-  abortCallbacks: (() => void)[]
+  abortFunction: (() => void) | null
 }
 
 export type RequestStatus = 'loading' | 'success' | 'error' | 'cancel'
@@ -17,7 +17,7 @@ export type RequestStatus = 'loading' | 'success' | 'error' | 'cancel'
 const initialState: InitialState = {
   requestStatus: 'success',
   activeConversationsId: '' as ConversationsId,
-  abortCallbacks: [],
+  abortFunction: null,
   messages: [],
   pageIndex: 0,
   pageSize: 6,
