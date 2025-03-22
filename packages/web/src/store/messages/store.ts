@@ -20,8 +20,8 @@ const initialState: InitialState = {
   abortCallbacks: [],
   messages: [],
   pageIndex: 0,
-  pageSize: 10,
-  messageTotal: 0,
+  pageSize: 6,
+  messageTotal: 1,
 }
 
 type MessagesStore = InitialState & {

@@ -55,11 +55,11 @@ describe('消息操作', () => {
       }
 
       const result1 = await getMessagesByConvIdWithPagination(conversations.id, 0, 5)
-      expect(result1.messages.map(item => item.id)).toEqual(messages.slice(0, 5).map(item => item.id))
       expect(result1.total).toEqual(10)
+      expect(result1.messages.map(item => item.id)).toEqual(['5', '6', '7', '8', '9'])
 
       const result2 = await getMessagesByConvIdWithPagination(conversations.id, 1, 5)
-      expect(result2.messages.map(item => item.id)).toEqual(messages.slice(5, 10).map(item => item.id))
+      expect(result2.messages.map(item => item.id)).toEqual(['0', '1', '2', '3', '4'])
     })
   })
 })

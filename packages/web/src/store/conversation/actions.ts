@@ -1,6 +1,5 @@
 import type { AntChatFileStructure } from '@/constants'
 import type { ConversationsId, IConversations, ModelConfig } from '@/db/interface'
-import type { StoreState } from './initialState'
 import { Role, TITLE_PROMPT } from '@/constants'
 import {
   addConversations,
@@ -23,12 +22,6 @@ import { isEqual } from 'lodash-es'
 import { setActiveConversationsId, updateMessageAction, useMessagesStore } from '../messages'
 import { getActiveModelConfig, useModelConfigStore } from '../modelConfig'
 import { createMessage, useConversationsStore } from './conversationsStore'
-
-export function setRequestStatus(status: StoreState['requestStatus']) {
-  useConversationsStore.setState(state => produce(state, (draft) => {
-    draft.requestStatus = status
-  }))
-}
 
 export async function addConversationsAction(conversation: IConversations) {
   await addConversations(conversation)
@@ -102,9 +95,7 @@ export async function nextPageConversationsAction() {
 
     draft.conversationsTotal = total
     draft.pageIndex = pageIndex + 1
-
   }))
-
 }
 
 export async function initConversationsTitle() {

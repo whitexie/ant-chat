@@ -15,12 +15,13 @@ export function setRequestStatus(status: RequestStatus) {
 }
 
 export async function setActiveConversationsId(id: ConversationsId | '') {
-  const { messages, total } = id ? await getMessagesByConvIdWithPagination(id, 0, 5) : { messages: [], total: -1 }
+  const { pageSize } = useMessagesStore.getState()
+  const { messages, total } = id ? await getMessagesByConvIdWithPagination(id, 0, pageSize) : { messages: [], total: 0 }
 
   useMessagesStore.setState(state => produce(state, (draft) => {
     draft.activeConversationsId = id as ConversationsId
     draft.messages.splice(0, draft.messages.length, ...messages)
-    draft.pageIndex = 0
+    draft.pageIndex = 1
     draft.messageTotal = total
   }))
 }
@@ -117,6 +118,7 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
         updateMessageAction({ ...aiMessage, status: 'typing' })
       },
       onSuccess: () => {
+        console.log('onSuccess')
         setRequestStatus('success')
         updateMessageAction({ ...aiMessage, status: 'success' })
         resetAbortCallbacks()
@@ -153,10 +155,11 @@ export async function updateConversationsSystemPrompt(conversationsId: Conversat
 
 export async function nextPageMessagesAction(conversationsId: ConversationsId) {
   const { pageIndex, pageSize } = useMessagesStore.getState()
-  const { messages, total } = await getMessagesByConvIdWithPagination(conversationsId, pageIndex + 1, pageSize)
+  const { messages, total } = await getMessagesByConvIdWithPagination(conversationsId, pageIndex, pageSize)
 
   useMessagesStore.setState(state => produce(state, (draft) => {
     draft.messages.splice(0, 0, ...messages)
+    // draft.messages.sort((a, b) => a.createAt - b.createAt)
     draft.pageIndex = pageIndex + 1
     draft.messageTotal = total
   }))

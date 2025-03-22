@@ -2,7 +2,6 @@ import type { IConversations } from '@/db/interface'
 
 export interface StoreState {
   conversations: IConversations[]
-  requestStatus: 'loading' | 'success' | 'error' | 'cancel'
   abortCallbacks: (() => void)[]
   pageIndex: number
   pageSize: number
@@ -11,9 +10,8 @@ export interface StoreState {
 
 export const initialState: StoreState = {
   conversations: [],
-  requestStatus: 'success',
   abortCallbacks: [],
   pageIndex: 0,
-  pageSize: 5,
+  pageSize: 20,
   conversationsTotal: 1,
 }

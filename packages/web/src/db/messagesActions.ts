@@ -47,10 +47,9 @@ export async function getMessagesByConvIdWithPagination(id: ConversationsId, pag
   const result = db.messages
     .orderBy('createAt')
     .filter(x => x.convId === id)
-    .reverse()
 
   const total = await result.count()
-  const messages = await result.offset(pageIndex * pageSize).limit(pageSize).reverse().toArray()
+  const messages = (await result.offset(pageIndex * pageSize).limit(pageSize).reverse().toArray()).reverse()
   return { messages, total }
 }
 
