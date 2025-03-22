@@ -1,4 +1,4 @@
-import { useEffect, useImperativeHandle, useRef } from 'react'
+import { useEffect, useImperativeHandle, useRef, useState } from 'react'
 
 interface Props {
   // 是否还有更多数据
@@ -19,7 +19,12 @@ interface Props {
   threshold?: number
   // 新增加载方向配置
   direction?: 'top' | 'bottom' | 'both'
-  ref?: React.Ref<{ scrollToBottom: () => void }>
+  ref?: React.Ref<ImperativeHandleRef>
+}
+
+export interface ImperativeHandleRef {
+  scrollToBottom: () => void
+  containerRef: React.RefObject<HTMLElement | null>
 }
 
 export const InfiniteScroll: React.FC<Props> = ({
@@ -37,19 +42,22 @@ export const InfiniteScroll: React.FC<Props> = ({
   const containerRef = useRef<HTMLDivElement>(null)
   const topObserverRef = useRef<HTMLDivElement>(null)
   const bottomObserverRef = useRef<HTMLDivElement>(null)
+  const [inited, setInited] = useState(false)
   const oldScrollHeightRef = useRef<number>(0)
 
   const scrollToBottom = () => {
     if (containerRef.current) {
-      // containerRef.current.scrollTop = containerRef.current.scrollHeight
-      containerRef.current.scrollTo({
-        top: containerRef.current.scrollHeight,
+      containerRef.current?.lastElementChild?.scrollIntoView({
         behavior: 'smooth',
+        block: 'end',
       })
     }
   }
 
   useEffect(() => {
+    if (!inited) {
+      return
+    }
     const shouldObserveTop = direction === 'top' || direction === 'both'
     const shouldObserveBottom = direction === 'bottom' || direction === 'both'
 
@@ -91,11 +99,20 @@ export const InfiniteScroll: React.FC<Props> = ({
     }
 
     return () => observer.disconnect()
-  }, [hasMore, loading, onLoadMore, threshold, direction])
+  }, [inited, hasMore])
 
   useImperativeHandle(ref, () => ({
+    containerRef,
     scrollToBottom,
   }))
+
+  useEffect(() => {
+    if (direction === 'top') {
+      containerRef.current?.lastElementChild?.scrollIntoView(false)
+    }
+
+    setInited(true)
+  }, [])
 
   return (
     <div
@@ -103,7 +120,7 @@ export const InfiniteScroll: React.FC<Props> = ({
       className={`overflow-y-auto ${className}`}
     >
       {/* 触顶加载观察器 */}
-      {(direction === 'top' || direction === 'both') && (
+      {(direction === 'top' || direction === 'both') && inited && (
         <div ref={topObserverRef} className="h-4">
           {!hasMore && noMoreComponent}
         </div>
@@ -119,6 +136,8 @@ export const InfiniteScroll: React.FC<Props> = ({
           {!hasMore && noMoreComponent}
         </div>
       )}
+      {/* 滚动到底部时，需要借助该元素 */}
+      <div className="h-[1px]"></div>
     </div>
   )
 }
