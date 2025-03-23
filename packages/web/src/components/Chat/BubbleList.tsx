@@ -21,29 +21,16 @@ interface Props {
 
 function BubbleList({ config, messages, conversationsId }: Props) {
   const { message: messageFunc } = App.useApp()
-  const infiniteScrollRef = useRef<ImperativeHandleRef>(null)
+
+  // ============================ 自动滚动 ============================
   const [autoScrollToBottom, setAutoScrollToBottom] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
-  const messageTotal = useMessagesStore(state => state.messageTotal)
+  const infiniteScrollRef = useRef<ImperativeHandleRef>(null)
 
-  const hasMore = messages.length < messageTotal
-
-  // 自动滚动到最底部
-  useEffect(() => {
-    if (autoScrollToBottom) {
-      infiniteScrollRef.current?.scrollToBottom()
-    }
-  })
-
-  async function copyMessage(message: IMessage) {
-    const content = message.content as string
-    const result = await clipboardWriteText(content)
-    if (result.ok) {
-      messageFunc.success(result.message)
-    }
-    else {
-      messageFunc.error(result.message)
-    }
+  function handleScroll(e: React.UIEvent<HTMLDivElement>) {
+    const target = e.target as HTMLElement
+    setAutoScrollToBottom(
+      target.scrollHeight - Math.abs(target.scrollTop) - target.clientHeight <= 1,
+    )
   }
 
   async function handleFooterButtonClick(buttonName: string, message: IMessage) {
@@ -55,7 +42,24 @@ function BubbleList({ config, messages, conversationsId }: Props) {
     mapping[buttonName as keyof typeof mapping]?.()
   }
 
-  // 加载更多消息
+  // 自动滚动到最底部
+  useEffect(() => {
+    if (autoScrollToBottom) {
+      infiniteScrollRef.current?.scrollToBottom()
+    }
+  })
+
+  useEffect(() => {
+    if (autoScrollToBottom) {
+      infiniteScrollRef.current?.scrollToBottom()
+    }
+  }, [messages.length])
+
+  //  ============================ 分页 ============================
+  const [isLoading, setIsLoading] = useState(false)
+  const messageTotal = useMessagesStore(state => state.messageTotal)
+  const hasMore = messages.length < messageTotal
+
   const handleLoadMore = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -66,18 +70,17 @@ function BubbleList({ config, messages, conversationsId }: Props) {
     }
   }, [conversationsId])
 
-  function handleScroll(e: React.UIEvent<HTMLDivElement>) {
-    const target = e.target as HTMLElement
-    setAutoScrollToBottom(
-      target.scrollHeight - Math.abs(target.scrollTop) - target.clientHeight <= 1,
-    )
-  }
-
-  useEffect(() => {
-    if (autoScrollToBottom) {
-      infiniteScrollRef.current?.scrollToBottom()
+  // ============================ 操作 ============================
+  async function copyMessage(message: IMessage) {
+    const content = message.content as string
+    const result = await clipboardWriteText(content)
+    if (result.ok) {
+      messageFunc.success(result.message)
     }
-  }, [messages.length])
+    else {
+      messageFunc.error(result.message)
+    }
+  }
 
   return (
     <InfiniteScroll
