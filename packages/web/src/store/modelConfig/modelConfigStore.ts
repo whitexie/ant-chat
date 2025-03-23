@@ -78,6 +78,9 @@ export const useModelConfigStore = create<ModelConfigStore>()(
         },
       },
     ),
+    {
+      enabled: import.meta.env.MODE === 'development',
+    },
   ),
 )
 

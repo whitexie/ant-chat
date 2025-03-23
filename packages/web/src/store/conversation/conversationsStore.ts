@@ -22,7 +22,7 @@ export const useConversationsStore = create<ConversationsStore>()(
       },
     }),
     {
-      enabled: true,
+      enabled: import.meta.env.MODE === 'development',
     },
   ),
 )

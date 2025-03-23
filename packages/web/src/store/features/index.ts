@@ -1,5 +1,6 @@
 import { pick } from 'lodash-es'
 import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
 import { useShallow } from 'zustand/shallow'
 
 export const initialState = {
@@ -18,11 +19,18 @@ interface Action {
   setDeepThinking: (value: boolean) => void
 }
 
-const useFeaturesStore = create<ChatFeatures & Action>()(set => ({
-  ...initialState,
-  setOnlieSearch: (value: boolean) => set({ onlineSearch: value }),
-  setDeepThinking: (value: boolean) => set({ deepThinking: value }),
-}))
+const useFeaturesStore = create<ChatFeatures & Action>()(
+  devtools(
+    set => ({
+      ...initialState,
+      setOnlieSearch: (value: boolean) => set({ onlineSearch: value }),
+      setDeepThinking: (value: boolean) => set({ deepThinking: value }),
+    }),
+    {
+      enabled: import.meta.env.MODE === 'development',
+    },
+  ),
+)
 
 export function useFeatures() {
   return useFeaturesStore(useShallow(state => ({

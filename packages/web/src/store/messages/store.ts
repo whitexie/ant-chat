@@ -37,7 +37,7 @@ export const useMessagesStore = create<MessagesStore>()(
       },
     }),
     {
-      enabled: true,
+      enabled: import.meta.env.MODE === 'development',
     },
   ),
 )
