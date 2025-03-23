@@ -20,6 +20,7 @@ interface Props {
   // 新增加载方向配置
   direction?: 'top' | 'bottom' | 'both'
   ref?: React.Ref<ImperativeHandleRef>
+  onScroll?: (e: React.UIEvent<HTMLDivElement>) => void
 }
 
 export interface ImperativeHandleRef {
@@ -33,11 +34,12 @@ export const InfiniteScroll: React.FC<Props> = ({
   onLoadMore,
   loadingComponent,
   noMoreComponent,
-  className = '',
   children,
   threshold = 0.1,
   ref,
   direction = 'top', // 默认触顶加载
+  className = '',
+  ...restProps
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const topObserverRef = useRef<HTMLDivElement>(null)
@@ -118,6 +120,7 @@ export const InfiniteScroll: React.FC<Props> = ({
     <div
       ref={containerRef}
       className={`overflow-y-auto ${className}`}
+      {...restProps}
     >
       {/* 触顶加载观察器 */}
       {(direction === 'top' || direction === 'both') && inited && (

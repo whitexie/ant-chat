@@ -22,19 +22,15 @@ interface Props {
 function BubbleList({ config, messages, conversationsId }: Props) {
   const { message: messageFunc } = App.useApp()
   const infiniteScrollRef = useRef<ImperativeHandleRef>(null)
-  const bottomDivRef = useRef<HTMLDivElement>(null)
-  // const [autoScrollToBottom, setAutoScrollToBottom] = useState(true)
-  const autoScrollToBottom = useRef(true)
+  const [autoScrollToBottom, setAutoScrollToBottom] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
-  // const pageIndex = useMessagesStore(state => state.pageIndex)
-  const requestStatus = useMessagesStore(state => state.requestStatus)
   const messageTotal = useMessagesStore(state => state.messageTotal)
 
   const hasMore = messages.length < messageTotal
 
   // 自动滚动到最底部
   useEffect(() => {
-    if (autoScrollToBottom.current) {
+    if (autoScrollToBottom) {
       infiniteScrollRef.current?.scrollToBottom()
     }
   })
@@ -70,31 +66,18 @@ function BubbleList({ config, messages, conversationsId }: Props) {
     }
   }, [conversationsId])
 
+  function handleScroll(e: React.UIEvent<HTMLDivElement>) {
+    const target = e.target as HTMLElement
+    setAutoScrollToBottom(
+      target.scrollHeight - Math.abs(target.scrollTop) - target.clientHeight <= 1,
+    )
+  }
+
   useEffect(() => {
-    if (bottomDivRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          const [entry] = entries
-
-          console.log(autoScrollToBottom.current, requestStatus, entry.intersectionRatio)
-          if (autoScrollToBottom && requestStatus === 'loading') {
-            return
-          }
-
-          autoScrollToBottom.current = entry.intersectionRatio > 0
-        },
-        {
-          root: infiniteScrollRef.current?.containerRef.current,
-        },
-      )
-
-      observer.observe(bottomDivRef.current)
-
-      return () => {
-        observer.disconnect()
-      }
+    if (autoScrollToBottom) {
+      infiniteScrollRef.current?.scrollToBottom()
     }
-  }, [])
+  }, [messages.length])
 
   return (
     <InfiniteScroll
@@ -109,47 +92,42 @@ function BubbleList({ config, messages, conversationsId }: Props) {
           <Loading />
         </div>
       )}
+      onScroll={handleScroll}
     >
-      <div>
-        {messages.map(msg => (
-          <Bubble
-            key={msg.id}
-            loading={msg.status === 'loading'}
-            placement={msg.role === Role.USER ? 'end' : 'start'}
-            style={{
-              marginInlineEnd: msg.role === Role.USER ? 10 : 44,
-              marginInlineStart: msg.role === Role.USER ? 44 : 10,
-            }}
-            avatar={getRoleAvatar(msg.role)}
-            messageRender={content => (
-              <MessageContent
-                images={msg.images}
-                attachments={msg.attachments}
-                content={content}
-                reasoningContent={msg.reasoningContent || ''}
-                status={msg.status || 'success'}
-              />
-            )}
-            content={msg.content}
-            header={<div className="text-xs flex items-center">{formatTime(msg.createAt)}</div>}
-            footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
-            typing={msg.status === 'typing' ? { step: 1, interval: 50 } : false}
-          />
-        ))}
-
-        <div ref={bottomDivRef} className="h-8">
-          <Button
-            size="small"
-            className={`sticky left-1/2 bottom-4 -translate-x-1/2 ${autoScrollToBottom ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-            shape="circle"
-            icon={<ArrowDownOutlined />}
-            onClick={() => {
-              infiniteScrollRef.current?.scrollToBottom()
-            }}
-          />
-        </div>
-      </div>
-
+      {messages.map(msg => (
+        <Bubble
+          key={msg.id}
+          loading={msg.status === 'loading'}
+          placement={msg.role === Role.USER ? 'end' : 'start'}
+          style={{
+            marginInlineEnd: msg.role === Role.USER ? 10 : 44,
+            marginInlineStart: msg.role === Role.USER ? 44 : 10,
+          }}
+          avatar={getRoleAvatar(msg.role)}
+          messageRender={content => (
+            <MessageContent
+              images={msg.images}
+              attachments={msg.attachments}
+              content={content}
+              reasoningContent={msg.reasoningContent || ''}
+              status={msg.status || 'success'}
+            />
+          )}
+          content={msg.content}
+          header={<div className="text-xs flex items-center">{formatTime(msg.createAt)}</div>}
+          footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
+          typing={msg.status === 'typing' ? { step: 1, interval: 50 } : false}
+        />
+      ))}
+      <Button
+        size="small"
+        className={`sticky left-1/2 bottom-8 -translate-x-1/2 transition-opacity duration-300 ${autoScrollToBottom ? 'opacity-0' : 'opacity-100'}`}
+        shape="circle"
+        icon={<ArrowDownOutlined />}
+        onClick={() => {
+          infiniteScrollRef.current?.scrollToBottom()
+        }}
+      />
     </InfiniteScroll>
   )
 }
