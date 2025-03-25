@@ -7,11 +7,13 @@ import { checkModelConfig, setOpenSettingsModalAction } from '@/store/modelConfi
 import { fileToBase64 } from '@/utils'
 import {
   ArrowUpOutlined,
+  AudioOutlined,
   CloudUploadOutlined,
   GlobalOutlined,
   LinkOutlined,
 } from '@ant-design/icons'
 import { Attachments } from '@ant-design/x'
+import useSpeech from '@ant-design/x/es/sender/useSpeech'
 import { App, Badge, Button, Tooltip } from 'antd'
 import { useState } from 'react'
 import SwitchButton from '../SwitchButton'
@@ -34,6 +36,10 @@ function Sender({ loading = false, ...props }: SenderProps) {
   const { setOnlieSearch } = useFeatures()
   // 新增输入法状态
   const [isComposing, setIsComposing] = useState(false)
+
+  const [allowSpeech, triggerSpeech, recording] = useSpeech((transcript: string) => {
+    setText(prev => `${prev}${transcript}`)
+  })
 
   async function handleSubmit() {
     const { ok, errMsg } = checkModelConfig()
@@ -164,7 +170,18 @@ function Sender({ loading = false, ...props }: SenderProps) {
             </div>
           </Tooltip>
         </div>
-        <div>
+        <div className="flex gap-1 items-center">
+          <Button
+            disabled={!allowSpeech}
+            type="text"
+            shape="circle"
+            icon={recording ? <StopSvg className="w-8 h-8 color-[var(--ant-color-primary)]!" /> : <AudioOutlined />}
+            onClick={() => {
+              if (allowSpeech) {
+                triggerSpeech(recording)
+              }
+            }}
+          />
           <Button
             data-testid="sendBtn"
             type={loading ? 'text' : 'primary'}
