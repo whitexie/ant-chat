@@ -1,8 +1,8 @@
 import type { IModel } from '@/services-provider/interface'
 import db from './db'
 
-function modelIsExist(id: string) {
-  return !!db.customModels.get(id)
+async function modelIsExist(id: string) {
+  return !!(await db.customModels.get(id))
 }
 
 export function createCustomModel(id: string, ownedBy: string) {
@@ -10,7 +10,7 @@ export function createCustomModel(id: string, ownedBy: string) {
 }
 
 export async function addCustomModel(model: IModel) {
-  if (modelIsExist(model.id)) {
+  if (await modelIsExist(model.id)) {
     throw new Error(`模型 ${model.id} 已存在`)
   }
   await db.customModels.add(model)
