@@ -16,6 +16,7 @@ export default defineConfig({
     },
     globals: true,
     alias: {
+      '@ant-design/x/es/sender/useSpeech': '@ant-design/x/es/sender/useSpeech',
       '@ant-design/x': '@ant-design/x/es',
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
