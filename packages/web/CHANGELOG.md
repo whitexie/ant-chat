@@ -1,3 +1,25 @@
+## [0.4.7](https://github.com/whitexie/ant-chat/compare/v0.4.6...v0.4.7) (2025-03-26)
+
+
+### Bug Fixes
+
+* **BubbleList:** 优化AI回复的打字效果 ([db4ed78](https://github.com/whitexie/ant-chat/commit/db4ed7897d56014f8122fc91972fa610b20435de))
+* **Chat:**  优化错误消息显示 ([7f34e7d](https://github.com/whitexie/ant-chat/commit/7f34e7da786c881fabcaf8d6f0e26c54d16f2b66))
+* **Chat:** 优化聊天气泡列表的滚动行为和消息渲染 ([409f968](https://github.com/whitexie/ant-chat/commit/409f96814eb14be5d265d5b5cbc83b475344c9c3))
+* **Chat:** 更新消息发送逻辑，优化会话标题初始化 ([db8b7f8](https://github.com/whitexie/ant-chat/commit/db8b7f83958676f13b718623bed5a0951ee38f6f))
+* **Chat:** 重构聊天气泡列表，增加无限滚动和消息加载功能 ([824ebb2](https://github.com/whitexie/ant-chat/commit/824ebb2bc77ae693b590135dee2c3806e54eaa76))
+* **InfiniteScroll:** 优化滚动到底部的逻辑 ([a327d25](https://github.com/whitexie/ant-chat/commit/a327d25fe18c4ed5ae73272a21ecbfe01d324a87))
+
+
+### Features
+
+* **Chat:** 增强聊天气泡列表的自动滚动功能 ([78b92cb](https://github.com/whitexie/ant-chat/commit/78b92cbf4f3f2dc9fc5d2e2159a4f97bf038fc36))
+* **ConversationsManage:** 增加会话分组功能 ([7a2bb94](https://github.com/whitexie/ant-chat/commit/7a2bb94002d21deaa1a4fd25e11261c5838e5061))
+* **db:** 增加会话更新时间字段和相关功能 ([84285e7](https://github.com/whitexie/ant-chat/commit/84285e70d93ff0f119f8336e1540526579ca5bba))
+* **Sender:** 新增语音输入功能 ([8bd10d4](https://github.com/whitexie/ant-chat/commit/8bd10d43cc10e975ad9d15eedba6fd0f65e0cf5c))
+
+
+
 ## [0.4.6](https://github.com/whitexie/ant-chat/compare/v0.4.5...v0.4.6) (2025-03-13)
 
 
