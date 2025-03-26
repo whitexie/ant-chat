@@ -30,3 +30,5 @@ coverage
 .env
 
 debug.http
+report-*.html
+.npmrc
