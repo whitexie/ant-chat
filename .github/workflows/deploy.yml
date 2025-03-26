@@ -38,6 +38,7 @@ jobs:
           key: ${{ secrets.REMOTE_KEY }}
           source: ./packages/web/dist
           target: /var/www/ant-chat
+          strip_components: 2
 
       - name: Restart Nginx
         uses: appleboy/ssh-action@master
