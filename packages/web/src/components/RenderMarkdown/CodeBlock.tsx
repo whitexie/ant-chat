@@ -1,9 +1,12 @@
 import { clipboardWriteText } from '@/utils'
-import { CopyOutlined, DownOutlined } from '@ant-design/icons'
-import { useState } from 'react'
+import { CopyOutlined, DownOutlined, EyeOutlined } from '@ant-design/icons'
+import { Modal, Tooltip } from 'antd'
+import { lazy, Suspense, useState } from 'react'
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter'
 import materialDark from 'react-syntax-highlighter/dist/esm/styles/prism/material-dark'
 import materialLight from 'react-syntax-highlighter/dist/esm/styles/prism/material-light'
+
+const MermaidDiagram = lazy(() => import('./MermaidDiagram'))
 
 interface CodeBlockProps {
   children?: React.ReactNode
@@ -30,6 +33,9 @@ function CodeBlock({ language, children, theme = 'light' }: CodeBlockProps) {
     [codeKey]: { ...codeStyle, fontFamily },
   }
 
+  // ============================ mermaid 预览 ============================
+  const [previewVisible, setPreviewVisible] = useState(false)
+
   return (
     <div className="border-solid border-1px border-gray-400/20 rounded-md">
       {/* 代码块header */}
@@ -55,6 +61,30 @@ function CodeBlock({ language, children, theme = 'light' }: CodeBlockProps) {
               }, 1000)
             }}
           />
+          {language === 'mermaid' && (
+            <>
+              <Tooltip title="预览">
+                <EyeOutlined
+                  className="hover:color-blue-4"
+                  onClick={() => {
+                    setPreviewVisible(true)
+                  }}
+                />
+              </Tooltip>
+              <Modal
+                open={previewVisible}
+                onCancel={() => setPreviewVisible(false)}
+                title="Mermaid 预览"
+                footer={null}
+              >
+                <Suspense>
+                  <MermaidDiagram>
+                    {String(children)}
+                  </MermaidDiagram>
+                </Suspense>
+              </Modal>
+            </>
+          )}
         </div>
       </div>
       <div className={`overflow-hidden transition-height ${!showCode && 'h-0'}`}>
