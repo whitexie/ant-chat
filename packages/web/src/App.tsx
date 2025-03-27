@@ -1,10 +1,11 @@
 import Chat from '@/components/Chat'
 import ConversationsManage from '@/components/Conversations/ConversationsManage'
 import { useThemeStore } from '@/store/theme'
-import { App, ConfigProvider, Layout, theme } from 'antd'
+import { App, ConfigProvider, theme } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { useEffect, useState } from 'react'
 import { Logo } from './components/Logo'
+import { RunnerCodeProvider } from './components/RunnerCode'
 import { useMessagesStore } from './store/messages'
 
 function AntChatApp() {
@@ -41,9 +42,9 @@ function AntChatApp() {
 
   return (
     <ConfigProvider locale={zhCN} theme={{ algorithm, cssVar: { key: 'antd-css-var' }, hashed: false }}>
-      <App>
-        <Layout>
-          <div className="w-full h-full">
+      <RunnerCodeProvider>
+        <App>
+          <div className="w-full h-full bg-white dark:bg-black">
             <div className="grid h-full w-full grid-cols-[0px_1fr] md:grid-cols-[var(--conversationWidth)_1fr]">
               <div className="md:(border-r-solid border-black/10 dark:border-white/40) border-r-1px  overflow-hidden h-0  md:(block h-full)">
                 <div className="fixed border-b-solid bg-[var(--ant-layout-body-bg)] border-b-1px border-black/10 dark:border-white/40 w-full top-0 left-0 z-10 md:(relative) h-50px flex justify-center items-center">
@@ -61,13 +62,13 @@ function AntChatApp() {
                   </div>
                 </div>
               </div>
-              <div className="relative h-[var(--mainHeight)] mt-[50px] md:(mt-0 h-full)">
+              <div className="relative transition-all flex h-[var(--mainHeight)] mt-[50px] md:(mt-0 h-full)">
                 <Chat />
               </div>
             </div>
           </div>
-        </Layout>
-      </App>
+        </App>
+      </RunnerCodeProvider>
     </ConfigProvider>
   )
 }

@@ -1,12 +1,12 @@
+import type { SupportedLanguages } from '../RunnerCode'
 import { clipboardWriteText } from '@/utils'
-import { CopyOutlined, DownOutlined, EyeOutlined } from '@ant-design/icons'
-import { Modal, Tooltip } from 'antd'
-import { lazy, Suspense, useState } from 'react'
+import { CopyOutlined, DownOutlined, PlayCircleFilled } from '@ant-design/icons'
+import { Button } from 'antd'
+import { useState } from 'react'
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter'
 import materialDark from 'react-syntax-highlighter/dist/esm/styles/prism/material-dark'
 import materialLight from 'react-syntax-highlighter/dist/esm/styles/prism/material-light'
-
-const MermaidDiagram = lazy(() => import('./MermaidDiagram'))
+import { useRunnerCodeContext } from '../RunnerCode'
 
 interface CodeBlockProps {
   children?: React.ReactNode
@@ -21,6 +21,8 @@ const fontFamily = `'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courie
 function CodeBlock({ language, children, theme = 'light' }: CodeBlockProps) {
   const [showCode, setShowCode] = useState(true)
   const [copySuccess, setCopySuccess] = useState(false)
+  // const { setContent } = useMermaidContext()
+  const { updateConfig } = useRunnerCodeContext()
 
   const _style = { ...theme === 'light' ? materialLight : materialDark }
 
@@ -32,9 +34,6 @@ function CodeBlock({ language, children, theme = 'light' }: CodeBlockProps) {
     [preKey]: { ...preStyle, margin: '0px' },
     [codeKey]: { ...codeStyle, fontFamily },
   }
-
-  // ============================ mermaid 预览 ============================
-  const [previewVisible, setPreviewVisible] = useState(false)
 
   return (
     <div className="border-solid border-1px border-gray-400/20 rounded-md">
@@ -61,30 +60,6 @@ function CodeBlock({ language, children, theme = 'light' }: CodeBlockProps) {
               }, 1000)
             }}
           />
-          {language === 'mermaid' && (
-            <>
-              <Tooltip title="预览">
-                <EyeOutlined
-                  className="hover:color-blue-4"
-                  onClick={() => {
-                    setPreviewVisible(true)
-                  }}
-                />
-              </Tooltip>
-              <Modal
-                open={previewVisible}
-                onCancel={() => setPreviewVisible(false)}
-                title="Mermaid 预览"
-                footer={null}
-              >
-                <Suspense>
-                  <MermaidDiagram>
-                    {String(children)}
-                  </MermaidDiagram>
-                </Suspense>
-              </Modal>
-            </>
-          )}
         </div>
       </div>
       <div className={`overflow-hidden transition-height ${!showCode && 'h-0'}`}>
@@ -97,6 +72,26 @@ function CodeBlock({ language, children, theme = 'light' }: CodeBlockProps) {
           {String(children).replace(/\n$/, '')}
         </SyntaxHighlighter>
       </div>
+      {
+        ['mermaid'].includes(language.toLowerCase()) && (
+          <div className="flex justify-end px-2 py-1 items-center gap-2">
+            <Button
+              type="text"
+              size="small"
+              icon={<PlayCircleFilled />}
+              onClick={() => {
+                console.log('运行代码')
+                updateConfig((draft) => {
+                  draft.code = String(children)
+                  draft.language = language as SupportedLanguages
+                })
+              }}
+            >
+              运行代码
+            </Button>
+          </div>
+        )
+      }
     </div>
   )
 }

@@ -21,6 +21,7 @@ import {
 import { useActiveModelConfig } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
 import { lazy, useState } from 'react'
+import RunnerCode from '../RunnerCode'
 import Sender from '../Sender'
 import TypingEffect from '../TypingEffect'
 import ConversationsTitle from './ConversationsTitle'
@@ -37,7 +38,6 @@ export default function Chat() {
   const isLoading = useMessagesStore(state => state.requestStatus === 'loading')
 
   const config = currentConversations?.settings?.modelConfig || defaultModelConfig
-
   const items = [
     {
       label: '对话设置',
@@ -130,6 +130,7 @@ export default function Chat() {
           />
         )
       }
+      <RunnerCode />
     </div>
   )
 }
