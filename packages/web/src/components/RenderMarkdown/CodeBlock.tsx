@@ -73,14 +73,13 @@ function CodeBlock({ language, children, theme = 'light' }: CodeBlockProps) {
         </SyntaxHighlighter>
       </div>
       {
-        ['mermaid'].includes(language.toLowerCase()) && (
+        ['mermaid', 'html'].includes(language.toLowerCase()) && (
           <div className="flex justify-end px-2 py-1 items-center gap-2">
             <Button
               type="text"
               size="small"
               icon={<PlayCircleFilled />}
               onClick={() => {
-                console.log('运行代码')
                 updateConfig((draft) => {
                   draft.code = String(children)
                   draft.language = language as SupportedLanguages

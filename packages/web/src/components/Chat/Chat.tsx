@@ -20,14 +20,15 @@ import {
 } from '@/store/messages'
 import { useActiveModelConfig } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
-import { lazy, useState } from 'react'
-import RunnerCode from '../RunnerCode'
+import { lazy, Suspense, useState } from 'react'
+import Loading from '../Loading'
 import Sender from '../Sender'
 import TypingEffect from '../TypingEffect'
 import ConversationsTitle from './ConversationsTitle'
 
 const ConversationsSettings = lazy(() => import('./ConversationsSettings'))
 const BubbleList = lazy(() => import(/* vitePrefetch: true */ './BubbleList'))
+const RunnerCode = lazy(() => import('../RunnerCode'))
 
 export default function Chat() {
   const [open, setOpen] = useState(false)
@@ -130,7 +131,9 @@ export default function Chat() {
           />
         )
       }
-      <RunnerCode />
+      <Suspense fallback={<Loading />}>
+        <RunnerCode />
+      </Suspense>
     </div>
   )
 }
