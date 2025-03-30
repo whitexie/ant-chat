@@ -1,3 +1,13 @@
+# [0.5.0](https://github.com/whitexie/ant-chat/compare/v0.4.7...v0.5.0) (2025-03-30)
+
+
+### Features
+
+* **Mermaid:** 新增 Mermaid 图表支持 ([49a4aae](https://github.com/whitexie/ant-chat/commit/49a4aae2a90fb03ed00c9748b5a29cd835b5f660))
+* 支持预览 HTML代码块 ([fd01dac](https://github.com/whitexie/ant-chat/commit/fd01dacc4c1a02b6c3d058083269b8733075807e))
+
+
+
 ## [0.4.7](https://github.com/whitexie/ant-chat/compare/v0.4.6...v0.4.7) (2025-03-26)
 
 
