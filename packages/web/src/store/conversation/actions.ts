@@ -94,7 +94,10 @@ export async function nextPageConversationsAction() {
     draft.conversations.push(...conversations)
 
     draft.conversationsTotal = total
-    draft.pageIndex = pageIndex + 1
+
+    if (draft.conversations.length < total) {
+      draft.pageIndex = pageIndex + 1
+    }
   }))
 }
 

@@ -41,6 +41,7 @@ export default function ConversationsManage() {
   const [loading, setLoading] = useState(false)
   const conversations = useConversationsStore(state => state.conversations)
   const activeConversationsId = useMessagesStore(state => state.activeConversationsId)
+  const pageIndex = useConversationsStore(state => state.pageIndex)
   const conversationsTotal = useConversationsStore(state => state.conversationsTotal)
 
   const hasMore = conversationsTotal > conversations.length
@@ -154,7 +155,7 @@ export default function ConversationsManage() {
         hasMore={hasMore}
         loading={loading}
         direction="bottom"
-        noMoreComponent={<div className="text-center text-gray-500 py-1">已经到底了~</div>}
+        noMoreComponent={pageIndex > 0 ? (<div className="text-center text-gray-500 py-1">已经到底了~</div>) : null}
         onLoadMore={async () => {
           if (loading) {
             return
