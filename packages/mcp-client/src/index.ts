@@ -1,5 +1,7 @@
+import type { McpServer } from '@ant-chat/shared'
 import type { Tool } from '@modelcontextprotocol/sdk/types.js'
-import type { McpServer } from './types/mcp'
+import type { z } from 'zod'
+import type { McpServerConfig } from './schema'
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
@@ -9,10 +11,8 @@ import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import deepEqual from 'fast-deep-equal'
-import z from 'zod'
 import * as packageJson from '../package.json'
-
-export type McpServerConfig = z.infer<typeof ServerConfigSchema>
+import { DEFAULT_MCP_TIMEOUT_SECONDS, DEFAULT_REQUEST_TIMEOUT_MS, McpSettingsSchema, ServerConfigSchema } from './schema'
 
 export interface McpToolCallResponse {
   _meta?: Record<string, any>
@@ -38,36 +38,6 @@ export interface McpToolCallResponse {
   >
   isError?: boolean
 }
-
-const DEFAULT_REQUEST_TIMEOUT_MS = 5000
-const DEFAULT_MCP_TIMEOUT_SECONDS = 30
-
-const BaseConfigSchema = z.object({
-  disabled: z.boolean().optional(),
-  timeout: z.number().min(DEFAULT_REQUEST_TIMEOUT_MS).optional().default(DEFAULT_REQUEST_TIMEOUT_MS),
-})
-
-const SseConfigSchema = BaseConfigSchema.extend({
-  url: z.string().url(),
-}).transform(config => ({
-  ...config,
-  transportType: 'sse' as const,
-}))
-
-const StdioConfigSchema = BaseConfigSchema.extend({
-  command: z.string(),
-  args: z.array(z.string()).optional(),
-  env: z.record(z.string()).optional(),
-}).transform(config => ({
-  ...config,
-  transportType: 'stdio' as const,
-}))
-
-const ServerConfigSchema = z.union([StdioConfigSchema, SseConfigSchema])
-
-const McpSettingsSchema = z.object({
-  mcpServers: z.record(ServerConfigSchema),
-})
 
 export type ITool = Pick<Tool, 'name' | 'description' | 'inputSchema'> & {
   serverName: string
@@ -111,7 +81,6 @@ export class MCPClientHub {
   }
 
   async updateServerConnections(newServers: Record<string, McpServerConfig>): Promise<void> {
-    // this.removeAllFileWatchers()
     const currentNames = new Set(this.connections.map(conn => conn.server.name))
     const newNames = new Set(Object.keys(newServers))
 
@@ -298,3 +267,8 @@ export class MCPClientHub {
 function secondsToMs(seconds: number) {
   return seconds * 1000
 }
+
+// MCP Client exports
+export * from './client'
+export type { McpServerConfig } from './schema'
+export * from './types'
