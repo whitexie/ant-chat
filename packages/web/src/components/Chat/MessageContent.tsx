@@ -5,7 +5,7 @@ import { Attachments } from '@ant-design/x'
 import { Collapse, Image, Typography } from 'antd'
 
 // 提取消息渲染逻辑到独立组件
-export default function MessageContent({ content, images, attachments, reasoningContent, status }: BubbleContent) {
+export default function MessageContent({ content = '', images = [], attachments = [], reasoningContent = '', status }: Partial<BubbleContent>) {
   if (status === 'error') {
     return (
       <>
@@ -22,7 +22,7 @@ export default function MessageContent({ content, images, attachments, reasoning
     {
       key: '1',
       label: content
-        ? '已深度思考'
+        ? 'Thinking...'
         : (
             <span>
               思考中...
@@ -52,7 +52,7 @@ export default function MessageContent({ content, images, attachments, reasoning
           <Collapse items={items} defaultActiveKey={['1']} size="small" />
         )
       }
-      <RenderMarkdown content={content} />
+      <RenderMarkdown content={content || ''} />
       {
         images.length > 0 && (
           <>

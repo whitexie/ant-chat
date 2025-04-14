@@ -33,7 +33,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
   const [rows, setRows] = useState(2)
   const hasMessage = useMessagesStore(state => !!state.messages.length)
   const features = useFeaturesState()
-  const { setOnlieSearch } = useFeatures()
+  const { setOnlieSearch, setEnableMCP } = useFeatures()
   // 新增输入法状态
   const [isComposing, setIsComposing] = useState(false)
 
@@ -165,6 +165,15 @@ function Sender({ loading = false, ...props }: SenderProps) {
               <SwitchButton
                 checked={features.onlineSearch}
                 onChange={setOnlieSearch}
+                icon={<GlobalOutlined />}
+              />
+            </div>
+          </Tooltip>
+          <Tooltip title="MCP(token消耗较大)">
+            <div>
+              <SwitchButton
+                checked={features.enableMCP}
+                onChange={setEnableMCP}
                 icon={<GlobalOutlined />}
               />
             </div>

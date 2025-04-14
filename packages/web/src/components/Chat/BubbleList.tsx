@@ -1,9 +1,10 @@
 import type { ConversationsId, IMessage, ModelConfig } from '@/db/interface'
+import type { BubbleProps } from '@ant-design/x'
 import type { ImperativeHandleRef } from '../InfiniteScroll'
 import { Role } from '@/constants'
 import { getFeatures } from '@/store/features'
 import { deleteMessageAction, nextPageMessagesAction, refreshRequestAction, useMessagesStore } from '@/store/messages'
-import { clipboardWriteText, formatTime } from '@/utils'
+import { clipboardWriteText } from '@/utils'
 import { ArrowDownOutlined, RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
 import { App, Button } from 'antd'
@@ -11,6 +12,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
 import BubbleFooter from './BubbleFooter'
+import { BubbleHeader } from './BubbleHeader'
 import MessageContent from './MessageContent'
 
 interface Props {
@@ -21,6 +23,98 @@ interface Props {
 
 function BubbleList({ config, messages, conversationsId }: Props) {
   const { message: messageFunc } = App.useApp()
+
+  // ============================ transform Bubble ============================
+  const items: React.ReactNode[] = []
+
+  for (const msg of messages) {
+    const commonProps: Partial<BubbleProps> = {
+      loading: msg.status === 'loading',
+      placement: msg.role === Role.USER ? 'end' : 'start',
+      style: {
+        marginInlineEnd: msg.role === Role.USER ? 10 : 44,
+        marginInlineStart: msg.role === Role.USER ? 44 : 10,
+      },
+      avatar: getRoleAvatar(msg.role),
+    }
+
+    if (msg.type === 'question') {
+      items.push(
+        <Bubble
+          key={msg.id}
+          {...commonProps}
+          styles={{
+            content: {
+              backgroundColor: 'transparent',
+              padding: 0,
+            },
+          }}
+          header={<BubbleHeader time={msg.createAt} />}
+          messageRender={() => (
+            <>
+              <MessageContent
+                content=" "
+                reasoningContent={msg.reasoningContent}
+              />
+              <div className="mt-3">
+                <div className="text-sm font-medium text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700/80 rounded-lg px-4 py-3 shadow-sm border border-gray-200 dark:border-gray-600">
+                  {msg.question}
+                </div>
+              </div>
+            </>
+          )}
+        />,
+      )
+
+      if (msg.answer) {
+        items.push(
+          <Bubble
+            key={`${msg.id}-answer`}
+            {...commonProps}
+            role={Role.USER}
+            placement="end"
+            avatar={getRoleAvatar(Role.USER)}
+            content={msg.answer}
+            messageRender={() => <MessageContent content={msg.answer} />}
+            header={<BubbleHeader time={msg.answerAt} />}
+          />,
+        )
+      }
+    }
+    else if (msg.type === 'use_mcp_tool') {
+      <Bubble
+        key={msg.id}
+        loading={msg.status === 'loading'}
+      />
+    }
+    else {
+      items.push(
+        <Bubble
+          key={msg.id}
+          loading={msg.status === 'loading'}
+          placement={msg.role === Role.USER ? 'end' : 'start'}
+          style={{
+            marginInlineEnd: msg.role === Role.USER ? 10 : 44,
+            marginInlineStart: msg.role === Role.USER ? 44 : 10,
+          }}
+          avatar={getRoleAvatar(msg.role)}
+          messageRender={content => (
+            <MessageContent
+              images={msg.images}
+              attachments={msg.attachments}
+              content={content}
+              reasoningContent={msg.reasoningContent || ''}
+              status={msg.status || 'success'}
+            />
+          )}
+          content={msg.content}
+          header={<BubbleHeader time={msg.createAt} />}
+          footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
+          typing={msg.status === 'typing' ? { step: 1, interval: 50 } : false}
+        />,
+      )
+    }
+  }
 
   // ============================ 自动滚动 ============================
   const [autoScrollToBottom, setAutoScrollToBottom] = useState(true)
@@ -85,7 +179,7 @@ function BubbleList({ config, messages, conversationsId }: Props) {
   return (
     <InfiniteScroll
       ref={infiniteScrollRef}
-      className="px-4 w-[var(--chat-width)] mx-auto relative"
+      className="px-4 w-[var(--chat-width)] flex flex-col gap-4 mx-auto relative"
       hasMore={hasMore}
       loading={isLoading}
       onLoadMore={handleLoadMore}
@@ -97,31 +191,7 @@ function BubbleList({ config, messages, conversationsId }: Props) {
       )}
       onScroll={handleScroll}
     >
-      {messages.map(msg => (
-        <Bubble
-          key={msg.id}
-          loading={msg.status === 'loading'}
-          placement={msg.role === Role.USER ? 'end' : 'start'}
-          style={{
-            marginInlineEnd: msg.role === Role.USER ? 10 : 44,
-            marginInlineStart: msg.role === Role.USER ? 44 : 10,
-          }}
-          avatar={getRoleAvatar(msg.role)}
-          messageRender={content => (
-            <MessageContent
-              images={msg.images}
-              attachments={msg.attachments}
-              content={content}
-              reasoningContent={msg.reasoningContent || ''}
-              status={msg.status || 'success'}
-            />
-          )}
-          content={msg.content}
-          header={<div className="text-xs flex items-center">{formatTime(msg.createAt)}</div>}
-          footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
-          typing={msg.status === 'typing' ? { step: 1, interval: 50 } : false}
-        />
-      ))}
+      {items}
       <Button
         size="small"
         className={`sticky left-1/2 bottom-8 -translate-x-1/2 transition-opacity duration-300 ${autoScrollToBottom ? 'opacity-0' : 'opacity-100'}`}
