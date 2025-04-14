@@ -5,9 +5,9 @@ import { Role } from '@/constants'
 import { getFeatures } from '@/store/features'
 import { deleteMessageAction, nextPageMessagesAction, refreshRequestAction, useMessagesStore } from '@/store/messages'
 import { clipboardWriteText } from '@/utils'
-import { ArrowDownOutlined, RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
+import { ArrowDownOutlined, LoadingOutlined, RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
-import { App, Button } from 'antd'
+import { App, Button, Collapse, Descriptions, Divider, Tag } from 'antd'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
@@ -36,6 +36,7 @@ function BubbleList({ config, messages, conversationsId }: Props) {
         marginInlineStart: msg.role === Role.USER ? 44 : 10,
       },
       avatar: getRoleAvatar(msg.role),
+      typing: msg.status === 'typing' ? { step: 1, interval: 50 } : false,
     }
 
     if (msg.type === 'question') {
@@ -82,22 +83,83 @@ function BubbleList({ config, messages, conversationsId }: Props) {
       }
     }
     else if (msg.type === 'use_mcp_tool') {
-      <Bubble
-        key={msg.id}
-        loading={msg.status === 'loading'}
-      />
+      items.push(
+        <Bubble
+          key={msg.id}
+          {...commonProps}
+          styles={{
+            content: {
+              backgroundColor: 'transparent',
+              padding: 0,
+            },
+          }}
+          header={<BubbleHeader time={msg.createAt} />}
+          messageRender={() => (
+            <div className="flex flex-col gap-4">
+              <MessageContent content=" " reasoningContent={msg.reasoningContent} />
+              <Collapse
+                size="small"
+                defaultActiveKey={['mcp']}
+                items={[
+                  {
+                    key: 'mcp',
+                    label: (
+                      <div className="flex justify-between w-full">
+                        <div className="flex items-center">
+                          <Tag color="blue">{msg.mcpTool?.toolName}</Tag>
+                          <Divider type="vertical" />
+                          <Tag color="green">{msg.mcpTool?.toolName}</Tag>
+                        </div>
+                        <div className="ml-5">
+                          {msg.mcpTool?.executing ? <LoadingOutlined spin /> : msg.mcpTool?.result?.success ? <Tag color="green">执行成功</Tag> : <Tag color="red">执行失败</Tag>}
+                        </div>
+                      </div>
+                    ),
+                    children: (
+                      <Descriptions
+                        items={[
+                          {
+                            key: 'arguments',
+                            label: '执行参数',
+                            span: 'filled',
+                            children: (
+                              <div className="whitespace-pre-wrap">
+                                {msg.mcpTool?.arguments}
+                              </div>
+                            ),
+                          },
+                          {
+                            key: 'result',
+                            label: '执行结果',
+                            span: 'filled',
+                            children: (
+                              <div className="whitespace-pre-wrap">
+                                {
+                                  msg.mcpTool?.result?.success
+                                    ? msg.mcpTool?.result?.data
+                                    : msg.mcpTool?.result?.error
+                                }
+                              </div>
+
+                            ),
+                          },
+                        ]}
+                      />
+
+                    ),
+                  },
+                ]}
+              />
+            </div>
+          )}
+        />,
+      )
     }
     else {
       items.push(
         <Bubble
           key={msg.id}
-          loading={msg.status === 'loading'}
-          placement={msg.role === Role.USER ? 'end' : 'start'}
-          style={{
-            marginInlineEnd: msg.role === Role.USER ? 10 : 44,
-            marginInlineStart: msg.role === Role.USER ? 44 : 10,
-          }}
-          avatar={getRoleAvatar(msg.role)}
+          {...commonProps}
           messageRender={content => (
             <MessageContent
               images={msg.images}
@@ -110,7 +172,6 @@ function BubbleList({ config, messages, conversationsId }: Props) {
           content={msg.content}
           header={<BubbleHeader time={msg.createAt} />}
           footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
-          typing={msg.status === 'typing' ? { step: 1, interval: 50 } : false}
         />,
       )
     }
@@ -194,7 +255,7 @@ function BubbleList({ config, messages, conversationsId }: Props) {
       {items}
       <Button
         size="small"
-        className={`sticky left-1/2 bottom-8 -translate-x-1/2 transition-opacity duration-300 ${autoScrollToBottom ? 'opacity-0' : 'opacity-100'}`}
+        className={`sticky block w-6 h-6 left-1/2 bottom-8 -translate-x-1/2 transition-opacity duration-300 ${autoScrollToBottom ? 'opacity-0' : 'opacity-100'}`}
         shape="circle"
         icon={<ArrowDownOutlined />}
         onClick={() => {
