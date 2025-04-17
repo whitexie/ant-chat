@@ -1,6 +1,6 @@
 import type { IMcpToolCall } from '@/db/interface'
 import { LoadingOutlined, PlayCircleOutlined } from '@ant-design/icons'
-import { Button, Collapse, Descriptions, Divider, Tag } from 'antd'
+import { Button, Collapse, Descriptions, Tag } from 'antd'
 
 interface McpToolCallPanelProps {
   item: IMcpToolCall
