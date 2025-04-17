@@ -1,11 +1,13 @@
 {
   "name": "@ant-chat/electron",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
-  "main": "dist/main/index.js",
+  "main": "dist-electron/main/index.js",
   "scripts": {
-    "dev": "tsx scripts/dev.ts",
-    "build": "tsc && electron-builder",
+    "start": "electron-vite preview",
+    "dev": "vite",
+    "prebuild": "electron-vite build",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
@@ -13,11 +15,15 @@
     "electron-updater": "^6.2.0"
   },
   "devDependencies": {
+    "@ant-chat/mcp-client-hub": "workspace:*",
+    "@ant-chat/shared": "workspace:*",
+    "@electron-toolkit/preload": "^3.0.1",
     "@types/node": "^20.11.24",
-    "concurrently": "^8.2.2",
     "electron": "^28.2.0",
     "electron-builder": "^24.13.3",
-    "typescript": "~5.3.3"
+    "electron-vite": "^3.1.0",
+    "typescript": "~5.3.3",
+    "vite-plugin-electron": "^0.29.0"
   },
   "build": {
     "appId": "com.ant-chat.app",

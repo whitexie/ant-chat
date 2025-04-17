@@ -1,7 +1,12 @@
 import { join } from 'node:path'
 import process from 'node:process'
 import { app, BrowserWindow, ipcMain, Menu } from 'electron'
+import { McpService } from './mcp/index'
+import { logger } from './utils/logger'
 
+const __dirname = process.cwd()
+
+logger.info('Electron 主进程启动', __dirname)
 class MainWindow {
   private window: BrowserWindow | null = null
   private readonly isDev = process.env.NODE_ENV === 'development'
@@ -92,9 +97,10 @@ class MainWindow {
       width: 1200,
       height: 800,
       webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
-        webSecurity: !this.isDev, // 开发模式下禁用同源策略
+        nodeIntegration: false,
+        contextIsolation: true,
+        webSecurity: true, // 开发模式下禁用同源策略
+        preload: join(__dirname, './dist-electron/preload/index.mjs'),
       },
     })
 
@@ -137,7 +143,8 @@ class MainWindow {
     }
     else {
       // 生产环境加载打包后的文件
-      const webDistPath = join(__dirname, '../../../web/dist/index.html')
+      const webDistPath = join(__dirname, '../web/dist/index.html')
+      logger.info('生产环境加载打包后的文件', webDistPath)
       this.window.loadFile(webDistPath)
     }
 
@@ -147,19 +154,24 @@ class MainWindow {
   }
 
   getWindow() {
+    logger.info('获取窗口', this.window)
     return this.window
   }
 }
 
-// 创建主窗口实例
-const mainWindow = new MainWindow()
-
 app.whenReady().then(() => {
+  const mainWindow = new MainWindow()
   mainWindow.createWindow()
 
+  // 初始化 MCP 服务
+  const mcpService = new McpService()
+
+  mcpService.registerEvent()
+
   app.on('activate', () => {
-    if (!mainWindow.getWindow())
+    if (!mainWindow.getWindow()) {
       mainWindow.createWindow()
+    }
   })
 })
 
@@ -167,6 +179,3 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin')
     app.quit()
 })
-
-// IPC 通信示例
-ipcMain.handle('get-is-electron', () => true)

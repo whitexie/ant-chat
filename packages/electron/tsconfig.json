@@ -4,6 +4,9 @@
     "rootDir": "src",
     "module": "CommonJS",
     "moduleResolution": "node",
+    "types": [
+      "./globals.d.ts"
+    ],
     "strict": true,
     "outDir": "dist",
     "esModuleInterop": true,
