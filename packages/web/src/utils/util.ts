@@ -13,8 +13,8 @@ export function debounce<T extends (...args: any[]) => void>(func: T, delay: num
   }
 }
 
-export function uuid() {
-  return nanoid()
+export function uuid(prefix?: string) {
+  return `${prefix || ''}${nanoid()}`
 }
 
 export async function clipboardWriteText(text: string) {
