@@ -16,6 +16,14 @@ export async function messageIsExists(id: MessageId) {
   return !!await db.messages.get(id)
 }
 
+export async function getMessageById(id: MessageId) {
+  const result = await db.messages.get(id)
+  if (!result) {
+    throw new Error('nout found message')
+  }
+  return result
+}
+
 export async function addMessage(message: IMessage) {
   if (!await db.conversations.get(message.convId)) {
     throw new Error('conversation not found')

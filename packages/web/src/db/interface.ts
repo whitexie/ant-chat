@@ -54,27 +54,22 @@ export interface IAttachment {
 export type IImage = IAttachment
 
 export interface IMcpToolCall {
+  id: string
   serverName: string
   toolName: string
-  arguments: string
-  executing: boolean
+  args: Record<string, unknown>
+  executeState: 'await' | 'executing' | 'completed'
   result?: IMcpToolResult
 }
 
 export interface IMcpToolResult {
   success: boolean
-  data?: any
+  data?: string
   error?: string
 }
 
-export interface IFollowupQuestion {
-  question: string
-  answer?: string
-}
-
 export type MessageType = 'normal' | 'use_mcp_tool' | 'question'
-
-export interface MessageBase {
+export interface IMessage {
   id: MessageId
   convId: ConversationsId
   role: Role
@@ -84,26 +79,9 @@ export interface MessageBase {
   status?: 'success' | 'error' | 'loading' | 'typing' | 'cancel'
   images: IAttachment[]
   attachments: IAttachment[]
-}
-
-export interface NormalMessage extends MessageBase {
-  type: 'normal'
-}
-
-export interface MCPTollMessage extends MessageBase {
-  type: 'use_mcp_tool'
   /** MCP 相关字段 */
-  mcpTool?: IMcpToolCall
+  mcpTool?: IMcpToolCall[]
 }
-
-export interface QuestionMessage extends MessageBase {
-  type: 'question'
-  question: string
-  answer?: string
-  answerAt?: Timestamp
-}
-
-export type IMessage = NormalMessage | MCPTollMessage | QuestionMessage
 
 export interface ITextContent {
   type: 'text'
