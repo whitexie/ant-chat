@@ -18,6 +18,8 @@ import { App, Badge, Button, Tooltip } from 'antd'
 import { useState } from 'react'
 import SwitchButton from '../SwitchButton'
 import styles from './style.module.scss'
+import MCPIcon from '@/assets/icons/mcp.svg?react'
+import Icon from '@ant-design/icons';
 
 interface SenderProps {
   loading?: boolean
@@ -174,7 +176,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
               <SwitchButton
                 checked={features.enableMCP}
                 onChange={setEnableMCP}
-                icon={<GlobalOutlined />}
+                icon={<Icon component={MCPIcon} />}
               />
             </div>
           </Tooltip>

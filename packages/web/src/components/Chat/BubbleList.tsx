@@ -1,27 +1,29 @@
-import type { ConversationsId, IMessage, ModelConfig } from '@/db/interface'
+import type { ConversationsId, IMessage, MessageId, ModelConfig } from '@/db/interface'
 import type { BubbleProps } from '@ant-design/x'
 import type { ImperativeHandleRef } from '../InfiniteScroll'
 import { Role } from '@/constants'
 import { getFeatures } from '@/store/features'
-import { deleteMessageAction, nextPageMessagesAction, refreshRequestAction, useMessagesStore } from '@/store/messages'
+import { deleteMessageAction, executeMcpToolAction, nextPageMessagesAction, refreshRequestAction, useMessagesStore } from '@/store/messages'
 import { clipboardWriteText } from '@/utils'
-import { ArrowDownOutlined, LoadingOutlined, RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
+import { ArrowDownOutlined, RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
-import { App, Button, Collapse, Descriptions, Divider, Tag } from 'antd'
+import { App, Button } from 'antd'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
 import BubbleFooter from './BubbleFooter'
 import { BubbleHeader } from './BubbleHeader'
+import { McpToolCallPanel } from './McpToolCallPanel'
 import MessageContent from './MessageContent'
 
 interface Props {
   messages: IMessage[]
   conversationsId: string
   config: ModelConfig
+  onExecuteAllCompleted?: (messageId: MessageId) => void
 }
 
-function BubbleList({ config, messages, conversationsId }: Props) {
+function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }: Props) {
   const { message: messageFunc } = App.useApp()
 
   // ============================ transform Bubble ============================
@@ -31,150 +33,61 @@ function BubbleList({ config, messages, conversationsId }: Props) {
     const commonProps: Partial<BubbleProps> = {
       loading: msg.status === 'loading',
       placement: msg.role === Role.USER ? 'end' : 'start',
-      style: {
-        marginInlineEnd: msg.role === Role.USER ? 10 : 44,
-        marginInlineStart: msg.role === Role.USER ? 44 : 10,
-      },
       avatar: getRoleAvatar(msg.role),
       typing: msg.status === 'typing' ? { step: 1, interval: 50 } : false,
     }
 
-    if (msg.type === 'question') {
-      items.push(
-        <Bubble
-          key={msg.id}
-          {...commonProps}
-          styles={{
-            content: {
-              backgroundColor: 'transparent',
-              padding: 0,
-            },
-          }}
-          header={<BubbleHeader time={msg.createAt} />}
-          messageRender={() => (
-            <>
-              <MessageContent
-                content=" "
-                reasoningContent={msg.reasoningContent}
-              />
-              <div className="mt-3">
-                <div className="text-sm font-medium text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700/80 rounded-lg px-4 py-3 shadow-sm border border-gray-200 dark:border-gray-600">
-                  {msg.question}
-                </div>
-              </div>
-            </>
-          )}
-        />,
-      )
-
-      if (msg.answer) {
-        items.push(
-          <Bubble
-            key={`${msg.id}-answer`}
-            {...commonProps}
-            role={Role.USER}
-            placement="end"
-            avatar={getRoleAvatar(Role.USER)}
-            content={msg.answer}
-            messageRender={() => <MessageContent content={msg.answer} />}
-            header={<BubbleHeader time={msg.answerAt} />}
-          />,
-        )
+    if (msg.mcpTool) {
+      commonProps.styles = {
+        content: {
+          width: 'calc(100% - 44px)',
+        },
       }
     }
-    else if (msg.type === 'use_mcp_tool') {
-      items.push(
-        <Bubble
-          key={msg.id}
-          {...commonProps}
-          styles={{
-            content: {
-              backgroundColor: 'transparent',
-              padding: 0,
-            },
-          }}
-          header={<BubbleHeader time={msg.createAt} />}
-          messageRender={() => (
-            <div className="flex flex-col gap-4">
-              <MessageContent content=" " reasoningContent={msg.reasoningContent} />
-              <Collapse
-                size="small"
-                defaultActiveKey={['mcp']}
-                items={[
-                  {
-                    key: 'mcp',
-                    label: (
-                      <div className="flex justify-between w-full">
-                        <div className="flex items-center">
-                          <Tag color="blue">{msg.mcpTool?.toolName}</Tag>
-                          <Divider type="vertical" />
-                          <Tag color="green">{msg.mcpTool?.toolName}</Tag>
-                        </div>
-                        <div className="ml-5">
-                          {msg.mcpTool?.executing ? <LoadingOutlined spin /> : msg.mcpTool?.result?.success ? <Tag color="green">执行成功</Tag> : <Tag color="red">执行失败</Tag>}
-                        </div>
-                      </div>
-                    ),
-                    children: (
-                      <Descriptions
-                        items={[
-                          {
-                            key: 'arguments',
-                            label: '执行参数',
-                            span: 'filled',
-                            children: (
-                              <div className="whitespace-pre-wrap">
-                                {msg.mcpTool?.arguments}
-                              </div>
-                            ),
-                          },
-                          {
-                            key: 'result',
-                            label: '执行结果',
-                            span: 'filled',
-                            children: (
-                              <div className="whitespace-pre-wrap">
-                                {
-                                  msg.mcpTool?.result?.success
-                                    ? msg.mcpTool?.result?.data
-                                    : msg.mcpTool?.result?.error
-                                }
-                              </div>
 
-                            ),
-                          },
-                        ]}
-                      />
-
-                    ),
-                  },
-                ]}
-              />
-            </div>
-          )}
-        />,
-      )
-    }
-    else {
-      items.push(
-        <Bubble
-          key={msg.id}
-          {...commonProps}
-          messageRender={content => (
+    items.push(
+      <Bubble
+        key={msg.id}
+        {...commonProps}
+        messageRender={content => (
+          <>
             <MessageContent
               images={msg.images}
               attachments={msg.attachments}
               content={content}
-              reasoningContent={msg.reasoningContent || ''}
-              status={msg.status || 'success'}
+              reasoningContent={msg.reasoningContent}
+              status={msg.status}
             />
-          )}
-          content={msg.content}
-          header={<BubbleHeader time={msg.createAt} />}
-          footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
-        />,
-      )
-    }
+            {
+              msg.mcpTool && (
+                <div className="flex flex-col gap-4 mt-3">
+                  {
+                    msg.mcpTool?.map(tool => (
+                      <McpToolCallPanel
+                        key={tool.id}
+                        item={tool}
+                        onExecute={async (item) => {
+                          const { isAllCompleted } = await executeMcpToolAction(msg.id, item)
+
+                          console.log('isAllCompleted => ', isAllCompleted)
+
+                          if (isAllCompleted) {
+                            onExecuteAllCompleted?.(msg.id)
+                          }
+                        }}
+                      />
+                    ))
+                  }
+                </div>
+              )
+            }
+          </>
+        )}
+        content={msg.content}
+        header={<BubbleHeader time={msg.createAt} />}
+        footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
+      />,
+    )
   }
 
   // ============================ 自动滚动 ============================
@@ -255,7 +168,7 @@ function BubbleList({ config, messages, conversationsId }: Props) {
       {items}
       <Button
         size="small"
-        className={`sticky block w-6 h-6 left-1/2 bottom-8 -translate-x-1/2 transition-opacity duration-300 ${autoScrollToBottom ? 'opacity-0' : 'opacity-100'}`}
+        className={`sticky block w-6 min-h-6 left-1/2 bottom-8 -translate-x-1/2 transition-opacity duration-300 ${autoScrollToBottom ? 'opacity-0' : 'opacity-100'}`}
         shape="circle"
         icon={<ArrowDownOutlined />}
         onClick={() => {

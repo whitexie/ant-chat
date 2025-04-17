@@ -91,7 +91,8 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
   try {
     setRequestStatus('loading')
     const Service = getServiceProviderConstructor(config.id)
-    const instance = new Service(config)
+    const { enableMCP } = features
+    const instance = new Service({ ...config, enableMCP })
 
     const abortController = new AbortController()
 
@@ -117,6 +118,7 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
       onUpdate: (result) => {
         aiMessage.content = result.message
         aiMessage.reasoningContent = result.reasoningContent
+        aiMessage.mcpTool = result.functioncalls
         updateMessageAction({ ...aiMessage, status: 'typing' })
       },
       onSuccess: () => {
@@ -164,7 +166,6 @@ export async function nextPageMessagesAction(conversationsId: ConversationsId) {
 
   useMessagesStore.setState(state => produce(state, (draft) => {
     draft.messages.splice(0, 0, ...messages)
-    // draft.messages.sort((a, b) => a.createAt - b.createAt)
     draft.pageIndex = pageIndex + 1
     draft.messageTotal = total
   }))

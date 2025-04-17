@@ -29,8 +29,9 @@ export const useConversationsStore = create<ConversationsStore>()(
 
 export function createConversations(option?: Partial<IConversations>): IConversations {
   const time = getNow()
+
   return Object.assign({
-    id: uuid(),
+    id: uuid('conv-'),
     title: DEFAULT_TITLE,
     createAt: time,
     updateAt: time,

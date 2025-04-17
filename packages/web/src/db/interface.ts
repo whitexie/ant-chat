@@ -23,25 +23,14 @@ export interface IConversationsSettings {
   systemPrompt?: string
 }
 
-export interface IConversationBase {
+
+export interface IConversations {
   id: ConversationsId
   title: string
   createAt: Timestamp
   updateAt: Timestamp
   settings?: IConversationsSettings
 }
-
-interface IConversationType extends IConversationBase {
-  type: 'conversation'
-  completed?: boolean
-}
-
-interface ITaskType extends IConversationBase {
-  type: 'task'
-  completed: boolean
-}
-
-export type IConversations = IConversationType | ITaskType
 
 export interface IAttachment {
   uid: string

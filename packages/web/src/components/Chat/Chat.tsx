@@ -10,6 +10,7 @@ import {
   updateConversationsSettingsAction,
   useConversationsStore,
 } from '@/store/conversation'
+import { useFeaturesState } from '@/store/features'
 import {
   abortSendChatCompletions,
   addMessageAction,
@@ -37,6 +38,7 @@ export default function Chat() {
   const currentConversations = useConversationsStore(state => state.conversations.find(item => item.id === activeConversationsId))
   const defaultModelConfig = useActiveModelConfig()
   const isLoading = useMessagesStore(state => state.requestStatus === 'loading')
+  const features = useFeaturesState()
 
   const config = currentConversations?.settings?.modelConfig || defaultModelConfig
   const items = [
@@ -102,6 +104,11 @@ export default function Chat() {
                 config={config}
                 messages={messages}
                 conversationsId={activeConversationsId}
+                onExecuteAllCompleted={
+                  async () => {
+                    await onRequestAction(activeConversationsId, config, features)
+                  }
+                }
               />
             )
           : (

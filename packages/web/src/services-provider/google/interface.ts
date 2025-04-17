@@ -9,7 +9,22 @@ export interface IFilePart {
   }
 }
 
-export type Part = TextPart | IFilePart
+export interface RequestFunctionCallPart {
+  functionCall: FunctionCallPart['functionCall']
+}
+
+export interface FunctionCallResponsePart {
+  functionResponse: {
+    name: string
+    response: {
+      result: any
+    }
+  }
+}
+
+export type Part = TextPart | IFilePart | FunctionCallResponsePart
+
+export type ModelPart = TextPart | RequestFunctionCallPart
 
 export interface UserContent {
   role: 'user'
@@ -18,7 +33,21 @@ export interface UserContent {
 
 export interface ModelContent {
   role: 'model'
-  parts: TextPart[]
+  parts: ModelPart[]
+}
+
+export interface GeminiFunctionCall {
+  name: string
+  description?: string
+  parameters: object
+}
+
+export interface FunctionDeclaration {
+  functionDeclarations: GeminiFunctionCall[]
+}
+
+export interface GoogleSearchTool {
+  googleSearch: object
 }
 
 export interface GeminiRequestBody {
@@ -29,24 +58,30 @@ export interface GeminiRequestBody {
   generationConfig?: {
     temperature?: number
   }
-  tools?: [
-    { googleSearch: object },
+  tools?: (GoogleSearchTool | FunctionDeclaration)[]
+  toolConfig?: {
+    functionCallingConfig: {
+      mode: 'auto' | 'any' | 'none'
+    }
+  }
+}
+
+export interface GeminiResponse {
+  candidates: [
+    {
+      content: {
+        parts: (TextPart | FunctionCallPart)[]
+      }
+    },
   ]
-
 }
 
-export interface GeminiModel {
-  name: string
-  version: string
-  displayName: string
-  description: string
-  inputTokenLimit: number
-  outputTokenLimit: number
-  temperature: number
-  topP: number
-  topK: number
+export interface TextPart {
+  text: string
 }
-
-export interface GetModelsResponse {
-  models: GeminiModel[]
+export interface FunctionCallPart {
+  functionCall: {
+    name: string
+    args: Record<string, unknown>
+  }
 }
