@@ -6,8 +6,8 @@ import { useShallow } from 'zustand/shallow'
 export const initialState = {
   /** 联网搜索 */
   onlineSearch: false,
-  /** 深度思考 */
-  deepThinking: false,
+  /** MCP */
+  enableMCP: false,
 }
 
 export const initialStateKeys = Object.keys(initialState) as (keyof ChatFeatures)[]
@@ -16,7 +16,7 @@ export type ChatFeatures = typeof initialState
 
 interface Action {
   setOnlieSearch: (value: boolean) => void
-  setDeepThinking: (value: boolean) => void
+  setEnableMCP: (value: boolean) => void
 }
 
 const useFeaturesStore = create<ChatFeatures & Action>()(
@@ -24,7 +24,7 @@ const useFeaturesStore = create<ChatFeatures & Action>()(
     set => ({
       ...initialState,
       setOnlieSearch: (value: boolean) => set({ onlineSearch: value }),
-      setDeepThinking: (value: boolean) => set({ deepThinking: value }),
+      setEnableMCP: (value: boolean) => set({ enableMCP: value }),
     }),
     {
       enabled: import.meta.env.MODE === 'development',
@@ -35,7 +35,7 @@ const useFeaturesStore = create<ChatFeatures & Action>()(
 export function useFeatures() {
   return useFeaturesStore(useShallow(state => ({
     setOnlieSearch: state.setOnlieSearch,
-    setDeepThinking: state.setDeepThinking,
+    setEnableMCP: state.setEnableMCP,
   })))
 }
 
