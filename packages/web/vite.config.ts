@@ -19,7 +19,7 @@ const plugins: PluginOption[] = [
   magicPreloader(),
   UnoCSS(),
   svgr({
-    svgrOptions: { icon: false },
+    svgrOptions: { icon: true },
   }),
 ]
 
@@ -67,6 +67,9 @@ export default defineConfig(({ command, mode }) => {
           },
         },
       },
+    },
+    server: {
+      port: 5173,
     },
   }
 })
