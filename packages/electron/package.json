@@ -6,7 +6,8 @@
   "main": "dist-electron/main/index.js",
   "scripts": {
     "start": "electron-vite preview",
-    "dev": "vite",
+    "vite": "vite",
+    "dev": "tsx scripts/dev.ts",
     "prebuild": "electron-vite build",
     "postinstall": "electron-builder install-app-deps"
   },
