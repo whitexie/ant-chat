@@ -92,7 +92,9 @@ export function McpToolCallPanel({ item, onExecute }: McpToolCallPanelProps) {
                   span: 'filled',
                   children: (
                     <div className="whitespace-pre-wrap">
-                      {JSON.stringify(item.args, null, 2)}
+                      <ReadMoreContainer maxHeight={300}>
+                        {JSON.stringify(item.args, null, 2)}
+                      </ReadMoreContainer>
                     </div>
                   ),
                 },
@@ -101,7 +103,7 @@ export function McpToolCallPanel({ item, onExecute }: McpToolCallPanelProps) {
                   label: '执行结果',
                   span: 'filled',
                   children: (
-                    <div className={`whitespace-pre-wrap ${!item.result?.success && 'text-red-500'}`}>
+                    <div className={`whitespace-pre-wrap w-full ${!item.result?.success && 'text-red-500'}`}>
                       <ReadMoreContainer maxHeight={300}>
                         {
                           item.result?.success
