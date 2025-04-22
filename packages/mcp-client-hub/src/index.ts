@@ -300,7 +300,7 @@ export class MCPClientHub {
 
   getMcpSettingsFilePath() {
     const userHomeDir = os.homedir()
-    return path.join(userHomeDir, './.ant-chat/mcp-settings.json')
+    return path.join(userHomeDir, './Documents/.ant-chat/mcp-settings.json')
   }
 }
 
