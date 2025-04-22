@@ -1,5 +1,6 @@
 import type { ConversationsId, IMessage, MessageId, ModelConfig } from '@/db/interface'
 import type { BubbleProps } from '@ant-design/x'
+import type { AvatarProps } from 'antd'
 import type { ImperativeHandleRef } from '../InfiniteScroll'
 import { Role } from '@/constants'
 import { getFeatures } from '@/store/features'
@@ -14,7 +15,9 @@ import Loading from '../Loading'
 import BubbleFooter from './BubbleFooter'
 import { BubbleHeader } from './BubbleHeader'
 import { McpToolCallPanel } from './McpToolCallPanel'
+
 import MessageContent from './MessageContent'
+import { getProviderLogo } from './providerLogo'
 
 interface Props {
   messages: IMessage[]
@@ -33,7 +36,7 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
     const commonProps: Partial<BubbleProps> = {
       loading: msg.status === 'loading',
       placement: msg.role === Role.USER ? 'end' : 'start',
-      avatar: getRoleAvatar(msg.role),
+      avatar: getRoleAvatar(msg),
       typing: msg.status === 'typing' ? { step: 1, interval: 50 } : false,
     }
 
@@ -69,8 +72,6 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
                         onExecute={async (item) => {
                           const { isAllCompleted } = await executeMcpToolAction(msg.id, item)
 
-                          console.log('isAllCompleted => ', isAllCompleted)
-
                           if (isAllCompleted) {
                             onExecuteAllCompleted?.(msg.id)
                           }
@@ -84,7 +85,7 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
           </>
         )}
         content={msg.content}
-        header={<BubbleHeader time={msg.createAt} />}
+        header={<BubbleHeader time={msg.createAt} modelInfo={msg.modelInfo} />}
         footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
       />,
     )
@@ -179,15 +180,28 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
   )
 }
 
-function getRoleAvatar(role: Role) {
+function getRoleAvatar({ role, modelInfo }: IMessage): AvatarProps {
   if (role === Role.USER) {
-    return { icon: <UserOutlined />, style: { background: '#87d068' } }
+    return { icon: <UserOutlined />, className: 'bg-[#87d068]' }
   }
   else if (role === Role.SYSTEM) {
-    return { icon: <SmileFilled />, style: { background: '#DE732D' } }
+    return { icon: <SmileFilled />, className: 'bg-[#DE732D]' }
   }
-  else if (role === Role.AI) {
-    return { icon: <RobotFilled />, style: { background: '#69b1ff' } }
+  else {
+    /** Role.AI */
+    const defaultConfig = { icon: <RobotFilled />, className: 'bg-[#69b1ff]' }
+    if (!modelInfo) {
+      return defaultConfig
+    }
+
+    const provider = modelInfo?.provider.toLowerCase()
+    // console.log('provider =>', provider)
+    const ProviderLogo = getProviderLogo(provider || '')
+    if (ProviderLogo) {
+      return { icon: <ProviderLogo />, className: 'bg-white dark:bg-black border-solid border-black/10 dark:border-dark' }
+    }
+
+    return defaultConfig
   }
 }
 
