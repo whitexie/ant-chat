@@ -1,6 +1,7 @@
+import { url } from 'node:inspector'
 import { join } from 'node:path'
 import process from 'node:process'
-import { app, BrowserWindow, ipcMain, Menu } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron'
 import { McpService } from './mcp/index'
 import { logger } from './utils/logger'
 
@@ -99,7 +100,7 @@ class MainWindow {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        webSecurity: true, // 开发模式下禁用同源策略
+        webSecurity: true,
         preload: join(__dirname, './dist-electron/preload/index.mjs'),
       },
     })
@@ -109,10 +110,10 @@ class MainWindow {
 
     // 开发模式下加载本地服务器
     if (this.isDev) {
-      console.log('Loading dev server:', this.DEV_SERVER_URL)
+      logger.info('Loading dev server:', this.DEV_SERVER_URL)
       this.window.loadURL(this.DEV_SERVER_URL).catch((err) => {
-        console.error('Failed to load dev server:', err)
-        console.log('Please make sure the web project is running (pnpm dev)')
+        logger.error('Failed to load dev server:', err)
+        logger.info('Please make sure the web project is running (pnpm dev)')
       })
 
       // 自动打开开发者工具
@@ -130,15 +131,21 @@ class MainWindow {
           this.window?.webContents.reload()
           event.preventDefault()
         }
+
+        // 退出应用: Command+Q (Mac) 或 Ctrl+Q (Windows/Linux)
+        if (input.key === 'q' && (input.control || input.meta)) {
+          app.quit()
+          event.preventDefault()
+        }
       })
 
       // 监听页面加载状态
       this.window.webContents.on('did-fail-load', (_, errorCode, errorDescription) => {
-        console.error('Page failed to load:', errorCode, errorDescription)
+        logger.error('Page failed to load:', errorCode, errorDescription)
       })
 
       this.window.webContents.on('did-finish-load', () => {
-        console.log('Page loaded successfully')
+        logger.info('页面加载成功')
       })
     }
     else {
@@ -167,6 +174,11 @@ app.whenReady().then(() => {
   const mcpService = new McpService()
 
   mcpService.registerEvent()
+
+  ipcMain.handle('openExternal', (_, url) => {
+    logger.debug('openExternal', url)
+    shell.openExternal(url)
+  })
 
   app.on('activate', () => {
     if (!mainWindow.getWindow()) {
