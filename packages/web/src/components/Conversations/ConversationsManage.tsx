@@ -60,6 +60,7 @@ export default function ConversationsManage() {
       { key: 'delete', label: '删除', icon: <DeleteOutlined />, danger: true },
     ],
     onClick: (e) => {
+      e.domEvent.stopPropagation()
       if (e.key === 'rename') {
         openRenameModal(conversation.key, conversation.label as string)
       }
