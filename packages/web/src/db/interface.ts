@@ -6,11 +6,11 @@ export type Branded<T, B> = T & Brand<B>
 
 export type MessageId = Branded<string, 'MessageId'>
 export type ConversationsId = Branded<string, 'ConversationId'>
-export type ModelConfigId = 'Gemini' | 'OpenAI' | 'DeepSeek'
+export type ModelConfigId = 'Google' | 'Gemini' | 'OpenAI' | 'DeepSeek'
 type Timestamp = number
 
 export interface ModelConfig {
-  id: ModelConfigId
+  id: ModelConfigId | string
   name?: string
   apiHost: string
   apiKey: string
@@ -22,7 +22,6 @@ export interface IConversationsSettings {
   modelConfig?: ModelConfig | null
   systemPrompt?: string
 }
-
 
 export interface IConversations {
   id: ConversationsId
@@ -57,7 +56,11 @@ export interface IMcpToolResult {
   error?: string
 }
 
-export type MessageType = 'normal' | 'use_mcp_tool' | 'question'
+export interface IModelInfo {
+  provider: string
+  model: string
+}
+
 export interface IMessage {
   id: MessageId
   convId: ConversationsId
@@ -70,6 +73,7 @@ export interface IMessage {
   attachments: IAttachment[]
   /** MCP 相关字段 */
   mcpTool?: IMcpToolCall[]
+  modelInfo?: IModelInfo
 }
 
 export interface ITextContent {

@@ -83,7 +83,8 @@ export function abortSendChatCompletions() {
 
 export async function sendChatCompletions(conversationId: ConversationsId, config: ModelConfig, features: ChatFeatures) {
   const messages = useMessagesStore.getState().messages
-  const aiMessage = createMessage({ convId: conversationId, role: Role.AI, status: 'loading' })
+  const { model, id: provider } = config
+  const aiMessage = createMessage({ convId: conversationId, role: Role.AI, status: 'loading', modelInfo: { model, provider } })
 
   // 这里aiMessage需要展开，避免被冻结， 后面的updateMessage同理
   await addMessageAction({ ...aiMessage })
