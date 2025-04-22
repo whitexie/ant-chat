@@ -1,6 +1,8 @@
 import type { IMcpToolCall } from '@/db/interface'
 import { LoadingOutlined, PlayCircleOutlined, ReloadOutlined } from '@ant-design/icons'
 import { Button, Collapse, Descriptions, Tag } from 'antd'
+import React, { Fragment } from 'react'
+import ReadMoreContainer from '../ReadMoreContainer'
 
 interface McpToolCallPanelProps {
   item: IMcpToolCall
@@ -60,7 +62,6 @@ export function McpToolCallPanel({ item, onExecute }: McpToolCallPanelProps) {
 
   return (
     <Collapse
-      key={item.id}
       size="small"
       defaultActiveKey={['mcp']}
       items={[
@@ -71,11 +72,14 @@ export function McpToolCallPanel({ item, onExecute }: McpToolCallPanelProps) {
               <div className="flex items-center">
                 MCP：
                 <Tag color="blue">{item.serverName}</Tag>
-                {/* <Divider type="vertical" /> */}
                 <Tag color="green">{item.toolName}</Tag>
               </div>
               <div className="ml-5">
-                {getMcpExecuteStateElement()}
+                {getMcpExecuteStateElement().map((el, index) => (
+                  <Fragment key={index}>
+                    {el}
+                  </Fragment>
+                ))}
               </div>
             </div>
           ),
@@ -98,11 +102,14 @@ export function McpToolCallPanel({ item, onExecute }: McpToolCallPanelProps) {
                   span: 'filled',
                   children: (
                     <div className={`whitespace-pre-wrap ${!item.result?.success && 'text-red-500'}`}>
-                      {
-                        item.result?.success
-                          ? item.result?.data
-                          : item.result?.error
-                      }
+                      <ReadMoreContainer maxHeight={300}>
+                        {
+                          item.result?.success
+                            ? item.result?.data
+                            : item.result?.error
+                        }
+                      </ReadMoreContainer>
+
                     </div>
                   ),
                 },
