@@ -1,5 +1,5 @@
 import type { IMcpToolCall } from '@/db/interface'
-import { LoadingOutlined, PlayCircleOutlined } from '@ant-design/icons'
+import { LoadingOutlined, PlayCircleOutlined, ReloadOutlined } from '@ant-design/icons'
 import { Button, Collapse, Descriptions, Tag } from 'antd'
 
 interface McpToolCallPanelProps {
@@ -9,8 +9,9 @@ interface McpToolCallPanelProps {
 
 export function McpToolCallPanel({ item, onExecute }: McpToolCallPanelProps) {
   function getMcpExecuteStateElement() {
+    const result: React.ReactNode[] = []
     if (item.executeState === 'await') {
-      return (
+      result.push(
         <Button
           size="small"
           type="primary"
@@ -21,18 +22,40 @@ export function McpToolCallPanel({ item, onExecute }: McpToolCallPanelProps) {
           }}
         >
           执行
-        </Button>
+        </Button>,
       )
     }
     else if (item.executeState === 'executing') {
-      return <LoadingOutlined spin />
+      result.push(<LoadingOutlined spin />)
     }
     else if (item.executeState === 'completed' && item.result?.success) {
-      return <Tag color="green">执行成功</Tag>
+      result.push(<Tag color="green">执行成功</Tag>)
     }
     else if (item.executeState === 'completed' && !item.result?.success) {
-      return <Tag color="red">执行失败</Tag>
+      result.push(
+        <>
+          <Tag color="red">执行失败</Tag>
+          <Button size="small" title="重试" type="text" icon={<ReloadOutlined />} />
+        </>,
+      )
     }
+
+    if (item.executeState !== 'executing') {
+      result.push(
+        <Button
+          size="small"
+          title="重试"
+          type="text"
+          icon={<ReloadOutlined />}
+          onClick={(e) => {
+            e.stopPropagation()
+            onExecute?.(item)
+          }}
+        />,
+      )
+    }
+
+    return result
   }
 
   return (
@@ -81,7 +104,6 @@ export function McpToolCallPanel({ item, onExecute }: McpToolCallPanelProps) {
                           : item.result?.error
                       }
                     </div>
-
                   ),
                 },
               ]}
