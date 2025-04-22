@@ -1,4 +1,5 @@
 import type { PluginOption } from 'vite'
+import process from 'node:process'
 import { fileURLToPath, URL } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { codeInspectorPlugin } from 'code-inspector-plugin'
@@ -12,7 +13,6 @@ import pkg from './package.json'
 
 const plugins: PluginOption[] = [
   react(),
-
   /**
    * @see https://github.com/cszhjh/vite-plugin-magic-preloader?tab=readme-ov-file
    */
@@ -53,6 +53,9 @@ export default defineConfig(({ command, mode }) => {
   }
 
   return {
+    define: {
+      __ELECTRON__: process.env.VITE_APP_ENV === 'electron',
+    },
     plugins,
     resolve: {
       alias: {
