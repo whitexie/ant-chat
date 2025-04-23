@@ -82,6 +82,6 @@ export interface TextPart {
 export interface FunctionCallPart {
   functionCall: {
     name: string
-    args: Record<string, unknown>
+    args: Record<string, unknown> | string
   }
 }

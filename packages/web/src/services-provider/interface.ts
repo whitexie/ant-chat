@@ -13,7 +13,7 @@ export interface ServiceConstructorOptions {
 
 export interface ChatCompletionsCallbacks {
   onUpdate?: (message: { message: string, reasoningContent: string, functioncalls?: IMcpToolCall[] }) => void
-  onSuccess?: (message: { message: string, reasoningContent: string }) => void
+  onSuccess?: (message: { message: string, reasoningContent: string, functioncalls?: IMcpToolCall[] }) => void
   onError?: (message: Error) => void
 }
 

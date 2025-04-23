@@ -84,7 +84,7 @@ export const useModelConfigStore = create<ModelConfigStore>()(
   ),
 )
 
-export function setConfigAction(id: ModelConfigId, config: ModelConfig & { systemMessage?: string }) {
+export function setConfigAction(id: string, config: ModelConfig & { systemMessage?: string }) {
   useModelConfigStore.setState(state => produce(state, (draft) => {
     if (!draft.configMapping[id]) {
       throw new Error(`id not found. ${id}`)

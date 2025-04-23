@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMockResponse, createMockStream } from './util'
 import request from '@/utils/request'
 
-import type { ConversationsId } from '@/db/interface'
+import type { ConversationsId, IMcpToolCall } from '@/db/interface'
 import { createMessage } from '@/store/conversation'
 import OpenAIService from '../openai'
 
@@ -64,15 +64,8 @@ describe('openAI service', () => {
       service.setTemperature(0.5)
       await service.sendChatCompletions([createMessage({ convId: '0' as ConversationsId, content: 'test1' })])
 
-      expect(mockRequest).toHaveBeenCalledWith('https://api.deepseek.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'Authorization': `Bearer ${'test'}`,
-        },
-        body: JSON.stringify({ messages: [{ role: 'user', content: 'test1' }], model: 'test-model', stream: true, temperature: 0.5,
-        }),
-      })
+      expect(mockRequest).toMatchSnapshot()
+      
     })
 
     describe('异常处理', () => {
@@ -82,7 +75,7 @@ describe('openAI service', () => {
             error: { message: 'Authentication Fails (no such user)' },
           }, { status: 401, statusText: 'Unauthorized', headers: { 'Content-Type': 'application/json' } }),
         )
-        const service = new OpenAIService({ apiHost: 'https://api.deepseek.com/v1', apiKey: 'test' })
+        const service = new OpenAIService({ apiHost: 'https://api.deepseek.com/v1', apiKey: 'test', model: 'gpt-4o' })
 
         await expect(service.sendChatCompletions([])).rejects.toThrowError(new Error('401 Authentication Fails (no such user)'))
       })
@@ -110,6 +103,33 @@ describe('openAI service', () => {
       })
       expect(result).toEqual('简介')
       expect(reasoningContent).toEqual('这是思考过程...')
+    })
+
+    it('parse function call', async () => {
+      // 创建模拟的 ReadableStream·
+      const stream = createMockStream([
+        'data: {"id":"1","object":"chat.completion.chunk","created":1745388868,"model":"deepseek-chat","system_fingerprint":"2","choices":[{"index":0,"delta":{"role":"assistant","content":"好的，接下来..."},"logprobs":null,"finish_reason":null}]}',
+        'data: {"id":"1","object":"chat.completion.chunk","created":1745388868,"model":"deepseek-chat","system_fingerprint":"2","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_0_1e905eb5-a324-49da-bb77-91321ac0dfdd","type":"function","function":{"name":"playwright___browser_navigate","arguments":""}}]},"logprobs":null,"finish_reason":null}]}',
+        'data: {"id":"1","object":"chat.completion.chunk","created":1745388868,"model":"deepseek-chat","system_fingerprint":"2","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"function":{"arguments":"{\\\"url\\\":\\\""}}]},"logprobs":null,"finish_reason":null}]}',
+        'data: {"id":"1","object":"chat.completion.chunk","created":1745388868,"model":"deepseek-chat","system_fingerprint":"2","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"function":{"arguments":"https://mp.weixin.qq.com/s/W7Zt-pjTZaguIyNI0rbN7A\\\"}"}}]},"logprobs":null,"finish_reason":null}]}',
+        'data: [DONE]',
+      ])
+
+      const service = new OpenAIService({enableMCP: true})
+      let result = ''
+      const functionCallList: IMcpToolCall[] = []
+      await service.parseSse(stream.getReader(), {
+        onUpdate: (data) => {
+          result = data.message
+        },
+        onSuccess: (data) => {
+          const { functioncalls = [] } = data
+          functionCallList.push(...functioncalls)
+        },
+      })
+
+      expect(result).toBe('好的，接下来...')
+      expect(functionCallList).toHaveLength(1)
     })
   })
 })

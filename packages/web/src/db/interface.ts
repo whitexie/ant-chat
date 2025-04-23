@@ -45,7 +45,7 @@ export interface IMcpToolCall {
   id: string
   serverName: string
   toolName: string
-  args: Record<string, unknown>
+  args: Record<string, unknown> | string
   executeState: 'await' | 'executing' | 'completed'
   result?: IMcpToolResult
 }

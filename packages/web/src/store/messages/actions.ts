@@ -122,8 +122,11 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
         aiMessage.mcpTool = result.functioncalls
         updateMessageAction({ ...aiMessage, status: 'typing' })
       },
-      onSuccess: () => {
+      onSuccess: (data) => {
         setRequestStatus('success')
+        if(data.functioncalls) {
+          aiMessage.mcpTool = data.functioncalls
+        }
         updateMessageAction({ ...aiMessage, status: 'success' })
         resetAbortFunction()
       },

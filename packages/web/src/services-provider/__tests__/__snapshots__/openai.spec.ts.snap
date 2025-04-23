@@ -1,0 +1,26 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`openAI service > sendChatCompletions > 验证request接受到正确的请求参数 1`] = `
+[MockFunction request] {
+  "calls": [
+    [
+      "https://api.deepseek.com/v1/chat/completions",
+      {
+        "body": "{"model":"test-model","messages":[{"role":"user","content":"test1"}],"stream":true,"temperature":0.5}",
+        "headers": {
+          "Authorization": "Bearer test",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "signal": undefined,
+      },
+    ],
+  ],
+  "results": [
+    {
+      "type": "return",
+      "value": Promise {},
+    },
+  ],
+}
+`;
