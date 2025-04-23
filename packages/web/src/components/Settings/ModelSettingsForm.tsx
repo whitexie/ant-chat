@@ -3,12 +3,10 @@ import type { IModel } from '@/services-provider/interface'
 import type { InputRef, SelectProps } from 'antd'
 import DEFAULT_MODELS_MAPPING from '@/constants/models'
 import { addCustomModel, createCustomModel, getCustomModelsByOwnedBy } from '@/db'
-import { getProviderDefaultApiHost } from '@/services-provider'
-import { useModelConfigStore } from '@/store/modelConfig'
+import { getProviderDefaultApiHost, SERVICE_PROVIDER_MAPPING } from '@/services-provider'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { App, Button, Form, Input, Select, Slider } from 'antd'
 import { Suspense, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import { useShallow } from 'zustand/shallow'
 
 const CommonRules = {
   required: true,
@@ -65,14 +63,8 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
   const apiHost = Form.useWatch('apiHost', form)
   const apiKey = Form.useWatch('apiKey', form)
 
-  const { configMapping } = useModelConfigStore(useShallow((state) => {
-    return {
-      configMapping: state.configMapping,
-    }
-  }))
-
-  const options = Object.entries(configMapping).map(([key, value]) => ({
-    label: value.name,
+  const options = Object.keys(SERVICE_PROVIDER_MAPPING).map(key => ({
+    label: key,
     value: key,
   }))
 
@@ -117,7 +109,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
     setModels([])
     setLoading(true)
 
-    const models = DEFAULT_MODELS_MAPPING[_active]
+    const models = DEFAULT_MODELS_MAPPING[_active as keyof typeof DEFAULT_MODELS_MAPPING] || []
     const customModels = await getCustomModelsByOwnedBy(_active)
     setModels([
       ...customModels,
@@ -171,10 +163,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
       <Form.Item label={providerLabel} name="id">
         <Select
           options={options}
-          onChange={(e) => {
-            console.log('onProviderChange', e)
-            onProviderChange(e)
-          }}
+          onChange={e => onProviderChange(e)}
         />
       </Form.Item>
       <Form.Item label="API Host" name="apiHost" rules={apiHostRules}>

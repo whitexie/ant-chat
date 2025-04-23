@@ -1,18 +1,18 @@
 import DeepSeekService from './deepseek'
-import GeminiService from './google'
+import GoogleService from './google'
 import OpenAIService from './openai'
 
 export const SERVICE_PROVIDER_MAPPING = {
-  Gemini: GeminiService,
+  Google: GoogleService,
   OpenAI: OpenAIService,
   DeepSeek: DeepSeekService,
 }
 
 type ProviderName = keyof typeof SERVICE_PROVIDER_MAPPING
 
-export function getServiceProviderConstructor(provider: ProviderName) {
+export function getServiceProviderConstructor(provider: string) {
   if (provider in SERVICE_PROVIDER_MAPPING)
-    return SERVICE_PROVIDER_MAPPING[provider as keyof typeof SERVICE_PROVIDER_MAPPING]
+    return SERVICE_PROVIDER_MAPPING[provider as ProviderName]
 
   throw new Error(`Provider ${provider} not found`)
 }

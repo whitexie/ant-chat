@@ -1,6 +1,7 @@
 import type { ModelConfig, ModelConfigId } from '@/db/interface'
 import type { ModelSettingsFormInstance } from './ModelSettingsForm'
-import { getActiveModelConfig, useModelConfigStore } from '@/store/modelConfig'
+import { getProviderDefaultApiHost } from '@/services-provider'
+import { createModelConfig, getActiveModelConfig, useModelConfigStore } from '@/store/modelConfig'
 import { Form, Input, Modal } from 'antd'
 import { useRef, useState } from 'react'
 import ModelSettingsForm from './ModelSettingsForm'
@@ -12,7 +13,20 @@ interface SettingsModalProps {
 }
 
 function getConfigById(id: ModelConfigId): ModelConfig {
-  return useModelConfigStore.getState().configMapping[id]
+  const { configMapping } = useModelConfigStore.getState()
+  if (id in configMapping) {
+    return configMapping[id]
+  }
+  let apiHost = ''
+
+  try {
+    apiHost = getProviderDefaultApiHost(id) || ''
+  }
+  catch {
+    console.warn('not found provider: ', id)
+  }
+
+  return createModelConfig({ id, apiHost })
 }
 
 export default function SettingsModal({ open, onClose, onSave }: SettingsModalProps) {

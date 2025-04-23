@@ -11,9 +11,9 @@ interface Action {
   reset: () => void
 }
 
-export function createModelConfig(options: Partial<ModelConfig>): ModelConfig {
+export function createModelConfig(options?: Partial<ModelConfig>): ModelConfig {
   return {
-    id: uuid() as ModelConfigId,
+    id: uuid(),
     name: '',
     apiHost: '',
     apiKey: '',
@@ -23,29 +23,17 @@ export function createModelConfig(options: Partial<ModelConfig>): ModelConfig {
   }
 }
 
-interface ConfigMapping {
-  Gemini: ModelConfig
-  DeepSeek: ModelConfig
-  OpenAI: ModelConfig
-}
-
-type ModelConfigMappingKey = keyof ConfigMapping
-
 interface ModelConfigInitialState {
   active: ModelConfigId
-  configMapping: ConfigMapping
+  configMapping: Record<string, ModelConfig>
   systemMessage: string
   openSettingsModal: boolean
 }
 
 const initialState: ModelConfigInitialState = {
-  active: 'Gemini' as ModelConfigId,
+  active: 'Google' as ModelConfigId,
   openSettingsModal: false,
-  configMapping: {
-    Gemini: createModelConfig({ id: 'Gemini' as ModelConfigId, name: 'Gemini', apiHost: 'https://generativelanguage.googleapis.com/v1beta' }),
-    DeepSeek: createModelConfig({ id: 'DeepSeek' as ModelConfigId, name: 'DeepSeek', apiHost: 'https://api.deepseek.com' }),
-    OpenAI: createModelConfig({ id: 'OpenAI' as ModelConfigId, name: 'OpenAI', apiHost: 'https://api.openai.com' }),
-  },
+  configMapping: {},
   systemMessage: DEFAULT_SYSTEM_MESSAGE,
 }
 
@@ -65,11 +53,23 @@ export const useModelConfigStore = create<ModelConfigStore>()(
       {
         name: 'model-config',
         storage: createJSONStorage(() => storage),
-        version: 1,
+        version: 3,
         migrate: (state, version) => {
           if (version === 0) {
             const newState = structuredClone(initialState)
-            Object.assign(newState.configMapping.Gemini, state as ModelConfig)
+            Object.assign(newState.configMapping.Google, state as ModelConfig)
+
+            return newState
+          }
+          else if (version === 1 || version === 2) {
+            const newState = structuredClone(state as ModelConfigInitialState)
+            if (newState.active === 'Gemini') {
+              newState.active = 'Google'
+            }
+            if (newState.configMapping.Gemini) {
+              newState.configMapping.Google = newState.configMapping.Gemini
+              delete newState.configMapping.Gemini
+            }
 
             return newState
           }
@@ -106,11 +106,14 @@ export function setSystemPromptAction(prompt: string) {
 
 export function setModelAction(model: string) {
   useModelConfigStore.setState(state => produce(state, (draft) => {
-    draft.configMapping[draft.active].model = model
+    const temp = draft.configMapping[draft.active]
+    if (temp) {
+      temp.model = model
+    }
   }))
 }
 
-export function setActiveAction(active: ModelConfigMappingKey) {
+export function setActiveAction(active: string) {
   useModelConfigStore.setState(state => produce(state, (draft) => {
     if (!draft.configMapping[active]) {
       throw new Error(`Model config ${active} not found`)

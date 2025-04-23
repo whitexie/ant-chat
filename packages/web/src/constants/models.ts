@@ -12,10 +12,11 @@ const OpenAI = [
 
 const DeepSeek = [
   { id: 'deepseek-coder', createAt: 1725649008000 },
+  { id: 'deepseek-chat', createAt: 1725649008000 },
   { id: 'deepseek-reasoner', createAt: 1725649008000 },
 ]
 
-const Gemini = [
+const Google = [
   { id: 'gemini-1.5-pro', createAt: 1741088680842 },
   { id: 'gemini-1.5-flash', createAt: 1741088680842 },
   { id: 'gemini-2.0-flash-exp', createAt: 1741088680842 },
@@ -23,10 +24,12 @@ const Gemini = [
   { id: 'gemini-2.0-flash-lite', createAt: 1741088680842 },
   { id: 'gemini-2.0-pro-exp', createAt: 1741088680842 },
   { id: 'gemini-2.0-flash-thinking-exp', createAt: 1741088680842 },
+  { id: 'gemini-2.5-pro-exp-03-25', createAt: 1741088680842 },
+  { id: 'gemini-2.5-flash-preview-04-17', createAt: 1741088680842 },
 ]
 
 export default {
   OpenAI,
   DeepSeek,
-  Gemini,
+  Google,
 }
