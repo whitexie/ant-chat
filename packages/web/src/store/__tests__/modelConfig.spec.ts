@@ -16,7 +16,7 @@ describe('modelConfig', () => {
     act(() => {
       setModelAction('gpt-4o')
     })
-    expect(result.current.configMapping.Gemini.model).toBe('gpt-4o')
+    expect(result.current.configMapping.Google.model).toBe('gpt-4o')
   })
 
   it('setConfig', () => {

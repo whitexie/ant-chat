@@ -25,3 +25,7 @@ export function getProviderDefaultApiHost(provider: string) {
 
   throw new Error(`Provider ${provider} not found`)
 }
+
+export function validatorProvider(provider: string) {
+  return provider in SERVICE_PROVIDER_MAPPING
+}

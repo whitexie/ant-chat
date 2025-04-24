@@ -1,5 +1,6 @@
 import type { ModelConfig, ModelConfigId } from '@/db/interface'
 import { DEFAULT_SYSTEM_MESSAGE } from '@/constants'
+import { validatorProvider } from '@/services-provider'
 import { uuid } from '@/utils'
 import { produce } from 'immer'
 import { pick } from 'lodash-es'
@@ -33,7 +34,16 @@ interface ModelConfigInitialState {
 const initialState: ModelConfigInitialState = {
   active: 'Google' as ModelConfigId,
   openSettingsModal: false,
-  configMapping: {},
+  configMapping: {
+    Google: {
+      id: 'Google',
+      name: 'Google',
+      apiHost: '',
+      apiKey: '',
+      model: '',
+      temperature: 0.7,
+    },
+  },
   systemMessage: DEFAULT_SYSTEM_MESSAGE,
 }
 
@@ -86,7 +96,7 @@ export const useModelConfigStore = create<ModelConfigStore>()(
 
 export function setConfigAction(id: string, config: ModelConfig & { systemMessage?: string }) {
   useModelConfigStore.setState(state => produce(state, (draft) => {
-    if (!draft.configMapping[id]) {
+    if (!validatorProvider(id)) {
       throw new Error(`id not found. ${id}`)
     }
 
