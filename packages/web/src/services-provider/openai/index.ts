@@ -121,6 +121,7 @@ export default class OpenAIService extends BaseService {
           parameters: tool.inputSchema,
         },
       }))
+      requestBody.tool_choice = 'auto'
     }
 
     return requestBody

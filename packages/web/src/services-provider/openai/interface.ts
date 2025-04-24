@@ -63,6 +63,12 @@ export interface OpenAIRequestBody {
   stream: boolean
   temperature?: number
   tools?: OpenAITool[]
+  tool_choice?: 'none' | 'auto' | {
+    type: 'function'
+    function: {
+      name: string
+    }
+  }
 }
 
 export interface OpenAIResponseChoice {
