@@ -1,7 +1,11 @@
 import { fileURLToPath } from 'node:url'
+import svgr from 'vite-plugin-svgr'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  plugins: [
+    svgr({ svgrOptions: { icon: true } }),
+  ],
   test: {
     coverage: {
       provider: 'v8',
@@ -20,9 +24,7 @@ export default defineConfig({
       '@ant-design/x': '@ant-design/x/es',
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
-
     environment: 'jsdom',
-
     setupFiles: [
       'fake-indexeddb/auto',
     ],

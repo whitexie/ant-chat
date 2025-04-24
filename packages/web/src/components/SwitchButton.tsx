@@ -4,14 +4,16 @@ interface SwitchButtonProps {
   checked: boolean
   onChange: (checked: boolean) => void
   icon: React.ReactNode
+  dataTestId?: string
 }
 
-function SwitchButton({ checked, onChange, icon }: SwitchButtonProps) {
+function SwitchButton({ checked, onChange, icon, dataTestId }: SwitchButtonProps) {
   const { token } = useToken()
 
   return (
     <div
       role="switchButton"
+      data-testid={dataTestId}
       className="ant-btn antd-css-var w-8 h-8 flex justify-center items-center border-1 border-solid cursor-pointer"
       style={{
         borderRadius: token.borderRadius,

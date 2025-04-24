@@ -36,7 +36,7 @@ describe('sender', () => {
       })
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
-      expect(onSubmit).toHaveBeenCalledWith('123\n123\n123', [], [], { deepThinking: false, onlineSearch: false })
+      expect(onSubmit).toHaveBeenCalledWith('123\n123\n123', [], [], { enableMCP: false, onlineSearch: false })
     })
 
     it('文本为空时，按回车不触发onSubmit', async () => {
@@ -114,9 +114,7 @@ describe('sender', () => {
   describe('发送按钮', () => {
     it('upload files', async () => {
       window.URL.createObjectURL = vi.fn(() => 'mocked-url')
-      const onSubmit = vi.fn(() => {
-        console.log('vi.fn onSubmit')
-      })
+      const onSubmit = vi.fn()
 
       render(<Sender onSubmit={onSubmit} />)
 
@@ -140,7 +138,7 @@ describe('sender', () => {
       expect(screen.getByText('example')).toBeInTheDocument()
 
       await act(async () => {
-        fireEvent.change(screen.getByTestId('textarea'), { target: { value: '123\n123\n123' } })
+        fireEvent.change(screen.getByTestId('textarea'), { target: { value: '123' } })
       })
 
       await act(async () => {
@@ -153,10 +151,10 @@ describe('sender', () => {
       })
 
       expect(onSubmit).toHaveBeenCalledWith(
-        '123\n123\n123',
+        '123',
         [expect.anything()],
         [expect.anything()],
-        { deepThinking: false, onlineSearch: false },
+        { enableMCP: false, onlineSearch: false },
       )
     })
 
@@ -166,7 +164,7 @@ describe('sender', () => {
 
       vi.mocked(checkModelConfig).mockReturnValue({ ok: true })
 
-      const onlineSearchBtn = screen.getByRole('switchButton')
+      const onlineSearchBtn = screen.getByTestId('onlineSearch')
       const input = screen.getByTestId('textarea')
       const sendBtn = screen.getByTestId('sendBtn')
 
@@ -190,7 +188,7 @@ describe('sender', () => {
         '123',
         [],
         [],
-        { deepThinking: false, onlineSearch: true },
+        { enableMCP: false, onlineSearch: true },
       )
     })
   })

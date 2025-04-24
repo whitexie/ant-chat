@@ -1,11 +1,13 @@
 import type { IAttachment, IImage } from '@/db/interface'
 import type { ChatFeatures } from '@/services-provider/interface'
 import type { UploadFile } from 'antd'
+import MCPIcon from '@/assets/icons/mcp.svg?react'
+import StopSvg from '@/assets/icons/stop.svg?react'
 import { useFeatures, useFeaturesState } from '@/store/features'
 import { useMessagesStore } from '@/store/messages'
 import { checkModelConfig, setOpenSettingsModalAction } from '@/store/modelConfig'
 import { fileToBase64 } from '@/utils'
-import {
+import Icon, {
   ArrowUpOutlined,
   AudioOutlined,
   CloudUploadOutlined,
@@ -18,8 +20,6 @@ import { App, Badge, Button, Tooltip } from 'antd'
 import { useState } from 'react'
 import SwitchButton from '../SwitchButton'
 import styles from './style.module.scss'
-import MCPIcon from '@/assets/icons/mcp.svg?react'
-import Icon from '@ant-design/icons';
 
 interface SenderProps {
   loading?: boolean
@@ -165,6 +165,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
           <Tooltip title="联网搜索(目前仅Gemini支持)">
             <div>
               <SwitchButton
+                dataTestId="onlineSearch"
                 checked={features.onlineSearch}
                 onChange={setOnlieSearch}
                 icon={<GlobalOutlined />}
@@ -212,59 +213,6 @@ function Sender({ loading = false, ...props }: SenderProps) {
         </div>
       </div>
     </div>
-  )
-}
-
-function StopSvg({ className }: { className: string }) {
-  return (
-    <svg
-      role="cancel"
-      className={className}
-      color="currentColor"
-      viewBox="0 0 1000 1000"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
-    >
-      <title>取消</title>
-      <rect
-        fill="currentColor"
-        height="250"
-        rx="24"
-        ry="24"
-        width="250"
-        x="375"
-        y="375"
-      >
-      </rect>
-      <circle
-        cx="500"
-        cy="500"
-        fill="none"
-        r="450"
-        stroke="currentColor"
-        strokeWidth="100"
-        opacity="0.45"
-      >
-      </circle>
-      <circle
-        cx="500"
-        cy="500"
-        fill="none"
-        r="450"
-        stroke="currentColor"
-        strokeWidth="100"
-        strokeDasharray="600 9999999"
-      >
-        <animateTransform
-          attributeName="transform"
-          dur="1s"
-          from="0 500 500"
-          repeatCount="indefinite"
-          to="360 500 500"
-          type="rotate"
-        />
-      </circle>
-    </svg>
   )
 }
 
