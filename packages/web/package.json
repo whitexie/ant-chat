@@ -52,6 +52,7 @@
     "@types/wicg-file-system-access": "^2023.10.5",
     "@vitejs/plugin-react": "^4.3.4",
     "antd": "^5.22.7",
+    "babel-plugin-react-compiler": "19.1.0-rc.1",
     "code-inspector-plugin": "^0.20.1",
     "fake-indexeddb": "^6.0.0",
     "globals": "^15.14.0",

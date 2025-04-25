@@ -12,7 +12,13 @@ import svgr from 'vite-plugin-svgr'
 import pkg from './package.json'
 
 const plugins: PluginOption[] = [
-  react(),
+  react({
+    babel: {
+      plugins: [
+        ['babel-plugin-react-compiler', {}],
+      ],
+    },
+  }),
   /**
    * @see https://github.com/cszhjh/vite-plugin-magic-preloader?tab=readme-ov-file
    */
