@@ -1,4 +1,4 @@
-import type { IAttachment, IMcpToolCall, IMessage } from '@/db/interface'
+import type { IAttachment, IMcpToolCall, IMessage, IMessageContent, ITextContent } from '@/db/interface'
 import type { SSEOutput, XReadableStream } from '@/utils/stream'
 import type { McpTool } from '@ant-chat/shared'
 import type {
@@ -30,6 +30,8 @@ const DEFAULT_OPTIONS = {
 }
 
 class GeminiService extends BaseService {
+  private generativeImageModels: string[] = ['gemini-2.0-flash-exp-image-generation']
+
   constructor(options?: Partial<ServiceConstructorOptions>) {
     const _options = Object.assign({ ...DEFAULT_OPTIONS }, options)
     super(_options)
@@ -102,11 +104,29 @@ class GeminiService extends BaseService {
       }
 
       else if (msg.role === 'assistant') {
-        const content: ModelContent = {
-          role: 'model',
-          parts: [{ text: msg.content as string }],
+        if (typeof msg.content === 'string') {
+          const content: ModelContent = {
+            role: 'model',
+            parts: [{ text: msg.content }],
+          }
+          result.contents.push(content)
         }
-        result.contents.push(content)
+        else {
+          result.contents.push({
+            role: 'model',
+            parts: msg.content.map((item) => {
+              if (item.type === 'text') {
+                return { text: item.text }
+              }
+              return {
+                inlineData: {
+                  mimeType: item.mimeType,
+                  data: item.data,
+                },
+              }
+            }),
+          })
+        }
 
         // 处理mcpTool的消息转换
         if (msg.mcpTool) {
@@ -188,22 +208,42 @@ class GeminiService extends BaseService {
       body.tools.push(functionDeclarations)
     }
 
+    if (this.generativeImageModels.includes(this.model)) {
+      body.generationConfig.responseModalities = ['TEXT', 'IMAGE']
+
+      // 图像生成模型不支持`system_instruction`参数
+      delete body.system_instruction
+    }
+
     return body
   }
 
   extractContent(output: SSEOutput) {
-    const json = JSON.parse(output.data) as GeminiResponse
-    let message = ''
+    let json: null | GeminiResponse = null
+    try {
+      json = JSON.parse(output.data) as GeminiResponse
+    }
+    catch {
+      console.warn('JSON 解析失败：', output.data)
+    }
+
+    const message: IMessageContent = [
+    ]
     const functioncalls: IMcpToolCall[] = []
 
-    json.candidates[0].content.parts.forEach((part) => {
+    const items = json?.candidates[0].content.parts || []
+
+    items.forEach((part, index) => {
       if ('text' in part) {
-        message += part.text
+        if (!message[index]) {
+          message[index] = { type: 'text', text: '' }
+        }
+        (message[index] as ITextContent).text += part.text
       }
       else if ('functionCall' in part) {
         const { name, args } = part.functionCall
         const [serverName, toolName] = name.split(this.DEFAULT_MCP_TOOL_NAME_SEPARATOR)
-        console.log('transform function call', name, serverName, toolName)
+
         functioncalls.push(
           createMcpToolCall({
             serverName,
@@ -212,9 +252,17 @@ class GeminiService extends BaseService {
           }),
         )
       }
+      else if ('inlineData' in part) {
+        const { mimeType, data } = part.inlineData
+        message.push({ type: 'image', mimeType, data })
+      }
     })
 
-    return { message, reasoningContent: '', functioncalls: functioncalls.length > 0 ? functioncalls : undefined }
+    return {
+      message,
+      reasoningContent: '',
+      functioncalls: functioncalls.length > 0 ? functioncalls : undefined,
+    }
   }
 }
 

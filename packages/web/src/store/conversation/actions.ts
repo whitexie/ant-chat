@@ -16,17 +16,18 @@ import {
   setConversationsModelConfig,
   setConversationsSystemPrompt,
 } from '@/db'
+import { createSystemMessage } from '@/db/dataFactory'
 import { getServiceProviderConstructor } from '@/services-provider'
 import { produce } from 'immer'
 import { isEqual } from 'lodash-es'
 import { setActiveConversationsId, updateMessageAction, useMessagesStore } from '../messages'
 import { getActiveModelConfig, useModelConfigStore } from '../modelConfig'
-import { createMessage, useConversationsStore } from './conversationsStore'
+import { useConversationsStore } from './conversationsStore'
 
 export async function addConversationsAction(conversation: IConversations) {
   await addConversations(conversation)
   const { systemMessage } = getActiveModelConfig()
-  await addMessage(createMessage({ convId: conversation.id, role: Role.SYSTEM, content: systemMessage }))
+  await addMessage(createSystemMessage({ convId: conversation.id, role: Role.SYSTEM, content: systemMessage }))
 
   useConversationsStore.setState(state => produce(state, (draft) => {
     draft.conversations.splice(0, 0, conversation)
@@ -128,8 +129,19 @@ export async function initConversationsTitle() {
   const reader = stream.getReader()
   service.parseSse(reader, {
     onSuccess: (result) => {
-      const title = result.message
-      renameConversationsAction(messages[0].convId, title)
+      let title = ''
+      if (typeof result.message === 'string') {
+        title = result.message
+      }
+      else {
+        title = result.message.filter(item => item.type === 'text').reduce((a, b) => (a + b.text), '')
+      }
+
+      if (title) {
+        renameConversationsAction(messages[0].convId, title)
+        return
+      }
+      console.error('标题初始化失败. 响应数据:', JSON.stringify(result))
     },
   })
 }

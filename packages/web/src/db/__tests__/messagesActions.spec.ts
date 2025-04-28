@@ -1,8 +1,8 @@
 import type { ConversationsId, IMessage, MessageId } from '../interface'
 import { Role } from '@/constants'
-import { createConversations, createMessage } from '@/store/conversation'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { addConversations } from '../conversationsActions'
+import { createConversations, createUserMessage } from '../dataFactory'
 import db from '../db'
 import { addMessage, deleteMessage, getMessagesByConvIdWithPagination, messageIsExists } from '../messagesActions'
 
@@ -14,7 +14,7 @@ describe('消息操作', () => {
   it('添加消息', async () => {
     const conversation = createConversations()
     await addConversations(conversation)
-    const message = createMessage({ convId: conversation.id, content: 'asdfsd', role: Role.USER })
+    const message = createUserMessage({ convId: conversation.id, content: 'asdfsd', role: Role.USER })
 
     await addMessage(message)
 
@@ -22,7 +22,7 @@ describe('消息操作', () => {
   })
 
   it('添加消息到不存在的会话', async () => {
-    const message = createMessage({ convId: '' as ConversationsId })
+    const message = createUserMessage({ convId: '' as ConversationsId })
 
     await expect(addMessage(message)).rejects.toThrowError('conversation not found')
   })
@@ -30,7 +30,7 @@ describe('消息操作', () => {
   it('删除消息', async () => {
     const conversation = createConversations()
     await addConversations(conversation)
-    const message = createMessage({ convId: conversation.id })
+    const message = createUserMessage({ convId: conversation.id })
     await addMessage(message)
 
     expect(messageIsExists(message.id)).toBeTruthy()
@@ -49,7 +49,7 @@ describe('消息操作', () => {
       const messages: IMessage[] = []
 
       for (let i = 0; i < length; i++) {
-        const message = createMessage({ id: `${i}` as MessageId, convId: conversations.id, content: `message-${i}` })
+        const message = createUserMessage({ id: `${i}` as MessageId, convId: conversations.id, content: `message-${i}` })
         await addMessage(message)
         messages.push(message)
       }

@@ -1,4 +1,4 @@
-import type { ConversationsId, IMessage, MessageId } from './interface'
+import type { ConversationsId, IMessage, IMessageSystem, MessageId } from './interface'
 import { Role } from '@/constants'
 import { uuid } from '@/utils'
 import { updateConversationsUpdateAt } from './conversationsActions'
@@ -35,7 +35,7 @@ export async function updateMessage(message: IMessage) {
   return await db.transaction('readwrite', db.conversations, db.messages, async () => {
     await Promise.all([
       updateConversationsUpdateAt(message.convId, Date.now()),
-      db.messages.put(message),
+      db.messages.put(structuredClone(message)),
     ])
   })
 }
@@ -61,12 +61,12 @@ export async function getMessagesByConvIdWithPagination(id: ConversationsId, pag
   return { messages, total }
 }
 
-export async function getSystemMessageByConvId(id: ConversationsId): Promise<IMessage | null> {
+export async function getSystemMessageByConvId(id: ConversationsId): Promise<IMessageSystem | null> {
   const messages = await db.messages
     .orderBy('createAt')
     .filter(x => x.convId === id && x.role === Role.SYSTEM)
     .toArray()
-  return messages.length ? messages[0] : null
+  return messages.length ? messages[0] as IMessageSystem : null
 }
 
 export async function BatchDeleteMessage(ids: MessageId[]) {

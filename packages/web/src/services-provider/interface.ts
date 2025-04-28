@@ -1,4 +1,4 @@
-import type { IMcpToolCall } from '@/db/interface'
+import type { IMcpToolCall, IMessageContent } from '@/db/interface'
 import type { ChatFeatures as _ChatFeatures } from '@/store/features'
 
 export type ChatFeatures = _ChatFeatures
@@ -12,8 +12,8 @@ export interface ServiceConstructorOptions {
 }
 
 export interface ChatCompletionsCallbacks {
-  onUpdate?: (message: { message: string, reasoningContent: string, functioncalls?: IMcpToolCall[] }) => void
-  onSuccess?: (message: { message: string, reasoningContent: string, functioncalls?: IMcpToolCall[] }) => void
+  onUpdate?: (message: { message: IMessageContent, reasoningContent: string, functioncalls?: IMcpToolCall[] }) => void
+  onSuccess?: (message: { message: IMessageContent, reasoningContent: string, functioncalls?: IMcpToolCall[] }) => void
   onError?: (message: Error) => void
 }
 

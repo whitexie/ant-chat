@@ -12,7 +12,10 @@ import type {
   OpenAIRequestBody,
   OpenAIResponse,
   TextContent,
+  ToolCallMessage,
+  ToolResultMessage,
 } from './interface'
+import { Role } from '@/constants'
 import { createMcpToolCall } from '@/mcp'
 import { request, Stream } from '@/utils'
 import BaseService from '../base'
@@ -37,31 +40,10 @@ export default class OpenAIService extends BaseService {
   }
 
   transformMessages(_messages: IMessage[]): MessageItem[] {
-    const isHasFile = _messages.some(message => message.images.length > 0 || message.attachments.length > 0)
+    const isHasFile = _messages.filter(msg => msg.role === Role.USER).some(message => message.images.length > 0 || message.attachments.length > 0)
     const messages: MessageItem[] = []
     _messages.forEach((msg) => {
-      messages.push(transformMessageItem(msg, isHasFile))
-
-      if (msg.mcpTool) {
-        messages.push({
-          role: 'assistant',
-          tool_calls: msg.mcpTool.map(tool => ({
-            function: {
-              name: tool.serverName + tool.toolName,
-              arguments: typeof tool.args === 'object' ? JSON.stringify(tool.args) : tool.args,
-            },
-            id: tool.id,
-            type: 'function',
-          })),
-        })
-        msg.mcpTool.filter(s => s.result).forEach((tool) => {
-          messages.push({
-            role: 'tool',
-            tool_call_id: tool.id,
-            content: tool.result?.data || '',
-          })
-        })
-      }
+      messages.push(...transformMessageItem(msg, isHasFile))
     })
 
     return messages
@@ -195,20 +177,67 @@ function safeParseJson(str: string) {
   }
 }
 
-function transformMessageItem(message: IMessage, isHasFile: boolean): MessageItem {
-  if (!isHasFile) {
-    return { role: message.role, content: message.content }
+function transformMessageItem(message: IMessage, hasMedia: boolean): MessageItem[] {
+  if (message.role === Role.SYSTEM) {
+    return [{ role: Role.SYSTEM, content: message.content }]
   }
 
-  const content: (TextContent | ImageContent)[] = [
-    { type: 'text', text: message.content },
-  ]
+  else if (message.role === Role.USER) {
+    if (!hasMedia) {
+      return [{ role: message.role, content: message.content }]
+    }
 
-  const imageMessages: ImageContent[] = message.images.map((item) => {
-    return { type: 'image_url', image_url: { url: item.data } }
-  })
+    const content: (TextContent | ImageContent)[] = [
+      { type: 'text', text: message.content },
+    ]
 
-  content.push(...imageMessages)
+    const imageMessages: ImageContent[] = message.images.map((item) => {
+      return { type: 'image_url', image_url: { url: item.data } }
+    })
 
-  return { role: message.role, content }
+    content.push(...imageMessages)
+
+    return [{ role: message.role, content }]
+  }
+  else {
+    const messages: MessageItem[] = []
+    if (typeof message.content === 'string') {
+      return [{ role: message.role, content: message.content }]
+    }
+
+    messages.push({
+      role: Role.AI,
+      content: message.content.map((item) => {
+        if (item.type === 'image') {
+          return { type: 'image_url', image_url: { url: `data:${item.mimeType};base64,${item.data}` } }
+        }
+        else {
+          return { type: 'text', text: item.text }
+        }
+      }),
+    })
+
+    if (message.mcpTool) {
+      messages.push({
+        role: Role.AI,
+        tool_calls: message.mcpTool.map(tool => ({
+          function: {
+            name: tool.serverName + tool.toolName,
+            arguments: typeof tool.args === 'object' ? JSON.stringify(tool.args) : tool.args,
+          },
+          id: tool.id,
+          type: 'function',
+        })),
+      } as ToolCallMessage)
+      message.mcpTool.filter(s => s.result).forEach((tool) => {
+        messages.push({
+          role: 'tool',
+          tool_call_id: tool.id,
+          content: tool.result?.data || '',
+        } as ToolResultMessage)
+      })
+    }
+
+    return messages
+  }
 }

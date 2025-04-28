@@ -1,4 +1,5 @@
-import type { ConversationsId, IMessage, MessageId, ModelConfig } from '@/db/interface'
+import type { ConversationsId, IMessage, IMessageAI, MessageId, ModelConfig } from '@/db/interface'
+import type { BubbleContent } from '@/types/global'
 import type { BubbleProps } from '@ant-design/x'
 import type { AvatarProps } from 'antd'
 import type { ImperativeHandleRef } from '../InfiniteScroll'
@@ -9,13 +10,14 @@ import { clipboardWriteText } from '@/utils'
 import { ArrowDownOutlined, RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
 import { App, Button } from 'antd'
+import { pick } from 'lodash-es'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
 import BubbleFooter from './BubbleFooter'
+
 import { BubbleHeader } from './BubbleHeader'
 import { McpToolCallPanel } from './McpToolCallPanel'
-
 import MessageContent from './MessageContent'
 import { getProviderLogo } from './providerLogo'
 
@@ -40,7 +42,7 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
       typing: msg.status === 'typing' ? { step: 1, interval: 50 } : false,
     }
 
-    if (msg.mcpTool) {
+    if ((msg.role === Role.AI) && msg.mcpTool) {
       commonProps.styles = {
         content: {
           width: 'calc(100% - 44px)',
@@ -52,40 +54,65 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
       <Bubble
         key={msg.id}
         {...commonProps}
-        messageRender={content => (
-          <>
-            <MessageContent
-              images={msg.images}
-              attachments={msg.attachments}
-              content={content}
-              reasoningContent={msg.reasoningContent}
-              status={msg.status}
-            />
-            {
-              msg.mcpTool && (
-                <div className="flex flex-col gap-4 mt-3">
-                  {
-                    msg.mcpTool?.map(tool => (
-                      <McpToolCallPanel
-                        key={tool.id}
-                        item={tool}
-                        onExecute={async (item) => {
-                          const { isAllCompleted } = await executeMcpToolAction(msg.id, item)
-
-                          if (isAllCompleted) {
-                            onExecuteAllCompleted?.(msg.id)
-                          }
-                        }}
-                      />
-                    ))
-                  }
-                </div>
-              )
+        messageRender={(content) => {
+          if (msg.role !== Role.AI) {
+            const pickList = ['content', 'status']
+            if (msg.role === Role.USER) {
+              pickList.push('images', 'attachments')
             }
-          </>
-        )}
-        content={msg.content}
-        header={<BubbleHeader time={msg.createAt} modelInfo={msg.modelInfo} />}
+            const messageContentProps: Partial<BubbleContent> = pick(msg, pickList)
+            // console.log('messageContentProps => ', JSON.stringify(messageContentProps))
+
+            return <MessageContent {...messageContentProps} />
+          }
+          else {
+            return (
+              <>
+                <MessageContent
+                  content={content}
+                  reasoningContent={msg.reasoningContent}
+                  status={msg.status}
+                />
+                {
+                  msg.role === Role.AI && msg.mcpTool && (
+                    <div className="flex flex-col gap-4 mt-3">
+                      {
+                        msg.mcpTool?.map(tool => (
+                          <McpToolCallPanel
+                            key={tool.id}
+                            item={tool}
+                            onExecute={async (item) => {
+                              const { isAllCompleted } = await executeMcpToolAction(msg.id, item)
+
+                              if (isAllCompleted) {
+                                onExecuteAllCompleted?.(msg.id)
+                              }
+                            }}
+                          />
+                        ))
+                      }
+                    </div>
+                  )
+                }
+              </>
+            )
+          }
+        }}
+        content={
+
+          typeof msg.content === 'string'
+            ? msg.content
+            : msg.content.reduce((a, b) => {
+                if (b.type === 'image') {
+                  return `${a}\n![](data:${b.mimeType};base64,${b.data})\n`
+                }
+                else {
+                  return `${a}\n${b.text}`
+                }
+              }, '')
+
+        }
+        header={<BubbleHeader time={msg.createAt} modelInfo={msg.role === Role.AI ? msg.modelInfo : undefined} />}
         footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
       />,
     )
@@ -180,22 +207,24 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
   )
 }
 
-function getRoleAvatar({ role, modelInfo }: IMessage): AvatarProps {
+function getRoleAvatar({ role, ...rest }: IMessage): AvatarProps {
+  const defaultConfig = { icon: <RobotFilled />, className: 'bg-[#69b1ff]' }
   if (role === Role.USER) {
     return { icon: <UserOutlined />, className: 'bg-[#87d068]' }
   }
   else if (role === Role.SYSTEM) {
     return { icon: <SmileFilled />, className: 'bg-[#DE732D]' }
   }
-  else {
+  else if (role === Role.AI) {
     /** Role.AI */
-    const defaultConfig = { icon: <RobotFilled />, className: 'bg-[#69b1ff]' }
+
+    const { modelInfo } = rest as IMessageAI
     if (!modelInfo) {
       return defaultConfig
     }
 
     const provider = modelInfo?.provider.toLowerCase()
-    // console.log('provider =>', provider)
+
     const ProviderLogo = getProviderLogo(provider || '')
     if (ProviderLogo) {
       return { icon: <ProviderLogo />, className: 'bg-white dark:bg-black border-solid border-black/10 dark:border-dark' }
@@ -203,6 +232,8 @@ function getRoleAvatar({ role, modelInfo }: IMessage): AvatarProps {
 
     return defaultConfig
   }
+
+  return defaultConfig
 }
 
 export default BubbleList

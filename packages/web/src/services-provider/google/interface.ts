@@ -24,7 +24,14 @@ export interface FunctionCallResponsePart {
 
 export type Part = TextPart | IFilePart | FunctionCallResponsePart
 
-export type ModelPart = TextPart | RequestFunctionCallPart
+export interface ImageModelPart {
+  inlineData: {
+    mimeType: string
+    data: string
+  }
+}
+
+export type ModelPart = TextPart | RequestFunctionCallPart | ImageModelPart
 
 export interface UserContent {
   role: 'user'
@@ -57,6 +64,7 @@ export interface GeminiRequestBody {
   }
   generationConfig?: {
     temperature?: number
+    responseModalities?: ('TEXT' | 'IMAGE')[]
   }
   tools?: (GoogleSearchTool | FunctionDeclaration)[]
   toolConfig?: {
@@ -70,7 +78,7 @@ export interface GeminiResponse {
   candidates: [
     {
       content: {
-        parts: (TextPart | FunctionCallPart)[]
+        parts: (TextPart | FunctionCallPart | ImagePart)[]
       }
     },
   ]
@@ -83,5 +91,12 @@ export interface FunctionCallPart {
   functionCall: {
     name: string
     args: Record<string, unknown> | string
+  }
+}
+
+export interface ImagePart {
+  inlineData: {
+    mimeType: string
+    data: string
   }
 }

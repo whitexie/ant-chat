@@ -70,6 +70,7 @@ export default function RenderMarkdown({ content }: RenderMarkdownProps) {
             )
           },
         }}
+        urlTransform={url => url}
       >
         {content}
       </ReactMarkdown>

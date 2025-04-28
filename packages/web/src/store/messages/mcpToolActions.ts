@@ -1,11 +1,11 @@
-import type { IMcpToolCall, MessageId } from '@/db/interface'
+import type { IMcpToolCall, IMessageAI, MessageId } from '@/db/interface'
 import type { McpToolCallResponse } from '@ant-chat/shared'
 import { getMessageById } from '@/db'
 import { executeMcpToolCall } from '@/mcp/api'
 import { setRequestStatus, updateMessageAction } from './actions'
 
 export async function setMcpToolCallexecuteState(id: MessageId, toolId: string, state: IMcpToolCall['executeState']) {
-  const message = await getMessageById(id)
+  const message = await getMessageById(id) as IMessageAI
   if (!message) {
     throw new Error('message not found')
   }
@@ -24,7 +24,7 @@ export async function setMcpToolCallexecuteState(id: MessageId, toolId: string, 
 }
 
 export async function executeMcpToolAction(messageId: MessageId, tool: IMcpToolCall) {
-  let message = await getMessageById(messageId)
+  let message = (await getMessageById(messageId)) as IMessageAI
 
   await setMcpToolCallexecuteState(messageId, tool.id, 'executing')
   setRequestStatus('loading')
@@ -46,7 +46,7 @@ export async function executeMcpToolAction(messageId: MessageId, tool: IMcpToolC
   setRequestStatus('success')
 
   // 检查当前message.mcpTool是否都执行完了
-  message = await getMessageById(messageId)
+  message = await getMessageById(messageId) as IMessageAI
   const isAllCompleted = message.mcpTool?.every(item => item.executeState === 'completed')
 
   return { isAllCompleted }

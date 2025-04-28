@@ -1,4 +1,4 @@
-import type { IMcpToolCall, IMessage } from '@/db/interface'
+import type { IMcpToolCall, IMessage, IMessageContent } from '@/db/interface'
 import type { SSEOutput, XReadableStream } from '@/utils/stream'
 import type { McpTool } from '@ant-chat/shared'
 import type {
@@ -67,7 +67,7 @@ export default abstract class BaseService {
   }
 
   async parseSse(reader: ReadableStreamDefaultReader<SSEOutput>, callbacks?: ChatCompletionsCallbacks) {
-    let message = ''
+    let message: IMessageContent = ''
     let reasoningContent = ''
     const functioncalls: IMcpToolCall[] = []
 
@@ -81,7 +81,17 @@ export default abstract class BaseService {
 
         if (value) {
           const result = this.extractContent(value)
-          message += result.message
+
+          if (typeof result.message === 'string') {
+            message += result.message
+          }
+          else {
+            if (!Array.isArray(message)) {
+              message = message.length ? [{ type: 'text', text: message }] : []
+            }
+
+            message.push(...result.message)
+          }
           reasoningContent += result.reasoningContent
           if (result.functioncalls) {
             functioncalls.push(...result.functioncalls)
@@ -92,6 +102,7 @@ export default abstract class BaseService {
     }
     catch (e) {
       const error = e as Error
+      console.error(e)
       callbacks?.onError?.(error)
     }
   }
@@ -100,7 +111,7 @@ export default abstract class BaseService {
     return await getAllAvailableToolsList()
   }
 
-  abstract extractContent(output: unknown): { message: string, reasoningContent: string, functioncalls?: IMcpToolCall[] }
+  abstract extractContent(output: unknown): { message: IMessageContent, reasoningContent: string, functioncalls?: IMcpToolCall[] }
 
   abstract transformRequestBody(messages: IMessage[]): unknown | Promise<unknown>
 

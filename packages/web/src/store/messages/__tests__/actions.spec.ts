@@ -1,6 +1,7 @@
 import type { IMessage, MessageId } from '@/db/interface'
 import { Role } from '@/constants'
-import { addConversationsAction, createConversations, createMessage, useConversationsStore } from '@/store/conversation'
+import { createConversations, createUserMessage } from '@/db/dataFactory'
+import { addConversationsAction, useConversationsStore } from '@/store/conversation'
 import { renderHook } from '@testing-library/react'
 import { act } from 'react'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -20,7 +21,7 @@ describe('messages actions', () => {
     const { result } = renderHook(() => useMessagesStore())
 
     const conversation = createConversations()
-    const message: IMessage = createMessage({
+    const message: IMessage = createUserMessage({
       id: '1' as MessageId,
       role: Role.USER,
       content: 'test',
@@ -46,7 +47,7 @@ describe('messages actions', () => {
 
     const conversation = createConversations()
 
-    const message: IMessage = createMessage({
+    const message: IMessage = createUserMessage({
       content: 'text',
       images: [{ uid: '1', name: 'test', data: 'https://example.com/image.jpg', size: 100, type: 'image/jpeg' }],
       convId: conversation.id,
@@ -69,7 +70,7 @@ describe('messages actions', () => {
     const { result } = renderHook(() => useMessagesStore())
 
     const conversation = createConversations()
-    const message = createMessage({ convId: conversation.id, role: Role.USER, content: 'test', createAt: 1 })
+    const message = createUserMessage({ convId: conversation.id, role: Role.USER, content: 'test', createAt: 1 })
 
     const newMessage = { ...message, content: 'new content' }
 
@@ -91,7 +92,7 @@ describe('messages actions', () => {
     const { result } = renderHook(() => useMessagesStore())
 
     const conversation = createConversations()
-    const message = createMessage({ convId: conversation.id, role: Role.USER, content: 'test', createAt: 1 })
+    const message = createUserMessage({ convId: conversation.id, role: Role.USER, content: 'test', createAt: 1 })
 
     await act(async () => {
       await addConversationsAction(conversation)

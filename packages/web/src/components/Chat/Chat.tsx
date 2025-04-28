@@ -2,10 +2,9 @@ import type { ConversationsId, IAttachment, IImage, IMessage } from '@/db/interf
 import type { ChatFeatures } from '@/services-provider/interface'
 import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import { DEFAULT_TITLE } from '@/constants'
+import { createConversations, createUserMessage } from '@/db/dataFactory'
 import {
   addConversationsAction,
-  createConversations,
-  createMessage,
   initConversationsTitle,
   updateConversationsSettingsAction,
   useConversationsStore,
@@ -65,7 +64,7 @@ export default function Chat() {
 
     await setActiveConversationsId(id as ConversationsId)
 
-    const messageItem: IMessage = createMessage({ images, attachments, content: message, convId: id as ConversationsId })
+    const messageItem: IMessage = createUserMessage({ images, attachments, content: message, convId: id as ConversationsId })
     await addMessageAction(messageItem)
 
     // 发送请求

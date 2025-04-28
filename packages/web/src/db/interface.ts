@@ -61,20 +61,38 @@ export interface IModelInfo {
   model: string
 }
 
-export interface IMessage {
+export interface IMessageBase {
   id: MessageId
   convId: ConversationsId
-  role: Role
-  content: string
-  reasoningContent?: string
   createAt: Timestamp
-  status?: 'success' | 'error' | 'loading' | 'typing' | 'cancel'
+}
+
+export interface IMessageSystem extends IMessageBase {
+  role: Role.SYSTEM
+  content: string
+  status: 'success'
+}
+
+export interface IMessageUser extends IMessageBase {
+  role: Role.USER
+  content: string
   images: IAttachment[]
   attachments: IAttachment[]
+  status: 'success'
+}
+
+export interface IMessageAI extends IMessageBase {
+  role: Role.AI
+  reasoningContent?: string
+  content: IMessageContent
+  status: 'success' | 'error' | 'loading' | 'typing' | 'cancel'
   /** MCP 相关字段 */
   mcpTool?: IMcpToolCall[]
+  /** 生成当前消息的模型信息 */
   modelInfo?: IModelInfo
 }
+
+export type IMessage = IMessageAI | IMessageUser | IMessageSystem
 
 export interface ITextContent {
   type: 'text'
@@ -82,8 +100,9 @@ export interface ITextContent {
 }
 
 export interface IImageContent {
-  type: 'image_url'
-  image_url: IImage
+  type: 'image'
+  mimeType: string
+  data: string
 }
 
 export type IMessageContent = string | (ITextContent | IImageContent)[]

@@ -24,6 +24,7 @@ const Google = [
   { id: 'gemini-2.0-flash-lite', createAt: 1741088680842 },
   { id: 'gemini-2.0-pro-exp', createAt: 1741088680842 },
   { id: 'gemini-2.0-flash-thinking-exp', createAt: 1741088680842 },
+  { id: 'gemini-2.0-flash-exp-image-generation', createAt: 1741088680842 },
   { id: 'gemini-2.5-pro-exp-03-25', createAt: 1741088680842 },
   { id: 'gemini-2.5-flash-preview-04-17', createAt: 1741088680842 },
 ]

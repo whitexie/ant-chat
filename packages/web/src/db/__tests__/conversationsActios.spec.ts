@@ -1,8 +1,7 @@
 import type { ConversationsId } from '../interface'
-
-import { createConversations } from '@/store/conversation'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { addConversations, deleteConversations, fetchConversations, getConversationsById, renameConversations } from '../conversationsActions'
+import { createConversations } from '../dataFactory'
 import db from '../db'
 
 describe('conversationActions', () => {

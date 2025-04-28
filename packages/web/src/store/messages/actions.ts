@@ -3,9 +3,9 @@ import type { ChatFeatures } from '../features'
 import type { RequestStatus } from './store'
 import { Role } from '@/constants'
 import { addMessage, deleteMessage, getMessagesByConvIdWithPagination, getSystemMessageByConvId, updateMessage } from '@/db'
+import { createAIMessage, createSystemMessage } from '@/db/dataFactory'
 import { getServiceProviderConstructor } from '@/services-provider'
 import { produce } from 'immer'
-import { createMessage } from '../conversation'
 import { useMessagesStore } from './store'
 
 export function setRequestStatus(status: RequestStatus) {
@@ -84,7 +84,7 @@ export function abortSendChatCompletions() {
 export async function sendChatCompletions(conversationId: ConversationsId, config: ModelConfig, features: ChatFeatures) {
   const messages = useMessagesStore.getState().messages
   const { model, id: provider } = config
-  const aiMessage = createMessage({ convId: conversationId, role: Role.AI, status: 'loading', modelInfo: { model, provider } })
+  const aiMessage = createAIMessage({ convId: conversationId, role: Role.AI, status: 'loading', modelInfo: { model, provider } })
 
   // 这里aiMessage需要展开，避免被冻结， 后面的updateMessage同理
   await addMessageAction({ ...aiMessage })
@@ -124,7 +124,7 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
       },
       onSuccess: (data) => {
         setRequestStatus('success')
-        if(data.functioncalls) {
+        if (data.functioncalls) {
           aiMessage.mcpTool = data.functioncalls
         }
         updateMessageAction({ ...aiMessage, status: 'success' })
@@ -161,7 +161,7 @@ export async function updateConversationsSystemPrompt(conversationsId: Conversat
     return
   }
 
-  await updateMessage(createMessage({ ...systemMessage, content: systemPrompt }))
+  await updateMessage(createSystemMessage({ ...systemMessage, content: systemPrompt }))
 }
 
 export async function nextPageMessagesAction(conversationsId: ConversationsId) {

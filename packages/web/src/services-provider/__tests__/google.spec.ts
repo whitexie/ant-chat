@@ -1,6 +1,6 @@
-import type { ConversationsId, IMessage } from '@/db/interface'
+import type { ConversationsId, IMessage, IMessageContent } from '@/db/interface'
 import { Role } from '@/constants'
-import { createMessage } from '@/store/conversation'
+import { createAIMessage, createSystemMessage, createUserMessage } from '@/db/dataFactory'
 import request from '@/utils/request'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import GeminiService from '../google'
@@ -11,7 +11,7 @@ vi.mock('@/utils/request')
 describe('gemini Service 测试', () => {
   describe('transformMessages', () => {
     it('应该正确转换用户消息为 Gemini 请求格式', () => {
-      const messages: IMessage[] = [createMessage({ convId: '1' as ConversationsId, role: Role.USER, content: 'Hello, how are you?' })]
+      const messages: IMessage[] = [createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: 'Hello, how are you?' })]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
 
@@ -22,9 +22,9 @@ describe('gemini Service 测试', () => {
 
     it('应该正确转换AI和用户的对话消息', () => {
       const messages: IMessage[] = [
-        createMessage({ convId: '1' as ConversationsId, role: Role.USER, content: 'Hello' }),
-        createMessage({ convId: '1' as ConversationsId, role: Role.AI, content: 'Hi there!' }),
-        createMessage({ convId: '1' as ConversationsId, role: Role.SYSTEM, content: 'How are you?' }),
+        createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: 'Hello' }),
+        createAIMessage({ convId: '1' as ConversationsId, role: Role.AI, content: 'Hi there!' }),
+        createSystemMessage({ convId: '1' as ConversationsId, role: Role.SYSTEM, content: 'How are you?' }),
       ]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
@@ -44,7 +44,7 @@ describe('gemini Service 测试', () => {
 
     it('应该正确转换包含图片的用户消息', () => {
       const messages: IMessage[] = [
-        createMessage({ convId: '1' as ConversationsId, role: Role.USER, content: 'Hello, how are you?', images: [{ uid: '123', name: 'test.png', size: 100, type: 'image/png', data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABgI' }] }),
+        createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: 'Hello, how are you?', images: [{ uid: '123', name: 'test.png', size: 100, type: 'image/png', data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABgI' }] }),
       ]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
@@ -55,7 +55,7 @@ describe('gemini Service 测试', () => {
     })
 
     it('应该正确转换系统消息', () => {
-      const messages: IMessage[] = [createMessage({ convId: '1' as ConversationsId, role: Role.SYSTEM, content: 'You are a helpful assistant' })]
+      const messages: IMessage[] = [createSystemMessage({ convId: '1' as ConversationsId, role: Role.SYSTEM, content: 'You are a helpful assistant' })]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
 
@@ -67,7 +67,7 @@ describe('gemini Service 测试', () => {
 
     // 测试空消息处理
     it('当消息内容为空时应该正确处理', () => {
-      const messages: IMessage[] = [createMessage({ convId: '1' as ConversationsId, role: Role.USER, content: '' })]
+      const messages: IMessage[] = [createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: '' })]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
 
@@ -110,7 +110,7 @@ describe('gemini Service 测试', () => {
   })
 
   describe('parseSse', () => {
-    it('正确解析响应数据', async () => {
+    it('正确解析响应数据 - 案例1', async () => {
       const steam = createMockStream([
         'data: {"candidates": [{"content": {"parts": [{"text": "Gem"}],"role": "model"},"index": 0}]}',
         'data: {"candidates": [{"content": {"parts": [{"text": "ini是一个大模型"}],"role": "model"},"index": 0}]}',
@@ -125,13 +125,84 @@ describe('gemini Service 测试', () => {
 
       await service.parseSse(reader, {
         onUpdate: (result) => {
-          text = result.message
+          text = result.message as string
         },
         onSuccess: fn,
       })
 
-      expect(text).toBe('Gemini是一个大模型')
+      expect(text).toEqual([
+        { type: 'text', text: 'Gem' },
+        { type: 'text', text: 'ini是一个大模型' },
+      ])
       expect(fn).toHaveBeenCalled()
+    })
+
+    it('正确解析响应数据 - 案例2', async () => {
+      const steam = createMockStream([
+        'data: {"candidates": [{"content": {"parts": [{"text": "Gem"},{"inlineData": {"mimeType": "image/png", "data": "11111"}}, {"text": "ini"}],"role": "model"},"index": 0}]}',
+      ], '\r\n\r\n', '\r\n')
+
+      const reader = steam.getReader()
+      const service = new GeminiService()
+
+      let text: IMessageContent = []
+
+      await service.parseSse(reader, {
+        onSuccess: (result) => {
+          text = result.message
+        },
+      })
+
+      expect(text).toEqual([
+        {
+          type: 'text',
+          text: 'Gem',
+        },
+        {
+          type: 'image',
+          mimeType: 'image/png',
+          data: '11111',
+        },
+        {
+          type: 'text',
+          text: 'ini',
+        },
+      ])
+    })
+
+    it('正确解析响应数据 - 案例3', async () => {
+      const steam = createMockStream([
+        'data: {"candidates": [{"content": {"parts": [{"text": "123Gem"}],"role": "model"},"index": 0}]}',
+        'data: {"candidates": [{"content": {"parts": [{"inlineData": {"mimeType": "image/png", "data": "11111"}}],"role": "model"},"index": 0}]}',
+        'data: {"candidates": [{"content": {"parts": [{"text": "ini456"}],"role": "model"},"index": 0}]}',
+      ], '\r\n\r\n', '\r\n')
+
+      const reader = steam.getReader()
+      const service = new GeminiService()
+
+      let text: IMessageContent = []
+
+      await service.parseSse(reader, {
+        onSuccess: (result) => {
+          text = result.message
+        },
+      })
+
+      expect(text).toEqual([
+        {
+          type: 'text',
+          text: '123Gem',
+        },
+        {
+          type: 'image',
+          mimeType: 'image/png',
+          data: '11111',
+        },
+        {
+          type: 'text',
+          text: 'ini456',
+        },
+      ])
     })
   })
 })

@@ -1,6 +1,7 @@
 import type { IConversationsSettings, ModelConfigId } from '@/db/interface'
 import { ANT_CHAT_STRUCTURE, Role } from '@/constants'
 import { getConversationsById, getMessagesByConvId } from '@/db'
+import { createConversations } from '@/db/dataFactory'
 import { setActiveConversationsId, useMessagesStore } from '@/store/messages'
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -12,7 +13,7 @@ import {
   renameConversationsAction,
   updateConversationsSettingsAction,
 } from '../actions'
-import { createConversations, useConversationsStore } from '../conversationsStore'
+import { useConversationsStore } from '../conversationsStore'
 
 describe('conversationStore', () => {
   beforeEach(() => {
