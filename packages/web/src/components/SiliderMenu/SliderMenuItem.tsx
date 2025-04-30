@@ -13,11 +13,12 @@ export function SliderMenuItem({ icon, title, path, actived, onClick }: SliderMe
     <Tooltip title={title} mouseEnterDelay={0.5} placement="right">
       <div
         className={`
-          w-8 h-8 
+          w-9 h-9 
           flex justify-center items-center 
           rounded-1 
           hover:(bg-black/3 dark:bg-white/10) 
           cursor-pointer 
+          text-5.5
           ${actived ? 'bg-black/3 dark:bg-white/10' : ''}
       `}
         onClick={(e) => {

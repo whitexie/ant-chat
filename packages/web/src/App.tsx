@@ -35,7 +35,7 @@ function AntChatApp() {
       <RunnerCodeProvider>
         <App className="h-full">
           <div className="w-full h-full bg-white dark:bg-black">
-            <div className="grid h-full w-full grid-cols-[0px_1fr] md:grid-cols-[50px_var(--conversationWidth)_1fr]">
+            <div className="grid h-full w-full grid-cols-[60px_var(--conversationWidth)_1fr]">
               <SliderMenu />
               <Outlet />
             </div>

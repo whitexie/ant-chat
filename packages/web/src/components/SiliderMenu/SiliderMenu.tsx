@@ -14,16 +14,18 @@ export function SliderMenu() {
 
   return (
     <div className="slider border-r-solid border-r-1 h-full border-black/10 dark:border-white/20">
-      <div className="flex flex-col justify-between items-center gap-2 py-4 h-full">
-        <div className="flex flex-col items-center gap-2">
-          <img
-            src="/logo.svg"
-            className="w-5 h-5 mb-4 cursor-pointer"
-            draggable={false}
-            onClick={() => {
-              navigate('/')
-            }}
-          />
+      <div className="flex flex-col justify-between items-center h-full">
+        <div className="flex flex-col items-center gap-5 pt-2">
+          <div className="flex justify-center items-center w-8 h-8 p-1">
+            <img
+              src="/logo.svg"
+              className="w-full h-full cursor-pointer"
+              draggable={false}
+              onClick={() => {
+                navigate('/')
+              }}
+            />
+          </div>
 
           <SliderMenuItem
             title="对话"
