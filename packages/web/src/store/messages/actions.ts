@@ -45,7 +45,8 @@ export async function deleteMessageAction(messageId: MessageId) {
   }))
 }
 
-export async function updateMessageAction(message: IMessage) {
+export async function updateMessageAction(_message: IMessage) {
+  const message = structuredClone(_message)
   await updateMessage(message)
 
   useMessagesStore.setState(state => produce(state, (draft) => {

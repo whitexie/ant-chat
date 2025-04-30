@@ -35,7 +35,7 @@ export async function updateMessage(message: IMessage) {
   return await db.transaction('readwrite', db.conversations, db.messages, async () => {
     await Promise.all([
       updateConversationsUpdateAt(message.convId, Date.now()),
-      db.messages.put(structuredClone(message)),
+      db.messages.put(message),
     ])
   })
 }
