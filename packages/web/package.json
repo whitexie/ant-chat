@@ -32,6 +32,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^9.0.3",
+    "react-router": "^7.5.3",
     "react-syntax-highlighter": "^15.6.1",
     "remark-gfm": "^4.0.1",
     "unist-util-visit": "^5.0.0",
