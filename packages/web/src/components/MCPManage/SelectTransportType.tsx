@@ -1,0 +1,63 @@
+import { ApiOutlined, CheckCircleFilled, CheckOutlined, CiCircleOutlined } from '@ant-design/icons'
+
+interface SelectTransportTypeProps {
+  value?: 'stdio' | 'sse'
+  onChange?: (e: string) => void
+}
+
+const options = [
+  { id: 'sse', icon: <ApiOutlined />, name: 'Streamable HTTP', descript: '基于流式 HTTP 的通信协议', features: ['兼容网页版与桌面端', '连接远程MCP服务器，无需额外安装配置'] },
+  { id: 'stdio', icon: <CiCircleOutlined />, name: 'STDIO', descript: '基于标准输入输出的通信协议', features: ['更低的通信延迟，适合本地执行', '需要在本地安装运行MCP服务器'] },
+]
+
+export function SelectTransportType({ value, onChange }: SelectTransportTypeProps) {
+  return (
+    <div className="flex justify-around">
+      {
+        options.map(item => (
+          <div
+            key={item.id}
+            className={`
+              antd-css-var
+              relative
+              w-[48%] rounded-xl p-3
+              border-solid border-1 dark:border-white/20
+              ${value === item.id ? 'border-[var(--ant-color-primary-text)]' : 'border-black/20'}
+              cursor-pointer
+              hover:(border-[var(--ant-color-primary-text)])
+            `}
+
+            onClick={() => {
+              onChange?.(item.id)
+            }}
+          >
+            <div className="text-5 flex gap-2">
+              <div className="items-start">
+                {item.icon}
+              </div>
+              <div className="text-4 font-bold">
+                <div>{item.name}</div>
+                <div className="color-black/30 dark:color-white/30 mt-.5 text-3 font-normal">{item.descript}</div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 pt-3 pl-1">
+              {
+                item.features.map(t => (
+                  <div key={t} className="flex items-center gap-2 text-3">
+                    <CheckOutlined className="color-[var(--ant-color-success)]" />
+                    {t}
+                  </div>
+                ))
+              }
+            </div>
+            {
+              value === item.id
+              && <CheckCircleFilled className="absolute right-2 top-2 text-4.5 color-[var(--ant-color-primary)]" />
+            }
+
+          </div>
+        ))
+      }
+    </div>
+  )
+}

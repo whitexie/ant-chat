@@ -1,5 +1,5 @@
 import type { EntityTable } from 'dexie'
-import type { IAttachment, IConversations, IMessage } from './interface'
+import type { IAttachment, IConversations, IMessage, McpConfig } from './interface'
 import type { IMessage as IMessageV1 } from './interface.v1'
 import Dexie from 'dexie'
 
@@ -8,6 +8,7 @@ export function createDb() {
     conversations: EntityTable<IConversations, 'id'>
     messages: EntityTable<IMessage, 'id'>
     customModels: EntityTable<{ id: string, ownedBy: string, createAt: number }, 'id'>
+    mcpConfigs: EntityTable<McpConfig, 'serverName'>
   }
 }
 
@@ -71,11 +72,21 @@ export function upgradeToV4(db: Dexie) {
   })
 }
 
+export function upgradeToV5(db: Dexie) {
+  db.version(5).stores({
+    conversations: '&id, title, createAt, updateAt',
+    messages: '&id, convId, content, createAt',
+    customModels: '&id, ownedBy, createAt',
+    mcpConfigs: '&serverName, transportType, createAt, updateAt',
+  })
+}
+
 const db = createDb()
 
 upgradeToV1(db)
 upgradeToV2(db)
 upgradeToV3(db)
 upgradeToV4(db)
+upgradeToV5(db)
 
 export default db

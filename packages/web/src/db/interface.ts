@@ -106,3 +106,27 @@ export interface IImageContent {
 }
 
 export type IMessageContent = string | (ITextContent | IImageContent)[]
+
+// ============================ MCP-Server 相关类型 ============================
+export interface McpServerBase {
+  // id: string
+  serverName: string
+  description?: string
+  disabled?: boolean
+  timeout?: number
+  createAt: Timestamp
+  updateAt: Timestamp
+}
+export interface StdioConfigSchema extends McpServerBase {
+  transportType: 'sse'
+  url: string
+}
+
+export interface SseConfigSchema extends McpServerBase {
+  transportType: 'stdio'
+  command: string
+  args: string[]
+  env?: Record<string, number | string | boolean>
+}
+
+export type McpConfig = StdioConfigSchema | SseConfigSchema

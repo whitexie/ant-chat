@@ -1,4 +1,3 @@
-import { url } from 'node:inspector'
 import { join } from 'node:path'
 import process from 'node:process'
 import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron'

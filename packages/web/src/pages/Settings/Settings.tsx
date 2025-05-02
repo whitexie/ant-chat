@@ -13,7 +13,7 @@ export default function Settings() {
 
   return (
     <div className="w-full h-full grid grid-cols-[200px_1fr]">
-      <div className="h-full border-r-solid border-black/10 p-2 py-4 text-gray">
+      <div className="h-full border-r-solid border-black/10 p-2 text-gray py-4">
         <div className="flex flex-col gap-3">
           {
             menus.map(item => (
@@ -25,7 +25,7 @@ export default function Settings() {
                   hover:(bg-black/3 dark:bg-white/6)
                   rounded-md 
                   cursor-pointer
-                  ${activeName === item.id ? 'bg-black/3 dark:bg-white/6 text-black' : ''}
+                  ${activeName === item.id ? 'dark:text-white bg-black/3 dark:bg-white/10 text-black' : ''}
                 `}
                 onClick={() => {
                   navigrate(`/settings/${item.id}`)

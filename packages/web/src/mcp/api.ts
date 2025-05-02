@@ -1,6 +1,7 @@
-import type { IMcpToolCall } from '@/db/interface'
+import type { IMcpToolCall, McpConfig } from '@/db/interface'
 import type { McpConnection, McpToolCallResponse } from '@ant-chat/shared'
 import { uuid } from '@/utils'
+import { ipcEvents } from '@ant-chat/shared'
 
 export async function getMcpServers(): Promise<McpConnection[]> {
   try {
@@ -17,7 +18,6 @@ export async function getConnectedMcpServers(): Promise<McpConnection[]> {
   const servers = await getMcpServers()
   return servers.filter(server => server.status === 'connected' && !server.disabled)
 }
-
 
 // 获取App操作系统
 export async function getAppOS() {
@@ -45,4 +45,14 @@ export function createMcpToolCall(options: CreateMcpToolCallOptions): IMcpToolCa
 export async function executeMcpToolCall(toolCall: IMcpToolCall): Promise<McpToolCallResponse> {
   const { serverName, toolName, args } = toolCall
   return await window.electronAPI.ipcRenderer.invoke('mcp:callTool', serverName, toolName, args)
+}
+
+export async function connectMcpServer(config: McpConfig) {
+  const { serverName } = config
+
+  return await window.electronAPI.ipcRenderer.invoke(ipcEvents.CONNECT_MCP_SERVER, serverName, config)
+}
+
+export async function fetchMcpServerTools(name: string) {
+  return await window.electronAPI.ipcRenderer.invoke(ipcEvents.FETCH_MCP_SERVER_TOOLS, name)
 }
