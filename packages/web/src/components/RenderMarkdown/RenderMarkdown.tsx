@@ -11,9 +11,8 @@ export interface RenderMarkdownProps {
 }
 
 export default function RenderMarkdown({ content }: RenderMarkdownProps) {
-  const _theme = useThemeStore(state => state.theme)
+  const theme = useThemeStore(state => state.theme)
 
-  const theme = _theme === 'default' ? 'light' : 'dark'
   return (
     <Typography className={style['markdown-typography']}>
       <ReactMarkdown

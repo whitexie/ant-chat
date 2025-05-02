@@ -1,6 +1,7 @@
 import { GithubFilled, MessageOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { useLocation, useNavigate } from 'react-router'
+import ThemeButton from '../ThemeButton'
 import { SliderMenuItem } from './SliderMenuItem'
 
 export function SliderMenu() {
@@ -13,9 +14,9 @@ export function SliderMenu() {
   }
 
   return (
-    <div className="slider border-r-solid border-r-1 h-full border-black/10 dark:border-white/20">
+    <div className="h-full border-black/10 dark:border-white/20 slider border-r-solid border-r-1">
       <div className="flex flex-col justify-between items-center h-full">
-        <div className="flex flex-col items-center gap-5 pt-2">
+        <div className="flex flex-col items-center pt-2 gap-5">
           <div className="flex justify-center items-center w-8 h-8 p-1">
             <img
               src="/logo.svg"
@@ -44,10 +45,12 @@ export function SliderMenu() {
           />
         </div>
         <div className="flex flex-col items-center gap-2 pb-4">
+          <ThemeButton />
+
           <SliderMenuItem
             title={null}
             icon={<GithubFilled />}
-            path="https://github.com/whitexie/ant-chat"
+            path=""
             onClick={(_, path) => {
               window.open(path)
             }}

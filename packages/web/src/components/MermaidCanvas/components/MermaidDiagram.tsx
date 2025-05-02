@@ -108,7 +108,7 @@ export function MermaidDiagram({ children, className, style }: RenderMermaidProp
               <>
                 <div
                   ref={containerRef}
-                  className="mermaid-container absolute overflow-hidden border-solid border-1 border-gray-300 rounded-md"
+                  className="absolute border-solid rounded-md mermaid-container overflow-hidden border-1 border-gray-300"
                   style={{
                     left: position.x,
                     top: position.y,

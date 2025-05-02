@@ -7,6 +7,7 @@ import { RunnerCodeProvider } from './components/RunnerCode'
 import { SliderMenu } from './components/SiliderMenu'
 
 function AntChatApp() {
+  const currentThemeMode = useThemeStore(state => state.mode)
   const currentTheme = useThemeStore(state => state.theme)
   const toggleTheme = useThemeStore(state => state.toggleTheme)
 
@@ -14,11 +15,19 @@ function AntChatApp() {
     ? theme.darkAlgorithm
     : theme.defaultAlgorithm
 
+  /**
+   * 添加浏览器主题变化监听
+   */
   useEffect(() => {
     const handleThemeChange = (e: MediaQueryListEvent | MediaQueryList) => {
-      const theme = e.matches ? 'default' : 'dark'
-      toggleTheme(theme)
+      if (currentThemeMode === 'auto') {
+        const theme = e.matches ? 'light' : 'dark'
+        toggleTheme(theme)
+      }
     }
+
+    // 同步设置下UnoCSS的暗黑模式
+    document.documentElement.classList.toggle('dark', currentTheme === 'dark')
 
     const themeMedia = window.matchMedia('(prefers-color-scheme: light)')
     handleThemeChange(themeMedia)
