@@ -74,7 +74,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
       {
         (showReset && !!form.getFieldValue('id')) && (
           <span
-            className="text-[12px] text-amber-400 hover:text-amber-600 cursor-pointer"
+            className="cursor-pointer text-[12px] text-amber-400 hover:text-amber-600"
             onClick={() => {
               props.onReset?.()
               form.resetFields()

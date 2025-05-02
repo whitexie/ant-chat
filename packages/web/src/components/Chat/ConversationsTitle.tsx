@@ -34,7 +34,7 @@ const ConversationsTitle: React.FunctionComponent<ConversationsTitleProps> = ({ 
 
   return (
     <div className="h-[var(--titleHeight)]">
-      <div className="h-[var(--titleHeight)] bg-[var(--ant-layout-color-bg-body)] border-b-solid border-black/10 border-1px dark:(border-white/40) px-3 flex justify-between items-center">
+      <div className="h-[var(--titleHeight)] flex items-center bg-[var(--ant-layout-color-bg-body)] border-b-solid border-black/10 border-1px dark:border-white/40 px-3 justify-between">
         {isEditing
           ? (
               <div className="flex items-center gap-2">

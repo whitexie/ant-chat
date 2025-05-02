@@ -20,7 +20,6 @@ import { Conversations } from '@ant-design/x'
 import { App, Button, Dropdown } from 'antd'
 import dayjs from 'dayjs'
 import { lazy, Suspense, useState } from 'react'
-import DarkButton from '../DarkButton'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
 import { VersionButton } from '../Version'
@@ -175,8 +174,7 @@ export default function ConversationsManage() {
           items={items}
         />
       </InfiniteScroll>
-      <div className="footer border-t-solid border-1px border-black/10 dark:border-white/20 flex flex-col gap-1 px-1 py-2">
-        <DarkButton />
+      <div className="border-1px border-black/10 flex flex-col px-1 py-2 footer border-t-solid dark:border-white/20 gap-1">
         <Settings />
         <VersionButton />
       </div>

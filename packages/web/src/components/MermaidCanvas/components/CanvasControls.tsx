@@ -16,7 +16,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
 }) => {
   return (
     <div
-      className="absolute top-5 right-5 flex gap-2 p-2 bg-white dark:bg-[#222] rounded-md shadow-md"
+      className="absolute flex gap-2 bg-white rounded-md top-5 right-5 p-2 dark:bg-[#222] shadow-md"
     >
       {
         onReset && (

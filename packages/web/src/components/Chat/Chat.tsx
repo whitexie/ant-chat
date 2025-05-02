@@ -89,7 +89,7 @@ export default function Chat() {
   }
 
   return (
-    <div key={currentConversations?.id} className="grid grid-rows-[max-content_1fr_max-content] h-[var(--mainHeight)] md:(h-100dvh) relative w-full mx-auto">
+    <div key={currentConversations?.id} className="grid w-full grid-rows-[max-content_1fr_max-content] h-[var(--mainHeight)] md:h-100dvh relative mx-auto">
       <div>
         <ConversationsTitle
           conversation={currentConversations}

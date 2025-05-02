@@ -8,10 +8,10 @@ interface LogoProps {
 
 export function Logo({ show, onChange }: LogoProps) {
   return (
-    <div className="relative logo w-full flex select-none justify-center items-center gap-2 md:w-[var(--conversationWidth)]">
+    <div className="w-full flex justify-center items-center gap-2 relative logo select-none md:w-[var(--conversationWidth)]">
       <Button
         type="text"
-        className="block md:hidden absolute left-2 top-0"
+        className="absolute top-0 block md:hidden left-2"
         onClick={() => onChange?.(!show)}
         icon={<MenuOutlined />}
       />

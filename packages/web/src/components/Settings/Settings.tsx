@@ -12,7 +12,7 @@ export default function Settings() {
   return (
     <>
       <SideButton
-        icon={<SettingOutlined className="w-4 h-4" />}
+        icon={<SettingOutlined className="h-4 w-4" />}
         onClick={() => setOpenSettingsModalAction(true)}
       >
         设置

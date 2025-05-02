@@ -30,8 +30,8 @@ export default function MessageContent({ content = '', images = [], attachments 
             </span>
           ),
       children: (
-        <div className="pl-4 relative">
-          <div className="absolute left-0 top-0 w-1 h-full bg-gray-400/20"></div>
+        <div className="relative pl-4">
+          <div className="absolute left-0 h-full top-0 w-1 bg-gray-400/20"></div>
           <p className="whitespace-pre-wrap text-xs">{reasoningContent}</p>
         </div>
       ),
@@ -57,9 +57,9 @@ export default function MessageContent({ content = '', images = [], attachments 
         images.length > 0 && (
           <>
             <hr className="mt-1" />
-            <div className="flex flex-wrap gap-2 pt-2">
+            <div className="flex gap-2 flex-wrap pt-2">
               {
-                images.map(item => <Image width={100} height={100} className="object-contain border-solid border-1px border-gray-400/20 rounded-md" src={item.data} key={item.uid} alt={item.name} />)
+                images.map(item => <Image width={100} height={100} className="border-1px object-contain border-solid border-gray-400/20 rounded-md" src={item.data} key={item.uid} alt={item.name} />)
               }
             </div>
           </>

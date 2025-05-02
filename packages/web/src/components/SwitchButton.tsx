@@ -14,7 +14,7 @@ function SwitchButton({ checked, onChange, icon, dataTestId }: SwitchButtonProps
     <div
       role="switchButton"
       data-testid={dataTestId}
-      className="ant-btn antd-css-var w-8 h-8 flex justify-center items-center border-1 border-solid cursor-pointer"
+      className="w-8 h-8 flex justify-center items-center border-1 border-solid cursor-pointer ant-btn antd-css-var"
       style={{
         borderRadius: token.borderRadius,
         color: checked ? token.colorPrimary : 'var(--ant-button-default-color)',
