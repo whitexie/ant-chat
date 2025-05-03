@@ -13,7 +13,7 @@ export default function Settings() {
 
   return (
     <div className="w-full h-full grid grid-cols-[200px_1fr]">
-      <div className="h-full border-r-solid border-black/10 p-2 text-gray py-4">
+      <div className="h-full border-r-solid border-black/10 border-1 p-2 text-gray py-4 dark:border-white/20">
         <div className="flex flex-col gap-3">
           {
             menus.map(item => (

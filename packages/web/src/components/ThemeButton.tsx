@@ -1,7 +1,7 @@
 import { useThemeStore } from '@/store/theme'
 import { CloudSyncOutlined, MoonFilled, SunFilled } from '@ant-design/icons'
 import { Popover } from 'antd'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 const options = [
   { id: 'auto' as const, icon: <CloudSyncOutlined />, label: '跟随系统' },
@@ -23,10 +23,6 @@ function ThemeButton() {
   }
 
   const icon = theme === 'light' ? <MoonFilled /> : <SunFilled />
-
-  useEffect(() => {
-    console.log('open => ', open)
-  }, [open])
 
   return (
     <Popover
