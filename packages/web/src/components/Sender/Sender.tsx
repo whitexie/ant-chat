@@ -19,7 +19,6 @@ import useSpeech from '@ant-design/x/es/sender/useSpeech'
 import { App, Badge, Button, Tooltip } from 'antd'
 import { useState } from 'react'
 import SwitchButton from '../SwitchButton'
-import styles from './style.module.scss'
 
 interface SenderProps {
   loading?: boolean
@@ -85,7 +84,15 @@ function Sender({ loading = false, ...props }: SenderProps) {
 
   return (
     <div
-      className={`md:(w-[var(--chat-width)]) mx-auto ${styles.sender} ${hasMessage ? 'relative' : 'absolute left-2 right-2 bottom-50%'} transition transition-duration-500 p-xs bg-white dark:(bg-[var(--ant-layout-color-bg-body)] border-white/40) rounded-xl overflow-hidden shadow-lg`}
+      className={`
+        w-(--chat-width) mx-auto
+        ${hasMessage ? 'relative' : 'absolute left-2 right-2 bottom-[50%]'} 
+        transition transition-duration-500 p-3 
+        bg-white dark:bg-[var(--ant-layout-color-bg-body)]
+        border-solid border-2 border-[#0000001a] dark:border-[#fff6]
+        rounded-xl overflow-hidden shadow-lg
+        focus-within:border-(--ant-color-primary) focus-within:shadow-(--ant-box-shadow-secondary)
+      `}
     >
       <div className={`header transition-height overflow-hidden h-0 ${openHeader && 'h-100px'}`}>
         {

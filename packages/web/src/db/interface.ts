@@ -109,7 +109,7 @@ export type IMessageContent = string | (ITextContent | IImageContent)[]
 
 // ============================ MCP-Server 相关类型 ============================
 export interface McpServerBase {
-  // id: string
+  icon: string
   serverName: string
   description?: string
   disabled?: boolean

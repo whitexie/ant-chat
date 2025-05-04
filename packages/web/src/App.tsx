@@ -26,7 +26,7 @@ function AntChatApp() {
       }
     }
 
-    // 同步设置下UnoCSS的暗黑模式
+    // 同步设置下tailwindcss的暗黑模式
     document.documentElement.classList.toggle('dark', currentTheme === 'dark')
 
     const themeMedia = window.matchMedia('(prefers-color-scheme: light)')
@@ -44,7 +44,7 @@ function AntChatApp() {
       <RunnerCodeProvider>
         <App className="h-full">
           <div className="w-full h-full bg-white dark:bg-black">
-            <div className="grid h-full w-full grid-cols-[60px_var(--conversationWidth)_1fr]">
+            <div className="grid h-full w-full grid-cols-[max-content_1fr]">
               <SliderMenu />
               <Outlet />
             </div>

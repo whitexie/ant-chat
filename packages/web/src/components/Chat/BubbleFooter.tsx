@@ -59,7 +59,7 @@ export default function BubbleFooter({ message, onClick }: BubbleFooterProps) {
   }
 
   return (
-    <Flex>
+    <Flex className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
       {...finallyButtons}
     </Flex>
   )

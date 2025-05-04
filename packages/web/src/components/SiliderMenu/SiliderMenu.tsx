@@ -14,7 +14,7 @@ export function SliderMenu() {
   }
 
   return (
-    <div className="h-full border-black/10 dark:border-white/20 slider border-r-solid border-r-1">
+    <div className="h-full w-12.5 border-black/10 dark:border-white/20 slider border-r-solid border-r-1">
       <div className="flex flex-col justify-between items-center h-full">
         <div className="flex flex-col items-center pt-2 gap-5">
           <div className="flex justify-center items-center w-8 h-8 p-1">
@@ -32,7 +32,7 @@ export function SliderMenu() {
             title="对话"
             icon={<MessageOutlined />}
             path="/chat"
-            actived={location.pathname === '/chat'}
+            actived={location.pathname.includes('/chat')}
             onClick={handleNavigate}
           />
 
@@ -40,7 +40,7 @@ export function SliderMenu() {
             title="设置"
             icon={<SettingOutlined />}
             path="/settings"
-            actived={location.pathname === '/settings'}
+            actived={location.pathname.startsWith('/settings')}
             onClick={handleNavigate}
           />
         </div>

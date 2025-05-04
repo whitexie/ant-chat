@@ -1,7 +1,6 @@
 import type { ConversationsId, IMessage, IMessageAI, MessageId, ModelConfig } from '@/db/interface'
 import type { BubbleContent } from '@/types/global'
 import type { BubbleProps } from '@ant-design/x'
-import type { AvatarProps } from 'antd'
 import type { ImperativeHandleRef } from '../InfiniteScroll'
 import { Role } from '@/constants'
 import { getFeatures } from '@/store/features'
@@ -28,6 +27,14 @@ interface Props {
   onExecuteAllCompleted?: (messageId: MessageId) => void
 }
 
+const leftBubbleContentStyle: React.CSSProperties = {
+  marginRight: '44px',
+}
+
+const rightBubbleContentStyle: React.CSSProperties = {
+  marginLeft: '44px',
+}
+
 function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }: Props) {
   const { message: messageFunc } = App.useApp()
 
@@ -39,14 +46,18 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
       loading: msg.status === 'loading',
       placement: msg.role === Role.USER ? 'end' : 'start',
       avatar: getRoleAvatar(msg),
+      className: 'group',
       typing: msg.status === 'typing' ? { step: 1, interval: 50 } : false,
+      styles: { content: msg.role === Role.USER ? { ...rightBubbleContentStyle } : { ...leftBubbleContentStyle } },
     }
 
-    if ((msg.role === Role.AI) && msg.mcpTool) {
-      commonProps.styles = {
-        content: {
-          width: 'calc(100% - 44px)',
-        },
+    if (msg.role === Role.AI) {
+      if (msg?.mcpTool?.length) {
+        commonProps.styles = {
+          content: {
+            width: 'calc(100% - 44px)',
+          },
+        }
       }
     }
 
@@ -99,7 +110,6 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
           }
         }}
         content={
-
           typeof msg.content === 'string'
             ? msg.content
             : msg.content.reduce((a, b) => {
@@ -207,33 +217,50 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
   )
 }
 
-function getRoleAvatar({ role, ...rest }: IMessage): AvatarProps {
-  const defaultConfig = { icon: <RobotFilled />, className: 'bg-[#69b1ff]' }
+function getRoleAvatar({ role, ...rest }: IMessage): React.ReactElement {
+  const defaultAvatar = (
+    <div className="w-8 h-8 flex items-center justify-center text-white text-lg bg-[#69b1ff] rounded-full">
+      <RobotFilled />
+    </div>
+  )
+
   if (role === Role.USER) {
-    return { icon: <UserOutlined />, className: 'bg-[#87d068]' }
+    return (
+      <div className="w-8 h-8 flex items-center justify-center text-white text-lg bg-[#87d068] rounded-full">
+        <UserOutlined />
+      </div>
+    )
   }
   else if (role === Role.SYSTEM) {
-    return { icon: <SmileFilled />, className: 'bg-[#DE732D]' }
+    return (
+      <div className="w-8 h-8 flex items-center justify-center text-white text-lg bg-[#DE732D] rounded-full">
+        <SmileFilled />
+      </div>
+    )
   }
   else if (role === Role.AI) {
     /** Role.AI */
 
     const { modelInfo } = rest as IMessageAI
     if (!modelInfo) {
-      return defaultConfig
+      return defaultAvatar
     }
 
     const provider = modelInfo?.provider.toLowerCase()
 
     const ProviderLogo = getProviderLogo(provider || '')
     if (ProviderLogo) {
-      return { icon: <ProviderLogo />, className: 'bg-white dark:bg-black border-solid border-black/10 dark:border-dark' }
+      return (
+        <div className="w-8 h-8 flex items-center justify-center text-white dark:bg-black border-solid text-lg border-black/10 dark:border-white/20 border-1 bg-white rounded-full">
+          <ProviderLogo />
+        </div>
+      )
     }
 
-    return defaultConfig
+    return defaultAvatar
   }
 
-  return defaultConfig
+  return defaultAvatar
 }
 
 export default BubbleList

@@ -1,8 +1,6 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-plugin-svgr/client" />
 
-import type { AttributifyAttributes } from '@unocss/preset-attributify'
-
 interface ImportMetaEnv {
   // readonly VITE_APP_TITLE: string
   // readonly VITE_API_HOST: string

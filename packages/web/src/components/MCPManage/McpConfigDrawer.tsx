@@ -1,7 +1,8 @@
 import type { McpConfig } from '@/db/interface'
 import type { McpTool } from '@ant-chat/shared'
-import { mcpConfigIsExists } from '@/db/mcpConfigActions'
+import { EmojiPickerHoc } from '@/components/EmojiPiker'
 
+import { mcpConfigIsExists } from '@/db/mcpConfigActions'
 import { connectMcpServer, fetchMcpServerTools } from '@/mcp'
 import { MinusCircleOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons'
 import { Alert, App, Avatar, Button, Descriptions, Drawer, Empty, Form, Input, Space, Tag } from 'antd'
@@ -22,6 +23,7 @@ interface McpConfigForm extends Omit<McpConfig, 'env'> {
 
 export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDrawerProps) {
   const defaultValues = {
+    icon: '⚒️',
     serverName: '',
     url: '',
     command: '',
@@ -122,6 +124,17 @@ export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDraw
               >
                 <Input placeholder="例如: my-mcp-plugin" />
               </Form.Item>
+
+              <Form.Item
+                label={<FormItemLabel name="图标" tag="icon" />}
+                name="icon"
+                rules={[
+                  { required: true },
+                ]}
+              >
+                <EmojiPickerHoc />
+              </Form.Item>
+
               {
                 transportType === 'sse'
                   ? (

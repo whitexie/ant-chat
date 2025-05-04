@@ -89,7 +89,7 @@ export default function Chat() {
   }
 
   return (
-    <div key={currentConversations?.id} className="grid w-full grid-rows-[max-content_1fr_max-content] h-[var(--mainHeight)] md:h-100dvh relative mx-auto">
+    <div key={currentConversations?.id} className="grid w-full grid-rows-[max-content_1fr_max-content] h-(--mainHeight) md:h-[100dvh] relative mx-auto">
       <div>
         <ConversationsTitle
           conversation={currentConversations}
@@ -111,7 +111,7 @@ export default function Chat() {
               />
             )
           : (
-              <h1 className="text-center absolute bottom-[70%] left-0 right-0 text-gray-500">
+              <h1 className="text-center text-3xl absolute bottom-[70%] py-3 left-0 right-0 text-gray-500">
                 <TypingEffect text="有什么可以帮忙的？" />
               </h1>
             )

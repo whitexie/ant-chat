@@ -15,8 +15,8 @@ export function SliderMenuItem({ icon, title, path, actived, disabledTooltip, on
       className={`
           w-9 h-9 
           flex justify-center items-center 
-          rounded-1 
-          hover:(bg-black/3 dark:bg-white/10) 
+          rounded-md
+          hover:bg-black/3 hover:dark:bg-white/10
           cursor-pointer 
           text-5.5
           ${actived ? 'bg-black/3 dark:bg-white/10' : ''}

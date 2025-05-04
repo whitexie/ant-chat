@@ -1,9 +1,9 @@
 import type { PluginOption } from 'vite'
 import process from 'node:process'
 import { fileURLToPath, URL } from 'node:url'
+import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { codeInspectorPlugin } from 'code-inspector-plugin'
-import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import compression from 'vite-plugin-compression'
@@ -23,7 +23,7 @@ const plugins: PluginOption[] = [
    * @see https://github.com/cszhjh/vite-plugin-magic-preloader?tab=readme-ov-file
    */
   magicPreloader(),
-  UnoCSS(),
+  tailwindcss(),
   svgr({
     svgrOptions: { icon: true },
   }),

@@ -9,19 +9,13 @@ export default antfu(
       html: true,
       markdown: 'prettier',
     },
-    unocss: {
-      attributify: true,
-      strict: true,
-    },
     rules: {
       'no-console': ['off'],
-      'unocss/order': 'error',
     },
   },
   {
     files: ['packages/**/*.{ts,tsx}'],
   },
-
   {
     files: ['packages/electron/**/*.{ts,tsx}'],
     rules: {
