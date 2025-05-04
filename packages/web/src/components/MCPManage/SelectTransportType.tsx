@@ -35,16 +35,19 @@ export function SelectTransportType({ value, onChange }: SelectTransportTypeProp
               <div className="items-start">
                 {item.icon}
               </div>
-              <div className="text-4 font-bold">
+              <div className="text-base font-bold">
                 <div>{item.name}</div>
-                <div className="color-black/30 dark:color-white/30 mt-.5 text-3 font-normal">{item.descript}</div>
+                <div className="text-black/30 dark:text-white/30 mt-.5 text-xs font-normal">{item.descript}</div>
               </div>
             </div>
             <div className="flex flex-col gap-2 pt-3 pl-1">
               {
                 item.features.map(t => (
-                  <div key={t} className="flex items-center gap-2 text-3">
-                    <CheckOutlined className="color-[var(--ant-color-success)]" />
+                  <div key={t} className="flex items-center gap-2 text-xs">
+                    <span className="text-(--ant-color-success)">
+
+                      <CheckOutlined />
+                    </span>
                     {t}
                   </div>
                 ))
@@ -52,7 +55,11 @@ export function SelectTransportType({ value, onChange }: SelectTransportTypeProp
             </div>
             {
               value === item.id
-              && <CheckCircleFilled className="absolute right-2 top-2 text-4.5 color-[var(--ant-color-primary)]" />
+              && (
+                <span className="text-(--ant-color-primary)">
+                  <CheckCircleFilled className="absolute right-2 top-2 text-xl" />
+                </span>
+              )
             }
 
           </div>

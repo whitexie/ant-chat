@@ -84,7 +84,7 @@ export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDraw
       }}
     >
       <div className="w-full h-full flex">
-        <div className="px-2 w-55vw overflow-y-auto flex-shrink-0 pt-5">
+        <div className="px-2 w-[55vw] overflow-y-auto flex-shrink-0 pt-5">
           <QuickImport onImport={(e) => {
             if (e.transportType === 'stdio') {
               const result: McpConfigForm = { ...e, env: envObjectToArray(e.env) }
