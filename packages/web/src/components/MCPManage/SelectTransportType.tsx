@@ -22,16 +22,16 @@ export function SelectTransportType({ value, onChange }: SelectTransportTypeProp
               relative
               w-[48%] rounded-xl p-3
               border-solid border-1 dark:border-white/20
-              ${value === item.id ? 'border-[var(--ant-color-primary-text)]' : 'border-black/20'}
+              ${value === item.id ? 'border-(--ant-color-primary-text)' : 'border-black/20'}
               cursor-pointer
-              hover:(border-[var(--ant-color-primary-text)])
+              hover:border-(--ant-color-primary-text)
             `}
 
             onClick={() => {
               onChange?.(item.id)
             }}
           >
-            <div className="text-5 flex gap-2">
+            <div className="text-xl flex gap-2">
               <div className="items-start">
                 {item.icon}
               </div>

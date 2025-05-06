@@ -52,22 +52,6 @@ export default function RenderMarkdown({ content }: RenderMarkdownProps) {
                   </code>
                 )
           },
-          a: (props) => {
-            const { href, children } = props
-            return (
-              <a
-                href={href}
-                onClick={(e) => {
-                  if (window.__ELECTRON__ && href) {
-                    e.preventDefault()
-                    window.electronAPI?.ipcRenderer.invoke('openExternal', href)
-                  }
-                }}
-              >
-                {children}
-              </a>
-            )
-          },
         }}
         urlTransform={url => url}
       >

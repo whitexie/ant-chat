@@ -58,7 +58,7 @@ function ThemeButton() {
           rounded-md 
           hover:bg-black/3 hover:dark:bg-white/10 
           cursor-pointer 
-          text-xl
+          text-base
         `}
       >
         {icon}

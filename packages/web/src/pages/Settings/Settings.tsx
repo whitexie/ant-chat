@@ -22,7 +22,7 @@ export default function Settings() {
                 className={`
                   flex gap-3 items-center 
                   px-4 h-10
-                  hover:(bg-black/3 dark:bg-white/6)
+                  hover:bg-black/3 hover:dark:bg-white/6
                   rounded-md 
                   cursor-pointer
                   ${activeName === item.id ? 'dark:text-white bg-black/3 dark:bg-white/10 text-black' : ''}
@@ -31,7 +31,7 @@ export default function Settings() {
                   navigrate(`/settings/${item.id}`)
                 }}
               >
-                <div className="text-5">
+                <div className="text-xl">
                   {item.icon}
                 </div>
                 <div>

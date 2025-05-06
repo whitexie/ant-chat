@@ -21,7 +21,7 @@ export function QuickImport({ onImport }: QuickImportProps) {
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/Users/ysansan"
+        "/home/ant-chat"
       ]
     }
   }
@@ -117,6 +117,8 @@ function parseMcpServerJsonText(text: string): McpConfig {
     return {
       transportType: 'stdio',
       serverName,
+      icon: '🛠️',
+      state: 'disconnected',
       command: config.command,
       args: config.args,
       env: config.env || {},
@@ -127,6 +129,8 @@ function parseMcpServerJsonText(text: string): McpConfig {
   else if (config.url) {
     return {
       transportType: 'sse' as const,
+      icon: '🛠️',
+      state: 'disconnected',
       serverName,
       url: config.url,
       createAt: getNow(),

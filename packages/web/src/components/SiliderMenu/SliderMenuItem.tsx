@@ -14,11 +14,11 @@ export function SliderMenuItem({ icon, title, path, actived, disabledTooltip, on
     <div
       className={`
           w-9 h-9 
-          flex justify-center items-center 
+          flex justify-center items-center
           rounded-md
           hover:bg-black/3 hover:dark:bg-white/10
-          cursor-pointer 
-          text-5.5
+          cursor-pointer
+          text-base
           ${actived ? 'bg-black/3 dark:bg-white/10' : ''}
       `}
       onClick={(e) => {

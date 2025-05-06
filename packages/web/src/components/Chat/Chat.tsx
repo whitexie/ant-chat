@@ -111,7 +111,7 @@ export default function Chat() {
               />
             )
           : (
-              <h1 className="text-center text-3xl absolute bottom-[70%] py-3 left-0 right-0 text-gray-500">
+              <h1 className="text-center text-4xl absolute bottom-[70%] py-3 left-0 right-0 text-gray-500">
                 <TypingEffect text="有什么可以帮忙的？" />
               </h1>
             )
