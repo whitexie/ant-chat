@@ -75,6 +75,46 @@ describe('gemini Service 测试', () => {
         contents: [{ role: 'user', parts: [] }],
       })
     })
+
+    it('应该正确转换消息 - 用例案例1', async () => {
+      const messages: IMessage[] = [
+        {
+          id: '-jQfQfoOYtcMnQ2oaU2jK',
+          convId: 'conv-i8iG4_zHwC2XCshb9QChX',
+          role: Role.AI,
+          content: [],
+          createAt: 1746600769405,
+          status: 'success',
+          modelInfo: {
+            model: 'gemini-2.5-pro-exp-03-25',
+            provider: 'Google',
+          },
+          reasoningContent: '',
+          mcpTool: [
+            {
+              id: 'functioncall-IwxcUTjc_mfGivfagpxB8',
+              serverName: 'amap-mcp-sse',
+              toolName: 'maps_geo',
+              args: {
+                city: '杭州',
+                address: '西湖',
+              },
+              executeState: 'completed',
+              result: {
+                success: true,
+                data: '{"results":[{"country":"中国","province":"浙江省","city":"杭州市","citycode":"0571","district":"西湖区","street":[],"number":[],"adcode":"330106","location":"120.130396,30.259242","level":"区县"}]}',
+                error: '',
+              },
+            },
+          ],
+        },
+      ]
+
+      const service = new GeminiService()
+      const result = service.transformMessages(messages)
+
+      expect(result.contents).toHaveLength(2)
+    })
   })
 
   describe('sendChatCompletions', () => {

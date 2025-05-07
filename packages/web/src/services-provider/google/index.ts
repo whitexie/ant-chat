@@ -111,7 +111,7 @@ class GeminiService extends BaseService {
           }
           result.contents.push(content)
         }
-        else {
+        else if (msg.content.length > 0) {
           result.contents.push({
             role: 'model',
             parts: msg.content.map((item) => {
