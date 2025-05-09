@@ -1,11 +1,12 @@
 import type { McpConfig } from '@/db/interface'
 import type { McpTool } from '@ant-chat/shared'
-import { EmojiPickerHoc } from '@/components/EmojiPiker'
+import type { RuleObject } from 'antd/es/form'
 
+import { EmojiPickerHoc } from '@/components/EmojiPiker'
 import { mcpConfigIsExists } from '@/db/mcpConfigActions'
 import { connectMcpServer, fetchMcpServerTools } from '@/mcp'
 import { MinusCircleOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons'
-import { Alert, App, Avatar, Button, Descriptions, Drawer, Empty, Form, Input, Space, Tag } from 'antd'
+import { Alert, Avatar, Button, Descriptions, Drawer, Empty, Form, Input, Space, Tag } from 'antd'
 import React from 'react'
 import { useImmer } from 'use-immer'
 import { QuickImport } from './QuickImport'
@@ -13,25 +14,30 @@ import { SelectTransportType } from './SelectTransportType'
 
 interface McpConfigDrawerProps {
   open: boolean
+  mode: 'add' | 'edit'
+  defaultValues?: McpConfig
   onClose?: () => void
   onSave?: (config: McpConfig) => void
 }
 
-interface McpConfigForm extends Omit<McpConfig, 'env'> {
+interface McpConfigForm extends Partial<Omit<McpConfig, 'env'>> {
   env: { key: string, value: string }[]
 }
 
-export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDrawerProps) {
-  const defaultValues = {
-    icon: '⚒️',
-    serverName: '',
-    url: '',
-    command: '',
-    args: [],
-    env: [],
-    transportType: '',
-  }
-  const { message } = App.useApp()
+export default function McpConfigDrawer({ open, mode, defaultValues, onClose, onSave }: McpConfigDrawerProps) {
+  const _defaultValues = mode === 'edit'
+    ? defaultValues
+    : {
+        icon: '⚒️',
+        state: 'disconnected',
+        serverName: '',
+        url: '',
+        command: '',
+        args: [],
+        env: [],
+        transportType: '',
+      }
+
   const [form] = Form.useForm<McpConfigForm>()
   const [mcpConfig, updateMcpConfig] = useImmer<McpConfig | null>(null)
   const [mcpTools, updateMcpTools] = useImmer<McpTool[]>([])
@@ -40,6 +46,10 @@ export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDraw
   const [connectError, setConnectError] = React.useState('')
 
   const transportType = Form.useWatch('transportType', form)
+
+  const serverNameRules = mode === 'add'
+    ? [{ required: true }, { validator: validatorServerName }]
+    : [{ required: true }]
 
   function reset() {
     updateMcpConfig(null)
@@ -51,10 +61,11 @@ export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDraw
   return (
     <Drawer
       open={open}
-      title="添加MCP服务器"
+      title={mode === 'add' ? '添加MCP服务器' : '更新MCP服务器'}
       styles={{ body: { padding: 0 } }}
       placement="bottom"
       height="100vh"
+      destroyOnClose
       footer={(
         <div className="flex justify-end gap-2">
           <Button onClick={() => {
@@ -66,15 +77,19 @@ export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDraw
           </Button>
           <Button
             type="primary"
-            onClick={() => {
-              if (!mcpConfig) {
-                message.error('测试连接成功后可安装')
-                return
+            onClick={async () => {
+              let config: McpConfig | McpConfigForm = await form.validateFields().then(data => data)
+
+              console.log('config => ', JSON.stringify(config))
+
+              if (config.transportType === 'stdio' && Array.isArray(config.env)) {
+                config = { ...config, env: envArrayToObject(config.env) } as McpConfig
               }
-              onSave?.(mcpConfig)
+
+              onSave?.({ ..._defaultValues, ...config } as McpConfig)
             }}
           >
-            安装
+            {mode === 'edit' ? '更新' : '安装'}
           </Button>
         </div>
       )}
@@ -97,7 +112,7 @@ export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDraw
           />
 
           <div className="pt-5 px-2">
-            <Form form={form} layout="vertical" className="flex flex-col gap-5" initialValues={defaultValues}>
+            <Form form={form} layout="vertical" className="flex flex-col gap-5" initialValues={_defaultValues}>
               <Form.Item
                 label={<FormItemLabel name="MCP服务类型" tag="transportType" />}
                 name="transportType"
@@ -109,18 +124,7 @@ export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDraw
               <Form.Item
                 label={<FormItemLabel name="MCP Server 名称" tag="serverName" />}
                 name="serverName"
-                rules={[
-                  { required: true },
-                  {
-                    async validator(_, value) {
-                      const isExist = await mcpConfigIsExists(value)
-                      console.log('isExist => ', isExist)
-                      if (isExist) {
-                        throw new Error(`${value}已存在, 不可重复添加`)
-                      }
-                    },
-                  },
-                ]}
+                rules={serverNameRules}
               >
                 <Input placeholder="例如: my-mcp-plugin" />
               </Form.Item>
@@ -223,15 +227,20 @@ export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDraw
                   onClick={async () => {
                     setConnectError('')
                     updateMcpTools([])
-                    let config: McpConfig | McpConfigForm = form.getFieldsValue()
-                    await form.validateFields()
-                    if (config.transportType === 'stdio') {
+                    let config: McpConfig | McpConfigForm = await form.validateFields().then(data => data)
+
+                    if (config.transportType === 'stdio' && Array.isArray(config.env)) {
                       config = { ...config, env: envArrayToObject(config.env) } as McpConfig
                     }
                     setConnectState('connecting')
                     let result = false
                     try {
-                      result = await connectMcpServer(config as McpConfig)
+                      const [ok, msg] = await connectMcpServer(config as McpConfig)
+                      result = ok
+
+                      if (!ok) {
+                        throw new Error(msg)
+                      }
                     }
                     catch (e) {
                       const message = (e as Error).message
@@ -242,7 +251,7 @@ export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDraw
                     updateMcpConfig(config as McpConfig)
                     setConnectState(result ? 'success' : 'error')
 
-                    const tools = await fetchMcpServerTools(config.serverName)
+                    const tools = await fetchMcpServerTools((config as McpConfig).serverName)
                     updateMcpTools(tools)
                   }}
                 >
@@ -252,7 +261,7 @@ export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDraw
 
               <Form.Item
                 label={<FormItemLabel name="MCP服务描述" tag="description" />}
-                name="descript"
+                name="description"
                 className="pt-4"
               >
                 <Input placeholder="补充该MCPfuw的使用说明和场景等信息" />
@@ -273,8 +282,8 @@ export default function McpConfigDrawer({ open, onClose, onSave }: McpConfigDraw
                         </Avatar>
                       </div>
                       <div>
-                        <div className="text-5">{mcpConfig?.serverName}</div>
-                        <div className="text-3 text-neutral">
+                        <div className="text-xl">{mcpConfig?.serverName}</div>
+                        <div className="text-xs text-[#a3a3a3]">
                           {mcpConfig?.serverName}
                           {' '}
                           MCP server 共有
@@ -356,7 +365,7 @@ function PreviewMcpToolItem({ item }: { item: McpTool }) {
       <div className="flex justify-between items-center gap-2 cursor-pointer" onClick={() => setIsExpand(!isExpand)}>
         <div className="">
           <div>{item.name}</div>
-          <div className="text-3 mt-1 text-neutral">{item.description}</div>
+          <div className="text-xs mt-1 text-[#a3a3a3]">{item.description}</div>
         </div>
         <RightOutlined className="flex-shrink-0" rotate={isExpand ? 90 : 0} />
       </div>
@@ -373,7 +382,7 @@ function PreviewMcpToolParams({ item }: { item: McpTool }) {
   const params = Object.entries(item.inputSchema.properties)
   if (params.length === 0) {
     return (
-      <div className="text-3 py-2 text-neutral">
+      <div className="text-xs py-2 text-[#a3a3a3]">
         该工具没有参数
       </div>
     )
@@ -383,7 +392,7 @@ function PreviewMcpToolParams({ item }: { item: McpTool }) {
       <Descriptions
         size="small"
         column={1}
-        title={<span className="text-3">工具参数</span>}
+        title={<span className="text-xs">工具参数</span>}
         items={params.map(t => ({
           key: t[0],
           label: (
@@ -391,15 +400,15 @@ function PreviewMcpToolParams({ item }: { item: McpTool }) {
               <span>
                 {t[0] as string}
               </span>
-              <span className="text-red">
-                {item.inputSchema.required.includes(t[0] as string) ? '*' : ''}
+              <span className="text-red-500">
+                {item.inputSchema.required?.includes(t[0] as string) ? '*' : ''}
               </span>
             </>
           ),
           children: (
             <>
               <Tag>{t[1].type as string}</Tag>
-              <span className="text-3">{t[1]?.description as string}</span>
+              <span className="text-xs">{t[1]?.description as string}</span>
             </>
           ),
         }))}
@@ -432,4 +441,12 @@ function InputArgs({ value, onChange }: { value?: string[], onChange?: (e: strin
       }}
     />
   )
+}
+
+async function validatorServerName(_: RuleObject, value: string) {
+  const isExist = await mcpConfigIsExists(value)
+
+  if (isExist) {
+    throw new Error(`${value}已存在, 不可重复添加`)
+  }
 }

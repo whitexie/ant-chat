@@ -1,7 +1,7 @@
 import type { McpServer, McpTool } from '@ant-chat/shared'
 import type { Tool } from '@modelcontextprotocol/sdk/types.js'
 import type { z } from 'zod'
-import type { McpServerConfig } from './schema'
+import type { McpServerConfig, McpSettingsSchema } from './schema'
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
@@ -13,7 +13,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import deepEqual from 'fast-deep-equal'
 import * as packageJson from '../package.json'
-import { DEFAULT_MCP_TIMEOUT_SECONDS, DEFAULT_REQUEST_TIMEOUT_MS, McpSettingsSchema, ServerConfigSchema } from './schema'
+import { DEFAULT_MCP_TIMEOUT_SECONDS, DEFAULT_REQUEST_TIMEOUT_MS, ServerConfigSchema } from './schema'
 
 export interface McpToolCallResponse {
   _meta?: Record<string, any>
@@ -56,35 +56,27 @@ export interface McpConnection {
 export class MCPClientHub {
   isInitializing = false
   connections: McpConnection[] = []
+  private onErrorCallbacks: ((name: string, e: Error) => void)[] = []
 
-  initializePromise: Promise<void> | null = null
-
-  constructor() {
-    this.initializePromise = this.initializeMcpServers()
+  addErrorCallback(callback: (name: string, e: Error) => void) {
+    if (typeof callback === 'function') {
+      this.onErrorCallbacks.push(callback)
+    }
   }
 
-  private async initializeMcpServers(): Promise<void> {
+  removeErrorCallback(callback: (name: string, e: Error) => void) {
+    const index = this.onErrorCallbacks.findIndex(func => func === callback)
+    if (index > -1) {
+      this.onErrorCallbacks.splice(index, 1)
+    }
+  }
+
+  async initializeMcpServers(settings: z.infer<typeof McpSettingsSchema>): Promise<void> {
     this.isInitializing = true
-    const settings = await this.readAndValidateMcpSettingsFile()
     if (settings) {
       await this.updateServerConnections(settings.mcpServers)
     }
     this.isInitializing = false
-    this.initializePromise = null
-  }
-
-  async readAndValidateMcpSettingsFile(): Promise<z.infer<typeof McpSettingsSchema> | undefined> {
-    const mcpFilePath = this.getMcpSettingsFilePath()
-    const mcpSettingsContent = await fs.readFile(mcpFilePath, 'utf-8')
-
-    const result = McpSettingsSchema.safeParse(JSON.parse(mcpSettingsContent))
-
-    if (!result.success) {
-      console.error(result.error)
-      throw new Error('Invalid MCP settings format. Please ensure your settings follow the correct JSON format.')
-    }
-
-    return result.data
   }
 
   async updateServerConnections(newServers: Record<string, McpServerConfig>): Promise<void> {
@@ -122,9 +114,6 @@ export class MCPClientHub {
       else if (!deepEqual(JSON.parse(currentConnection.server.config), config)) {
         // Existing server with changed config
         try {
-          if (config.transportType === 'stdio') {
-            // this.setupFileWatcher(name, config)
-          }
           await this.deleteConnection(name)
           await this.connectToServer(name, config)
           console.log(`Reconnected MCP server with updated config: ${name}`)
@@ -133,9 +122,7 @@ export class MCPClientHub {
           console.error(`Failed to reconnect MCP server ${name}:`, error)
         }
       }
-      // If server exists with same config, do nothing
     }
-    // await this.notifyWebviewOfServerChanges()
   }
 
   async connectToServer(name: string, config: McpServerConfig) {
@@ -162,6 +149,9 @@ export class MCPClientHub {
     // 设置回调
     transport.onerror = async (error) => {
       console.error(`Transport error for "${name}":`, error)
+      this.onErrorCallbacks.forEach((func) => {
+        func(name, error)
+      })
       const connection = this.connections.find(conn => conn.server.name === name)
       if (connection) {
         connection.server.status = 'disconnected'
@@ -296,8 +286,11 @@ export class MCPClientHub {
       }
       catch (error) {
         console.error(`Failed to close transport for ${name}:`, error)
+        return false
       }
     }
+
+    return true
   }
 
   getMcpSettingsFilePath() {

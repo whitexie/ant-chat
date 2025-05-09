@@ -14,11 +14,6 @@ export async function getMcpServers(): Promise<McpConnection[]> {
   }
 }
 
-export async function getConnectedMcpServers(): Promise<McpConnection[]> {
-  const servers = await getMcpServers()
-  return servers.filter(server => server.status === 'connected' && !server.disabled)
-}
-
 // 获取App操作系统
 export async function getAppOS() {
   return await window.electronAPI.ipcRenderer.invoke('app-os')
@@ -44,15 +39,38 @@ export function createMcpToolCall(options: CreateMcpToolCallOptions): IMcpToolCa
 
 export async function executeMcpToolCall(toolCall: IMcpToolCall): Promise<McpToolCallResponse> {
   const { serverName, toolName, args } = toolCall
-  return await window.electronAPI.ipcRenderer.invoke('mcp:callTool', serverName, toolName, args)
+  return await window.electronAPI.ipcRenderer.invoke(ipcEvents.CALL_TOOL, serverName, toolName, args)
 }
 
-export async function connectMcpServer(config: McpConfig) {
+export async function connectMcpServer(config: McpConfig): Promise<[boolean, string]> {
   const { serverName } = config
 
   return await window.electronAPI.ipcRenderer.invoke(ipcEvents.CONNECT_MCP_SERVER, serverName, config)
 }
 
+export async function disconnectMcpServer(name: string): Promise<boolean> {
+  return await window.electronAPI.ipcRenderer.invoke(ipcEvents.DISCONNECT_MCP_SERVER, name)
+}
+
+export async function reconnectMcpServer(config: McpConfig): Promise<[boolean, string]> {
+  const { serverName } = config
+
+  return await window.electronAPI.ipcRenderer.invoke(ipcEvents.RECONNECT_MCP_SERVER, serverName, config)
+}
+
 export async function fetchMcpServerTools(name: string) {
   return await window.electronAPI.ipcRenderer.invoke(ipcEvents.FETCH_MCP_SERVER_TOOLS, name)
 }
+
+// export async function startMcp() {
+//   const mcpSettings: McpSettings = { mcpServers: {} }
+//   const mcpConfigs = await getAvailableMcpServers()
+//   mcpConfigs.forEach((config) => {
+//     mcpSettings.mcpServers[config.serverName] = config
+//   })
+//   await window.electronAPI.ipcRenderer.invoke(ipcEvents.MCP_TOGGLE, true, mcpSettings)
+// }
+
+// export async function stopMcp() {
+//   await window.electronAPI.ipcRenderer.invoke(ipcEvents.MCP_TOGGLE, false)
+// }

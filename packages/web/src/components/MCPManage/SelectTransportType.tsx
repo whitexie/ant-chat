@@ -6,7 +6,7 @@ interface SelectTransportTypeProps {
 }
 
 const options = [
-  { id: 'sse', icon: <ApiOutlined />, name: 'Streamable HTTP', descript: '基于流式 HTTP 的通信协议', features: ['兼容网页版与桌面端', '连接远程MCP服务器，无需额外安装配置'] },
+  { id: 'sse', icon: <ApiOutlined />, name: 'Streamable HTTP', descript: '基于流式 HTTP 的通信协议', features: ['连接远程MCP服务器，无需额外安装配置'] },
   { id: 'stdio', icon: <CiCircleOutlined />, name: 'STDIO', descript: '基于标准输入输出的通信协议', features: ['更低的通信延迟，适合本地执行', '需要在本地安装运行MCP服务器'] },
 ]
 
@@ -26,7 +26,6 @@ export function SelectTransportType({ value, onChange }: SelectTransportTypeProp
               cursor-pointer
               hover:border-(--ant-color-primary-text)
             `}
-
             onClick={() => {
               onChange?.(item.id)
             }}

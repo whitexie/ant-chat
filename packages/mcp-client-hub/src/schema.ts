@@ -31,3 +31,4 @@ export const McpSettingsSchema = z.object({
 })
 
 export type McpServerConfig = z.infer<typeof ServerConfigSchema>
+export type McpSettings = z.infer<typeof McpSettingsSchema>

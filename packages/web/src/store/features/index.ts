@@ -1,6 +1,6 @@
 import { pick } from 'lodash-es'
 import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
+import { devtools, persist } from 'zustand/middleware'
 import { useShallow } from 'zustand/shallow'
 
 export const initialState = {
@@ -37,6 +37,10 @@ export function useFeatures() {
     setOnlieSearch: state.setOnlieSearch,
     setEnableMCP: state.setEnableMCP,
   })))
+}
+
+export function useMcpStore() {
+  return useFeaturesStore(useShallow(state => ({ enableMCP: state.enableMCP, setEnableMCP: state.setEnableMCP })))
 }
 
 export function useFeaturesState() {

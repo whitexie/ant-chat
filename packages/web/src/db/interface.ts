@@ -1,11 +1,7 @@
 import type { Role } from '@/constants'
 
-declare const __brand: unique symbol
-interface Brand<B> { [__brand]: B }
-export type Branded<T, B> = T & Brand<B>
-
-export type MessageId = Branded<string, 'MessageId'>
-export type ConversationsId = Branded<string, 'ConversationId'>
+export type MessageId = string
+export type ConversationsId = string
 export type ModelConfigId = 'Google' | 'Gemini' | 'OpenAI' | 'DeepSeek'
 type Timestamp = number
 
@@ -108,25 +104,27 @@ export interface IImageContent {
 export type IMessageContent = string | (ITextContent | IImageContent)[]
 
 // ============================ MCP-Server 相关类型 ============================
+export type McpServerStatus = 'connected' | 'connecting' | 'disconnected'
 export interface McpServerBase {
   icon: string
+  // state: 'connected' | 'connecting' | 'disconnected'
   serverName: string
   description?: string
-  disabled?: boolean
   timeout?: number
   createAt: Timestamp
   updateAt: Timestamp
 }
-export interface StdioConfigSchema extends McpServerBase {
-  transportType: 'sse'
-  url: string
-}
 
-export interface SseConfigSchema extends McpServerBase {
+export interface StdioConfigSchema extends McpServerBase {
   transportType: 'stdio'
   command: string
   args: string[]
   env?: Record<string, number | string | boolean>
+}
+
+export interface SseConfigSchema extends McpServerBase {
+  transportType: 'sse'
+  url: string
 }
 
 export type McpConfig = StdioConfigSchema | SseConfigSchema
