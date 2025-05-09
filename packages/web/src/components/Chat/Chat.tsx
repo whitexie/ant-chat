@@ -20,6 +20,7 @@ import {
 } from '@/store/messages'
 import { useActiveModelConfig } from '@/store/modelConfig'
 import { SettingOutlined } from '@ant-design/icons'
+import { Skeleton } from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import Loading from '../Loading'
 import Sender from '../Sender'
@@ -27,7 +28,7 @@ import TypingEffect from '../TypingEffect'
 import ConversationsTitle from './ConversationsTitle'
 
 const ConversationsSettings = lazy(() => import('./ConversationsSettings'))
-const BubbleList = lazy(() => import(/* vitePrefetch: true */ './BubbleList'))
+const BubbleList = lazy(() => import('./BubbleList'))
 const RunnerCode = lazy(() => import('../RunnerCode'))
 
 export default function Chat() {
@@ -96,19 +97,22 @@ export default function Chat() {
           items={items}
         />
       </div>
+
       {
         messages.length > 0
           ? (
-              <BubbleList
-                config={config}
-                messages={messages}
-                conversationsId={activeConversationsId}
-                onExecuteAllCompleted={
-                  async () => {
-                    await onRequestAction(activeConversationsId, config, features)
+              <Suspense fallback={<BubbleSkeleton />}>
+                <BubbleList
+                  config={config}
+                  messages={messages}
+                  conversationsId={activeConversationsId}
+                  onExecuteAllCompleted={
+                    async () => {
+                      await onRequestAction(activeConversationsId, config, features)
+                    }
                   }
-                }
-              />
+                />
+              </Suspense>
             )
           : (
               <h1 className="text-center text-4xl absolute bottom-[70%] py-3 left-0 right-0 text-gray-500">
@@ -140,6 +144,16 @@ export default function Chat() {
       <Suspense fallback={<Loading />}>
         <RunnerCode />
       </Suspense>
+    </div>
+  )
+}
+
+function BubbleSkeleton() {
+  return (
+    <div className="w-(--chat-width) mx-auto flex flex-col gap-3">
+      <Skeleton avatar paragraph={{ rows: 4 }} active />
+      <Skeleton avatar paragraph={{ rows: 4 }} active />
+      <Skeleton avatar paragraph={{ rows: 4 }} active />
     </div>
   )
 }

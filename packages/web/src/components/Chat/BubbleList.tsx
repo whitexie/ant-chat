@@ -191,7 +191,7 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
   return (
     <InfiniteScroll
       ref={infiniteScrollRef}
-      className="flex flex-col gap-4 mx-auto relative px-4 w-[var(--chat-width)]"
+      className="flex flex-col gap-4 mx-auto relative px-4 w-(--chat-width)"
       hasMore={hasMore}
       loading={isLoading}
       onLoadMore={handleLoadMore}
