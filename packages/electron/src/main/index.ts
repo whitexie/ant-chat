@@ -1,5 +1,6 @@
 import process from 'node:process'
 import { app } from 'electron'
+import { initializeDb, registerDbIpcHandlers } from './db'
 import { McpService } from './mcp/index'
 import { logger } from './utils/logger'
 import { MainWindow } from './window'
@@ -9,6 +10,12 @@ const __dirname = process.cwd()
 logger.info('Electron 主进程启动', __dirname)
 
 app.whenReady().then(async () => {
+  // 初始化数据库
+  await initializeDb()
+
+  // 注册数据库相关的IPC处理函数
+  registerDbIpcHandlers()
+
   const mainWindow = new MainWindow()
   await mainWindow.createWindow()
 

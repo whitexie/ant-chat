@@ -1,31 +1,39 @@
 import type { McpConfig } from './interface'
 import { getNow } from '@/utils'
-import db from './db'
+import { dbApi } from './dbApi'
 
 export async function getAllMcpConfigs() {
-  return (await db.mcpConfigs.toArray()).sort((a, b) => b.updateAt - a.updateAt)
+  const response = await dbApi.getMcpConfigs()
+  if (!response.success || !response.data) {
+    return []
+  }
+  return response.data.sort((a: McpConfig, b: McpConfig) => b.updateAt - a.updateAt)
 }
 
 export async function getMcpConfigByName(name: string) {
-  return await db.mcpConfigs.get(name)
+  const response = await dbApi.getMcpConfigByServerName(name)
+  return response.success ? response.data : null
 }
 
 export async function mcpConfigIsExists(serverName: string) {
-  return !!(await db.mcpConfigs.get(serverName))
+  const response = await dbApi.getMcpConfigByServerName(serverName)
+  return response.success && !!response.data
 }
 
 export async function addMcpConfig(config: McpConfig) {
   if (await mcpConfigIsExists(config.serverName)) {
     return [false, `${config.serverName} 已存在`]
   }
-  await db.mcpConfigs.add(config)
-  return [true, '']
+  const response = await dbApi.addMcpConfig(config)
+  return [response.success, response.success ? '' : '添加失败']
 }
 
 export async function updateMcpConfig(config: McpConfig) {
-  return await db.mcpConfigs.put({ ...config, updateAt: getNow() })
+  const updatedConfig = { ...config, updateAt: getNow() }
+  const response = await dbApi.updateMcpConfig(updatedConfig)
+  return response.success ? response.data : null
 }
 
-export async function deleteMcpConfig(sereerName: string) {
-  return await db.mcpConfigs.delete(sereerName)
+export async function deleteMcpConfig(serverName: string) {
+  return dbApi.deleteMcpConfig(serverName)
 }

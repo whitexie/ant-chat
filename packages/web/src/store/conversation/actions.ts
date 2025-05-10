@@ -5,7 +5,6 @@ import {
   addConversations,
   addMessage,
   conversationsExists,
-  db,
   deleteConversations,
   fetchConversations,
   getConversationsById,
@@ -75,10 +74,7 @@ export async function importConversationsAction(data: AntChatFileStructure) {
 }
 
 export async function clearConversationsAction() {
-  await Promise.all([
-    db.conversations.clear(),
-    db.messages.clear(),
-  ])
+  // TODO 清理数据库中的所有会话数据
 
   await setActiveConversationsId('')
 

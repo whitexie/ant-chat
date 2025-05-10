@@ -1,9 +1,11 @@
 import type { ConversationsId, IConversations, IConversationsSettings, ModelConfig } from './interface'
-import db from './db'
+import { getNow } from '@/utils'
+import { dbApi } from './dbApi'
 import { getSystemMessageByConvId, updateMessage } from './messagesActions'
 
 export async function getConversationsById(id: ConversationsId) {
-  return await db.conversations.get(id)
+  const response = await dbApi.getConversationById(id)
+  return response.success ? response.data : null
 }
 
 export async function conversationsExists(id: ConversationsId) {
@@ -12,7 +14,8 @@ export async function conversationsExists(id: ConversationsId) {
 
 export async function addConversations(conversation: IConversations) {
   try {
-    return await db.conversations.add(conversation)
+    const response = await dbApi.addConversation(conversation)
+    return response.success ? response.data : null
   }
   catch {
     throw new Error(`${conversation.id} already exists`)
@@ -20,12 +23,7 @@ export async function addConversations(conversation: IConversations) {
 }
 
 export async function deleteConversations(id: ConversationsId) {
-  return db.transaction('readwrite', db.conversations, db.messages, async () => {
-    await Promise.all([
-      db.conversations.delete(id),
-      db.messages.filter(item => item.convId === id).delete(),
-    ])
-  })
+  return dbApi.deleteConversation(id)
 }
 
 export async function setConversationsSystemPrompt(id: ConversationsId, systemPrompt: string) {
@@ -46,7 +44,10 @@ export async function setConversationsSystemPrompt(id: ConversationsId, systemPr
     await updateMessage(systemMessage)
   }
 
-  return await db.conversations.put(conversation)
+  return dbApi.updateConversation({
+    ...conversation,
+    updateAt: getNow(),
+  })
 }
 
 export async function setConversationsModelConfig(id: ConversationsId, modelConfig: ModelConfig | null) {
@@ -61,7 +62,10 @@ export async function setConversationsModelConfig(id: ConversationsId, modelConf
 
   conversation.settings.modelConfig = modelConfig
 
-  return await db.conversations.put(conversation)
+  return dbApi.updateConversation({
+    ...conversation,
+    updateAt: getNow(),
+  })
 }
 
 export async function updateConversationsSettings(id: ConversationsId, config: IConversationsSettings) {
@@ -71,25 +75,34 @@ export async function updateConversationsSettings(id: ConversationsId, config: I
   }
   conversation.settings = config
 
-  return await db.conversations.put(conversation)
+  return dbApi.updateConversation({
+    ...conversation,
+    updateAt: getNow(),
+  })
 }
 
 export async function renameConversations(id: string, newName: string) {
-  const conversation = await db.conversations.where({ id }).first()
-
-  if (!conversation) {
+  const response = await dbApi.getConversationById(id)
+  if (!response.success || !response.data) {
     throw new Error(`conversation not found. id => ${id}`)
   }
 
+  const conversation = response.data
   conversation.title = newName
+  conversation.updateAt = getNow()
 
-  return await db.conversations.put(conversation)
+  return dbApi.updateConversation(conversation)
 }
 
 export async function fetchConversations(pageIndex: number, pageSize: number = 10) {
-  const conversationsDb = db.conversations.orderBy('updateAt').reverse()
-  const total = await conversationsDb.count()
-  const conversations = await conversationsDb.offset(pageIndex * pageSize).limit(pageSize).toArray()
+  const response = await dbApi.getConversations()
+  if (!response.success || !response.data) {
+    return { conversations: [], total: 0 }
+  }
+
+  const allConversations = response.data.sort((a: IConversations, b: IConversations) => b.updateAt - a.updateAt)
+  const total = allConversations.length
+  const conversations = allConversations.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
 
   return {
     conversations,
@@ -102,7 +115,8 @@ export async function updateConversationsUpdateAt(id: ConversationsId, updateAt:
   if (!conversation) {
     throw new Error(`conversations not exists: ${id}`)
   }
-  conversation.updateAt = updateAt || Date.now()
 
-  return await db.conversations.put(conversation)
+  conversation.updateAt = updateAt || getNow()
+
+  return dbApi.updateConversation(conversation)
 }

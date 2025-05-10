@@ -1,0 +1,351 @@
+import type { IMessage, IMessageAI, IMessageSystem, IMessageUser } from '@ant-chat/shared/interfaces/db-types'
+import type { InferSelectModel } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
+import db from './db'
+import { conversationsTable, customModelsTable, mcpConfigsTable, messagesTable } from './schema'
+
+// ==================== 会话操作 ====================
+export async function getConversations() {
+  return db.select().from(conversationsTable).orderBy(conversationsTable.updateAt)
+}
+
+export async function getConversationById(id: string) {
+  const result = await db.select().from(conversationsTable).where(eq(conversationsTable.id, id)).get()
+  return result
+}
+
+export async function addConversation(conversation: any) {
+  return db.insert(conversationsTable)
+    .values({
+      id: conversation.id,
+      title: conversation.title,
+      createAt: conversation.createAt,
+      updateAt: conversation.updateAt,
+      settings: conversation.settings ? JSON.stringify(conversation.settings) : null,
+    })
+    .returning()
+    .get()
+}
+
+export async function updateConversation(conversation: any) {
+  return db.update(conversationsTable)
+    .set({
+      title: conversation.title,
+      updateAt: conversation.updateAt,
+      settings: conversation.settings ? JSON.stringify(conversation.settings) : null,
+    })
+    .where(eq(conversationsTable.id, conversation.id))
+    .returning()
+    .get()
+}
+
+export async function deleteConversation(id: string) {
+  // 先删除该会话下的所有消息
+  await db.delete(messagesTable)
+    .where(eq(messagesTable.convId, id))
+    .run()
+
+  // 再删除会话本身
+  return db.delete(conversationsTable)
+    .where(eq(conversationsTable.id, id))
+    .returning()
+    .get()
+}
+
+export async function updateConversationUpdateAt(id: string, updateAt: number) {
+  return db.update(conversationsTable)
+    .set({ updateAt })
+    .where(eq(conversationsTable.id, id))
+    .returning()
+    .get()
+}
+
+// ==================== 消息操作 ====================
+export async function getMessageById(id: string) {
+  const result = await db.select().from(messagesTable).where(eq(messagesTable.id, id)).get()
+
+  if (!result) {
+    throw new Error('消息未找到')
+  }
+
+  return dbMessageToWebMessage(result)
+}
+
+export async function addMessage(message: any) {
+  // 先检查对应的会话是否存在
+  const conversation = await getConversationById(message.convId)
+  if (!conversation) {
+    throw new Error('会话未找到')
+  }
+
+  return db.insert(messagesTable)
+    .values({
+      id: message.id,
+      convId: message.convId,
+      role: message.role,
+      content: typeof message.content === 'string' ? message.content : JSON.stringify(message.content),
+      createAt: message.createAt,
+      status: message.status,
+      images: message.images ? JSON.stringify(message.images) : null,
+      attachments: message.attachments ? JSON.stringify(message.attachments) : null,
+      reasoningContent: message.reasoningContent,
+      mcpTool: message.mcpTool ? JSON.stringify(message.mcpTool) : null,
+      modelInfo: message.modelInfo ? JSON.stringify(message.modelInfo) : null,
+    })
+    .returning()
+    .get()
+}
+
+export async function updateMessage(message: any) {
+  await updateConversationUpdateAt(message.convId, Date.now())
+
+  return db.update(messagesTable)
+    .set({
+      role: message.role,
+      content: typeof message.content === 'string' ? message.content : JSON.stringify(message.content),
+      status: message.status,
+      images: message.images ? JSON.stringify(message.images) : null,
+      attachments: message.attachments ? JSON.stringify(message.attachments) : null,
+      reasoningContent: message.reasoningContent,
+      mcpTool: message.mcpTool ? JSON.stringify(message.mcpTool) : null,
+      modelInfo: message.modelInfo ? JSON.stringify(message.modelInfo) : null,
+    })
+    .where(eq(messagesTable.id, message.id))
+    .returning()
+    .get()
+}
+
+export async function deleteMessage(id: string) {
+  return db.delete(messagesTable)
+    .where(eq(messagesTable.id, id))
+    .returning()
+    .get()
+}
+
+// 使用 Drizzle 的类型推断获取数据库原始类型
+type DbMessage = InferSelectModel<typeof messagesTable>
+
+export async function getMessagesByConvId(id: string): Promise<IMessage[]> {
+  const results = await db.select()
+    .from(messagesTable)
+    .where(eq(messagesTable.convId, id))
+    .orderBy(messagesTable.createAt)
+    .all()
+
+  return results.map(dbMessageToWebMessage)
+}
+
+export async function getMessagesByConvIdWithPagination(id: string, pageIndex: number, pageSize: number): Promise<{ messages: IMessage[], total: number }> {
+  // 获取总记录数
+  const countResult = await db.select({ count: sql<number>`count(1)` })
+    .from(messagesTable)
+    .where(eq(messagesTable.convId, id))
+    .get()
+
+  const total = countResult ? Number(countResult.count) : 0
+
+  // 获取分页数据
+  const results = await db.select()
+    .from(messagesTable)
+    .where(eq(messagesTable.convId, id))
+    .orderBy(messagesTable.createAt)
+    .limit(pageSize)
+    .offset(pageIndex * pageSize)
+    .all()
+
+  return {
+    messages: results.map(dbMessageToWebMessage),
+    total,
+  }
+}
+
+export async function batchDeleteMessages(ids: string[]) {
+  for (const id of ids) {
+    await deleteMessage(id)
+  }
+  return true
+}
+
+// ==================== 自定义模型操作 ====================
+export async function getCustomModels() {
+  return db.select().from(customModelsTable).all()
+}
+
+export async function addCustomModel(model: any) {
+  return db.insert(customModelsTable)
+    .values({
+      id: model.id,
+      ownedBy: model.ownedBy,
+      createAt: model.createAt,
+    })
+    .returning()
+    .get()
+}
+
+export async function deleteCustomModel(id: string) {
+  return db.delete(customModelsTable)
+    .where(eq(customModelsTable.id, id))
+    .returning()
+    .get()
+}
+
+// ==================== MCP配置操作 ====================
+export async function getMcpConfigs() {
+  return db.select().from(mcpConfigsTable).all()
+}
+
+export async function getMcpConfigByServerName(serverName: string) {
+  return db.select()
+    .from(mcpConfigsTable)
+    .where(eq(mcpConfigsTable.serverName, serverName))
+    .get()
+}
+
+export async function addMcpConfig(config: any) {
+  return db.insert(mcpConfigsTable)
+    .values({
+      serverName: config.serverName,
+      icon: config.icon,
+      description: config.description,
+      timeout: config.timeout,
+      transportType: config.transportType,
+      createAt: config.createAt,
+      updateAt: config.updateAt,
+      url: config.url,
+      command: config.command,
+      args: config.args ? JSON.stringify(config.args) : null,
+      env: config.env ? JSON.stringify(config.env) : null,
+    })
+    .returning()
+    .get()
+}
+
+export async function updateMcpConfig(config: any) {
+  return db.update(mcpConfigsTable)
+    .set({
+      icon: config.icon,
+      description: config.description,
+      timeout: config.timeout,
+      transportType: config.transportType,
+      updateAt: config.updateAt,
+      url: config.url,
+      command: config.command,
+      args: config.args ? JSON.stringify(config.args) : null,
+      env: config.env ? JSON.stringify(config.env) : null,
+    })
+    .where(eq(mcpConfigsTable.serverName, config.serverName))
+    .returning()
+    .get()
+}
+
+export async function deleteMcpConfig(serverName: string) {
+  return db.delete(mcpConfigsTable)
+    .where(eq(mcpConfigsTable.serverName, serverName))
+    .returning()
+    .get()
+}
+
+// ==================== 辅助函数 ====================
+/**
+ * 将数据库消息转换为 Web 端可用的消息格式
+ * 解析 JSON 字符串字段为对象/数组
+ */
+function dbMessageToWebMessage(dbMessage: DbMessage): IMessage {
+  // 基础字段
+  const baseMessage = {
+    id: dbMessage.id,
+    convId: dbMessage.convId,
+    createAt: dbMessage.createAt,
+    role: dbMessage.role as 'system' | 'user' | 'assistant',
+    status: dbMessage.status as any,
+  }
+
+  // 处理 content 字段
+  let content: any = dbMessage.content
+  if (typeof content === 'string'
+    && (content.startsWith('[') || content.startsWith('{'))) {
+    try {
+      content = JSON.parse(content)
+    }
+    catch {
+      // 解析失败，保持原样
+    }
+  }
+
+  // 根据角色创建不同类型的消息
+  switch (baseMessage.role) {
+    case 'system':
+      return {
+        ...baseMessage,
+        content: content as string,
+      } as IMessageSystem
+
+    case 'user': {
+      // 解析用户消息的图片和附件
+      let images: any[] = []
+      if (dbMessage.images) {
+        try {
+          images = JSON.parse(dbMessage.images)
+        }
+        catch {
+          images = []
+        }
+      }
+
+      let attachments: any[] = []
+      if (dbMessage.attachments) {
+        try {
+          attachments = JSON.parse(dbMessage.attachments)
+        }
+        catch {
+          attachments = []
+        }
+      }
+
+      return {
+        ...baseMessage,
+        content: content as string,
+        images,
+        attachments,
+      } as IMessageUser
+    }
+
+    case 'assistant': {
+      // 解析 AI 消息的特殊字段
+      let mcpTool: any[] | undefined
+      if (dbMessage.mcpTool) {
+        try {
+          mcpTool = JSON.parse(dbMessage.mcpTool)
+        }
+        catch {
+          mcpTool = []
+        }
+      }
+
+      let modelInfo: any
+      if (dbMessage.modelInfo) {
+        try {
+          modelInfo = JSON.parse(dbMessage.modelInfo)
+        }
+        catch {
+          modelInfo = null
+        }
+      }
+
+      return {
+        ...baseMessage,
+        content,
+        reasoningContent: dbMessage.reasoningContent,
+        mcpTool,
+        modelInfo,
+      } as IMessageAI
+    }
+
+    default:
+      // 兜底处理，返回基础消息
+      return {
+        ...baseMessage,
+        content,
+      } as IMessage
+  }
+}

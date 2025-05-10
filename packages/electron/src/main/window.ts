@@ -1,7 +1,8 @@
-import { join } from 'node:path'
+import path, { join } from 'node:path'
 import process from 'node:process'
 import { app, BrowserWindow, Menu, shell } from 'electron'
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer'
+import { isDev } from './utils/env'
 import { logger } from './utils/logger'
 
 const __dirname = process.cwd()
@@ -10,7 +11,6 @@ let mainWindow: null | BrowserWindow = null
 
 export class MainWindow {
   private window: BrowserWindow | null = null
-  private readonly isDev = process.env.NODE_ENV === 'development'
   private readonly DEV_SERVER_URL = 'http://localhost:5173' // Vite 默认端口
 
   private createMenu() {
@@ -73,7 +73,7 @@ export class MainWindow {
         ],
       },
       // 开发菜单（仅在开发模式显示）
-      ...(this.isDev
+      ...(isDev
         ? [{
             label: '开发',
             submenu: [
@@ -111,7 +111,7 @@ export class MainWindow {
     this.createMenu()
 
     // 开发模式下加载本地服务器
-    if (this.isDev) {
+    if (isDev) {
       logger.info('Loading dev server:', this.DEV_SERVER_URL)
       this.window.loadURL(this.DEV_SERVER_URL).catch((err) => {
         logger.error('Failed to load dev server:', err)
@@ -163,6 +163,10 @@ export class MainWindow {
     }
 
     this.window.webContents.on('will-navigate', (event, url) => {
+      logger.debug('will-navigate', url)
+      if (isDev && url.startsWith('http://localhost:5173')) {
+        return
+      }
       const isExternal = url.startsWith('http:') || url.startsWith('https:')
       if (isExternal) {
         event.preventDefault()

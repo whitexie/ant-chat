@@ -2,7 +2,7 @@ import type { ConversationsId, IMessage, IMessageSystem, MessageId } from './int
 import { Role } from '@/constants'
 import { uuid } from '@/utils'
 import { updateConversationsUpdateAt } from './conversationsActions'
-import db from './db'
+import { dbApi } from './dbApi'
 
 export function generateMessageId() {
   return `msg_${uuid()}` as MessageId
@@ -13,71 +13,98 @@ export function generateConversationId() {
 }
 
 export async function messageIsExists(id: MessageId) {
-  return !!await db.messages.get(id)
+  const response = await dbApi.getMessageById(id)
+  return response.success && response.data
 }
 
 export async function getMessageById(id: MessageId) {
-  const result = await db.messages.get(id)
-  if (!result) {
-    throw new Error('nout found message')
+  const response = await dbApi.getMessageById(id)
+  if (!response.success || !response.data) {
+    throw new Error('not found message')
   }
-  return result
+  return response.data
 }
 
 export async function addMessage(message: IMessage) {
-  if (!await db.conversations.get(message.convId)) {
+  const convResponse = await dbApi.getConversationById(message.convId)
+  if (!convResponse.success || !convResponse.data) {
     throw new Error('conversation not found')
   }
-  return db.messages.add(message)
+
+  const response = await dbApi.addMessage(message)
+  return response.success ? response.data : null
 }
 
 export async function updateMessage(message: IMessage) {
-  return await db.transaction('readwrite', db.conversations, db.messages, async () => {
-    await Promise.all([
-      updateConversationsUpdateAt(message.convId, Date.now()),
-      db.messages.put(message),
-    ])
-  })
+  await updateConversationsUpdateAt(message.convId, Date.now())
+  const response = await dbApi.updateMessage(message)
+  return response.success ? response.data : null
 }
 
 export async function deleteMessage(id: MessageId) {
-  return db.messages.delete(id)
+  return dbApi.deleteMessage(id)
 }
 
 export async function getMessagesByConvId(id: ConversationsId) {
-  return db.messages
-    .orderBy('createAt')
-    .filter(x => x.convId === id)
-    .toArray()
+  const response = await dbApi.getMessagesByConvId(id)
+  return response.success ? response.data : []
 }
 
 export async function getMessagesByConvIdWithPagination(id: ConversationsId, pageIndex: number, pageSize: number) {
-  const result = db.messages
-    .orderBy('createAt')
-    .filter(x => x.convId === id)
+  const response = await dbApi.getMessagesByConvIdWithPagination(id, pageIndex, pageSize)
 
-  const total = await result.count()
-  const messages = (await result.offset(pageIndex * pageSize).limit(pageSize).reverse().toArray()).reverse()
-  return { messages, total }
+  if (!response.success || !response.data) {
+    return { messages: [], total: 0 }
+  }
+
+  return response.data
 }
 
 export async function getSystemMessageByConvId(id: ConversationsId): Promise<IMessageSystem | null> {
-  const messages = await db.messages
-    .orderBy('createAt')
-    .filter(x => x.convId === id && x.role === Role.SYSTEM)
-    .toArray()
+  const response = await dbApi.getMessagesByConvId(id)
+
+  if (!response.success || !response.data) {
+    return null
+  }
+
+  const messages = response.data.filter((x: IMessage) => x.role === Role.SYSTEM)
   return messages.length ? messages[0] as IMessageSystem : null
 }
 
 export async function BatchDeleteMessage(ids: MessageId[]) {
-  return db.messages.bulkDelete(ids)
+  return dbApi.batchDeleteMessages(ids)
 }
 
 export async function exportMessages() {
-  return db.messages.toArray()
+  const allConversations = await dbApi.getConversations()
+  if (!allConversations.success || !allConversations.data) {
+    return []
+  }
+
+  const allMessages: IMessage[] = []
+  for (const conv of allConversations.data) {
+    const messagesResponse = await dbApi.getMessagesByConvId(conv.id)
+    if (messagesResponse.success && messagesResponse.data) {
+      allMessages.push(...messagesResponse.data)
+    }
+  }
+
+  return allMessages
 }
 
 export async function importMessages(messages: IMessage[]) {
-  const messagesList = messages.filter(async item => await messageIsExists(item.id))
-  return db.messages.bulkAdd(messagesList)
+  const validMessages = []
+
+  for (const message of messages) {
+    const exists = await messageIsExists(message.id)
+    if (!exists) {
+      validMessages.push(message)
+    }
+  }
+
+  for (const message of validMessages) {
+    await dbApi.addMessage(message)
+  }
+
+  return validMessages.length
 }

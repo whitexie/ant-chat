@@ -6,12 +6,15 @@
   "main": "dist-electron/main/index.js",
   "scripts": {
     "start": "electron-vite preview",
-    "vite": "vite",
-    "dev": "tsx scripts/dev.ts",
+    "dev": "vite",
     "prebuild": "electron-vite build",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/main/db/migrate.ts"
   },
   "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "drizzle-orm": "^0.30.4",
     "electron-store": "^8.2.0",
     "electron-updater": "^6.2.0"
   },
@@ -19,7 +22,9 @@
     "@ant-chat/mcp-client-hub": "workspace:*",
     "@ant-chat/shared": "workspace:*",
     "@electron-toolkit/preload": "^3.0.1",
+    "@types/better-sqlite3": "^7.6.8",
     "@types/node": "^20.11.24",
+    "drizzle-kit": "^0.21.2",
     "electron": "^28.2.0",
     "electron-builder": "^24.13.3",
     "electron-devtools-installer": "^4.0.0",
@@ -37,17 +42,39 @@
       "dist/**/*"
     ],
     "mac": {
-      "category": "public.app-category.productivity"
+      "icon": "public/icon.png",
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg"
+      ]
+    },
+    "dmg": {
+      "contents": [{
+        "x": 410,
+        "y": 150,
+        "type": "link",
+        "path": "/Applications"
+      }, {
+        "x": 130,
+        "y": 150,
+        "type": "file"
+      }]
     },
     "win": {
-      "target": [
-        "nsis"
-      ]
+      "icon": "assets/icon/tray.png",
+      "target": [{
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }],
+      "artifactName": "${productName}_${version}.${ext}"
     },
-    "linux": {
-      "target": [
-        "AppImage"
-      ]
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": true
     }
   }
 }

@@ -4,7 +4,7 @@ import ConversationsManage from '@/components/Conversations/ConversationsManage'
 export function ChatPage() {
   return (
     <div className="flex">
-      <div className="border-solid dark:border-white/20 overflow-hidden border-black/10 border-r-1 h-[100dvh]">
+      <div className="border-solid w-60 dark:border-white/20 overflow-hidden border-black/10 border-r-1 h-[100dvh]">
         <div className="h-full relative">
           <ConversationsManage />
         </div>

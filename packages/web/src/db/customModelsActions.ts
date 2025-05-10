@@ -1,8 +1,12 @@
 import type { IModel } from '@/services-provider/interface'
-import db from './db'
+import { dbApi } from './dbApi'
 
 async function modelIsExist(id: string) {
-  return !!(await db.customModels.get(id))
+  const response = await dbApi.getCustomModels()
+  if (!response.success || !response.data) {
+    return false
+  }
+  return response.data.some((model: IModel) => model.id === id)
 }
 
 export function createCustomModel(id: string, ownedBy: string) {
@@ -13,13 +17,17 @@ export async function addCustomModel(model: IModel) {
   if (await modelIsExist(model.id)) {
     throw new Error(`模型 ${model.id} 已存在`)
   }
-  await db.customModels.add(model)
+  await dbApi.addCustomModel(model)
 }
 
 export async function getCustomModelsByOwnedBy(ownedBy: string) {
-  return await db.customModels.where('ownedBy').equals(ownedBy).toArray()
+  const response = await dbApi.getCustomModels()
+  if (!response.success || !response.data) {
+    return []
+  }
+  return response.data.filter((model: IModel) => model.ownedBy === ownedBy)
 }
 
 export async function deleteCustomModel(id: string) {
-  await db.customModels.delete(id)
+  await dbApi.deleteCustomModel(id)
 }
