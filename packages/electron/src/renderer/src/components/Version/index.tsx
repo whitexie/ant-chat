@@ -1,5 +1,5 @@
+import { version } from '@/../../../package.json'
 import changelog from '@/../CHANGELOG.md?raw'
-import { version } from '@/../package.json'
 import RenderMarkdown from '@/components/RenderMarkdown'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { Modal, Typography } from 'antd'

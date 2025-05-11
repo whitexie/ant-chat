@@ -1,17 +1,15 @@
-import path, { join } from 'node:path'
+import { join } from 'node:path'
 import process from 'node:process'
 import { app, BrowserWindow, Menu, shell } from 'electron'
-import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer'
 import { isDev } from './utils/env'
 import { logger } from './utils/logger'
 
-const __dirname = process.cwd()
+// const __dirname = process.cwd()
 
 let mainWindow: null | BrowserWindow = null
 
 export class MainWindow {
   private window: BrowserWindow | null = null
-  private readonly DEV_SERVER_URL = 'http://localhost:5173' // Vite 默认端口
 
   private createMenu() {
     const isMac = process.platform === 'darwin'
@@ -94,6 +92,10 @@ export class MainWindow {
   }
 
   async createWindow() {
+    const preload = join(__dirname, '../preload/index.js')
+
+    logger.debug('preload path => ', preload)
+
     this.window = new BrowserWindow({
       width: 1200,
       height: 900,
@@ -101,7 +103,7 @@ export class MainWindow {
         nodeIntegration: false,
         contextIsolation: true,
         webSecurity: true,
-        preload: join(__dirname, './dist-electron/preload/index.mjs'),
+        preload,
       },
     })
 
@@ -111,17 +113,17 @@ export class MainWindow {
     this.createMenu()
 
     // 开发模式下加载本地服务器
-    if (isDev) {
-      logger.info('Loading dev server:', this.DEV_SERVER_URL)
-      this.window.loadURL(this.DEV_SERVER_URL).catch((err) => {
+    if (isDev && process.env.ELECTRON_RENDERER_URL) {
+      logger.debug('Loading dev server => ', process.env.ELECTRON_RENDERER_URL)
+      this.window.loadURL(process.env.ELECTRON_RENDERER_URL).catch((err) => {
         logger.error('Failed to load dev server:', err)
         logger.info('Please make sure the web project is running (pnpm dev)')
       })
 
       // 在开发模式下安装 React DevTools
-      await installExtension(REACT_DEVELOPER_TOOLS)
-        .then(name => logger.info(`Added Extension:  ${name.name}`))
-        .catch(err => logger.error('An error occurred: ', err))
+      // await installExtension(REACT_DEVELOPER_TOOLS)
+      //   .then(name => logger.info(`Added Extension:  ${name.name}`))
+      //   .catch(err => logger.error('An error occurred: ', err))
 
       // 自动打开开发者工具
       // this.window.webContents.openDevTools()
@@ -164,7 +166,8 @@ export class MainWindow {
 
     this.window.webContents.on('will-navigate', (event, url) => {
       logger.debug('will-navigate', url)
-      if (isDev && url.startsWith('http://localhost:5173')) {
+
+      if (isDev && url.startsWith(process.env.ELECTRON_RENDERER_URL || '')) {
         return
       }
       const isExternal = url.startsWith('http:') || url.startsWith('https:')
@@ -185,8 +188,10 @@ export class MainWindow {
   }
 }
 
-export function getMainWindow() {
+export function getMainWindow(): typeof mainWindow {
   if (mainWindow) {
     return mainWindow
   }
+
+  throw new Error('Main window is not created yet')
 }

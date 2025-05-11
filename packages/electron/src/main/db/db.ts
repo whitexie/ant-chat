@@ -1,6 +1,6 @@
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import fs from 'node:fs'
-import { createRequire } from 'node:module'
+// import { createRequire } from 'node:module'
 import path from 'node:path'
 
 import process from 'node:process'
@@ -11,7 +11,8 @@ import { isDev } from '../utils/env'
 import { logger } from '../utils/logger'
 import * as schema from './schema'
 
-const require = createRequire(import.meta.url)
+// const require = createRequire(import.meta.url)
+
 let Database: any
 
 try {

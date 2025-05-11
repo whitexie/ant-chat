@@ -4,7 +4,6 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [
-    svgr({ svgrOptions: { icon: true } }),
   ],
   test: {
     coverage: {

@@ -20,6 +20,7 @@ export default antfu(
     files: ['packages/electron/**/*.{ts,tsx}'],
     rules: {
       'ts/no-require-imports': ['off'],
+      'node/prefer-global/process': ['off'],
     },
   },
 )

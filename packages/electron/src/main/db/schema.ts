@@ -9,6 +9,9 @@ export const conversationsTable = sqliteTable('conversations', {
   settings: text('settings'), // JSON字符串存储
 })
 
+export type DbConversationSelect = typeof conversationsTable.$inferSelect
+export type DbConversationInsert = typeof conversationsTable.$inferInsert
+
 // 消息表
 export const messagesTable = sqliteTable('messages', {
   id: text('id').primaryKey(),
@@ -23,6 +26,9 @@ export const messagesTable = sqliteTable('messages', {
   mcpTool: text('mcp_tool'), // JSON字符串存储
   modelInfo: text('model_info'), // JSON字符串存储
 })
+
+export type DbMessageSelect = typeof messagesTable.$inferSelect
+export type DbMessageInsert = typeof messagesTable.$inferInsert
 
 // 自定义模型表
 export const customModelsTable = sqliteTable('custom_models', {

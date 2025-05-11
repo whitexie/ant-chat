@@ -1,18 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "rootDir": "src",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "types": [
-      "./globals.d.ts"
-    ],
-    "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "moduleResolution": "node16"
   },
-  "include": [
-    "src/**/*"
-  ]
+  "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" }],
+  "files": []
 }

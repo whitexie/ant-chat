@@ -1,12 +1,11 @@
 {
-  "name": "ant-chat",
+  "name": "@ant-chat/electron",
   "type": "module",
+  "version": "0.1.0",
   "private": true,
+  "main": "out/main/index.js",
   "scripts": {
-    "dev": "pnpm -F web dev",
-    "build": "pnpm -F web build",
-    "lint": "pnpm -F web lint",
-    "test:web": "pnpm -F web test"
+    "dev": "pnpm -F @ant-chat/electron dev"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.12.0",
