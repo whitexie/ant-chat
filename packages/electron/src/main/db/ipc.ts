@@ -1,6 +1,7 @@
 import { dbIpcEvents } from '@ant-chat/shared/ipc-events'
 import { ipcMain } from 'electron'
 import { createIpcPaginatedResponse, createIpcResponse, mainListener } from '../utils/ipc-events-bus'
+import { logger } from '../utils/logger'
 import * as actions from './actions'
 import db from './db'
 import { migrateFromIndexedDB } from './migrations'
@@ -15,7 +16,7 @@ export function registerDbIpcHandlers() {
       return { success: true, data: result }
     }
     catch (error) {
-      console.error('迁移数据失败:', error)
+      logger.error('迁移数据失败:', error)
       return { success: false, error: String(error) }
     }
   })
@@ -28,7 +29,7 @@ export function registerDbIpcHandlers() {
       return createIpcPaginatedResponse(true, data, '', total)
     }
     catch (error) {
-      console.error('获取会话列表失败:', error)
+      logger.error('获取会话列表失败:', error)
       return createIpcPaginatedResponse(false, null, (error as Error).message)
     }
   })
@@ -39,7 +40,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, data)
     }
     catch (error) {
-      console.error('获取会话详情失败:', error)
+      logger.error('获取会话详情失败:', error)
       return createIpcResponse(true, null, (error as Error).message)
     }
   })
@@ -55,7 +56,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, data)
     }
     catch (error) {
-      console.error('添加会话失败:', error)
+      logger.error('添加会话失败:', error)
       return createIpcResponse(false, null, (error as Error).message)
     }
   })
@@ -66,7 +67,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, data)
     }
     catch (error) {
-      console.error('更新会话失败:', error)
+      logger.error('更新会话失败:', error)
       return createIpcResponse(true, null, (error as Error).message)
     }
   })
@@ -77,7 +78,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, null)
     }
     catch (error) {
-      console.error('删除会话失败:', error)
+      logger.error('删除会话失败:', error)
       return createIpcResponse(true, null, (error as Error).message)
     }
   })
@@ -89,7 +90,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, data)
     }
     catch (error) {
-      console.error('获取消息失败:', error)
+      logger.error('获取消息失败:', error)
       return createIpcResponse(true, null, (error as Error).message)
     }
   })
@@ -100,7 +101,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, data)
     }
     catch (error) {
-      console.error('获取消息失败:', error)
+      logger.error('获取消息失败:', error)
       return createIpcResponse(true, null, (error as Error).message)
     }
   })
@@ -112,7 +113,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, data)
     }
     catch (error) {
-      console.error('添加消息失败:', error)
+      logger.error('添加消息失败:', error)
       return createIpcResponse(false, null, (error as Error).message)
     }
   })
@@ -124,7 +125,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, data)
     }
     catch (error) {
-      console.error('更新消息失败:', error)
+      logger.error('更新消息失败:', error)
       return createIpcResponse(false, null, (error as Error).message)
     }
   })
@@ -135,7 +136,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, null)
     }
     catch (error) {
-      console.error('删除消息失败:', error)
+      logger.error('删除消息失败:', error)
       return createIpcResponse(false, null, (error as Error).message)
     }
   })
@@ -146,7 +147,7 @@ export function registerDbIpcHandlers() {
       return createIpcPaginatedResponse(true, data, '', total)
     }
     catch (error) {
-      console.error(`分页获取会话消息失败. convId: ${id}`, error)
+      logger.error(`分页获取会话消息失败. convId: ${id}`, error)
       return createIpcPaginatedResponse(true, null, (error as Error).message, 0)
     }
   })
@@ -157,7 +158,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, null)
     }
     catch (error) {
-      console.error('批量删除消息失败:', error)
+      logger.error('批量删除消息失败:', error)
       return createIpcResponse(false, null, (error as Error).message)
     }
   })
@@ -169,7 +170,7 @@ export function registerDbIpcHandlers() {
       return { success: true, data: result }
     }
     catch (error) {
-      console.error('获取自定义模型失败:', error)
+      logger.error('获取自定义模型失败:', error)
       return { success: false, error: String(error) }
     }
   })
@@ -180,7 +181,7 @@ export function registerDbIpcHandlers() {
       return { success: true }
     }
     catch (error) {
-      console.error('添加自定义模型失败:', error)
+      logger.error('添加自定义模型失败:', error)
       return { success: false, error: String(error) }
     }
   })
@@ -191,7 +192,7 @@ export function registerDbIpcHandlers() {
       return { success: true }
     }
     catch (error) {
-      console.error('删除自定义模型失败:', error)
+      logger.error('删除自定义模型失败:', error)
       return { success: false, error: String(error) }
     }
   })
@@ -203,7 +204,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, data)
     }
     catch (error) {
-      console.error('获取MCP配置失败:', error)
+      logger.error('获取MCP配置失败:', error)
       return createIpcResponse(false, null, (error as Error).message)
     }
   })
@@ -214,7 +215,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, data)
     }
     catch (error) {
-      console.error('获取MCP配置详情失败:', error)
+      logger.error('获取MCP配置详情失败:', error)
       return createIpcResponse(false, null, (error as Error).message)
     }
   })
@@ -225,7 +226,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, data)
     }
     catch (error) {
-      console.error('添加MCP配置失败:', error)
+      logger.error('添加MCP配置失败:', error)
       return createIpcResponse(false, null, (error as Error).message)
     }
   })
@@ -236,7 +237,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, data)
     }
     catch (error) {
-      console.error('更新MCP配置失败:', error)
+      logger.error('更新MCP配置失败:', error)
       return createIpcResponse(false, null, (error as Error).message)
     }
   })
@@ -247,7 +248,7 @@ export function registerDbIpcHandlers() {
       return createIpcResponse(true, null)
     }
     catch (error) {
-      console.error('删除MCP配置失败:', error)
+      logger.error('删除MCP配置失败:', error)
       return createIpcResponse(false, null, (error as Error).message)
     }
   })
