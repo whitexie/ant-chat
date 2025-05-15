@@ -1,7 +1,8 @@
-import type { McpServerConfig, McpSettings, McpSettingsSchema } from '@ant-chat/mcp-client-hub'
+import type { McpServerConfig, McpSettings } from '@ant-chat/mcp-client-hub'
+import type { McpServer } from '@ant-chat/shared'
 import { MCPClientHub } from '@ant-chat/mcp-client-hub'
 import { ipcEvents } from '@ant-chat/shared'
-import { ipcMain } from 'electron'
+import { createIpcResponse, mainListener } from '../utils/ipc-events-bus'
 import { logger } from '../utils/logger'
 import { Notification } from '../utils/notification'
 import { getMainWindow } from '../window'
@@ -18,30 +19,30 @@ export class McpService {
   }
 
   registerEvent() {
-    ipcMain.handle(ipcEvents.GET_MCP_INITIALIZE_STATE, () => {
-      return this.mcpHub.isInitializing
-    })
-
-    ipcMain.handle(ipcEvents.GET_CONNECTED_SERVERS, () => {
-      return this.mcpHub.connections.map((item) => {
+    mainListener.handle('mcp:getConnections', async (_e) => {
+      const result: Pick<McpServer, 'name' | 'config' | 'tools' | 'status'>[] = this.mcpHub.connections.map((item) => {
         const { server } = item
         const { name, config, tools = [], status } = server
 
         return { name, config, tools, status }
       })
+
+      return createIpcResponse(true, result)
     })
 
-    ipcMain.handle(ipcEvents.GET_ALL_ABAILABLE_TOOLS, () => {
-      return this.mcpHub.getAllAvailableToolsList()
+    mainListener.handle('mcp:getAllAvailableToolsList', async () => {
+      const data = this.mcpHub.getAllAvailableToolsList()
+      return createIpcResponse(true, data)
     })
 
-    ipcMain.handle(ipcEvents.CALL_TOOL, (_, serverName: string, toolName: string, toolArguments?: Record<string, unknown>) => {
-      logger.debug(ipcEvents.CALL_TOOL, serverName, toolName, toolArguments)
-      return this.mcpHub.callTool(serverName, toolName, toolArguments)
+    mainListener.handle('mcp:callTool', async (_, serverName: string, toolName: string, toolArguments?: Record<string, unknown>) => {
+      logger.debug('mcp:callTool', serverName, toolName, toolArguments)
+      const data = await this.mcpHub.callTool(serverName, toolName, toolArguments)
+      return createIpcResponse(true, data)
     })
 
-    ipcMain.handle(ipcEvents.CONNECT_MCP_SERVER, async (_, name: string, mcpConfig: McpServerConfig) => {
-      logger.debug(ipcEvents.CONNECT_MCP_SERVER, name, JSON.stringify(mcpConfig))
+    mainListener.handle('mcp:connectMcpServer', async (_, name: string, mcpConfig: McpServerConfig) => {
+      logger.debug('mcp:connectMcpServer', name, JSON.stringify(mcpConfig))
       let ok = false
       let msg = ''
       let status = 'connected'
@@ -61,15 +62,16 @@ export class McpService {
       if (mainWindow) {
         mainWindow.webContents.send(ipcEvents.MCP_SERVER_STATUS_CHANGED, name, status)
       }
-      return [ok, msg]
+      return createIpcResponse(ok, null, msg)
     })
 
-    ipcMain.handle(ipcEvents.DISCONNECT_MCP_SERVER, async (_, name: string) => {
+    mainListener.handle(ipcEvents.DISCONNECT_MCP_SERVER, async (_, name: string) => {
       logger.debug(ipcEvents.DISCONNECT_MCP_SERVER, name)
-      return await this.mcpHub.deleteConnection(name)
+      const ok = await this.mcpHub.deleteConnection(name)
+      return createIpcResponse(ok, null)
     })
 
-    ipcMain.handle(ipcEvents.RECONNECT_MCP_SERVER, async (_, name: string, mcpConfig: McpServerConfig) => {
+    mainListener.handle(ipcEvents.RECONNECT_MCP_SERVER, async (_, name: string, mcpConfig: McpServerConfig) => {
       logger.debug(ipcEvents.RECONNECT_MCP_SERVER, name)
       let ok = true
       let msg = ''
@@ -82,26 +84,30 @@ export class McpService {
         msg = (e as Error).message
       }
 
-      return [ok, msg]
+      return createIpcResponse(ok, null, msg)
     })
 
-    ipcMain.handle(ipcEvents.FETCH_MCP_SERVER_TOOLS, (_, name: string) => {
-      return this.mcpHub.fetchToolsList(name)
+    mainListener.handle('mcp:fetchMcpServerTools', async (_, name: string) => {
+      const data = await this.mcpHub.fetchToolsList(name)
+      return createIpcResponse(true, data)
     })
 
-    ipcMain.handle(ipcEvents.MCP_TOGGLE, (_, isEnable: boolean, mcpConfig?: McpSettings) => {
+    mainListener.handle(ipcEvents.MCP_TOGGLE, async (_, isEnable: boolean, mcpConfig?: McpSettings) => {
       logger.debug(ipcEvents.MCP_TOGGLE, isEnable, mcpConfig)
-      if (isEnable && mcpConfig) {
+      if (isEnable) {
+        if (!mcpConfig) {
+          return createIpcResponse(false, null, 'needs mcpConfig')
+        }
         this.mcpHub.initializeMcpServers(mcpConfig)
       }
-
-      if (!isEnable) {
+      else {
         this.mcpHub.connections
           .map(item => item.server.name)
           .forEach((name) => {
             this.mcpHub.deleteConnection(name)
           })
       }
+      return createIpcResponse(true, null)
     })
   }
 }

@@ -90,11 +90,10 @@ export default function MCPManage() {
                       setOpen(false)
                     }}
                     onSave={async (e) => {
-                      setOpen(false)
-
                       if (mode === 'add') {
                         const [ok, msg] = await addMcpConfigAction(e)
                         if (ok) {
+                          setOpen(false)
                           await refreshAsync()
                         }
                         else {
@@ -120,7 +119,7 @@ export default function MCPManage() {
                           await reconnectMcpServerAction(e.serverName)
                         }
                       }
-
+                      setOpen(false)
                       await refreshAsync()
                     }}
                   />

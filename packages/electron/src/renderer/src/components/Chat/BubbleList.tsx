@@ -67,11 +67,11 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
         {...commonProps}
         messageRender={(content) => {
           if (msg.role !== Role.AI) {
-            const pickList = ['content', 'status']
+            const pickList = ['status']
             if (msg.role === Role.USER) {
               pickList.push('images', 'attachments')
             }
-            const messageContentProps: Partial<BubbleContent> = pick(msg, pickList)
+            const messageContentProps: Partial<BubbleContent> = { ...pick(msg, pickList), content }
             // console.log('messageContentProps => ', JSON.stringify(messageContentProps))
 
             return <MessageContent {...messageContentProps} />
@@ -178,7 +178,14 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
 
   // ============================ 操作 ============================
   async function copyMessage(message: IMessage) {
-    const content = message.content as string
+    const content = message.content.reduce((a, b) => {
+      if (b.type === 'image') {
+        return `${a}<img src="data:${b.mimeType};base64,${b.data}" />`
+      }
+      else {
+        return `${a}\n<p>${b.text}</p>}`
+      }
+    }, '')
     const result = await clipboardWriteText(content)
     if (result.ok) {
       messageFunc.success(result.message)

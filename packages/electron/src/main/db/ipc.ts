@@ -1,8 +1,10 @@
 import { dbIpcEvents } from '@ant-chat/shared/ipc-events'
 import { ipcMain } from 'electron'
+import { createIpcPaginatedResponse, createIpcResponse, mainListener } from '../utils/ipc-events-bus'
 import * as actions from './actions'
 import db from './db'
 import { migrateFromIndexedDB } from './migrations'
+import { messageInsertSchema, messageUpdateSchema } from './schema'
 
 // 注册所有数据库操作的IPC处理函数
 export function registerDbIpcHandlers() {
@@ -19,136 +21,144 @@ export function registerDbIpcHandlers() {
   })
 
   // ========== 会话操作 ==========
-  ipcMain.handle(dbIpcEvents.GET_CONVERSATIONS, async () => {
+  mainListener.handle('db:get-conversations', async (_e, pageIndex, pageSize) => {
     try {
-      const result = await actions.getConversations()
-      return { success: true, data: result }
+      const total = await actions.getConversationsTotal()
+      const data = await actions.getConversations(pageIndex, pageSize)
+      return createIpcPaginatedResponse(true, data, '', total)
     }
     catch (error) {
       console.error('获取会话列表失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcPaginatedResponse(false, null, (error as Error).message)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.GET_CONVERSATION_BY_ID, async (_, id) => {
+  mainListener.handle('db:get-conversation-by-id', async (_, id) => {
     try {
-      const result = await actions.getConversationById(id)
-      return { success: true, data: result }
+      const data = await actions.getConversationById(id)
+      return createIpcResponse(true, data)
     }
     catch (error) {
       console.error('获取会话详情失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(true, null, (error as Error).message)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.ADD_CONVERSATION, async (_, conversation) => {
+  mainListener.handle('db:add-conversation', async (_, conversation) => {
     try {
-      await actions.addConversation(conversation)
-      return { success: true }
+      // 确保所有必需的字段都存在
+      if (!conversation.id || !conversation.title || !conversation.createAt || !conversation.updateAt) {
+        return createIpcResponse(false, null, '会话信息不完整')
+      }
+
+      const data = await actions.addConversation(conversation as any)
+      return createIpcResponse(true, data)
     }
     catch (error) {
       console.error('添加会话失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(false, null, (error as Error).message)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.UPDATE_CONVERSATION, async (_, conversation) => {
+  mainListener.handle('db:update-conversation', async (_, conversation) => {
     try {
-      await actions.updateConversation(conversation)
-      return { success: true }
+      const data = await actions.updateConversation(conversation)
+      return createIpcResponse(true, data)
     }
     catch (error) {
       console.error('更新会话失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(true, null, (error as Error).message)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.DELETE_CONVERSATION, async (_, id) => {
+  mainListener.handle('db:delete-conversation', async (_, id) => {
     try {
       await actions.deleteConversation(id)
-      return { success: true }
+      return createIpcResponse(true, null)
     }
     catch (error) {
       console.error('删除会话失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(true, null, (error as Error).message)
     }
   })
 
   // ========== 消息操作 ==========
-  ipcMain.handle(dbIpcEvents.GET_MESSAGE_BY_ID, async (_, id) => {
+  mainListener.handle('db:get-message-by-convid', async (_, id) => {
     try {
-      const result = await actions.getMessageById(id)
-      return { success: true, data: result }
+      const data = await actions.getMessagesByConvId(id)
+      return createIpcResponse(true, data)
     }
     catch (error) {
       console.error('获取消息失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(true, null, (error as Error).message)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.ADD_MESSAGE, async (_, message) => {
+  mainListener.handle('db:get-message-by-id', async (_, id) => {
     try {
-      await actions.addMessage(message)
-      return { success: true }
+      const data = await actions.getMessageById(id)
+      return createIpcResponse(true, data)
+    }
+    catch (error) {
+      console.error('获取消息失败:', error)
+      return createIpcResponse(true, null, (error as Error).message)
+    }
+  })
+
+  mainListener.handle('db:add-message', async (_, message) => {
+    try {
+      const msg = messageInsertSchema.parse(message)
+      const data = await actions.addMessage(msg)
+      return createIpcResponse(true, data)
     }
     catch (error) {
       console.error('添加消息失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(false, null, (error as Error).message)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.UPDATE_MESSAGE, async (_, message) => {
+  mainListener.handle('db:update-message', async (_, message) => {
     try {
-      await actions.updateMessage(message)
-      return { success: true }
+      const msg = messageUpdateSchema.parse(message)
+      const data = await actions.updateMessage(msg)
+      return createIpcResponse(true, data)
     }
     catch (error) {
       console.error('更新消息失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(false, null, (error as Error).message)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.DELETE_MESSAGE, async (_, id) => {
+  mainListener.handle('db:delete-message', async (_, id) => {
     try {
       await actions.deleteMessage(id)
-      return { success: true }
+      return createIpcResponse(true, null)
     }
     catch (error) {
       console.error('删除消息失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(false, null, (error as Error).message)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.GET_MESSAGES_BY_CONV_ID, async (_, id) => {
+  mainListener.handle('db:get-messages-by-conv-id-with-pagination', async (_, id, pageIndex, pageSize) => {
     try {
-      const result = await actions.getMessagesByConvId(id)
-      return { success: true, data: result }
+      const { data, total } = await actions.getMessagesByConvIdWithPagination(id, pageIndex, pageSize)
+      return createIpcPaginatedResponse(true, data, '', total)
     }
     catch (error) {
-      console.error('获取会话消息失败:', error)
-      return { success: false, error: String(error) }
+      console.error(`分页获取会话消息失败. convId: ${id}`, error)
+      return createIpcPaginatedResponse(true, null, (error as Error).message, 0)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.GET_MESSAGES_BY_CONV_ID_WITH_PAGINATION, async (_, id, pageIndex, pageSize) => {
-    try {
-      const result = await actions.getMessagesByConvIdWithPagination(id, pageIndex, pageSize)
-      return { success: true, data: result }
-    }
-    catch (error) {
-      console.error('分页获取会话消息失败:', error)
-      return { success: false, error: String(error) }
-    }
-  })
-
-  ipcMain.handle(dbIpcEvents.BATCH_DELETE_MESSAGES, async (_, ids) => {
+  mainListener.handle('db:batch-delete-messages', async (_, ids) => {
     try {
       await actions.batchDeleteMessages(ids)
-      return { success: true }
+      return createIpcResponse(true, null)
     }
     catch (error) {
       console.error('批量删除消息失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(false, null, (error as Error).message)
     }
   })
 
@@ -187,58 +197,58 @@ export function registerDbIpcHandlers() {
   })
 
   // ========== MCP配置操作 ==========
-  ipcMain.handle(dbIpcEvents.GET_MCP_CONFIGS, async () => {
+  mainListener.handle('db:get-mcp-configs', async () => {
     try {
-      const result = await actions.getMcpConfigs()
-      return { success: true, data: result }
+      const data = await actions.getMcpConfigs()
+      return createIpcResponse(true, data)
     }
     catch (error) {
       console.error('获取MCP配置失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(false, null, (error as Error).message)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.GET_MCP_CONFIG_BY_SERVER_NAME, async (_, serverName) => {
+  mainListener.handle('db:get-mcp-config-by-server-name', async (_, serverName) => {
     try {
-      const result = await actions.getMcpConfigByServerName(serverName)
-      return { success: true, data: result }
+      const data = await actions.getMcpConfigByServerName(serverName)
+      return createIpcResponse(true, data)
     }
     catch (error) {
       console.error('获取MCP配置详情失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(false, null, (error as Error).message)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.ADD_MCP_CONFIG, async (_, config) => {
+  mainListener.handle('db:add-mcp-config', async (_, config) => {
     try {
-      await actions.addMcpConfig(config)
-      return { success: true }
+      const data = await actions.addMcpConfig(config)
+      return createIpcResponse(true, data)
     }
     catch (error) {
       console.error('添加MCP配置失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(false, null, (error as Error).message)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.UPDATE_MCP_CONFIG, async (_, config) => {
+  mainListener.handle('db:update-mcp-config', async (_, config) => {
     try {
-      await actions.updateMcpConfig(config)
-      return { success: true }
+      const data = await actions.updateMcpConfig(config)
+      return createIpcResponse(true, data)
     }
     catch (error) {
       console.error('更新MCP配置失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(false, null, (error as Error).message)
     }
   })
 
-  ipcMain.handle(dbIpcEvents.DELETE_MCP_CONFIG, async (_, serverName) => {
+  ipcMain.handle('db:delete-mcp-config', async (_, serverName) => {
     try {
       await actions.deleteMcpConfig(serverName)
-      return { success: true }
+      return createIpcResponse(true, null)
     }
     catch (error) {
       console.error('删除MCP配置失败:', error)
-      return { success: false, error: String(error) }
+      return createIpcResponse(false, null, (error as Error).message)
     }
   })
 }

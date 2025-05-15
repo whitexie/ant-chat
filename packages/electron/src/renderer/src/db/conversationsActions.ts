@@ -40,7 +40,7 @@ export async function setConversationsSystemPrompt(id: ConversationsId, systemPr
   const systemMessage = (await getSystemMessageByConvId(id))
 
   if (systemMessage) {
-    systemMessage.content = systemPrompt
+    systemMessage.content = [{ text: systemPrompt, type: 'text' }]
     await updateMessage(systemMessage)
   }
 
@@ -95,13 +95,13 @@ export async function renameConversations(id: string, newName: string) {
 }
 
 export async function fetchConversations(pageIndex: number, pageSize: number = 10) {
-  const response = await dbApi.getConversations()
-  if (!response.success || !response.data) {
-    return { conversations: [], total: 0 }
+  const { success, data, total } = await dbApi.getConversations(pageIndex, pageSize)
+
+  if (!success || !data) {
+    return { conversations: [], total }
   }
 
-  const allConversations = response.data.sort((a: IConversations, b: IConversations) => b.updateAt - a.updateAt)
-  const total = allConversations.length
+  const allConversations = data.sort((a: IConversations, b: IConversations) => b.updateAt - a.updateAt)
   const conversations = allConversations.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
 
   return {

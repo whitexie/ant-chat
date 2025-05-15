@@ -1,9 +1,4 @@
 /**
- * 获取MCP初始化状态
- */
-export const GET_MCP_INITIALIZE_STATE = 'mcp:getInitializeState'
-
-/**
  * 获取当前已连接的服务
  */
 export const GET_CONNECTED_SERVERS = 'mcp:getConnections'

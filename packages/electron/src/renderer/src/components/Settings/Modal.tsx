@@ -53,7 +53,7 @@ export default function SettingsModal({ open, onClose, onSave }: SettingsModalPr
       open={open}
       title="设置"
       onOk={onOk}
-      destroyOnClose
+      destroyOnHidden
       onCancel={() => {
         onClose?.()
         setActive(defaultActive.current)

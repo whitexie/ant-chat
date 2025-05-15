@@ -139,7 +139,7 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
   }
   catch (e) {
     const error = e as Error
-    aiMessage.content = error.message
+    aiMessage.content = [{ type: 'text', text: error.message }]
     aiMessage.status = 'error'
     updateMessageAction(aiMessage)
     setRequestStatus('error')
@@ -162,7 +162,7 @@ export async function updateConversationsSystemPrompt(conversationsId: Conversat
     return
   }
 
-  await updateMessage(createSystemMessage({ ...systemMessage, content: systemPrompt }))
+  await updateMessage(createSystemMessage({ ...systemMessage, content: [{ type: 'text', text: systemPrompt }] }))
 }
 
 export async function nextPageMessagesAction(conversationsId: ConversationsId) {

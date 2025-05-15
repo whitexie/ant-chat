@@ -21,11 +21,16 @@ interface Action {
 
 const useFeaturesStore = create<ChatFeatures & Action>()(
   devtools(
-    set => ({
-      ...initialState,
-      setOnlieSearch: (value: boolean) => set({ onlineSearch: value }),
-      setEnableMCP: (value: boolean) => set({ enableMCP: value }),
-    }),
+    persist(
+      set => ({
+        ...initialState,
+        setOnlieSearch: (value: boolean) => set({ onlineSearch: value }),
+        setEnableMCP: (value: boolean) => set({ enableMCP: value }),
+      }),
+      {
+        name: 'feature',
+      },
+    ),
     {
       enabled: import.meta.env.MODE === 'development',
     },

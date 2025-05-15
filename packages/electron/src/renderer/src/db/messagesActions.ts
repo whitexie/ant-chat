@@ -46,18 +46,23 @@ export async function deleteMessage(id: MessageId) {
 }
 
 export async function getMessagesByConvId(id: ConversationsId) {
-  const response = await dbApi.getMessagesByConvId(id)
-  return response.success ? response.data : []
+  const { success, data, msg } = await dbApi.getMessagesByConvId(id)
+
+  if (success) {
+    return data
+  }
+
+  return new Error(msg)
 }
 
 export async function getMessagesByConvIdWithPagination(id: ConversationsId, pageIndex: number, pageSize: number) {
-  const response = await dbApi.getMessagesByConvIdWithPagination(id, pageIndex, pageSize)
+  const { success, data: messages, total } = await dbApi.getMessagesByConvIdWithPagination(id, pageIndex, pageSize)
 
-  if (!response.success || !response.data) {
+  if (!success || !messages) {
     return { messages: [], total: 0 }
   }
 
-  return response.data
+  return { messages, total }
 }
 
 export async function getSystemMessageByConvId(id: ConversationsId): Promise<IMessageSystem | null> {
@@ -68,7 +73,7 @@ export async function getSystemMessageByConvId(id: ConversationsId): Promise<IMe
   }
 
   const messages = response.data.filter((x: IMessage) => x.role === Role.SYSTEM)
-  return messages.length ? messages[0] as IMessageSystem : null
+  return messages.length && messages[0].role === 'system' ? messages[0] as IMessageSystem : null
 }
 
 export async function BatchDeleteMessage(ids: MessageId[]) {
@@ -76,7 +81,7 @@ export async function BatchDeleteMessage(ids: MessageId[]) {
 }
 
 export async function exportMessages() {
-  const allConversations = await dbApi.getConversations()
+  const allConversations = await dbApi.getConversations(1, 9999999)
   if (!allConversations.success || !allConversations.data) {
     return []
   }
@@ -93,7 +98,7 @@ export async function exportMessages() {
 }
 
 export async function importMessages(messages: IMessage[]) {
-  const validMessages = []
+  const validMessages: IMessage[] = []
 
   for (const message of messages) {
     const exists = await messageIsExists(message.id)

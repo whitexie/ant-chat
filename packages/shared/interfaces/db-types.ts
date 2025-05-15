@@ -5,11 +5,11 @@ export type MessageId = string
 export type ConversationsId = string
 export type ModelConfigId = 'Google' | 'Gemini' | 'OpenAI' | 'DeepSeek'
 export type Timestamp = number
-export type Role = 'system' | 'user' | 'ai'
+export type Role = 'system' | 'user' | 'assistant'
 
 // 模型配置
 export interface ModelConfig {
-  id: ModelConfigId | string
+  id: string
   name?: string
   apiHost: string
   apiKey: string
@@ -29,7 +29,7 @@ export interface IConversations {
   title: string
   createAt: Timestamp
   updateAt: Timestamp
-  settings?: IConversationsSettings
+  settings?: IConversationsSettings | null
 }
 
 // 附件
@@ -77,14 +77,14 @@ export interface IMessageBase {
 // 系统消息
 export interface IMessageSystem extends IMessageBase {
   role: 'system'
-  content: string
+  content: IMessageContent
   status: 'success'
 }
 
 // 用户消息
 export interface IMessageUser extends IMessageBase {
   role: 'user'
-  content: string
+  content: IMessageContent
   images: IAttachment[]
   attachments: IAttachment[]
   status: 'success'
@@ -102,8 +102,21 @@ export interface IMessageAI extends IMessageBase {
   modelInfo?: IModelInfo
 }
 
-// 消息联合类型
-export type IMessage = IMessageAI | IMessageUser | IMessageSystem
+export interface IMessage {
+  id: MessageId
+  convId: ConversationsId
+  createAt: Timestamp
+  role: 'system' | 'user' | 'assistant'
+  content: IMessageContent
+  reasoningContent?: string
+  status: 'success' | 'error' | 'loading' | 'typing' | 'cancel'
+  images?: IAttachment[]
+  attachments?: IAttachment[]
+  /** MCP 相关字段 */
+  mcpTool?: IMcpToolCall[]
+  /** 生成当前消息的模型信息 */
+  modelInfo?: IModelInfo
+}
 
 // 文本内容
 export interface ITextContent {
@@ -119,7 +132,7 @@ export interface IImageContent {
 }
 
 // 消息内容
-export type IMessageContent = string | (ITextContent | IImageContent)[]
+export type IMessageContent = (ITextContent | IImageContent)[]
 
 // MCP服务器状态
 export type McpServerStatus = 'connected' | 'connecting' | 'disconnected'

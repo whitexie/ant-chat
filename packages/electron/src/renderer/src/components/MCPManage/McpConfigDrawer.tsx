@@ -65,7 +65,7 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
       styles={{ body: { padding: 0 } }}
       placement="bottom"
       height="100vh"
-      destroyOnClose
+      destroyOnHidden
       footer={(
         <div className="flex justify-end gap-2">
           <Button onClick={() => {

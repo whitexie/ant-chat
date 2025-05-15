@@ -2,7 +2,6 @@ import type { McpServer, McpTool } from '@ant-chat/shared'
 import type { Tool } from '@modelcontextprotocol/sdk/types.js'
 import type { z } from 'zod'
 import type { McpServerConfig, McpSettingsSchema } from './schema'
-import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
@@ -236,7 +235,7 @@ export class MCPClientHub {
     return tools
   }
 
-  async callTool(serverName: string, toolName: string, toolArguments?: Record<string, unknown>): Promise<McpToolCallResponse> {
+  async callTool(serverName: string, toolName: string, toolArguments?: Record<string, unknown>) {
     const connection = this.connections.find(conn => conn.server.name === serverName)
     if (!connection) {
       throw new Error(

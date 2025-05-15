@@ -9,6 +9,7 @@ console.log('process.contextIsolated => ', process.contextIsolated)
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electronAPI', electronAPI)
+    contextBridge.exposeInMainWorld('electron', electronAPI)
   }
   catch (error) {
     console.error(error)
