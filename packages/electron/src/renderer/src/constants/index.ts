@@ -1,4 +1,4 @@
-import type { IConversations, IMessage } from '@/db/interface'
+import type { IConversations, IMessage } from '@ant-chat/shared'
 
 export enum Role {
   SYSTEM = 'system',

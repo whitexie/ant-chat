@@ -1,9 +1,7 @@
-import type { IConversations, IMessage, McpConfig } from '@ant-chat/shared'
-import type { IpcEvents } from 'src/types/db-ipc-even'
-import { dbIpcEvents } from '@ant-chat/shared/ipc-events'
-import { IpcEmitter } from '@electron-toolkit/typed-ipc/renderer'
+import type { IConversations, IMessage } from '@ant-chat/shared'
+import type { McpConfigSchema } from '@ant-chat/shared/src/schemas'
 
-const emitter = new IpcEmitter<IpcEvents>()
+import { emitter } from '@/utils/ipc-bus'
 
 /**
  * 数据库操作 API
@@ -65,16 +63,16 @@ export const dbApi = {
   },
 
   // 自定义模型操作
-  getCustomModels: async () => {
-    return window.electron.ipcRenderer.invoke(dbIpcEvents.GET_CUSTOM_MODELS)
+  getCustomModels: async (provider: string) => {
+    return emitter.invoke('db:get-custom-models', provider)
   },
 
   addCustomModel: async (model: any) => {
-    return window.electron.ipcRenderer.invoke(dbIpcEvents.ADD_CUSTOM_MODEL, model)
+    return emitter.invoke('db:add-model', model)
   },
 
   deleteCustomModel: async (id: string) => {
-    return window.electron.ipcRenderer.invoke(dbIpcEvents.DELETE_CUSTOM_MODEL, id)
+    return emitter.invoke('db:delete-model', id)
   },
 
   // MCP配置操作
@@ -86,11 +84,11 @@ export const dbApi = {
     return emitter.invoke('db:get-mcp-config-by-server-name', serverName)
   },
 
-  addMcpConfig: async (config: McpConfig) => {
+  addMcpConfig: async (config: McpConfigSchema) => {
     return emitter.invoke('db:add-mcp-config', config)
   },
 
-  updateMcpConfig: async (config: McpConfig) => {
+  updateMcpConfig: async (config: McpConfigSchema) => {
     return emitter.invoke('db:update-mcp-config', config)
   },
 

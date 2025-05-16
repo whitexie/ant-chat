@@ -1,4 +1,4 @@
-import type { ModelConfig, ModelConfigId } from '@/db/interface'
+import type { ModelConfig, ModelConfigId } from '@ant-chat/shared'
 import type { ModelSettingsFormInstance } from './ModelSettingsForm'
 import { getProviderDefaultApiHost } from '@/services-provider'
 import { createModelConfig, getActiveModelConfig, useModelConfigStore } from '@/store/modelConfig'

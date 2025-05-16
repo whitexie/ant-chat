@@ -1,11 +1,11 @@
-import type { McpConfig } from '@/db/interface'
+import type { McpConfigSchema } from '@ant-chat/shared'
 import { getNow } from '@/utils'
 import { Alert, Button } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import React from 'react'
 
 interface QuickImportProps {
-  onImport?: (e: McpConfig) => void
+  onImport?: (e: McpConfigSchema) => void
 }
 
 export function QuickImport({ onImport }: QuickImportProps) {
@@ -100,7 +100,7 @@ interface ServerJson {
   }
 }
 
-function parseMcpServerJsonText(text: string): McpConfig {
+function parseMcpServerJsonText(text: string): McpConfigSchema {
   const data = JSON.parse(text) as ServerJson
   if (typeof data.mcpServers !== 'object') {
     throw new TypeError('mcpServers 格式错误')
@@ -118,7 +118,6 @@ function parseMcpServerJsonText(text: string): McpConfig {
       transportType: 'stdio',
       serverName,
       icon: '🛠️',
-      state: 'disconnected',
       command: config.command,
       args: config.args,
       env: config.env || {},
@@ -130,7 +129,6 @@ function parseMcpServerJsonText(text: string): McpConfig {
     return {
       transportType: 'sse' as const,
       icon: '🛠️',
-      state: 'disconnected',
       serverName,
       url: config.url,
       createAt: getNow(),

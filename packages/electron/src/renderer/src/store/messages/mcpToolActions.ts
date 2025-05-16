@@ -1,5 +1,4 @@
-import type { IMcpToolCall, IMessageAI, MessageId } from '@/db/interface'
-import type { McpToolCallResponse } from '@ant-chat/shared'
+import type { IMcpToolCall, IMessageAI, McpToolCallResponse, MessageId } from '@ant-chat/shared'
 import { getMessageById } from '@/db'
 import { executeMcpToolCall } from '@/mcp/api'
 import { setRequestStatus, updateMessageAction } from './actions'

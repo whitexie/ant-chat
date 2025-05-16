@@ -1,7 +1,6 @@
-import type { IMcpToolCall, McpConfig } from '@/db/interface'
-import type { McpConnection, McpToolCallResponse } from '@ant-chat/shared'
+import type { McpConfigSchema, McpConnection, McpToolCall, McpToolCallResponse } from '@ant-chat/shared'
 import { uuid } from '@/utils'
-import { ipcEvents } from '@ant-chat/shared'
+import { emitter } from '@/utils/ipc-bus'
 
 export async function getMcpServers(): Promise<McpConnection[]> {
   try {
@@ -20,12 +19,12 @@ export async function getAppOS() {
 }
 
 export async function getAllAvailableToolsList() {
-  return await window.electronAPI.ipcRenderer.invoke('mcp:getAllAvailableToolsList')
+  return await emitter.invoke('mcp:getAllAvailableToolsList')
 }
 
-type CreateMcpToolCallOptions = Partial<Omit<IMcpToolCall, 'serverName' | 'toolName' | 'args'>> & Pick<IMcpToolCall, 'serverName' | 'toolName' | 'args'>
+type CreateMcpToolCallOptions = Partial<Omit<McpToolCall, 'serverName' | 'toolName' | 'args'>> & Pick<McpToolCall, 'serverName' | 'toolName' | 'args'>
 
-export function createMcpToolCall(options: CreateMcpToolCallOptions): IMcpToolCall {
+export function createMcpToolCall(options: CreateMcpToolCallOptions): McpToolCall {
   if (!options.serverName || !options.toolName || !options.args) {
     throw new Error('serverName, toolName and arguments are required')
   }
@@ -37,40 +36,41 @@ export function createMcpToolCall(options: CreateMcpToolCallOptions): IMcpToolCa
   }
 }
 
-export async function executeMcpToolCall(toolCall: IMcpToolCall): Promise<McpToolCallResponse> {
+export async function executeMcpToolCall(toolCall: McpToolCall): Promise<McpToolCallResponse> {
   const { serverName, toolName, args } = toolCall
-  return await window.electronAPI.ipcRenderer.invoke(ipcEvents.CALL_TOOL, serverName, toolName, args)
+  const resp = await emitter.invoke('mcp:callTool', serverName, toolName, args)
+  if (resp.success) {
+    return resp.data
+  }
+  throw new Error(resp.msg)
 }
 
-export async function connectMcpServer(config: McpConfig): Promise<[boolean, string]> {
+export async function connectMcpServer(config: McpConfigSchema): Promise<[boolean, string]> {
   const { serverName } = config
 
-  return await window.electronAPI.ipcRenderer.invoke(ipcEvents.CONNECT_MCP_SERVER, serverName, config)
+  const resp = await emitter.invoke('mcp:connectMcpServer', serverName, config)
+
+  return [resp.success, resp.success ? '' : resp.msg]
 }
 
 export async function disconnectMcpServer(name: string): Promise<boolean> {
-  return await window.electronAPI.ipcRenderer.invoke(ipcEvents.DISCONNECT_MCP_SERVER, name)
+  return (await emitter.invoke('mcp:disconnectMcpServer', name)).success
 }
 
-export async function reconnectMcpServer(config: McpConfig): Promise<[boolean, string]> {
+export async function reconnectMcpServer(config: McpConfigSchema): Promise<[boolean, string]> {
   const { serverName } = config
 
-  return await window.electronAPI.ipcRenderer.invoke(ipcEvents.RECONNECT_MCP_SERVER, serverName, config)
+  const resp = await emitter.invoke('mcp:reconnectMcpServer', serverName, config)
+
+  return [resp.success, resp.success ? '' : resp.msg]
 }
 
 export async function fetchMcpServerTools(name: string) {
-  return await window.electronAPI.ipcRenderer.invoke(ipcEvents.FETCH_MCP_SERVER_TOOLS, name)
+  const resp = await emitter.invoke('mcp:fetchMcpServerTools', name)
+  if (resp.success) {
+    return resp.data
+  }
+
+  console.error('fetchMcpServerTools fail', resp.msg)
+  return []
 }
-
-// export async function startMcp() {
-//   const mcpSettings: McpSettings = { mcpServers: {} }
-//   const mcpConfigs = await getAvailableMcpServers()
-//   mcpConfigs.forEach((config) => {
-//     mcpSettings.mcpServers[config.serverName] = config
-//   })
-//   await window.electronAPI.ipcRenderer.invoke(ipcEvents.MCP_TOGGLE, true, mcpSettings)
-// }
-
-// export async function stopMcp() {
-//   await window.electronAPI.ipcRenderer.invoke(ipcEvents.MCP_TOGGLE, false)
-// }

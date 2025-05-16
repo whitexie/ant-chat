@@ -29,7 +29,7 @@ export interface IConversations {
   title: string
   createAt: Timestamp
   updateAt: Timestamp
-  settings?: IConversationsSettings | null
+  settings?: IConversationsSettings
 }
 
 // 附件
@@ -49,7 +49,7 @@ export interface IMcpToolCall {
   id: string
   serverName: string
   toolName: string
-  args: Record<string, unknown> | string
+  args: Record<string, unknown>
   executeState: 'await' | 'executing' | 'completed'
   result?: IMcpToolResult
 }
@@ -136,30 +136,3 @@ export type IMessageContent = (ITextContent | IImageContent)[]
 
 // MCP服务器状态
 export type McpServerStatus = 'connected' | 'connecting' | 'disconnected'
-
-// MCP服务器基础配置
-export interface McpServerBase {
-  icon: string
-  serverName: string
-  description?: string
-  timeout?: number
-  createAt: Timestamp
-  updateAt: Timestamp
-}
-
-// STDIO配置模式
-export interface StdioConfigSchema extends McpServerBase {
-  transportType: 'stdio'
-  command: string
-  args: string[]
-  env?: Record<string, number | string | boolean>
-}
-
-// SSE配置模式
-export interface SseConfigSchema extends McpServerBase {
-  transportType: 'sse'
-  url: string
-}
-
-// MCP配置联合类型
-export type McpConfig = StdioConfigSchema | SseConfigSchema

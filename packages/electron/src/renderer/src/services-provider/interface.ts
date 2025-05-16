@@ -1,4 +1,4 @@
-import type { IMcpToolCall, IMessageContent } from '@/db/interface'
+import type { IMcpToolCall, IMessageContent } from '@ant-chat/shared'
 import type { ChatFeatures as _ChatFeatures } from '@/store/features'
 
 export type ChatFeatures = _ChatFeatures

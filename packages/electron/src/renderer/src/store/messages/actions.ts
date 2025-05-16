@@ -1,4 +1,4 @@
-import type { ConversationsId, IMessage, MessageId, ModelConfig } from '@/db/interface'
+import type { ConversationsId, IMessage, MessageId, ModelConfig } from '@ant-chat/shared'
 import type { ChatFeatures } from '../features'
 import type { RequestStatus } from './store'
 import { Role } from '@/constants'

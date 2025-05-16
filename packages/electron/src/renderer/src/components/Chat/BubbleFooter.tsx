@@ -1,4 +1,4 @@
-import type { IMessage } from '@/db/interface'
+import type { IMessage } from '@ant-chat/shared'
 import { Role } from '@/constants'
 import { CopyOutlined, DeleteOutlined, SyncOutlined } from '@ant-design/icons'
 import { Button, Flex } from 'antd'

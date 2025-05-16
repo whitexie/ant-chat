@@ -1,6 +1,5 @@
 import type { NotificationOption } from '@ant-chat/shared'
 import { useThemeStore } from '@/store/theme'
-import { ipcEvents } from '@ant-chat/shared'
 import { App, ConfigProvider, theme } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { useEffect } from 'react'
@@ -8,6 +7,7 @@ import { Outlet } from 'react-router'
 import { RunnerCodeProvider } from './components/RunnerCode'
 import { SliderMenu } from './components/SiliderMenu'
 import { onMcpServerStatusChanged } from './store/mcpConfigs'
+import { ipc } from './utils/ipc-bus'
 
 function AppWrapper() {
   const currentThemeMode = useThemeStore(state => state.mode)
@@ -64,12 +64,12 @@ function AntChatApp() {
       func({ message, description })
     }
 
-    window.electronAPI.ipcRenderer.on(ipcEvents.NOTIFICATION, handle)
-    window.electronAPI.ipcRenderer.on(ipcEvents.MCP_SERVER_STATUS_CHANGED, onMcpServerStatusChanged)
+    ipc.on('global:Notification', handle)
+    ipc.on('mcp:McpServerStatusChanged', onMcpServerStatusChanged)
 
     return () => {
-      window.electronAPI.ipcRenderer.removeAllListeners(ipcEvents.NOTIFICATION)
-      window.electronAPI.ipcRenderer.removeAllListeners(ipcEvents.MCP_SERVER_STATUS_CHANGED)
+      window.electronAPI.ipcRenderer.removeAllListeners('global:Notification')
+      window.electronAPI.ipcRenderer.removeAllListeners('mcp:McpServerStatusChanged')
     }
   }, [])
 

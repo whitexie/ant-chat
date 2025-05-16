@@ -1,5 +1,5 @@
 import type { AntChatFileStructure } from '@/constants'
-import type { ConversationsId, IConversations, ModelConfig } from '@/db/interface'
+import type { ConversationsId, IConversations, ITextContent, ModelConfig } from '@ant-chat/shared'
 import { Role, TITLE_PROMPT } from '@/constants'
 import {
   addConversations,
@@ -26,7 +26,13 @@ import { useConversationsStore } from './conversationsStore'
 export async function addConversationsAction(conversation: IConversations) {
   await addConversations(conversation)
   const { systemMessage } = getActiveModelConfig()
-  await addMessage(createSystemMessage({ convId: conversation.id, role: Role.SYSTEM, content: systemMessage }))
+  await addMessage(
+    createSystemMessage({
+      convId: conversation.id,
+      role: Role.SYSTEM,
+      content: [{ type: 'text', text: systemMessage }],
+    }),
+  )
 
   useConversationsStore.setState(state => produce(state, (draft) => {
     draft.conversations.splice(0, 0, conversation)
@@ -118,7 +124,7 @@ export async function initConversationsTitle() {
 
   const stream = await service.sendChatCompletions(
     [
-      { ...userMessage, content, images: [], attachments: [] },
+      { ...userMessage, content: [{ type: 'text', text: content }], images: [], attachments: [] },
     ],
   )
 
@@ -130,7 +136,7 @@ export async function initConversationsTitle() {
         title = result.message
       }
       else {
-        title = result.message.filter(item => item.type === 'text').reduce((a, b) => (a + b.text), '')
+        title = result.message.filter(item => item.type === 'text').reduce((a, b) => (a + (b as ITextContent).text), '')
       }
 
       if (title) {
@@ -184,7 +190,7 @@ export async function updateConversationsSettingsAction(id: ConversationsId, con
 
   // 同步更新messages中的系统提示词
   if (systemPrompt && systemPromptChanged) {
-    message.content = systemPrompt
+    message.content = [{ type: 'text', text: systemPrompt }]
     await updateMessageAction(message)
   }
 

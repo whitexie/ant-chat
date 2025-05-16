@@ -1,15 +1,15 @@
-import type { ConversationsId, IMessage, IMessageSystem, MessageId } from './interface'
+import type { ConversationsId, IMessage, IMessageSystem, MessageId } from '@ant-chat/shared'
 import { Role } from '@/constants'
 import { uuid } from '@/utils'
 import { updateConversationsUpdateAt } from './conversationsActions'
 import { dbApi } from './dbApi'
 
 export function generateMessageId() {
-  return `msg_${uuid()}` as MessageId
+  return `msg_${uuid()}`
 }
 
 export function generateConversationId() {
-  return `conv_${uuid()}` as ConversationsId
+  return `conv_${uuid()}`
 }
 
 export async function messageIsExists(id: MessageId) {
@@ -46,23 +46,26 @@ export async function deleteMessage(id: MessageId) {
 }
 
 export async function getMessagesByConvId(id: ConversationsId) {
-  const { success, data, msg } = await dbApi.getMessagesByConvId(id)
+  const response = await dbApi.getMessagesByConvId(id)
 
-  if (success) {
-    return data
+  if (response.success) {
+    return response.data
   }
 
-  return new Error(msg)
+  console.log('getMessagesByConvId error', response.msg)
+
+  return []
 }
 
 export async function getMessagesByConvIdWithPagination(id: ConversationsId, pageIndex: number, pageSize: number) {
-  const { success, data: messages, total } = await dbApi.getMessagesByConvIdWithPagination(id, pageIndex, pageSize)
+  const resp = await dbApi.getMessagesByConvIdWithPagination(id, pageIndex, pageSize)
 
-  if (!success || !messages) {
-    return { messages: [], total: 0 }
+  if (resp.success) {
+    const { data: messages, total } = resp
+    return { messages, total }
   }
 
-  return { messages, total }
+  return { messages: [], total: 0 }
 }
 
 export async function getSystemMessageByConvId(id: ConversationsId): Promise<IMessageSystem | null> {

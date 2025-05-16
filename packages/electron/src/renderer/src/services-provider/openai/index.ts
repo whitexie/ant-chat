@@ -1,5 +1,5 @@
-import type { IMcpToolCall, IMessage } from '@/db/interface'
 import type { SSEOutput, XReadableStream } from '@/utils/stream'
+import type { IMcpToolCall, IMessage, IMessageContent, IMessageUser } from '@ant-chat/shared'
 import type {
   ChatCompletionsCallbacks,
   SendChatCompletionsOptions,
@@ -40,7 +40,10 @@ export default class OpenAIService extends BaseService {
   }
 
   transformMessages(_messages: IMessage[]): MessageItem[] {
-    const isHasFile = _messages.filter(msg => msg.role === Role.USER).some(message => message.images.length > 0 || message.attachments.length > 0)
+    const isHasFile = _messages
+      .filter(msg => msg.role === Role.USER)
+      .some(message => message.images?.length || message.attachments?.length)
+
     const messages: MessageItem[] = []
     _messages.forEach((msg) => {
       messages.push(...transformMessageItem(msg, isHasFile))
@@ -83,7 +86,7 @@ export default class OpenAIService extends BaseService {
       }
     }
 
-    return { message, reasoningContent, functioncalls: functioncalls.length > 0 ? functioncalls : undefined }
+    return { message: [{ type: 'text', text: message }] as IMessageContent, reasoningContent, functioncalls: functioncalls.length > 0 ? functioncalls : undefined }
   }
 
   async transformRequestBody(_messages: IMessage[]): Promise<OpenAIRequestBody> {
@@ -173,38 +176,37 @@ function safeParseJson(str: string) {
     return JSON.parse(str) as Record<string, unknown>
   }
   catch {
-    return str
+    return {}
   }
 }
 
 function transformMessageItem(message: IMessage, hasMedia: boolean): MessageItem[] {
+  const content = message.content[0].type === 'text' ? message.content[0].text : ''
   if (message.role === Role.SYSTEM) {
-    return [{ role: Role.SYSTEM, content: message.content }]
+    return [{ role: Role.SYSTEM, content }]
   }
 
   else if (message.role === Role.USER) {
+    const userMessage = message as IMessageUser
     if (!hasMedia) {
-      return [{ role: message.role, content: message.content }]
+      return [{ role: Role.USER, content }]
     }
 
-    const content: (TextContent | ImageContent)[] = [
-      { type: 'text', text: message.content },
+    const _content: (TextContent | ImageContent)[] = [
+      { type: 'text', text: content },
     ]
 
-    const imageMessages: ImageContent[] = message.images.map((item) => {
+    const imageMessages: ImageContent[] = userMessage?.images.map((item) => {
       return { type: 'image_url', image_url: { url: item.data } }
     })
 
-    content.push(...imageMessages)
+    _content.push(...imageMessages)
 
-    return [{ role: message.role, content }]
+    return [{ role: Role.USER, content: _content }]
   }
+
   else {
     const messages: MessageItem[] = []
-    if (typeof message.content === 'string') {
-      return [{ role: message.role, content: message.content }]
-    }
-
     messages.push({
       role: Role.AI,
       content: message.content.map((item) => {

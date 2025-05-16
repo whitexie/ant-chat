@@ -1,4 +1,4 @@
-import type { McpConfig, McpServerStatus } from '@/db/interface'
+import type { McpConfigSchema, McpServerStatus } from '@ant-chat/shared'
 import { addMcpConfig, deleteMcpConfig, getAllMcpConfigs, getMcpConfigByName, updateMcpConfig } from '@/db/mcpConfigActions'
 import { connectMcpServer, disconnectMcpServer } from '@/mcp'
 import { produce } from 'immer'
@@ -13,7 +13,7 @@ export async function initializeMcpConfigs() {
   }))
 }
 
-export async function addMcpConfigAction(config: McpConfig) {
+export async function addMcpConfigAction(config: McpConfigSchema) {
   const [ok, msg] = await addMcpConfig(config)
   if (!ok) {
     return [ok, msg]
@@ -25,7 +25,7 @@ export async function addMcpConfigAction(config: McpConfig) {
   return [ok, '']
 }
 
-export async function upadteMcpConfigAction(config: McpConfig) {
+export async function upadteMcpConfigAction(config: McpConfigSchema) {
   const id = await updateMcpConfig(config)
   if (!id) {
     console.warn('更新失败: ', JSON.stringify(config))

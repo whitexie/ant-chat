@@ -1,5 +1,4 @@
-import type { McpConfig } from '@/db/interface'
-import type { McpTool } from '@ant-chat/shared'
+import type { McpConfigSchema, McpTool } from '@ant-chat/shared'
 import type { RuleObject } from 'antd/es/form'
 
 import { EmojiPickerHoc } from '@/components/EmojiPiker'
@@ -15,12 +14,12 @@ import { SelectTransportType } from './SelectTransportType'
 interface McpConfigDrawerProps {
   open: boolean
   mode: 'add' | 'edit'
-  defaultValues?: McpConfig
+  defaultValues?: McpConfigSchema
   onClose?: () => void
-  onSave?: (config: McpConfig) => void
+  onSave?: (config: McpConfigSchema) => void
 }
 
-interface McpConfigForm extends Partial<Omit<McpConfig, 'env'>> {
+interface McpConfigForm extends Partial<Omit<McpConfigSchema, 'env'>> {
   env: { key: string, value: string }[]
 }
 
@@ -39,7 +38,7 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
       }
 
   const [form] = Form.useForm<McpConfigForm>()
-  const [mcpConfig, updateMcpConfig] = useImmer<McpConfig | null>(null)
+  const [mcpConfig, updateMcpConfig] = useImmer<McpConfigSchema | null>(null)
   const [mcpTools, updateMcpTools] = useImmer<McpTool[]>([])
 
   const [connectState, setConnectState] = React.useState<'connecting' | 'error' | 'success' | ''>('')
@@ -78,15 +77,15 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
           <Button
             type="primary"
             onClick={async () => {
-              let config: McpConfig | McpConfigForm = await form.validateFields().then(data => data)
+              let config: McpConfigSchema | McpConfigForm = await form.validateFields().then(data => data)
 
               console.log('config => ', JSON.stringify(config))
 
               if (config.transportType === 'stdio' && Array.isArray(config.env)) {
-                config = { ...config, env: envArrayToObject(config.env) } as McpConfig
+                config = { ...config, env: envArrayToObject(config.env) } as McpConfigSchema
               }
 
-              onSave?.({ ..._defaultValues, ...config } as McpConfig)
+              onSave?.({ ..._defaultValues, ...config } as McpConfigSchema)
             }}
           >
             {mode === 'edit' ? '更新' : '安装'}
@@ -227,15 +226,15 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
                   onClick={async () => {
                     setConnectError('')
                     updateMcpTools([])
-                    let config: McpConfig | McpConfigForm = await form.validateFields().then(data => data)
+                    let config: McpConfigSchema | McpConfigForm = await form.validateFields().then(data => data)
 
                     if (config.transportType === 'stdio' && Array.isArray(config.env)) {
-                      config = { ...config, env: envArrayToObject(config.env) } as McpConfig
+                      config = { ...config, env: envArrayToObject(config.env) } as McpConfigSchema
                     }
                     setConnectState('connecting')
                     let result = false
                     try {
-                      const [ok, msg] = await connectMcpServer(config as McpConfig)
+                      const [ok, msg] = await connectMcpServer(config as McpConfigSchema)
                       result = ok
 
                       if (!ok) {
@@ -248,10 +247,10 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
                       setConnectState('error')
                       return
                     }
-                    updateMcpConfig(config as McpConfig)
+                    updateMcpConfig(config as McpConfigSchema)
                     setConnectState(result ? 'success' : 'error')
 
-                    const tools = await fetchMcpServerTools((config as McpConfig).serverName)
+                    const tools = await fetchMcpServerTools((config as McpConfigSchema).serverName)
                     updateMcpTools(tools)
                   }}
                 >

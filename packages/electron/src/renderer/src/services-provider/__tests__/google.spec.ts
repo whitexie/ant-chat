@@ -1,4 +1,4 @@
-import type { ConversationsId, IMessage, IMessageContent } from '@/db/interface'
+import type { ConversationsId, IMessage, IMessageContent } from '@ant-chat/shared'
 import { Role } from '@/constants'
 import { createAIMessage, createSystemMessage, createUserMessage } from '@/db/dataFactory'
 import request from '@/utils/request'
@@ -11,7 +11,7 @@ vi.mock('@/utils/request')
 describe('gemini Service 测试', () => {
   describe('transformMessages', () => {
     it('应该正确转换用户消息为 Gemini 请求格式', () => {
-      const messages: IMessage[] = [createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: 'Hello, how are you?' })]
+      const messages: IMessage[] = [createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: [{ type: 'text', text: 'Hello, how are you?' }] })]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
 
@@ -22,9 +22,9 @@ describe('gemini Service 测试', () => {
 
     it('应该正确转换AI和用户的对话消息', () => {
       const messages: IMessage[] = [
-        createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: 'Hello' }),
-        createAIMessage({ convId: '1' as ConversationsId, role: Role.AI, content: 'Hi there!' }),
-        createSystemMessage({ convId: '1' as ConversationsId, role: Role.SYSTEM, content: 'How are you?' }),
+        createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: [{type: 'text', text: 'Hello'}] }),
+        createAIMessage({ convId: '1' as ConversationsId, role: Role.AI, content: [{type: 'text', text: 'Hi there!'}] }),
+        createSystemMessage({ convId: '1' as ConversationsId, role: Role.SYSTEM, content: [{type: 'text', text: 'How are you?'}] }),
       ]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
@@ -44,7 +44,11 @@ describe('gemini Service 测试', () => {
 
     it('应该正确转换包含图片的用户消息', () => {
       const messages: IMessage[] = [
-        createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: 'Hello, how are you?', images: [{ uid: '123', name: 'test.png', size: 100, type: 'image/png', data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABgI' }] }),
+        createUserMessage({ 
+          convId: '1' as ConversationsId, 
+          role: Role.USER, 
+          content: [{ type: 'text', text: 'Hello, how are you?' }], 
+          images: [{ uid: '123', name: 'test.png', size: 100, type: 'image/png', data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABgI' }] }),
       ]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
@@ -55,7 +59,9 @@ describe('gemini Service 测试', () => {
     })
 
     it('应该正确转换系统消息', () => {
-      const messages: IMessage[] = [createSystemMessage({ convId: '1' as ConversationsId, role: Role.SYSTEM, content: 'You are a helpful assistant' })]
+      const messages: IMessage[] = [
+        createSystemMessage({ convId: '1' as ConversationsId, role: Role.SYSTEM, content: [{type: 'text', text: 'You are a helpful assistant'}] })
+      ]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
 
@@ -67,7 +73,7 @@ describe('gemini Service 测试', () => {
 
     // 测试空消息处理
     it('当消息内容为空时应该正确处理', () => {
-      const messages: IMessage[] = [createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: '' })]
+      const messages: IMessage[] = [createUserMessage({ convId: '1' as ConversationsId, role: Role.USER })]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
 
@@ -165,7 +171,7 @@ describe('gemini Service 测试', () => {
 
       await service.parseSse(reader, {
         onUpdate: (result) => {
-          text = result.message as string
+          text = result.message.filter(item => item.type === 'text').map(item => (item as { text: string }).text).join('')
         },
         onSuccess: fn,
       })

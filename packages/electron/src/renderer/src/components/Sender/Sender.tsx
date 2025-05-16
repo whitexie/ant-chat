@@ -1,4 +1,4 @@
-import type { IAttachment, IImage } from '@/db/interface'
+import type { IAttachment, IImage } from '@ant-chat/shared'
 import type { ChatFeatures } from '@/services-provider/interface'
 import type { UploadFile } from 'antd'
 import MCPIcon from '@/assets/icons/mcp.svg?react'

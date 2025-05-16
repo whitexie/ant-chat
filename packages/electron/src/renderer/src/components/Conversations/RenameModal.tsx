@@ -1,4 +1,4 @@
-import type { ConversationsId } from '@/db/interface'
+import type { ConversationsId } from '@ant-chat/shared'
 import { App, Input, Modal } from 'antd'
 
 interface RenameModalProps {

@@ -1,4 +1,4 @@
-import type { ConversationsId, IConversations } from '@/db/interface'
+import type { ConversationsId, IConversations } from '@ant-chat/shared'
 import type { ConversationsProps } from '@ant-design/x'
 import type { MenuProps } from 'antd'
 import Settings from '@/components/Settings'

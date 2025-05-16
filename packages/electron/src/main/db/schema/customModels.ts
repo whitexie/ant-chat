@@ -6,3 +6,5 @@ export const customModelsTable = sqliteTable('custom_models', {
   ownedBy: text('owned_by').notNull(),
   createAt: integer('create_at').notNull(),
 })
+
+// ============================  ============================

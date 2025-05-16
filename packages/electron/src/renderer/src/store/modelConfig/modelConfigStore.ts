@@ -1,4 +1,4 @@
-import type { ModelConfig, ModelConfigId } from '@/db/interface'
+import type { ModelConfig, ModelConfigId } from '@ant-chat/shared'
 import { DEFAULT_SYSTEM_MESSAGE } from '@/constants'
 import { validatorProvider } from '@/services-provider'
 import { uuid } from '@/utils'

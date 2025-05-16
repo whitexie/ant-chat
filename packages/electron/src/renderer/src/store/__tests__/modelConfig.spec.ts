@@ -1,4 +1,4 @@
-import type { ModelConfig, ModelConfigId } from '@/db/interface'
+import type { ModelConfig, ModelConfigId } from '@ant-chat/shared'
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { setConfigAction, setModelAction, useModelConfigStore } from '../modelConfig'

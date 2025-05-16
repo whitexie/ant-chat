@@ -1,6 +1,5 @@
-import type { IAttachment, IMcpToolCall, IMessage, IMessageContent, ITextContent } from '@/db/interface'
 import type { SSEOutput, XReadableStream } from '@/utils/stream'
-import type { McpTool } from '@ant-chat/shared'
+import type { IAttachment, IMcpToolCall, IMessage, IMessageContent, ITextContent, McpTool } from '@ant-chat/shared'
 import type {
   ChatFeatures,
   SendChatCompletionsOptions,
@@ -93,12 +92,29 @@ class GeminiService extends BaseService {
           parts: [],
         }
 
-        if (msg.content) {
-          content.parts.push({ text: msg.content as string })
+        if (msg.content.length > 0) {
+          msg.content.forEach((item) => {
+            if (item.type === 'text') {
+              content.parts.push({ text: item.text })
+            }
+            else if (item.type === 'image') {
+              content.parts.push({
+                inline_data: {
+                  mimeType: item.mimeType,
+                  data: item.data,
+                },
+              })
+            }
+          })
         }
 
-        content.parts.push(...this.transformFilePart(msg.images))
-        content.parts.push(...this.transformFilePart(msg.attachments))
+        if (msg?.images?.length) {
+          content.parts.push(...this.transformFilePart(msg.images))
+        }
+
+        if (msg.attachments?.length) {
+          content.parts.push(...this.transformFilePart(msg.attachments))
+        }
 
         result.contents.push(content)
       }
@@ -141,7 +157,7 @@ class GeminiService extends BaseService {
             parts: [],
           }
         }
-        result.system_instruction.parts.push({ text: msg.content as string })
+        result.system_instruction.parts.push({ text: (msg.content[0] as ITextContent).text })
       }
     })
     return result
@@ -193,7 +209,8 @@ class GeminiService extends BaseService {
         functionDeclarations: [],
       }
 
-      functionDeclarations.functionDeclarations = mcpToolsToGeminiTools(await this.getAvailableToolsList() || [])
+      // 转换可用的MCP工具
+      functionDeclarations.functionDeclarations = mcpToolsToGeminiTools(await this.getAvailableToolsList())
 
       if (!body.tools) {
         body.tools = []
@@ -248,7 +265,7 @@ class GeminiService extends BaseService {
           createMcpToolCall({
             serverName,
             toolName,
-            args,
+            args: typeof args === 'string' ? JSON.parse(args) : args,
           }),
         )
       }

@@ -1,11 +1,19 @@
-import type {
-  IConversations,
-  IMessage,
-} from '@ant-chat/shared/interfaces/db-types'
-import type { ConversationsInsertSchema, ConversationsUpdateSchema, McpConfigsInsertSchema, McpConfigsSelectSchema, McpConfigsUpdateSchema, MessageInserSchema, MessageUpdateSchema } from './schema'
+import type { AddMessage, IConversations, IMessage, UpdateMessageSchema } from '@ant-chat/shared'
+
+import {
+  AddConversationsSchema,
+  AddMcpConfigSchema,
+  UpdateConversationsSchema,
+  UpdateMcpConfigSchema,
+} from '@ant-chat/shared'
 import { eq, sql } from 'drizzle-orm'
 import db from './db'
-import { conversationsInsertSchema, conversationsTable, conversationsUpdateSchema, customModelsTable, mcpConfigsInsertSchema, mcpConfigsSelectSchema, mcpConfigsTable, mcpConfigsUpdateSchema, messageInsertSchema, messagesTable, messageUpdateSchema } from './schema'
+import {
+  conversationsTable,
+  customModelsTable,
+  mcpConfigsTable,
+  messagesTable,
+} from './schema'
 
 // ==================== 会话操作 ====================
 export async function getConversationsTotal() {
@@ -31,8 +39,8 @@ export async function getConversationById(id: string): Promise<IConversations> {
   return result as IConversations
 }
 
-export async function addConversation(conversation: ConversationsInsertSchema): Promise<IConversations> {
-  const parsed = conversationsInsertSchema.parse(conversation)
+export async function addConversation(conversation: AddConversationsSchema): Promise<IConversations> {
+  const parsed = AddConversationsSchema.parse(conversation)
   const result = db.insert(conversationsTable)
     .values(parsed)
     .returning()
@@ -40,8 +48,8 @@ export async function addConversation(conversation: ConversationsInsertSchema): 
   return result as IConversations
 }
 
-export async function updateConversation(conversation: ConversationsUpdateSchema): Promise<IConversations> {
-  const data = conversationsUpdateSchema.parse(conversation)
+export async function updateConversation(conversation: UpdateConversationsSchema): Promise<IConversations> {
+  const data = UpdateConversationsSchema.parse(conversation)
   const result = db.update(conversationsTable)
     .set(data)
     .where(eq(conversationsTable.id, data.id))
@@ -63,7 +71,7 @@ export async function deleteConversation(id: string): Promise<boolean> {
 }
 
 export async function updateConversationUpdateAt(id: string, updateAt: number): Promise<IConversations> {
-  const data = conversationsUpdateSchema.parse({ id, updateAt })
+  const data = UpdateConversationsSchema.parse({ id, updateAt })
   const result = db.update(conversationsTable)
     .set(data)
     .where(eq(conversationsTable.id, id))
@@ -90,9 +98,7 @@ export async function getMessageById(id: string): Promise<IMessage> {
   return result as IMessage
 }
 
-export async function addMessage(message: MessageInserSchema): Promise<IMessage> {
-  const data = messageInsertSchema.parse(message)
-
+export async function addMessage(message: AddMessage): Promise<IMessage> {
   // 先检查对应的会话是否存在
   const conversation = await getConversationById(message.convId)
   if (!conversation) {
@@ -100,19 +106,17 @@ export async function addMessage(message: MessageInserSchema): Promise<IMessage>
   }
 
   const result = db.insert(messagesTable)
-    .values({ ...data, createAt: Date.now() })
+    .values({ ...message, createAt: Date.now() })
     .returning()
     .get()
 
   return result as IMessage
 }
 
-export async function updateMessage(message: MessageUpdateSchema): Promise<IMessage> {
-  const data = messageUpdateSchema.parse(message)
-
+export async function updateMessage(message: UpdateMessageSchema): Promise<IMessage> {
   await db.transaction(async (tx) => {
-    await tx.update(messagesTable).set(data).where(eq(messagesTable.id, data.id))
-    await tx.update(conversationsTable).set({ updateAt: Date.now() }).where(eq(conversationsTable.id, data.convId))
+    const result = tx.update(messagesTable).set(message).where(eq(messagesTable.id, message.id)).returning().get()
+    await tx.update(conversationsTable).set({ updateAt: Date.now() }).where(eq(conversationsTable.id, result.convId))
   })
 
   return getMessageById(message.id)
@@ -191,8 +195,8 @@ export async function getMcpConfigByServerName(serverName: string): Promise<any>
     .get()
 }
 
-export async function addMcpConfig(config: McpConfigsInsertSchema): Promise<any> {
-  const data = mcpConfigsInsertSchema.parse(config)
+export async function addMcpConfig(config: AddMcpConfigSchema): Promise<any> {
+  const data = AddMcpConfigSchema.parse(config)
 
   return db.insert(mcpConfigsTable)
     .values({ ...data, createAt: Date.now(), updateAt: Date.now() })
@@ -200,8 +204,8 @@ export async function addMcpConfig(config: McpConfigsInsertSchema): Promise<any>
     .get()
 }
 
-export async function updateMcpConfig(config: McpConfigsUpdateSchema): Promise<any> {
-  const data = mcpConfigsUpdateSchema.parse(config)
+export async function updateMcpConfig(config: UpdateMcpConfigSchema): Promise<any> {
+  const data = UpdateMcpConfigSchema.parse(config)
   return db.update(mcpConfigsTable)
     .set(data)
     .where(eq(mcpConfigsTable.serverName, config.serverName))
@@ -209,11 +213,9 @@ export async function updateMcpConfig(config: McpConfigsUpdateSchema): Promise<a
     .get()
 }
 
-export async function deleteMcpConfig(serverName: string): Promise<McpConfigsSelectSchema> {
-  const data = db.delete(mcpConfigsTable)
+export async function deleteMcpConfig(serverName: string): Promise<boolean> {
+  await db.delete(mcpConfigsTable)
     .where(eq(mcpConfigsTable.serverName, serverName))
-    .returning()
-    .get()
 
-  return mcpConfigsSelectSchema.parse(data)
+  return true
 }

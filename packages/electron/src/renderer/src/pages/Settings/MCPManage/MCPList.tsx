@@ -1,4 +1,4 @@
-import type { McpConfig } from '@/db/interface'
+import type { McpConfigSchema } from '@ant-chat/shared'
 import type { McpConfigActionsProps } from './McpConfigActions'
 import { useMcpConfigsStore } from '@/store/mcpConfigs'
 import { LoadingOutlined } from '@ant-design/icons'
@@ -6,7 +6,7 @@ import { Tag } from 'antd'
 import { McpConfigActions } from './McpConfigActions'
 
 interface MCPListProps {
-  items?: McpConfig[]
+  items?: McpConfigSchema[]
   onTriggerAction?: McpConfigActionsProps['onTriggerAction']
 }
 

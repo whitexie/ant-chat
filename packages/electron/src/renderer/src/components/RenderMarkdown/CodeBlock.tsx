@@ -1,5 +1,5 @@
 import type { SupportedLanguages } from '../RunnerCode'
-import { clipboardWriteText } from '@/utils'
+import { clipboardWrite } from '@/utils'
 import { CopyOutlined, DownOutlined, PlayCircleFilled } from '@ant-design/icons'
 import { Button } from 'antd'
 import { useState } from 'react'
@@ -54,7 +54,7 @@ function CodeBlock({ language, children, theme = 'light' }: CodeBlockProps) {
             onClick={() => {
               setCopySuccess(true)
               const text = String(children)
-              clipboardWriteText(text)
+              clipboardWrite(text)
               setTimeout(() => {
                 setCopySuccess(false)
               }, 1000)

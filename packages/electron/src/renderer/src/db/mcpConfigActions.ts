@@ -1,4 +1,4 @@
-import type { McpConfig } from './interface'
+import type { McpConfigSchema } from '@ant-chat/shared'
 import { getNow } from '@/utils'
 import { dbApi } from './dbApi'
 
@@ -7,7 +7,7 @@ export async function getAllMcpConfigs() {
   if (!response.success || !response.data) {
     return []
   }
-  return response.data.sort((a: McpConfig, b: McpConfig) => b.updateAt - a.updateAt)
+  return response.data.sort((a: McpConfigSchema, b: McpConfigSchema) => b.updateAt - a.updateAt)
 }
 
 export async function getMcpConfigByName(name: string) {
@@ -20,7 +20,7 @@ export async function mcpConfigIsExists(serverName: string) {
   return response.success && !!response.data
 }
 
-export async function addMcpConfig(config: McpConfig) {
+export async function addMcpConfig(config: McpConfigSchema) {
   if (await mcpConfigIsExists(config.serverName)) {
     return [false, `${config.serverName} 已存在`]
   }
@@ -28,7 +28,7 @@ export async function addMcpConfig(config: McpConfig) {
   return [response.success, response.success ? '' : '添加失败']
 }
 
-export async function updateMcpConfig(config: McpConfig) {
+export async function updateMcpConfig(config: McpConfigSchema) {
   const updatedConfig = { ...config, updateAt: getNow() }
   const response = await dbApi.updateMcpConfig(updatedConfig)
   return response.success ? response.data : null

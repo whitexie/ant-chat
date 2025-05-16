@@ -1,11 +1,11 @@
-import type { McpConfig, McpServerStatus } from '@/db/interface'
+import type { McpConfigSchema, McpServerStatus } from '@ant-chat/shared'
 import { DeleteOutlined, EditOutlined, PauseCircleOutlined, PlayCircleOutlined } from '@ant-design/icons'
 import { Button, Popconfirm } from 'antd'
 
 export interface McpConfigActionsProps {
-  item: McpConfig
+  item: McpConfigSchema
   status: McpServerStatus
-  onTriggerAction?: (action: 'start' | 'stop' | 'edit' | 'delete', item: McpConfig) => void | Promise<void>
+  onTriggerAction?: (action: 'start' | 'stop' | 'edit' | 'delete', item: McpConfigSchema) => void | Promise<void>
 }
 
 export function McpConfigActions({ item, status, onTriggerAction }: McpConfigActionsProps) {

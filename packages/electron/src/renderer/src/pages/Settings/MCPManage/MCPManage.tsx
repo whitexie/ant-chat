@@ -1,4 +1,4 @@
-import type { McpConfig } from '@/db/interface'
+import type { McpConfigSchema } from '@ant-chat/shared'
 import { useMcpStore } from '@/store/features'
 import { addMcpConfigAction, connectMcpServerAction, deleteMcpConfigAction, disconnectMcpServerAction, initializeMcpConfigs, reconnectMcpServerAction, upadteMcpConfigAction, useMcpConfigsStore } from '@/store/mcpConfigs'
 import { PlusOutlined } from '@ant-design/icons'
@@ -11,7 +11,7 @@ const McpConfigDrawer = React.lazy(() => import('@/components/MCPManage/McpConfi
 export default function MCPManage() {
   const [open, setOpen] = React.useState(false)
   const [mode, setMode] = React.useState<'add' | 'edit'>('add')
-  const [editData, setEditData] = React.useState<McpConfig | null>(null)
+  const [editData, setEditData] = React.useState<McpConfigSchema | null>(null)
   const { message } = App.useApp()
   // const { data, refreshAsync } = useRequest(getAllMcpConfigs)
   const data = useMcpConfigsStore(state => state.mcpConfigs)
@@ -115,7 +115,7 @@ export default function MCPManage() {
                       else {
                         await upadteMcpConfigAction(structuredClone(e))
                         // 如果修改了 transportType、url、 command、args、env 参数，需要重新连接
-                        if (checkNeedReconnect(editData as McpConfig, e)) {
+                        if (checkNeedReconnect(editData as McpConfigSchema, e)) {
                           await reconnectMcpServerAction(e.serverName)
                         }
                       }
@@ -138,12 +138,12 @@ export default function MCPManage() {
   )
 }
 
-function checkNeedReconnect(oldConfig: McpConfig, newConfig: McpConfig): boolean {
+function checkNeedReconnect(oldConfig: McpConfigSchema, newConfig: McpConfigSchema): boolean {
   // Compare specific fields that require a reconnect if changed
-  const fieldsToCheck = ['transportType', 'url', 'command', 'args', 'env'] as (keyof McpConfig)[]
+  const fieldsToCheck = ['transportType', 'url', 'command', 'args', 'env'] as (keyof McpConfigSchema)[]
 
   return fieldsToCheck.some((field) => {
-    if (Array.isArray(oldConfig[field as keyof McpConfig]) && Array.isArray(newConfig[field as keyof McpConfig])) {
+    if (Array.isArray(oldConfig[field as keyof McpConfigSchema]) && Array.isArray(newConfig[field as keyof McpConfigSchema])) {
       // Deep comparison for arrays
       return JSON.stringify(oldConfig[field]) !== JSON.stringify(newConfig[field])
     }

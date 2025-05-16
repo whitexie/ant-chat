@@ -1,4 +1,4 @@
-import type { ConversationsId, IMessage } from '@/db/interface'
+import type { ConversationsId, IMessage } from '@ant-chat/shared'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 

@@ -36,10 +36,39 @@ export interface McpResourceTemplate {
 
 export type McpConnection = Pick<McpServer, 'name' | 'config' | 'status' | 'tools' | 'disabled'>
 
+export interface TextResult {
+  type: 'text'
+  text: string
+}
+
+export interface ImageResult {
+  type: 'image'
+  data: string
+  mimeType: string
+}
+export interface AudioResult {
+  type: 'audio'
+  data: string
+  mimeType: string
+}
+
+export interface Resource {
+  blob?: unknown
+  mimeType?: string
+  text: unknown
+  uri: string
+}
+
+export interface resourceResult {
+  type: 'resource'
+  resource: Resource
+}
+
 /**
  * Mcp Tool 调用的响应结果
  */
 export interface McpToolCallResponse {
-  content: { type: 'text', text: string }[]
+  // content: (TextResult | ImageResult | AudioResult | resourceResult)[]
+  content: TextResult[]
   isError?: boolean
 }

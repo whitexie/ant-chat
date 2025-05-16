@@ -1,4 +1,4 @@
-import type { ConversationsId, IAttachment, IImage, IMessage } from '@/db/interface'
+import type { ConversationsId, IAttachment, IImage, IMessage } from '@ant-chat/shared'
 import type { ChatFeatures } from '@/services-provider/interface'
 import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import { DEFAULT_TITLE } from '@/constants'
@@ -65,7 +65,7 @@ export default function Chat() {
 
     await setActiveConversationsId(id as ConversationsId)
 
-    const messageItem: IMessage = createUserMessage({ images, attachments, content: message, convId: id as ConversationsId })
+    const messageItem: IMessage = createUserMessage({ images, attachments, content: [{ type: 'text', text: message }], convId: id as ConversationsId })
     await addMessageAction(messageItem)
 
     // 发送请求

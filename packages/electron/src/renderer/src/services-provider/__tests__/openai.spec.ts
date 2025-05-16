@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMockResponse, createMockStream } from './util'
 import request from '@/utils/request'
 
-import type { ConversationsId, IMcpToolCall, IMessageContent } from '@/db/interface'
+import type { ConversationsId, IMcpToolCall, IMessageContent } from '@ant-chat/shared'
 import OpenAIService from '../openai'
 import { createUserMessage } from '@/db/dataFactory'
 
@@ -17,8 +17,8 @@ describe('openAI service', () => {
   describe('transformMessages', () => {
     it('messages 包含图片', () => {
       const messages = [
-        createUserMessage({ convId: '0' as ConversationsId, content: 'test1' }),
-        createUserMessage({ convId: '0' as ConversationsId, content: 'test2', images: [{ uid: '0', name: 'test', type: 'image/png', size: 123, data: 'https://example.com/image.jpg' }] }),
+        createUserMessage({ convId: '0' as ConversationsId, content: [{ type: 'text', text: 'test1' }] }),
+        createUserMessage({ convId: '0' as ConversationsId, content: [{ type: 'text', text: 'test2' }], images: [{ uid: '0', name: 'test', type: 'image/png', size: 123, data: 'https://example.com/image.jpg' }] }),
       ]
 
       const result = new OpenAIService().transformMessages(messages)
@@ -30,8 +30,8 @@ describe('openAI service', () => {
 
     it('messages 都是text数组', () => {
       const messages = [
-        createUserMessage({ convId: '0' as ConversationsId, content: 'test1' }),
-        createUserMessage({ convId: '0' as ConversationsId, content: 'test2' }),
+        createUserMessage({ convId: '0' as ConversationsId, content: [{ type: 'text', text: 'test1' }] }),
+        createUserMessage({ convId: '0' as ConversationsId, content: [{ type: 'text', text: 'test2' }] }),
       ]
 
       const result = new OpenAIService().transformMessages(messages)
@@ -43,8 +43,8 @@ describe('openAI service', () => {
 
     it('content都是字符串', () => {
       const messages = [
-        createUserMessage({ convId: '0' as ConversationsId, content: 'test1' }),
-        createUserMessage({ convId: '0' as ConversationsId, content: 'test2' }),
+        createUserMessage({ convId: '0' as ConversationsId, content: [{ type: 'text', text: 'test1' }] }),
+        createUserMessage({ convId: '0' as ConversationsId, content: [{ type: 'text', text: 'test2' }] }),
       ]
 
       const result = new OpenAIService().transformMessages(messages)
@@ -62,7 +62,7 @@ describe('openAI service', () => {
 
       service.setModel('test-model')
       service.setTemperature(0.5)
-      await service.sendChatCompletions([createUserMessage({ convId: '0' as ConversationsId, content: 'test1' })])
+      await service.sendChatCompletions([createUserMessage({ convId: '0' as ConversationsId, content: [{ type: 'text', text: 'test1' }] })])
 
       expect(mockRequest).toMatchSnapshot()
     })
@@ -92,7 +92,7 @@ describe('openAI service', () => {
       ])
 
       const service = new OpenAIService()
-      let result: IMessageContent = ''
+      let result: IMessageContent = []
       let reasoningContent = ''
       await service.parseSse(stream.getReader(), {
         onUpdate: (data) => {
@@ -115,7 +115,7 @@ describe('openAI service', () => {
       ])
 
       const service = new OpenAIService({ enableMCP: true })
-      let result: IMessageContent = ''
+      let result: IMessageContent = []
       const functionCallList: IMcpToolCall[] = []
       await service.parseSse(stream.getReader(), {
         onUpdate: (data) => {

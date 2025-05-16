@@ -1,5 +1,6 @@
 export * from './interfaces'
-export * as ipcEvents from './ipc-events'
+export * from './ipc-events'
+export * from './schemas'
 
 /**
  * 默认的MCP工具名称分隔符

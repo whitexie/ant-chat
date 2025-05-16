@@ -1,4 +1,4 @@
-import type { IMcpToolCall } from '@/db/interface'
+import type { IMcpToolCall } from '@ant-chat/shared'
 import { LoadingOutlined, PlayCircleOutlined, ReloadOutlined } from '@ant-design/icons'
 import { Button, Collapse, Descriptions, Tag } from 'antd'
 import React, { Fragment } from 'react'

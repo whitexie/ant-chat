@@ -1,4 +1,4 @@
-import type { IConversations } from '@/db/interface'
+import type { IConversations } from '@ant-chat/shared'
 
 export interface StoreState {
   conversations: IConversations[]

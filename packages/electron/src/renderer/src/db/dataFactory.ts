@@ -1,5 +1,5 @@
 import type { RequireKey } from '@/types/global'
-import type { ConversationsId, IConversations, IMessageAI, IMessageSystem, IMessageUser, MessageId } from './interface'
+import type { ConversationsId, IConversations, IMessageAI, IMessageSystem, IMessageUser, MessageId } from '@ant-chat/shared'
 import { DEFAULT_TITLE, Role } from '@/constants'
 import { getNow, uuid } from '@/utils'
 

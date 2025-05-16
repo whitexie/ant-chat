@@ -1,4 +1,4 @@
-import type { ModelConfig, ModelConfigId } from '@/db/interface'
+import type { ModelConfig, ModelConfigId } from '@ant-chat/shared'
 import type { IModel } from '@/services-provider/interface'
 import type { InputRef, SelectProps } from 'antd'
 import DEFAULT_MODELS_MAPPING from '@/constants/models'

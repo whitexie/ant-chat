@@ -1,43 +1,17 @@
 import type { McpServer, McpTool } from '@ant-chat/shared'
 import type { Tool } from '@modelcontextprotocol/sdk/types.js'
-import type { z } from 'zod'
-import type { McpServerConfig, McpSettingsSchema } from './schema'
 import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { DEFAULT_MCP_TOOL_NAME_SEPARATOR } from '@ant-chat/shared'
+import { McpConfigSchema } from '@ant-chat/shared/src/schemas'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import deepEqual from 'fast-deep-equal'
 import * as packageJson from '../package.json'
-import { DEFAULT_MCP_TIMEOUT_SECONDS, DEFAULT_REQUEST_TIMEOUT_MS, ServerConfigSchema } from './schema'
-
-export interface McpToolCallResponse {
-  _meta?: Record<string, any>
-  content: Array<
-    | {
-      type: 'text'
-      text: string
-    }
-    | {
-      type: 'image'
-      data: string
-      mimeType: string
-    }
-    | {
-      type: 'resource'
-      resource: {
-        uri: string
-        mimeType?: string
-        text?: string
-        blob?: string
-      }
-    }
-  >
-  isError?: boolean
-}
+import { DEFAULT_MCP_TIMEOUT_SECONDS, DEFAULT_REQUEST_TIMEOUT_MS } from './schema'
 
 export type ITool = Pick<Tool, 'name' | 'description' | 'inputSchema'> & {
   serverName: string
@@ -70,17 +44,15 @@ export class MCPClientHub {
     }
   }
 
-  async initializeMcpServers(settings: z.infer<typeof McpSettingsSchema>): Promise<void> {
+  async initializeMcpServers(mcpServers: McpConfigSchema[]): Promise<void> {
     this.isInitializing = true
-    if (settings) {
-      await this.updateServerConnections(settings.mcpServers)
-    }
+    await this.updateServerConnections(mcpServers)
     this.isInitializing = false
   }
 
-  async updateServerConnections(newServers: Record<string, McpServerConfig>): Promise<void> {
+  async updateServerConnections(newServers: McpConfigSchema[]): Promise<void> {
     const currentNames = new Set(this.connections.map(conn => conn.server.name))
-    const newNames = new Set(Object.keys(newServers))
+    const newNames = new Set(newServers.map(item => item.serverName))
 
     // Delete removed servers
     for (const name of currentNames) {
@@ -91,19 +63,13 @@ export class MCPClientHub {
     }
 
     // Update or add servers
-    for (const [name, config] of Object.entries(newServers)) {
-      if (config.disabled) {
-        continue
-      }
-
+    for (const config of newServers) {
+      const { serverName: name } = config
       const currentConnection = this.connections.find(conn => conn.server.name === name)
 
       if (!currentConnection) {
         // New server
         try {
-          if (config.transportType === 'stdio') {
-            // this.setupFileWatcher(name, config)
-          }
           await this.connectToServer(name, config)
         }
         catch (error) {
@@ -124,7 +90,7 @@ export class MCPClientHub {
     }
   }
 
-  async connectToServer(name: string, config: McpServerConfig) {
+  async connectToServer(name: string, config: McpConfigSchema) {
     this.connections = this.connections.filter(conn => conn.server.name !== name)
 
     const client = new Client({ name: packageJson.name, version: packageJson.version })
@@ -170,7 +136,6 @@ export class MCPClientHub {
         name,
         config: JSON.stringify(config),
         status: 'connecting',
-        disabled: config.disabled,
       },
       client,
       transport,
@@ -251,8 +216,8 @@ export class MCPClientHub {
 
     try {
       const config = JSON.parse(connection.server.config)
-      const parsedConfig = ServerConfigSchema.parse(config)
-      timeout = secondsToMs(parsedConfig.timeout)
+      const parsedConfig = McpConfigSchema.parse(config)
+      timeout = secondsToMs(parsedConfig?.timeout || 30)
     }
     catch (error) {
       console.error(`Failed to parse timeout configuration for server ${serverName}: ${error}`)

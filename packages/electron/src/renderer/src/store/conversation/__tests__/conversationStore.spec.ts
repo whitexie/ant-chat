@@ -1,4 +1,4 @@
-import type { IConversationsSettings, ModelConfigId } from '@/db/interface'
+import type { IConversationsSettings, ModelConfigId } from '@ant-chat/shared'
 import { ANT_CHAT_STRUCTURE, Role } from '@/constants'
 import { getConversationsById, getMessagesByConvId } from '@/db'
 import { createConversations } from '@/db/dataFactory'
@@ -132,7 +132,7 @@ describe('conversationStore', () => {
     expect(result?.settings).toEqual(newModelConfig)
 
     const messages = await getMessagesByConvId(conversations.id)
-    const content = messages.find(message => message.role === Role.SYSTEM)?.content
+    const content = messages!.find(message => message.role === Role.SYSTEM)?.content
 
     expect(content).toBe(newModelConfig.systemPrompt)
   })

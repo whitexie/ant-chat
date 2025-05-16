@@ -1,4 +1,4 @@
-import type { IMessage, MessageId } from '@/db/interface'
+import type { IMessage, MessageId } from '@ant-chat/shared'
 import { Role } from '@/constants'
 import { createConversations, createUserMessage } from '@/db/dataFactory'
 import { addConversationsAction, useConversationsStore } from '@/store/conversation'
@@ -24,7 +24,7 @@ describe('messages actions', () => {
     const message: IMessage = createUserMessage({
       id: '1' as MessageId,
       role: Role.USER,
-      content: 'test',
+      content: [{ type: 'text', text: 'test' }],
       createAt: 1,
       convId: conversation.id,
     })
@@ -48,7 +48,7 @@ describe('messages actions', () => {
     const conversation = createConversations()
 
     const message: IMessage = createUserMessage({
-      content: 'text',
+      content: [{ type: 'text', text: 'test' }],
       images: [{ uid: '1', name: 'test', data: 'https://example.com/image.jpg', size: 100, type: 'image/jpeg' }],
       convId: conversation.id,
     })
@@ -70,9 +70,17 @@ describe('messages actions', () => {
     const { result } = renderHook(() => useMessagesStore())
 
     const conversation = createConversations()
-    const message = createUserMessage({ convId: conversation.id, role: Role.USER, content: 'test', createAt: 1 })
+    const message = createUserMessage({
+      convId: conversation.id,
+      role: Role.USER,
+      content: [{ type: 'text', text: 'test' }],
+      createAt: 1,
+    })
 
-    const newMessage = { ...message, content: 'new content' }
+    const newMessage: IMessage = {
+      ...message,
+      content: [{ type: 'text', text: 'new content' }],
+    }
 
     await act(async () => {
       await addConversationsAction(conversation)
@@ -92,7 +100,7 @@ describe('messages actions', () => {
     const { result } = renderHook(() => useMessagesStore())
 
     const conversation = createConversations()
-    const message = createUserMessage({ convId: conversation.id, role: Role.USER, content: 'test', createAt: 1 })
+    const message = createUserMessage({ convId: conversation.id, role: Role.USER, content: [{ type: 'text', text: 'test' }], createAt: 1 })
 
     await act(async () => {
       await addConversationsAction(conversation)

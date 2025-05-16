@@ -1,11 +1,11 @@
-import type { ConversationsId, IMessage, IMessageAI, MessageId, ModelConfig } from '@/db/interface'
+import type { ConversationsId, IMessage, IMessageAI, MessageId, ModelConfig } from '@ant-chat/shared'
 import type { BubbleContent } from '@/types/global'
 import type { BubbleProps } from '@ant-design/x'
 import type { ImperativeHandleRef } from '../InfiniteScroll'
 import { Role } from '@/constants'
 import { getFeatures } from '@/store/features'
 import { deleteMessageAction, executeMcpToolAction, nextPageMessagesAction, refreshRequestAction, useMessagesStore } from '@/store/messages'
-import { clipboardWriteText } from '@/utils'
+import { clipboardWrite } from '@/utils'
 import { ArrowDownOutlined, RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
 import { App, Button } from 'antd'
@@ -186,12 +186,13 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
         return `${a}\n<p>${b.text}</p>}`
       }
     }, '')
-    const result = await clipboardWriteText(content)
-    if (result.ok) {
-      messageFunc.success(result.message)
+
+    try {
+      await clipboardWrite(content)
+      messageFunc.success('复制成功')
     }
-    else {
-      messageFunc.error(result.message)
+    catch {
+      messageFunc.error('复制失败')
     }
   }
 

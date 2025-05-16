@@ -1,4 +1,4 @@
-import type { IModelInfo } from '@/db/interface'
+import type { IModelInfo } from '@ant-chat/shared'
 import { formatTime } from '@/utils'
 import { Tag } from 'antd'
 
