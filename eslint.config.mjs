@@ -11,6 +11,7 @@ export default antfu(
     },
     rules: {
       'no-console': ['off'],
+      'ts/no-redeclare': ['off'],
     },
   },
   {
