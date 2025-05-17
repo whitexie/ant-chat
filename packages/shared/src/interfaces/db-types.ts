@@ -1,4 +1,4 @@
-// 从 web/db/interface.ts 迁移的类型定义，供 electron 和 web 包共用
+import type { AttachmentSchema, ConversationsSchema, ConversationsSettingsSchema, McpToolCall, McpToolResult, ModelInfo } from 'src/schemas'
 
 // 基础类型
 export type MessageId = string
@@ -18,59 +18,30 @@ export interface ModelConfig {
 }
 
 // 会话设置
-export interface IConversationsSettings {
-  modelConfig?: ModelConfig | null
-  systemPrompt?: string
-}
+export type IConversationsSettings = ConversationsSettingsSchema
 
 // 会话
-export interface IConversations {
-  id: ConversationsId
-  title: string
-  createAt: Timestamp
-  updateAt: Timestamp
-  settings?: IConversationsSettings
-}
+export type IConversations = ConversationsSchema
 
 // 附件
-export interface IAttachment {
-  uid: string
-  name: string
-  size: number
-  type: string
-  data: string
-}
+export type IAttachment = AttachmentSchema
 
 // 图片
 export type IImage = IAttachment
 
 // MCP工具调用
-export interface IMcpToolCall {
-  id: string
-  serverName: string
-  toolName: string
-  args: Record<string, unknown>
-  executeState: 'await' | 'executing' | 'completed'
-  result?: IMcpToolResult
-}
+export type IMcpToolCall = McpToolCall
 
 // MCP工具结果
-export interface IMcpToolResult {
-  success: boolean
-  data?: string
-  error?: string
-}
+export type IMcpToolResult = McpToolResult
 
 // 模型信息
-export interface IModelInfo {
-  provider: string
-  model: string
-}
+export type IModelInfo = ModelInfo
 
 // 消息基础接口
 export interface IMessageBase {
-  id: MessageId
-  convId: ConversationsId
+  id: string
+  convId: string
   createAt: Timestamp
 }
 
