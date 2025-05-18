@@ -16,7 +16,7 @@
     "mirror": "https://npmmirror.com/mirrors/electron/"
   },
   "mac": {
-    "icon": "src/renderer/public/icon.png",
+    "icon": "app-icons/mac/logo-mac.icns",
     "category": "public.app-category.productivity",
     "target": [
       "dmg"
