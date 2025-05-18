@@ -217,7 +217,7 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
       {items}
       <Button
         size="small"
-        className={`sticky block w-6 min-h-6 left-1/2 bottom-8 -translate-x-1/2 transition-opacity duration-300 ${autoScrollToBottom ? 'opacity-0' : 'opacity-100'}`}
+        className={`!sticky block w-6 min-h-6 left-1/2 bottom-8 -translate-x-1/2 transition-opacity duration-300 ${autoScrollToBottom ? 'opacity-0' : 'opacity-100'}`}
         shape="circle"
         icon={<ArrowDownOutlined />}
         onClick={() => {
