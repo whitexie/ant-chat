@@ -6,7 +6,7 @@ export const mcpConfigsTable = sqliteTable('mcp_configs', {
   serverName: text('server_name').primaryKey(),
   icon: text('icon').notNull(),
   description: text('description'),
-  timeout: integer('timeout'),
+  timeout: integer('timeout').default(30),
   transportType: text('transport_type', { enum: ['stdio', 'sse'] }).notNull(),
   createAt: integer('create_at').notNull().default(sql`(CURRENT_TIMESTAMP)`),
   updateAt: integer('update_at').notNull().default(sql`(CURRENT_TIMESTAMP)`),
