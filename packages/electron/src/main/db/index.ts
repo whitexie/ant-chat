@@ -1,7 +1,7 @@
-import * as actions from './actions'
 import { initializeDb } from './db'
+import * as services from './services'
 
 export {
-  actions,
   initializeDb,
+  services,
 }
