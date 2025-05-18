@@ -1,11 +1,16 @@
-import { AddMessage, createErrorIpcResponse, createIpcPaginatedResponse, createIpcResponse, UpdateMessageSchema } from '@ant-chat/shared'
-import { ipcMain } from 'electron'
+import {
+  AddMessage,
+  createErrorIpcResponse,
+  createIpcPaginatedResponse,
+  createIpcResponse,
+  UpdateMessageSchema,
+} from '@ant-chat/shared'
+import * as actions from '../db/actions'
 import { mainListener } from '../utils/ipc-events-bus'
 import { logger } from '../utils/logger'
-import * as actions from './actions'
 
 // 注册所有数据库操作的IPC处理函数
-export function registerDbIpcHandlers() {
+export function registerDbHandlers() {
   // ========== 会话操作 ==========
   mainListener.handle('db:get-conversations', async (_e, pageIndex, pageSize) => {
     try {
@@ -149,36 +154,36 @@ export function registerDbIpcHandlers() {
   })
 
   // ========== 自定义模型操作 ==========
-  ipcMain.handle('db:get-custom-models', async () => {
+  mainListener.handle('db:get-custom-models', async () => {
     try {
-      const result = await actions.getCustomModels()
-      return { success: true, data: result }
+      const data = await actions.getCustomModels()
+      return createIpcResponse(true, data)
     }
     catch (error) {
       logger.error('获取自定义模型失败:', error)
-      return { success: false, error: String(error) }
+      return createErrorIpcResponse(error as Error)
     }
   })
 
-  ipcMain.handle('db:add-model', async (_, model) => {
+  mainListener.handle('db:add-model', async (_, model) => {
     try {
-      await actions.addCustomModel(model)
-      return { success: true }
+      const data = await actions.addCustomModel(model)
+      return createIpcResponse(true, data)
     }
     catch (error) {
       logger.error('添加自定义模型失败:', error)
-      return { success: false, error: String(error) }
+      return createErrorIpcResponse(error as Error)
     }
   })
 
-  ipcMain.handle('db:delete-model', async (_, id) => {
+  mainListener.handle('db:delete-model', async (_, id) => {
     try {
       await actions.deleteCustomModel(id)
-      return { success: true }
+      return createIpcResponse(true, null)
     }
     catch (error) {
       logger.error('删除自定义模型失败:', error)
-      return { success: false, error: String(error) }
+      return createErrorIpcResponse(error as Error)
     }
   })
 
@@ -227,7 +232,7 @@ export function registerDbIpcHandlers() {
     }
   })
 
-  ipcMain.handle('db:delete-mcp-config', async (_, serverName) => {
+  mainListener.handle('db:delete-mcp-config', async (_, serverName) => {
     try {
       await actions.deleteMcpConfig(serverName)
       return createIpcResponse(true, null)

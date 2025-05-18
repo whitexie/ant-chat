@@ -1,16 +1,16 @@
 import type { ConversationsId, IMessage, IMessageAI, MessageId, ModelConfig } from '@ant-chat/shared'
-import type { BubbleContent } from '@/types/global'
 import type { BubbleProps } from '@ant-design/x'
 import type { ImperativeHandleRef } from '../InfiniteScroll'
-import { Role } from '@/constants'
-import { getFeatures } from '@/store/features'
-import { deleteMessageAction, executeMcpToolAction, nextPageMessagesAction, refreshRequestAction, useMessagesStore } from '@/store/messages'
-import { clipboardWrite } from '@/utils'
+import type { BubbleContent } from '@/types/global'
 import { ArrowDownOutlined, RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
 import { Bubble } from '@ant-design/x'
 import { App, Button } from 'antd'
 import { pick } from 'lodash-es'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Role } from '@/constants'
+import { getFeatures } from '@/store/features'
+import { deleteMessageAction, executeMcpToolAction, nextPageMessagesAction, refreshRequestAction, useMessagesStore } from '@/store/messages'
+import { clipboardWrite } from '@/utils'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
 import BubbleFooter from './BubbleFooter'
@@ -178,17 +178,20 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
 
   // ============================ 操作 ============================
   async function copyMessage(message: IMessage) {
-    const content = message.content.reduce((a, b) => {
+    const data = { text: '', html: '' }
+    message.content.forEach((b) => {
       if (b.type === 'image') {
-        return `${a}<img src="data:${b.mimeType};base64,${b.data}" />`
+        // data.html += `\n<div><img src="data:${b.mimeType};base64,${b.data}" /></div>\n`
+        data.text += `\n![](data:${b.mimeType};base64,${b.data})\n`
       }
       else {
-        return `${a}\n<p>${b.text}</p>}`
+        // data.html += `\n<p>${b.text}</p>\n`
+        data.text += b.text
       }
-    }, '')
+    })
 
     try {
-      await clipboardWrite(content)
+      await clipboardWrite(data)
       messageFunc.success('复制成功')
     }
     catch {

@@ -1,7 +1,10 @@
 import process from 'node:process'
+import { MCPClientHub } from '@ant-chat/mcp-client-hub'
 import { app } from 'electron'
-import { initializeDb, registerDbIpcHandlers } from './db'
-import { McpService } from './mcp/index'
+import { initializeDb } from './db'
+import { registerCommonHandlers } from './ipcHandlers/commonHandlers'
+import { registerDbHandlers } from './ipcHandlers/dbHandlers'
+import { registerMcpHandlers } from './ipcHandlers/mcpHandlers'
 import { logger } from './utils/logger'
 import { MainWindow } from './window'
 
@@ -13,16 +16,14 @@ app.whenReady().then(async () => {
   // 初始化数据库
   await initializeDb()
 
-  // 注册数据库相关的IPC处理函数
-  registerDbIpcHandlers()
-
   const mainWindow = new MainWindow()
   await mainWindow.createWindow()
 
+  registerDbHandlers()
+  registerCommonHandlers()
   // 初始化 MCP 服务
-  const mcpService = new McpService()
-
-  mcpService.registerEvent()
+  const clientHub = new MCPClientHub()
+  registerMcpHandlers(clientHub)
 
   app.on('activate', () => {
     if (!mainWindow.getWindow()) {

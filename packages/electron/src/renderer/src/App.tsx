@@ -64,11 +64,11 @@ function AntChatApp() {
       func({ message, description })
     }
 
-    ipc.on('global:Notification', handle)
+    ipc.on('common:Notification', handle)
     ipc.on('mcp:McpServerStatusChanged', onMcpServerStatusChanged)
 
     return () => {
-      window.electronAPI.ipcRenderer.removeAllListeners('global:Notification')
+      window.electronAPI.ipcRenderer.removeAllListeners('common:Notification')
       window.electronAPI.ipcRenderer.removeAllListeners('mcp:McpServerStatusChanged')
     }
   }, [])

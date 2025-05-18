@@ -1,4 +1,4 @@
-import type { AttachmentSchema, ConversationsSchema, ConversationsSettingsSchema, McpToolCall, McpToolResult, ModelInfo } from 'src/schemas'
+import type { AttachmentSchema, ConversationsSchema, ConversationsSettingsSchema, McpToolCall, McpToolResult, ModelInfo } from '../schemas'
 
 // 基础类型
 export type MessageId = string

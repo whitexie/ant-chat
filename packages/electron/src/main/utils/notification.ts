@@ -27,6 +27,6 @@ function notification(option: NotificationOption) {
   const window = getMainWindow()
   if (window) {
     logger.debug('send NOTIFICATION', JSON.stringify(option))
-    mainEmitter.send(window.webContents, 'global:Notification', option)
+    mainEmitter.send(window.webContents, 'common:Notification', option)
   }
 }

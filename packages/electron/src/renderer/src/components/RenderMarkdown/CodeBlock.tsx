@@ -1,11 +1,11 @@
 import type { SupportedLanguages } from '../RunnerCode'
-import { clipboardWrite } from '@/utils'
 import { CopyOutlined, DownOutlined, PlayCircleFilled } from '@ant-design/icons'
 import { Button } from 'antd'
 import { useState } from 'react'
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter'
 import materialDark from 'react-syntax-highlighter/dist/esm/styles/prism/material-dark'
 import materialLight from 'react-syntax-highlighter/dist/esm/styles/prism/material-light'
+import { clipboardWrite } from '@/utils'
 import { useRunnerCodeContext } from '../RunnerCode'
 
 interface CodeBlockProps {
@@ -54,7 +54,7 @@ function CodeBlock({ language, children, theme = 'light' }: CodeBlockProps) {
             onClick={() => {
               setCopySuccess(true)
               const text = String(children)
-              clipboardWrite(text)
+              clipboardWrite({ text })
               setTimeout(() => {
                 setCopySuccess(false)
               }, 1000)

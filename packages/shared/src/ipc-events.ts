@@ -58,7 +58,8 @@ export type IpcEvents =
   }
   | {
     // ============================ 全局 相关 ============================
-    'global:clipboard-write': (text: string) => Promise<boolean>
+    'common:clipboard-write': (data: Electron.Data, type?: 'selection' | 'clipboard') => Promise<boolean>
+
     // ============================ Conversaations 相关 ============================
     'db:get-conversations': (pageIndex: number, pageSize: number) => Promise<IpcPaginatedResponse<IConversations[]>>
     'db:get-conversation-by-id': (id: string) => Promise<IpcResponse<IConversations>>
@@ -99,7 +100,7 @@ export type IpcEvents =
 // Renderer ipc events
 export interface IpcRendererEvent {
   'mcp:McpServerStatusChanged': [string, 'disconnected' | 'connected']
-  'global:Notification': [NotificationOption]
+  'common:Notification': [NotificationOption]
 
   [key: string]: unknown[]
 }
