@@ -7,7 +7,7 @@ import {
   UpdateMcpConfigSchema,
 } from '@ant-chat/shared'
 import { eq, sql } from 'drizzle-orm'
-import db from './db'
+import { db } from './db'
 import {
   conversationsTable,
   customModelsTable,

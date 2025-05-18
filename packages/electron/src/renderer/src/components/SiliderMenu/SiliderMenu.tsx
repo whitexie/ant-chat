@@ -19,7 +19,7 @@ export function SliderMenu() {
         <div className="flex flex-col items-center pt-2 gap-5">
           <div className="flex justify-center items-center w-8 h-8 p-1">
             <img
-              src="/logo.svg"
+              src="./logo.svg"
               className="w-full h-full cursor-pointer"
               draggable={false}
               onClick={() => {

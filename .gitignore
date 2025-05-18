@@ -39,3 +39,5 @@ report-*.html
 # electron
 dist-electron
 out
+build
+release

@@ -1,14 +1,14 @@
+import {
+  createHashRouter,
+  Navigate,
+} from 'react-router'
 import AntChatApp from '@/App'
 import { ChatPage } from '@/pages/Chat'
 import MCPManage from '@/pages/Settings/MCPManage'
 import ProviderManage from '@/pages/Settings/ProviderManage'
 import SettingsPage from '@/pages/Settings/Settings'
-import {
-  createBrowserRouter,
-  Navigate,
-} from 'react-router'
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: '/',
     Component: AntChatApp,

@@ -1,5 +1,5 @@
 {
-  "name": "@ant-chat/electron",
+  "name": "ant-chat",
   "type": "module",
   "version": "0.1.0",
   "private": true,

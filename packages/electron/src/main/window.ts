@@ -70,21 +70,6 @@ export class MainWindow {
           { role: 'togglefullscreen', label: '全屏' },
         ],
       },
-      // 开发菜单（仅在开发模式显示）
-      ...(isDev
-        ? [{
-            label: '开发',
-            submenu: [
-              {
-                label: '切换开发者工具',
-                accelerator: isMac ? 'Command+Option+I' : 'Ctrl+Shift+I',
-                click: () => {
-                  this.window?.webContents.toggleDevTools()
-                },
-              },
-            ],
-          }]
-        : []),
     ]
 
     const menu = Menu.buildFromTemplate(template as any)
@@ -159,7 +144,7 @@ export class MainWindow {
     }
     else {
       // 生产环境加载打包后的文件
-      const webDistPath = join(__dirname, '../web/dist/index.html')
+      const webDistPath = join(__dirname, '../renderer/index.html')
       logger.info('生产环境加载打包后的文件', webDistPath)
       this.window.loadFile(webDistPath)
     }

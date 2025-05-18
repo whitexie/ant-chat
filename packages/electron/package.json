@@ -10,12 +10,12 @@
     "prebuild": "electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "type-check": "tsc -b",
-    "build:unpack": "npm run build && electron-builder --dir",
-    "build:win": "npm run build && electron-builder --win",
-    "build:mac": "electron-vite build && electron-builder --mac",
-    "build:linux": "electron-vite build && electron-builder --linux",
+    "build:unpack": "cross-env NODE_ENV=production electron-vite build && electron-builder --dir",
+    "build:win": "cross-env NODE_ENV=production electron-vite build && electron-builder --win",
+    "build:mac": "cross-env NODE_ENV=production electron-vite build && electron-builder --mac",
+    "build:linux": "cross-env NODE_ENV=production electron-vite build && electron-builder --linux",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "cross-env NODE_ENV=development && tsx src/main/db/migrate.ts"
+    "db:migrate": "cross-env NODE_ENV=development tsx src/main/db/migrate.ts"
   },
   "dependencies": {
     "better-sqlite3": "^11.10.0",
@@ -55,8 +55,9 @@
     "drizzle-kit": "^0.31.1",
     "drizzle-zod": "^0.7.1",
     "electron": "^28.2.0",
-    "electron-builder": "^24.13.3",
+    "electron-builder": "^26.0.0",
     "electron-devtools-installer": "^4.0.0",
+    "electron-rebuild": "^3.2.9",
     "electron-vite": "^3.1.0",
     "immer": "^10.1.1",
     "js-base64": "^3.7.7",
@@ -78,55 +79,5 @@
     "vite-plugin-svgr": "^4.3.0",
     "zod": "^3.24.4",
     "zustand": "^5.0.3"
-  },
-  "build": {
-    "appId": "com.ant-chat.app",
-    "productName": "Ant Chat",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "dist/**/*"
-    ],
-    "mac": {
-      "icon": "public/icon.png",
-      "category": "public.app-category.productivity",
-      "target": [
-        "dmg"
-      ]
-    },
-    "dmg": {
-      "contents": [
-        {
-          "x": 410,
-          "y": 150,
-          "type": "link",
-          "path": "/Applications"
-        },
-        {
-          "x": 130,
-          "y": 150,
-          "type": "file"
-        }
-      ]
-    },
-    "win": {
-      "icon": "assets/icon/tray.png",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "artifactName": "${productName}_${version}.${ext}"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "deleteAppDataOnUninstall": true
-    }
   }
 }
