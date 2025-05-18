@@ -1,73 +1,83 @@
-/**
- * Electron主进程日志工具
- * 用于在终端中显示应用日志
- */
+import path from 'node:path'
+import log from 'electron-log'
+import { APP_NAME } from './constants'
+import { isDev } from './env'
+import { getAppHand } from './util'
 
-// 日志级别
-export enum LogLevel {
-  DEBUG = 'DEBUG',
-  INFO = 'INFO',
-  WARN = 'WARN',
-  ERROR = 'ERROR',
+const userDataPath = getAppHand()
+const logPath = path.join(userDataPath, APP_NAME, 'logs/main.log')
+
+log.transports.file.maxSize = 1024 * 1024 * 5 // 10MB
+
+if (userDataPath) {
+  log.transports.file.resolvePathFn = () => logPath
 }
 
-// 日志颜色
-const LogColors = {
-  [LogLevel.DEBUG]: '\x1B[36m', // 青色
-  [LogLevel.INFO]: '\x1B[32m', // 绿色
-  [LogLevel.WARN]: '\x1B[33m', // 黄色
-  [LogLevel.ERROR]: '\x1B[31m', // 红色
-  RESET: '\x1B[0m', // 重置颜色
+log.debug('log path: ', logPath)
+
+const loggingEnabled = true
+
+const logger = log
+
+function hookConsole() {
+  const originalConsole = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+    debug: console.debug,
+    trace: console.trace,
+  }
+
+  // 替换console方法
+  console.log = (...args: unknown[]) => {
+    // 只有在启用日志或开发模式下才记录日志
+    if (loggingEnabled || isDev) {
+      logger.info(...args)
+    }
+  }
+
+  console.error = (...args: unknown[]) => {
+    // 只有在启用日志或开发模式下才记录日志
+    if (loggingEnabled || isDev) {
+      logger.error(...args)
+    }
+  }
+
+  console.warn = (...args: unknown[]) => {
+    // 只有在启用日志或开发模式下才记录日志
+    if (loggingEnabled || isDev) {
+      logger.warn(...args)
+    }
+  }
+
+  console.info = (...args: unknown[]) => {
+    // 只有在启用日志或开发模式下才记录日志
+    if (loggingEnabled || isDev) {
+      logger.info(...args)
+    }
+  }
+
+  console.debug = (...args: unknown[]) => {
+    // 只有在启用日志或开发模式下才记录日志
+    if (loggingEnabled || isDev) {
+      logger.debug(...args)
+    }
+  }
+
+  console.trace = (...args: unknown[]) => {
+    // 只有在启用日志或开发模式下才记录日志
+    if (loggingEnabled || isDev) {
+      logger.debug(...args)
+    }
+  }
+
+  return originalConsole
 }
 
-/**
- * 格式化日志消息
- */
-function formatLogMessage(level: LogLevel, message: any, ...args: any[]): string {
-  const timestamp = new Date().toISOString()
-  const formattedMessage = typeof message === 'object'
-    ? JSON.stringify(message, null, 2)
-    : message
+// 导出原始console方法，以便需要时可以恢复
+export const originalConsole = hookConsole()
 
-  return `${timestamp} ${level} - ${formattedMessage} ${args.length ? JSON.stringify(args) : ''}`
+export {
+  logger,
 }
-
-/**
- * 主进程日志类
- */
-class MainLogger {
-  /**
-   * 打印调试日志
-   */
-  debug(message: any, ...args: any[]): void {
-    const formattedMessage = formatLogMessage(LogLevel.DEBUG, message, ...args)
-    console.log(`${LogColors[LogLevel.DEBUG]}${formattedMessage}${LogColors.RESET}`)
-  }
-
-  /**
-   * 打印信息日志
-   */
-  info(message: any, ...args: any[]): void {
-    const formattedMessage = formatLogMessage(LogLevel.INFO, message, ...args)
-    console.log(`${LogColors[LogLevel.INFO]}${formattedMessage}${LogColors.RESET}`)
-  }
-
-  /**
-   * 打印警告日志
-   */
-  warn(message: any, ...args: any[]): void {
-    const formattedMessage = formatLogMessage(LogLevel.WARN, message, ...args)
-    console.log(`${LogColors[LogLevel.WARN]}${formattedMessage}${LogColors.RESET}`)
-  }
-
-  /**
-   * 打印错误日志
-   */
-  error(message: any, ...args: any[]): void {
-    const formattedMessage = formatLogMessage(LogLevel.ERROR, message, ...args)
-    console.error(`${LogColors[LogLevel.ERROR]}${formattedMessage}${LogColors.RESET}`)
-  }
-}
-
-// 导出单例
-export const logger = new MainLogger()
