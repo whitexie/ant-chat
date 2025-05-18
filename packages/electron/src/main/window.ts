@@ -168,7 +168,7 @@ export class MainWindow {
   }
 
   getWindow() {
-    logger.info('获取窗口', this.window)
+    // logger.info('获取窗口', this.window)
     return this.window
   }
 }

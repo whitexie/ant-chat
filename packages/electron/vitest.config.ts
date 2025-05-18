@@ -24,8 +24,6 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
     environment: 'jsdom',
-    setupFiles: [
-      'fake-indexeddb/auto',
-    ],
+    setupFiles: [],
   },
 })

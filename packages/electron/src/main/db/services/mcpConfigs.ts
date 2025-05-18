@@ -3,6 +3,7 @@ import {
   UpdateMcpConfigSchema,
 } from '@ant-chat/shared'
 import { eq } from 'drizzle-orm'
+import { logger } from '../../utils/logger'
 import { db } from '../db'
 import {
   mcpConfigsTable,
@@ -21,6 +22,7 @@ export async function getMcpConfigByServerName(serverName: string): Promise<any>
 }
 
 export async function addMcpConfig(config: AddMcpConfigSchema): Promise<any> {
+  logger.debug('addMcpConfig, params => ', JSON.stringify(config))
   const data = AddMcpConfigSchema.parse(config)
 
   return db.insert(mcpConfigsTable)

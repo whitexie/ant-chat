@@ -52,3 +52,41 @@ export async function initializeDb() {
     process.exit(1)
   }
 }
+
+/**
+ * 连接测试数据库（内存数据库）
+ */
+export async function initializeTestDb() {
+  logger.debug('Initializing test database (in-memory)...')
+  let sqlite: Database | null = null
+
+  try {
+    // 使用内存数据库
+    sqlite = new _Database(':memory:', {
+      timeout: DB_CONFIG.timeout,
+    })
+    logger.info('Test database connected successfully (in-memory).')
+  }
+  catch (e) {
+    logger.error('Failed to connect to the test database (in-memory):', (e as Error).message)
+    // 在测试环境中，失败通常意味着需要终止
+    process.exit(1)
+  }
+
+  if (!sqlite) {
+    logger.error('Test database connection is null after initialization attempt (in-memory).')
+    process.exit(1)
+  }
+
+  db = drizzle(sqlite as Database, { schema })
+  const migrationsFolder = path.join(__dirname, '../../../migrations')
+  logger.debug('migrationsFolder for test db => ', migrationsFolder)
+  try {
+    migrate(db, { migrationsFolder })
+    logger.info('Test database migrations applied successfully (in-memory).')
+  }
+  catch (e) {
+    logger.error('Failed to apply test database migrations (in-memory):', (e as Error).message)
+    process.exit(1)
+  }
+}
