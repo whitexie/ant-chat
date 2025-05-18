@@ -24,7 +24,6 @@ export function registerMcpHandlers(clientHub: MCPClientHub) {
   })
 
   mainListener.handle('mcp:callTool', async (_, serverName: string, toolName: string, toolArguments?: Record<string, unknown>) => {
-    logger.debug('mcp:callTool', serverName, toolName, toolArguments)
     const data = await clientHub.callTool(serverName, toolName, toolArguments)
 
     // data.content.forEach((item) => {
@@ -45,7 +44,6 @@ export function registerMcpHandlers(clientHub: MCPClientHub) {
   })
 
   mainListener.handle('mcp:connectMcpServer', async (_, name: string, mcpConfig: McpConfigSchema) => {
-    logger.debug('mcp:connectMcpServer', name, JSON.stringify(mcpConfig))
     let ok = false
     let msg = ''
     let status: 'connected' | 'disconnected' = 'connected'
@@ -69,13 +67,11 @@ export function registerMcpHandlers(clientHub: MCPClientHub) {
   })
 
   mainListener.handle('mcp:disconnectMcpServer', async (_, name: string) => {
-    logger.debug('mcp:disconnectMcpServer', name)
     const ok = await clientHub.deleteConnection(name)
     return createIpcResponse(ok, null)
   })
 
   mainListener.handle('mcp:reconnectMcpServer', async (_, name: string, mcpConfig: McpConfigSchema) => {
-    logger.debug('mcp:reconnectMcpServer', name)
     let ok = true
     let msg = ''
     try {
@@ -96,7 +92,6 @@ export function registerMcpHandlers(clientHub: MCPClientHub) {
   })
 
   mainListener.handle('mcp:mcpToggle', async (_, isEnable: boolean, mcpConfigs?: McpConfigSchema[]) => {
-    logger.debug('mcp:mcpToggle', isEnable, mcpConfigs)
     if (isEnable) {
       if (!mcpConfigs) {
         return createIpcResponse(false, null, 'needs mcpConfig')

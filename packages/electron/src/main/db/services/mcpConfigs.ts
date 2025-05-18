@@ -22,7 +22,6 @@ export async function getMcpConfigByServerName(serverName: string): Promise<any>
 }
 
 export async function addMcpConfig(config: AddMcpConfigSchema): Promise<any> {
-  logger.debug('addMcpConfig, params => ', JSON.stringify(config))
   const data = AddMcpConfigSchema.parse(config)
 
   return db.insert(mcpConfigsTable)
