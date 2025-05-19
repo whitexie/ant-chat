@@ -12,10 +12,10 @@ export const BaseMcpConfig = z.object({
 
 export const SSEMcpConfig = BaseMcpConfig.extend({
   transportType: z.literal('sse'),
-  url: z.string({ message: 'url 是必填项' }).url({message: 'url格式错误'}),
+  url: z.string({ message: 'url 是必填项' }).url({ message: 'url格式错误' }),
 })
 
-export type SSeMcpConfig = z.infer<typeof SSEMcpConfig>
+export type SSEMcpConfig = z.infer<typeof SSEMcpConfig>
 
 export const StdioMcpConfig = BaseMcpConfig.extend({
   transportType: z.literal('stdio'),
@@ -32,10 +32,10 @@ export const AddMcpConfigSchema = z.discriminatedUnion('transportType', [
 ])
 export type AddMcpConfigSchema = z.infer<typeof AddMcpConfigSchema>
 
-export const McpConfigSchema = z.union([SSEMcpConfig, StdioMcpConfig])
+export const McpConfigSchema = z.discriminatedUnion('transportType', [SSEMcpConfig, StdioMcpConfig])
 export type McpConfigSchema = z.infer<typeof McpConfigSchema>
 
-export const UpdateMcpConfigSchema = z.discriminatedUnion('transportType',[
+export const UpdateMcpConfigSchema = z.discriminatedUnion('transportType', [
   SSEMcpConfig.partial().extend({ serverName: z.string(), transportType: z.literal('sse') }),
   StdioMcpConfig.partial().extend({ serverName: z.string(), transportType: z.literal('stdio') }),
 ])
