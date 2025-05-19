@@ -12,6 +12,7 @@ import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotoc
 import deepEqual from 'fast-deep-equal'
 import * as packageJson from '../package.json'
 import { DEFAULT_MCP_TIMEOUT_SECONDS, DEFAULT_REQUEST_TIMEOUT_MS } from './schema'
+import { getCurrentPlatform } from './utils'
 
 export type ITool = Pick<Tool, 'name' | 'description' | 'inputSchema'> & {
   serverName: string
@@ -29,6 +30,7 @@ export interface McpConnection {
 export class MCPClientHub {
   isInitializing = false
   connections: McpConnection[] = []
+  isWin32 = getCurrentPlatform() === 'win32'
   private onErrorCallbacks: ((name: string, e: Error) => void)[] = []
 
   addErrorCallback(callback: (name: string, e: Error) => void) {
@@ -106,7 +108,7 @@ export class MCPClientHub {
         args: config.args,
         env: {
           ...config.env,
-          ...(process.env.PATH ? { PATH: process.env.PATH } : {}),
+          PATH: mergePathEnv(config?.env?.path || config?.env?.PATH || ''),
         },
       })
     }
@@ -256,13 +258,16 @@ export class MCPClientHub {
 
     return true
   }
-
-  getMcpSettingsFilePath() {
-    const userHomeDir = os.homedir()
-    return path.join(userHomeDir, './Documents/.ant-chat/mcp-settings.json')
-  }
 }
 
 function secondsToMs(seconds: number) {
   return seconds * 1000
+}
+
+function mergePathEnv(path: string) {
+  const isWin32 = getCurrentPlatform() === 'win32'
+  const delimiter = isWin32 ? ';' : ':'
+  const builtInPath = process.env.Path || process.env.PATH || ''
+
+  return `${builtInPath}${delimiter}${path}`
 }
