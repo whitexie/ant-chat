@@ -33,7 +33,7 @@ export async function addMessage(message: AddMessage): Promise<IMessage> {
   }
 
   const result = db.insert(messagesTable)
-    .values({ ...message, createAt: Date.now() })
+    .values({ ...message, createdAt: Date.now() })
     .returning()
     .get()
 
@@ -43,7 +43,7 @@ export async function addMessage(message: AddMessage): Promise<IMessage> {
 export async function updateMessage(message: UpdateMessageSchema): Promise<IMessage> {
   await db.transaction(async (tx) => {
     const result = tx.update(messagesTable).set(message).where(eq(messagesTable.id, message.id)).returning().get()
-    await tx.update(conversationsTable).set({ updateAt: Date.now() }).where(eq(conversationsTable.id, result.convId))
+    await tx.update(conversationsTable).set({ updatedAt: Date.now() }).where(eq(conversationsTable.id, result.convId))
   })
 
   return getMessageById(message.id)
@@ -69,7 +69,7 @@ export async function getMessagesByConvIdWithPagination(id: string, pageIndex: n
   const results = db.select()
     .from(messagesTable)
     .where(eq(messagesTable.convId, id))
-    .orderBy(messagesTable.createAt)
+    .orderBy(messagesTable.createdAt)
     .limit(pageSize)
     .offset(pageIndex * pageSize)
     .all()

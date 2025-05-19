@@ -1,18 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { initializeTestDb } from '../../db' // 导入初始化函数和 db 实例
-// 导入你需要测试的服务或函数
-import { addMcpConfig, getMcpConfigs } from '../mcpConfigs' // 假设你有这两个函数
-
-vi.mock('electron', () => ({
-  app: {
-    getPath: vi.fn((name: string) => `./fake/${name}`),
-  },
-}))
+import { mockDb } from './utils'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { addMcpConfig, getMcpConfigs } from '../mcpConfigs'
 
 describe('mcpConfigs service', () => {
-  // 在每个测试用例之前初始化数据库
   beforeEach(async () => {
-    await initializeTestDb()
+    await mockDb()
   })
 
   it('应该添加一个新的 Stdio MCP Server配置', async () => {

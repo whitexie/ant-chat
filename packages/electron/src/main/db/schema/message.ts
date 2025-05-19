@@ -1,4 +1,5 @@
 import type { AttachmentSchema, McpToolCall, MessageContent, ModelInfo } from '@ant-chat/shared'
+import { sql } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { nanoid } from 'nanoid'
 
@@ -8,7 +9,7 @@ export const messagesTable = sqliteTable('messages', {
   convId: text('conv_id').notNull(),
   role: text('role').notNull(),
   content: text('content', { mode: 'json' }).notNull().$type<MessageContent>(),
-  createAt: integer('create_at').notNull(),
+  createdAt: integer('created_at').notNull().default(sql`(strftime('%s','now'))`),
   status: text('status').notNull(),
   images: text('images', { mode: 'json' }).$type<AttachmentSchema[]>().default([]),
   attachments: text('attachments', { mode: 'json' }).$type<AttachmentSchema[]>().default([]),

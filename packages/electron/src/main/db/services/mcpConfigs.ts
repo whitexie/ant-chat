@@ -3,7 +3,6 @@ import {
   UpdateMcpConfigSchema,
 } from '@ant-chat/shared'
 import { eq } from 'drizzle-orm'
-import { logger } from '../../utils/logger'
 import { db } from '../db'
 import {
   mcpConfigsTable,
@@ -25,7 +24,7 @@ export async function addMcpConfig(config: AddMcpConfigSchema): Promise<any> {
   const data = AddMcpConfigSchema.parse(config)
 
   return db.insert(mcpConfigsTable)
-    .values({ ...data, createAt: Date.now(), updateAt: Date.now() })
+    .values({ ...data, createdAt: Date.now(), updatedAt: Date.now() })
     .returning()
     .get()
 }

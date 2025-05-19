@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid'
 export const conversationsTable = sqliteTable('conversations', {
   id: text('id').primaryKey().$defaultFn(() => `conv-${nanoid()}`),
   title: text('title').notNull(),
-  createAt: integer('create_at').notNull().default(sql`(CURRENT_TIMESTAMP)`),
-  updateAt: integer('update_at').notNull().default(sql`(CURRENT_TIMESTAMP)`),
+  createdAt: integer('created_at').notNull().default(sql`(strftime('%s','now'))`),
+  updatedAt: integer('updated_at').notNull().default(sql`(strftime('%s','now'))`),
   settings: text('settings', { mode: 'json' }).$type<ConversationsSettingsSchema>(),
 })
