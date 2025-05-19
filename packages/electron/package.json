@@ -6,7 +6,7 @@
   "main": "out/main/index.cjs",
   "scripts": {
     "start": "electron-vite preview",
-    "dev": "electron-vite dev",
+    "dev": "pnpm exec electron-rebuild -f -w better-sqlite3 && electron-vite dev",
     "prebuild": "electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "type-check": "tsc -b",

@@ -7,7 +7,7 @@ import * as schema from './schema'
 console.log('开始执行数据库迁移...')
 
 // 数据库文件路径
-const dbPath = path.resolve('./antChat.db')
+const dbPath = path.resolve('./dev.db')
 console.log(`数据库路径: ${dbPath}`)
 
 // 创建数据库连接
@@ -16,6 +16,6 @@ const db = drizzle(sqlite, { schema })
 
 // 执行迁移
 console.log('应用迁移...')
-migrate(db, { migrationsFolder: path.resolve('./src/main/db/migrations') })
+migrate(db, { migrationsFolder: path.resolve('./migrations') })
 
 console.log('数据库迁移完成!')

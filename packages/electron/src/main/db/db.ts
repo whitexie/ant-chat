@@ -5,12 +5,16 @@ import _Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import { APP_NAME, DB_CONFIG } from '../utils/constants'
+import { isDev } from '../utils/env'
 import { logger } from '../utils/logger'
 import { generateDbPath, getAppHand, getDirname } from '../utils/util'
 import * as schema from './schema'
 
 const __dirname = getDirname(import.meta.url)
-const DB_PATH = path.join(getAppHand(), APP_NAME, DB_CONFIG.dbFileName)
+const projectPath = process.cwd()
+const DB_PATH = isDev
+  ? path.join(projectPath, 'dev.db')
+  : path.join(getAppHand(), APP_NAME, DB_CONFIG.dbFileName)
 
 // eslint-disable-next-line import/no-mutable-exports
 export let db: BetterSQLite3Database<typeof schema>
@@ -79,7 +83,7 @@ export async function initializeTestDb() {
   }
 
   db = drizzle(sqlite as Database, { schema })
-  const migrationsFolder = path.join(__dirname, '../../../migrations')
+  const migrationsFolder = path.join(projectPath, './migrations')
   logger.debug('migrationsFolder for test db => ', migrationsFolder)
   try {
     migrate(db, { migrationsFolder })
