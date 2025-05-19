@@ -1,9 +1,9 @@
-import type { McpConfigSchema } from '@ant-chat/shared'
-import { useMcpStore } from '@/store/features'
-import { addMcpConfigAction, connectMcpServerAction, deleteMcpConfigAction, disconnectMcpServerAction, initializeMcpConfigs, reconnectMcpServerAction, upadteMcpConfigAction, useMcpConfigsStore } from '@/store/mcpConfigs'
+import type { McpConfigSchema, SSEMcpConfig, StdioMcpConfig } from '@ant-chat/shared'
 import { PlusOutlined } from '@ant-design/icons'
 import { App, Button, Empty, Switch } from 'antd'
 import React from 'react'
+import { useMcpStore } from '@/store/features'
+import { addMcpConfigAction, connectMcpServerAction, deleteMcpConfigAction, disconnectMcpServerAction, initializeMcpConfigs, reconnectMcpServerAction, upadteMcpConfigAction, useMcpConfigsStore } from '@/store/mcpConfigs'
 import { MCPList } from './MCPList'
 
 const McpConfigDrawer = React.lazy(() => import('@/components/MCPManage/McpConfigDrawer'))
@@ -114,8 +114,13 @@ export default function MCPManage() {
                       }
                       else {
                         await upadteMcpConfigAction(structuredClone(e))
-                        // 如果修改了 transportType、url、 command、args、env 参数，需要重新连接
-                        if (checkNeedReconnect(editData as McpConfigSchema, e)) {
+
+                        // 如果MCP服务是在运行中且修改了 transportType、url、command、args、env 其中之一，需要重新连接
+                        if (
+                          e.serverName in mcpServerRuningStatusMap
+                          && mcpServerRuningStatusMap[e.serverName] === 'connected'
+                          && checkNeedReconnect(editData as McpConfigSchema, e)
+                        ) {
                           await reconnectMcpServerAction(e.serverName)
                         }
                       }
@@ -139,14 +144,21 @@ export default function MCPManage() {
 }
 
 function checkNeedReconnect(oldConfig: McpConfigSchema, newConfig: McpConfigSchema): boolean {
-  // Compare specific fields that require a reconnect if changed
-  const fieldsToCheck = ['transportType', 'url', 'command', 'args', 'env'] as (keyof McpConfigSchema)[]
+  console.log('oldConfig: ', JSON.stringify(oldConfig), 'newConfig: ', JSON.stringify(newConfig))
 
-  return fieldsToCheck.some((field) => {
-    if (Array.isArray(oldConfig[field as keyof McpConfigSchema]) && Array.isArray(newConfig[field as keyof McpConfigSchema])) {
-      // Deep comparison for arrays
-      return JSON.stringify(oldConfig[field]) !== JSON.stringify(newConfig[field])
+  if (oldConfig.transportType !== newConfig.transportType) {
+    return true
+  }
+
+  if (newConfig.transportType === 'sse') {
+    return (oldConfig as SSEMcpConfig).url !== newConfig.url
+  }
+
+  else {
+    if ((oldConfig as StdioMcpConfig).command !== (newConfig as StdioMcpConfig).command) {
+      return true
     }
-    return oldConfig[field] !== newConfig[field]
-  })
+
+    return ['args', 'env'].some(field => JSON.stringify(oldConfig[field]) !== JSON.stringify(newConfig[field]))
+  }
 }

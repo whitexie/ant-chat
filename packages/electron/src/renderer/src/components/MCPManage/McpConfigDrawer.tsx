@@ -1,13 +1,13 @@
 import type { McpConfigSchema, McpTool } from '@ant-chat/shared'
 import type { RuleObject } from 'antd/es/form'
 
+import { MinusCircleOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons'
+import { Alert, Avatar, Button, Descriptions, Drawer, Empty, Form, Input, Tag } from 'antd'
+import React from 'react'
+import { useImmer } from 'use-immer'
 import { EmojiPickerHoc } from '@/components/EmojiPiker'
 import { mcpConfigIsExists } from '@/db/mcpConfigActions'
 import { connectMcpServer, fetchMcpServerTools } from '@/mcp'
-import { MinusCircleOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons'
-import { Alert, Avatar, Button, Descriptions, Drawer, Empty, Form, Input, Space, Tag } from 'antd'
-import React from 'react'
-import { useImmer } from 'use-immer'
 import { QuickImport } from './QuickImport'
 import { SelectTransportType } from './SelectTransportType'
 
@@ -180,8 +180,9 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
                               {(fields, { add, remove }) => (
                                 <>
                                   {fields.map(({ key, name }) => (
-                                    <Space key={key} className="w-full mb-8" align="baseline">
+                                    <div key={key} className="w-full flex items-center mb-4 gap-3">
                                       <Form.Item
+                                        className="flex-1 !mb-0"
                                         name={[name, 'key']}
                                         rules={[{ required: true, message: '请输入环境变量名称' }]}
                                       >
@@ -190,14 +191,14 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
                                       <Form.Item
                                         name={[name, 'value']}
                                         rules={[{ required: true, message: '请输入环境变量值' }]}
-                                        className="flex-1 mb-0"
+                                        className="flex-1 !mb-0"
                                       >
                                         <Input placeholder="变量值" />
                                       </Form.Item>
                                       <MinusCircleOutlined className="ml-2" onClick={() => remove(name)} />
-                                    </Space>
+                                    </div>
                                   ))}
-                                  <Form.Item>
+                                  <Form.Item className="!mb-0">
                                     <Button type="dashed" onClick={() => add({ key: '', value: '' })} block icon={<PlusOutlined />}>
                                       添加环境变量
                                     </Button>
