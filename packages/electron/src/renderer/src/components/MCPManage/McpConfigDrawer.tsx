@@ -2,7 +2,7 @@ import type { McpConfigSchema, McpTool } from '@ant-chat/shared'
 import type { RuleObject } from 'antd/es/form'
 
 import { MinusCircleOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons'
-import { Alert, Avatar, Button, Descriptions, Drawer, Empty, Form, Input, Tag } from 'antd'
+import { Alert, Avatar, Button, Descriptions, Drawer, Empty, Form, Input, Select, Tag } from 'antd'
 import React from 'react'
 import { useImmer } from 'use-immer'
 import { EmojiPickerHoc } from '@/components/EmojiPiker'
@@ -25,7 +25,7 @@ interface McpConfigForm extends Partial<Omit<McpConfigSchema, 'env'>> {
 
 export default function McpConfigDrawer({ open, mode, defaultValues, onClose, onSave }: McpConfigDrawerProps) {
   const _defaultValues = mode === 'edit'
-    ? defaultValues
+    ? { ...defaultValues, env: defaultValues?.transportType === 'stdio' ? envObjectToArray(defaultValues?.env || {}) : undefined }
     : {
         icon: '⚒️',
         state: 'disconnected',
@@ -156,7 +156,6 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
                   : transportType === 'stdio'
                     ? (
                         <>
-
                           <Form.Item
                             name="command"
                             label={<FormItemLabel name="命令" tag="command" />}
@@ -433,12 +432,15 @@ function envObjectToArray(envObj: Record<string, any> = {}) {
 
 function InputArgs({ value, onChange }: { value?: string[], onChange?: (e: string[]) => void }) {
   return (
-    <Input
+    <Select
+      mode="tags"
       placeholder="例如： mcp-hello-world"
-      value={(value || []).join(' ')}
-      onChange={(e) => {
-        onChange?.(e.target.value.split(' '))
+      value={value}
+      suffixIcon={null}
+      onChange={(value) => {
+        onChange?.(value)
       }}
+      styles={{ popup: { root: { display: 'none' } } }}
     />
   )
 }
