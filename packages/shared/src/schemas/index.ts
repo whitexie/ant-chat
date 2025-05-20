@@ -1,4 +1,5 @@
 export * from './conversations'
 export * from './mcpConfigs'
 export * from './messages'
+export * from './providerServiceModels'
 export * from './providerServices'

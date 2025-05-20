@@ -13,8 +13,8 @@ export const providerServiceModelsTable = sqliteTable(
   {
     id: text('id').primaryKey(),
     model: text('model').notNull(),
-    isBuiltin: integer('is_builtin').notNull().default(0),
-    isEnabled: integer('is_enabled').notNull().default(1),
+    isBuiltin: integer('is_builtin', { mode: 'boolean' }).notNull().default(false),
+    isEnabled: integer('is_enabled', { mode: 'boolean' }).notNull().default(true),
     modelFeatures: text('model_features', { mode: 'json' }).$type<ModelFeature | null>(),
     providerServiceId: text('provider_service_id').notNull().references(() => providerServicesTable.id),
     createdAt: integer('created_at').notNull().default(sql`(strftime('%s','now'))`),
