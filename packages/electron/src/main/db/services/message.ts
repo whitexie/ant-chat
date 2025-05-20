@@ -41,9 +41,9 @@ export async function addMessage(message: AddMessage): Promise<IMessage> {
 }
 
 export async function updateMessage(message: UpdateMessageSchema): Promise<IMessage> {
-  await db.transaction(async (tx) => {
+  db.transaction((tx) => {
     const result = tx.update(messagesTable).set(message).where(eq(messagesTable.id, message.id)).returning().get()
-    await tx.update(conversationsTable).set({ updatedAt: Date.now() }).where(eq(conversationsTable.id, result.convId))
+    tx.update(conversationsTable).set({ updatedAt: Date.now() }).where(eq(conversationsTable.id, result.convId)).returning().get()
   })
 
   return getMessageById(message.id)
