@@ -1,57 +1,39 @@
-import type { AntChatFileStructure } from '@/constants'
 import type { ConversationsId, IConversations, ITextContent, ModelConfig } from '@ant-chat/shared'
-import { Role, TITLE_PROMPT } from '@/constants'
-import {
-  addConversations,
-  addMessage,
-  conversationsExists,
-  deleteConversations,
-  fetchConversations,
-  getConversationsById,
-  getMessagesByConvId,
-  importMessages,
-  messageIsExists,
-  renameConversations,
-  setConversationsModelConfig,
-  setConversationsSystemPrompt,
-} from '@/db'
-import { createSystemMessage } from '@/db/dataFactory'
-import { getServiceProviderConstructor } from '@/services-provider'
+import type { AntChatFileStructure } from '@/constants'
 import { produce } from 'immer'
 import { isEqual } from 'lodash-es'
-import { setActiveConversationsId, updateMessageAction, useMessagesStore } from '../messages'
+import { Role, TITLE_PROMPT } from '@/constants'
+import { dbApi } from '@/db/dbApi'
+import { getServiceProviderConstructor } from '@/services-provider'
+import { setActiveConversationsId, useMessagesStore } from '../messages'
 import { getActiveModelConfig, useModelConfigStore } from '../modelConfig'
 import { useConversationsStore } from './conversationsStore'
 
 export async function addConversationsAction(conversation: IConversations) {
-  await addConversations(conversation)
-  const { systemMessage } = getActiveModelConfig()
-  await addMessage(
-    createSystemMessage({
-      convId: conversation.id,
-      role: Role.SYSTEM,
-      content: [{ type: 'text', text: systemMessage }],
-    }),
-  )
+  const data = await dbApi.addConversation(conversation)
 
   useConversationsStore.setState(state => produce(state, (draft) => {
-    draft.conversations.splice(0, 0, conversation)
+    draft.conversations.splice(0, 0, data)
   }))
+
+  return data
 }
 
 export async function renameConversationsAction(id: ConversationsId, title: string) {
-  await renameConversations(id, title)
+  // await renameConversations(id, title)
+
+  const data = await dbApi.updateConversation({ id, title })
 
   useConversationsStore.setState(state => produce(state, (draft) => {
-    const conversation = draft.conversations.find(c => c.id === id)
-    if (conversation) {
-      conversation.title = title
+    const index = draft.conversations.findIndex(c => c.id === id)
+    if (index > -1) {
+      draft.conversations[index] = data
     }
   }))
 }
 
 export async function deleteConversationsAction(id: ConversationsId) {
-  await deleteConversations(id)
+  await dbApi.deleteConversation(id)
 
   setActiveConversationsId('')
 
@@ -60,28 +42,12 @@ export async function deleteConversationsAction(id: ConversationsId) {
   }))
 }
 
-export async function importConversationsAction(data: AntChatFileStructure) {
-  const { conversations, messages } = data
-  const conversationsList = await Promise.all(conversations.filter(async (item) => {
-    return await conversationsExists(item.id)
-  }))
-
-  const messagesList = await Promise.all(messages.filter(async (item) => {
-    return await messageIsExists(item.id)
-  }))
-
-  await Promise.all(conversationsList.map(async item => await addConversations(item)))
-
-  await importMessages(messagesList)
-
-  useConversationsStore.setState(state => produce(state, (draft) => {
-    draft.conversations.splice(0, 0, ...conversationsList)
-  }))
+export async function importConversationsAction(_: AntChatFileStructure) {
+  throw new Error('待实现')
 }
 
 export async function clearConversationsAction() {
   // TODO 清理数据库中的所有会话数据
-
   await setActiveConversationsId('')
 
   useConversationsStore.setState(state => produce(state, (draft) => {
@@ -91,7 +57,7 @@ export async function clearConversationsAction() {
 
 export async function nextPageConversationsAction() {
   const { pageIndex, pageSize } = useConversationsStore.getState()
-  const { conversations, total } = await fetchConversations(pageIndex, pageSize)
+  const { data: conversations, total } = await dbApi.getConversations(pageIndex, pageSize)
 
   useConversationsStore.setState(state => produce(state, (draft) => {
     draft.conversations.push(...conversations)
@@ -156,42 +122,22 @@ export interface UpdateConversationsSettingsConfig {
 
 export async function updateConversationsSettingsAction(id: ConversationsId, config: UpdateConversationsSettingsConfig) {
   const { title, systemPrompt, modelConfig } = config
-  const conversations = await getConversationsById(id)
-  let systemPromptChanged = false
-  if (!conversations) {
-    console.error('conversations not found')
-    return
-  }
+  const conversations = await dbApi.getConversationById(id)
 
   if (title && conversations.title !== title) {
     await renameConversationsAction(id, title)
   }
 
   if (systemPrompt && conversations.settings?.systemPrompt !== systemPrompt) {
-    systemPromptChanged = true
-    await setConversationsSystemPrompt(id, systemPrompt)
+    await dbApi.updateConversation({ id, settings: { systemPrompt } })
   }
 
   if (modelConfig === null) {
-    await setConversationsModelConfig(id, null)
+    await dbApi.updateConversation({ id, settings: null })
   }
 
   else if (modelConfig !== undefined && !(isEqual(conversations.settings?.modelConfig, modelConfig))) {
-    await setConversationsModelConfig(id, modelConfig)
-  }
-
-  // 更新conversationsStore.messages的系统提示词
-  const messages = await getMessagesByConvId(id)
-  const message = messages.find(item => item.role === Role.SYSTEM)
-
-  if (!message) {
-    throw new Error('当前对话没有系统提示词。')
-  }
-
-  // 同步更新messages中的系统提示词
-  if (systemPrompt && systemPromptChanged) {
-    message.content = [{ type: 'text', text: systemPrompt }]
-    await updateMessageAction(message)
+    await dbApi.updateConversation({ id, settings: { modelConfig } })
   }
 
   useConversationsStore.setState(state => produce(state, (draft) => {

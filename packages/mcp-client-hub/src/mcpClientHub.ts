@@ -1,7 +1,5 @@
 import type { McpServer, McpTool } from '@ant-chat/shared'
 import type { Tool } from '@modelcontextprotocol/sdk/types.js'
-import os from 'node:os'
-import path from 'node:path'
 import process from 'node:process'
 import { DEFAULT_MCP_TOOL_NAME_SEPARATOR } from '@ant-chat/shared'
 import { McpConfigSchema } from '@ant-chat/shared/src/schemas'

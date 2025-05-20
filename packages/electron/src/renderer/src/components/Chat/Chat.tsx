@@ -1,8 +1,11 @@
 import type { ConversationsId, IAttachment, IImage, IMessage } from '@ant-chat/shared'
 import type { ChatFeatures } from '@/services-provider/interface'
 import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
+import { SettingOutlined } from '@ant-design/icons'
+import { Skeleton } from 'antd'
+import { lazy, Suspense, useState } from 'react'
 import { DEFAULT_TITLE } from '@/constants'
-import { createConversations, createUserMessage } from '@/db/dataFactory'
+import { createConversations, createUserMessage } from '@/api/dataFactory'
 import {
   addConversationsAction,
   initConversationsTitle,
@@ -19,9 +22,6 @@ import {
   useMessagesStore,
 } from '@/store/messages'
 import { useActiveModelConfig } from '@/store/modelConfig'
-import { SettingOutlined } from '@ant-design/icons'
-import { Skeleton } from 'antd'
-import { lazy, Suspense, useState } from 'react'
 import Loading from '../Loading'
 import Sender from '../Sender'
 import TypingEffect from '../TypingEffect'
@@ -57,8 +57,7 @@ export default function Chat() {
     let isNewConversation = false
     // 如果当前没有会话，则创建一个
     if (!activeConversationsId) {
-      const conversation = createConversations()
-      await addConversationsAction(conversation)
+      const conversation = await addConversationsAction(createConversations())
       id = conversation.id
       isNewConversation = true
     }

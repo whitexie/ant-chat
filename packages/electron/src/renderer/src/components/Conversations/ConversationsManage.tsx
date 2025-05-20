@@ -7,8 +7,6 @@ import { App, Button, Dropdown } from 'antd'
 import dayjs from 'dayjs'
 import { lazy, Suspense, useState } from 'react'
 import Settings from '@/components/Settings'
-import { ANT_CHAT_STRUCTURE } from '@/constants'
-import { exportMessages } from '@/db'
 import { useConversationRename } from '@/hooks/useConversationRename'
 import {
   clearConversationsAction,
@@ -19,7 +17,7 @@ import {
   useConversationsStore,
 } from '@/store/conversation'
 import { setActiveConversationsId, useMessagesStore } from '@/store/messages'
-import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
+import { importAntChatFile } from '@/utils'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
 import { VersionButton } from '../Version'
@@ -97,10 +95,8 @@ export default function ConversationsManage() {
     }
 
     async function handleExport() {
-      const messages = await exportMessages()
-      const data = Object.assign({}, ANT_CHAT_STRUCTURE, { conversations, messages, exportTime: getNow() })
-      await exportAntChatFile(JSON.stringify(data, null, 2), 'ant-chat.antchat')
-      message.success('导出成功')
+      message.error('等待实现～')
+      throw new Error('等待实现～')
     }
 
     function handleClear() {

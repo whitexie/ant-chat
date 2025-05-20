@@ -1,14 +1,13 @@
-import type { ConversationsId, IConversations, IMessageAI, IMessageSystem, IMessageUser } from '@ant-chat/shared'
+import type { AddConversationsSchema, ConversationsId, IMessageAI, IMessageUser } from '@ant-chat/shared'
 import type { RequireKey } from '@/types/global'
 import { DEFAULT_TITLE, Role } from '@/constants'
-import { getNow, uuid } from '@/utils'
+import { getNow } from '@/utils'
 
 // ============================ Conversations ============================
-export function createConversations(option?: Partial<IConversations>): IConversations {
+export function createConversations(option?: Partial<AddConversationsSchema>): AddConversationsSchema {
   const time = getNow()
 
   return Object.assign({
-    id: uuid('conv-'),
     title: DEFAULT_TITLE,
     createdAt: time,
     updatedAt: time,
@@ -16,10 +15,8 @@ export function createConversations(option?: Partial<IConversations>): IConversa
 }
 
 // ============================ Message ============================
-
 function createMessageBase<T extends Role = Role.USER>(role: T) {
   return {
-    // id: uuid() as MessageId,
     convId: '' as ConversationsId,
     role,
     content: [],
@@ -34,16 +31,6 @@ export function createUserMessage(option: RequireKey<Partial<IMessageUser>, 'con
       status: 'success',
       attachments: [],
       images: [],
-    },
-    option,
-  )
-}
-
-export function createSystemMessage(option: RequireKey<Partial<IMessageSystem>, 'convId'>): IMessageSystem {
-  return Object.assign(
-    createMessageBase(Role.SYSTEM),
-    {
-      status: 'success',
     },
     option,
   )

@@ -15,6 +15,10 @@ export async function getConversationsTotal() {
   return result?.count ?? 0
 }
 
+export async function conversationsIsExists(id: string): Promise<boolean> {
+  return !!(db.select({ count: sql<number>`COUNT(1)` }).from(conversationsTable).where(eq(conversationsTable.id, id)).get())
+}
+
 export async function getConversations(pageIndex: number, pageSize: number = 10): Promise<IConversations[]> {
   const results = await db.select()
     .from(conversationsTable)

@@ -1,8 +1,6 @@
-import type { IConversationsSettings, ModelConfigId } from '@ant-chat/shared'
-import { ANT_CHAT_STRUCTURE, Role } from '@/constants'
-import { getConversationsById, getMessagesByConvId } from '@/db'
-import { createConversations } from '@/db/dataFactory'
-import { setActiveConversationsId, useMessagesStore } from '@/store/messages'
+import { ANT_CHAT_STRUCTURE } from '@/constants'
+import { createConversations } from '@/api/dataFactory'
+import { useMessagesStore } from '@/store/messages'
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
@@ -11,7 +9,6 @@ import {
   deleteConversationsAction,
   importConversationsAction,
   renameConversationsAction,
-  updateConversationsSettingsAction,
 } from '../actions'
 import { useConversationsStore } from '../conversationsStore'
 
@@ -104,36 +101,5 @@ describe('conversationStore', () => {
 
     expect(result.current.conversations).toHaveLength(0)
     expect(messagesResult.current.activeConversationsId).toEqual('')
-  })
-
-  it('upate conversations settings', async () => {
-    const conversations = createConversations()
-
-    await addConversationsAction(conversations)
-
-    await setActiveConversationsId(conversations.id)
-
-    const newModelConfig: IConversationsSettings = {
-      modelConfig: {
-        id: 'DeepSeek' as ModelConfigId,
-        apiHost: 'https://api.deepseek.com',
-        apiKey: '12306',
-        model: 'deepseek-chat',
-        temperature: 0,
-      },
-      systemPrompt: '你是一个乐于助人的AI助理',
-    }
-
-    await updateConversationsSettingsAction(conversations.id, newModelConfig as IConversationsSettings)
-
-    const result = await getConversationsById(conversations.id)
-
-    expect(result?.settings).toBeDefined()
-    expect(result?.settings).toEqual(newModelConfig)
-
-    const messages = await getMessagesByConvId(conversations.id)
-    const content = messages!.find(message => message.role === Role.SYSTEM)?.content
-
-    expect(content).toBe(newModelConfig.systemPrompt)
   })
 })

@@ -5,7 +5,6 @@ import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { App, Button, Form, Input, Select, Slider } from 'antd'
 import { Suspense, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import DEFAULT_MODELS_MAPPING from '@/constants/models'
-import { addCustomModel, createCustomModel, getCustomModelsByOwnedBy } from '@/db'
 import { getProviderDefaultApiHost, SERVICE_PROVIDER_MAPPING } from '@/services-provider'
 
 const CommonRules = {
@@ -110,7 +109,8 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
     setLoading(true)
 
     const models = DEFAULT_MODELS_MAPPING[_active as keyof typeof DEFAULT_MODELS_MAPPING] || []
-    const customModels = await getCustomModelsByOwnedBy(_active)
+
+    const customModels = []
     setModels([
       ...customModels,
       ...models.map(model => ({ id: model.id, ownedBy: _active, createAt: model.createAt })),
@@ -125,24 +125,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
   }
 
   async function handleAddModel() {
-    const ownedBy = form.getFieldValue('id') as ModelConfigId
-
-    if (models.some(model => model.id === modelName)) {
-      message.error(`模型 ${modelName} 已存在`)
-      return
-    }
-
-    const _model = createCustomModel(modelName, ownedBy)
-    await addCustomModel(_model)
-
-    setModels(prev => [
-      _model,
-      ...prev,
-    ])
-
-    modelInputRef.current?.blur()
-    form.setFieldValue('model', modelName)
-    setModelName('')
+    message.error('功能调整中...')
   }
 
   useImperativeHandle(ref, () => ({

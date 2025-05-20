@@ -6,7 +6,7 @@ import { Alert, Avatar, Button, Descriptions, Drawer, Empty, Form, Input, Select
 import React from 'react'
 import { useImmer } from 'use-immer'
 import { EmojiPickerHoc } from '@/components/EmojiPiker'
-import { mcpConfigIsExists } from '@/db/mcpConfigActions'
+import { dbApi } from '@/db/dbApi'
 import { connectMcpServer, fetchMcpServerTools } from '@/mcp'
 import { QuickImport } from './QuickImport'
 import { SelectTransportType } from './SelectTransportType'
@@ -446,9 +446,12 @@ function InputArgs({ value, onChange }: { value?: string[], onChange?: (e: strin
 }
 
 async function validatorServerName(_: RuleObject, value: string) {
-  const isExist = await mcpConfigIsExists(value)
-
-  if (isExist) {
+  try {
+    // 不报错表示已经存在了
+    await dbApi.getMcpConfigByServerName(value)
     throw new Error(`${value}已存在, 不可重复添加`)
+  }
+  catch {
+    return true
   }
 }

@@ -3,8 +3,8 @@ import type { ChatFeatures } from '../features'
 import type { RequestStatus } from './store'
 import { produce } from 'immer'
 import { Role } from '@/constants'
-import { addMessage, deleteMessage, getMessagesByConvIdWithPagination, getSystemMessageByConvId, updateMessage } from '@/db'
-import { createAIMessage, createSystemMessage } from '@/db/dataFactory'
+import { createAIMessage } from '@/api/dataFactory'
+import { dbApi } from '@/db/dbApi'
 import { getServiceProviderConstructor } from '@/services-provider'
 import { useMessagesStore } from './store'
 
@@ -16,7 +16,7 @@ export function setRequestStatus(status: RequestStatus) {
 
 export async function setActiveConversationsId(id: ConversationsId | '') {
   const { pageSize } = useMessagesStore.getState()
-  const { messages, total } = id ? await getMessagesByConvIdWithPagination(id, 0, pageSize) : { messages: [], total: 0 }
+  const { data: messages, total } = await dbApi.getMessagesByConvIdWithPagination(id, 0, pageSize)
 
   useMessagesStore.setState(state => produce(state, (draft) => {
     draft.activeConversationsId = id as ConversationsId
@@ -27,11 +27,7 @@ export async function setActiveConversationsId(id: ConversationsId | '') {
 }
 
 export async function addMessageAction(message: IMessage) {
-  const data = await addMessage(message)
-
-  if (!data) {
-    throw new Error('addMessage fail')
-  }
+  const data = await dbApi.addMessage(message)
 
   useMessagesStore.setState(state => produce(state, (draft) => {
     draft.messages.push({ ...data })
@@ -41,7 +37,7 @@ export async function addMessageAction(message: IMessage) {
 }
 
 export async function deleteMessageAction(messageId: MessageId) {
-  await deleteMessage(messageId)
+  await dbApi.deleteMessage(messageId)
 
   useMessagesStore.setState(state => produce(state, (draft) => {
     const index = draft.messages.findIndex(m => m.id === messageId)
@@ -52,8 +48,7 @@ export async function deleteMessageAction(messageId: MessageId) {
 }
 
 export async function updateMessageAction(_message: IMessage) {
-  const message = structuredClone(_message)
-  await updateMessage(message)
+  const message = await dbApi.updateMessage(_message)
 
   useMessagesStore.setState(state => produce(state, (draft) => {
     const index = draft.messages.findIndex(m => m.id === message.id)
@@ -161,19 +156,9 @@ export async function refreshRequestAction(conversationId: ConversationsId, mess
   await sendChatCompletions(conversationId, config, features)
 }
 
-export async function updateConversationsSystemPrompt(conversationsId: ConversationsId, systemPrompt: string) {
-  const systemMessage = await getSystemMessageByConvId(conversationsId)
-  if (!systemMessage) {
-    console.error('conversations not found system message')
-    return
-  }
-
-  await updateMessage(createSystemMessage({ ...systemMessage, content: [{ type: 'text', text: systemPrompt }] }))
-}
-
 export async function nextPageMessagesAction(conversationsId: ConversationsId) {
   const { pageIndex, pageSize } = useMessagesStore.getState()
-  const { messages, total } = await getMessagesByConvIdWithPagination(conversationsId, pageIndex, pageSize)
+  const { data: messages, total } = await dbApi.getMessagesByConvIdWithPagination(conversationsId, pageIndex, pageSize)
 
   useMessagesStore.setState(state => produce(state, (draft) => {
     draft.messages.splice(0, 0, ...messages)

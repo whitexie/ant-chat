@@ -62,6 +62,7 @@ export type IpcEvents =
 
     // ============================ Conversaations 相关 ============================
     'db:get-conversations': (pageIndex: number, pageSize: number) => Promise<IpcPaginatedResponse<IConversations[]>>
+    'db:conversations-is-exists': (id: string) => Promise<IpcResponse<null>>
     'db:get-conversation-by-id': (id: string) => Promise<IpcResponse<IConversations>>
     'db:add-conversation': (conversations: Partial<IConversations>) => Promise<IpcResponse<IConversations>>
     'db:update-conversation': (conversations: UpdateConversationsSchema) => Promise<IpcResponse<IConversations>>

@@ -24,6 +24,11 @@ export function registerDbHandlers() {
     }
   })
 
+  mainListener.handle('db:conversations-is-exists', async (__dirname, id) => {
+    const success = await services.conversationsIsExists(id)
+    return createIpcResponse(success, null)
+  })
+
   mainListener.handle('db:get-conversation-by-id', async (_, id) => {
     try {
       const data = await services.getConversationById(id)

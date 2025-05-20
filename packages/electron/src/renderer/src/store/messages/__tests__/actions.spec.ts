@@ -1,6 +1,6 @@
 import type { IMessage, MessageId } from '@ant-chat/shared'
 import { Role } from '@/constants'
-import { createConversations, createUserMessage } from '@/db/dataFactory'
+import { createConversations, createUserMessage } from '@/api/dataFactory'
 import { addConversationsAction, useConversationsStore } from '@/store/conversation'
 import { renderHook } from '@testing-library/react'
 import { act } from 'react'

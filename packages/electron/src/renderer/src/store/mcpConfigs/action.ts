@@ -1,11 +1,11 @@
 import type { McpConfigSchema, McpServerStatus } from '@ant-chat/shared'
 import { produce } from 'immer'
-import { addMcpConfig, deleteMcpConfig, getAllMcpConfigs, getMcpConfigByName, updateMcpConfig } from '@/db/mcpConfigActions'
+import { dbApi } from '@/db/dbApi'
 import { connectMcpServer, disconnectMcpServer } from '@/mcp'
 import { useMcpConfigsStore } from './store'
 
 export async function initializeMcpConfigs() {
-  const list = await getAllMcpConfigs()
+  const list = await dbApi.getMcpConfigs()
 
   useMcpConfigsStore.setState(state => produce(state, (draft) => {
     const length = draft.mcpConfigs.length
@@ -14,33 +14,28 @@ export async function initializeMcpConfigs() {
 }
 
 export async function addMcpConfigAction(config: McpConfigSchema) {
-  const [ok, msg] = await addMcpConfig(config)
-  if (!ok) {
-    return [ok, msg]
-  }
+  const data = await dbApi.addMcpConfig(config)
+
   useMcpConfigsStore.setState(state => produce(state, (draft) => {
-    draft.mcpConfigs.push(config)
+    draft.mcpConfigs.push(data)
   }))
 
-  return [ok, '']
+  return [true, '']
 }
 
 export async function upadteMcpConfigAction(config: McpConfigSchema) {
-  const id = await updateMcpConfig(config)
-  if (!id) {
-    console.warn('更新失败: ', JSON.stringify(config))
-    return
-  }
+  const newConfig = await dbApi.updateMcpConfig(config)
+
   useMcpConfigsStore.setState(state => produce(state, (draft) => {
     const index = draft.mcpConfigs.findIndex(item => item.serverName === config.serverName)
     if (index > -1) {
-      draft.mcpConfigs[index] = config
+      draft.mcpConfigs[index] = newConfig
     }
   }))
 }
 
 export async function deleteMcpConfigAction(name: string) {
-  await deleteMcpConfig(name)
+  await dbApi.deleteMcpConfig(name)
 
   useMcpConfigsStore.setState(state => produce(state, (draft) => {
     draft.mcpConfigs = draft.mcpConfigs.filter(item => item.serverName !== name)
@@ -48,21 +43,13 @@ export async function deleteMcpConfigAction(name: string) {
 }
 
 export async function connectMcpServerAction(name: string) {
-  const config = await getMcpConfigByName(name)
-  if (!config) {
-    throw new Error(`connect McpServer fail. ${name} nout found.`)
-  }
+  const config = await dbApi.getMcpConfigByServerName(name)
 
   useMcpConfigsStore.setState(state => produce(state, (draft) => {
     draft.mcpServerRuningStatusMap[name] = 'connecting'
   }))
 
-  const [ok] = await connectMcpServer(config)
-  const mcpServerState = ok === true ? 'connected' : 'disconnected'
-
-  useMcpConfigsStore.setState(state => produce(state, (draft) => {
-    draft.mcpServerRuningStatusMap[name] = mcpServerState
-  }))
+  await connectMcpServer(config)
 }
 
 export async function disconnectMcpServerAction(name: string) {
@@ -75,10 +62,7 @@ export async function disconnectMcpServerAction(name: string) {
 }
 
 export async function reconnectMcpServerAction(name: string) {
-  const config = await getMcpConfigByName(name)
-  if (!config) {
-    throw new Error(`connect McpServer fail. ${name} nout found.`)
-  }
+  await dbApi.getMcpConfigByServerName(name)
 
   await disconnectMcpServerAction(name)
   await connectMcpServerAction(name)
@@ -86,8 +70,10 @@ export async function reconnectMcpServerAction(name: string) {
 
 export async function onMcpServerStatusChanged(_: Electron.IpcRendererEvent, name: string, status: McpServerStatus) {
   console.log('onMcpServerStatusChanged => ', name, status)
-  const mcpConfig = await getMcpConfigByName(name)
-  if (!mcpConfig) {
+  try {
+    await dbApi.getMcpConfigByServerName(name)
+  }
+  catch {
     return
   }
 

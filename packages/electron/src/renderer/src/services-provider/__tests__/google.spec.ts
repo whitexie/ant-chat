@@ -1,6 +1,6 @@
 import type { ConversationsId, IMessage, IMessageContent } from '@ant-chat/shared'
 import { Role } from '@/constants'
-import { createAIMessage, createSystemMessage, createUserMessage } from '@/db/dataFactory'
+import { createAIMessage, createUserMessage } from '@/api/dataFactory'
 import request from '@/utils/request'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import GeminiService from '../google'
@@ -11,7 +11,9 @@ vi.mock('@/utils/request')
 describe('gemini Service 测试', () => {
   describe('transformMessages', () => {
     it('应该正确转换用户消息为 Gemini 请求格式', () => {
-      const messages: IMessage[] = [createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: [{ type: 'text', text: 'Hello, how are you?' }] })]
+      const messages: IMessage[] = [
+        createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: [{ type: 'text', text: 'Hello, how are you?' }] }),
+      ]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
 
@@ -22,9 +24,8 @@ describe('gemini Service 测试', () => {
 
     it('应该正确转换AI和用户的对话消息', () => {
       const messages: IMessage[] = [
-        createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: [{type: 'text', text: 'Hello'}] }),
-        createAIMessage({ convId: '1' as ConversationsId, role: Role.AI, content: [{type: 'text', text: 'Hi there!'}] }),
-        createSystemMessage({ convId: '1' as ConversationsId, role: Role.SYSTEM, content: [{type: 'text', text: 'How are you?'}] }),
+        createUserMessage({ convId: '1' as ConversationsId, role: Role.USER, content: [{ type: 'text', text: 'Hello' }] }),
+        createAIMessage({ convId: '1' as ConversationsId, role: Role.AI, content: [{ type: 'text', text: 'Hi there!' }] }),
       ]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
@@ -34,40 +35,23 @@ describe('gemini Service 测试', () => {
           { role: 'user', parts: [{ text: 'Hello' }] },
           { role: 'model', parts: [{ text: 'Hi there!' }] },
         ],
-        system_instruction: {
-          parts: [
-            { text: 'How are you?' },
-          ],
-        },
       })
     })
 
     it('应该正确转换包含图片的用户消息', () => {
       const messages: IMessage[] = [
-        createUserMessage({ 
-          convId: '1' as ConversationsId, 
-          role: Role.USER, 
-          content: [{ type: 'text', text: 'Hello, how are you?' }], 
-          images: [{ uid: '123', name: 'test.png', size: 100, type: 'image/png', data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABgI' }] }),
+        createUserMessage({
+          convId: '1' as ConversationsId,
+          role: Role.USER,
+          content: [{ type: 'text', text: 'Hello, how are you?' }],
+          images: [{ uid: '123', name: 'test.png', size: 100, type: 'image/png', data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABgI' }],
+        }),
       ]
       const service = new GeminiService()
       const result = service.transformMessages(messages)
 
       expect(result).toEqual({
         contents: [{ role: 'user', parts: [{ text: 'Hello, how are you?' }, { inline_data: { mimeType: 'image/png', data: 'iVBORw0KGgoAAAANSUhEUgAABgI' } }] }],
-      })
-    })
-
-    it('应该正确转换系统消息', () => {
-      const messages: IMessage[] = [
-        createSystemMessage({ convId: '1' as ConversationsId, role: Role.SYSTEM, content: [{type: 'text', text: 'You are a helpful assistant'}] })
-      ]
-      const service = new GeminiService()
-      const result = service.transformMessages(messages)
-
-      expect(result).toEqual({
-        contents: [],
-        system_instruction: { parts: [{ text: 'You are a helpful assistant' }] },
       })
     })
 
@@ -89,7 +73,7 @@ describe('gemini Service 测试', () => {
           convId: 'conv-i8iG4_zHwC2XCshb9QChX',
           role: Role.AI,
           content: [],
-          createAt: 1746600769405,
+          createdAt: 1746600769405,
           status: 'success',
           modelInfo: {
             model: 'gemini-2.5-pro-exp-03-25',

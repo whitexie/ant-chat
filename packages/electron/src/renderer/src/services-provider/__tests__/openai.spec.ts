@@ -5,7 +5,7 @@ import request from '@/utils/request'
 
 import type { ConversationsId, IMcpToolCall, IMessageContent } from '@ant-chat/shared'
 import OpenAIService from '../openai'
-import { createUserMessage } from '@/db/dataFactory'
+import { createUserMessage } from '@/api/dataFactory'
 
 vi.mock('@/utils/request')
 
