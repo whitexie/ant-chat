@@ -8,6 +8,7 @@ import { APP_NAME, DB_CONFIG } from '../utils/constants'
 import { isDev } from '../utils/env'
 import { logger } from '../utils/logger'
 import { generateDbPath, getAppHand, getDirname } from '../utils/util'
+import { initializeData } from './initializeData'
 import * as schema from './schema'
 
 const __dirname = getDirname(import.meta.url)
@@ -55,6 +56,9 @@ export async function initializeDb() {
     logger.error('Failed to apply database migrations:', (e as Error).message)
     process.exit(1)
   }
+
+  logger.info('start initialize data')
+  await initializeData()
 }
 
 /**
