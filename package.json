@@ -4,7 +4,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm -F electron dev"
+    "dev": "pnpm -F electron dev",
+    "rebuild:electron": "pnpm -F electron rebuild:electron",
+    "rebuild:node": "pnpm -F electron rebuild:electron",
+    "test:unit": "pnpm -F electron test:unit",
+    "type-check": "pnpm -F electron type-check",
+    "build:mac": "pnpm -F electron build:mac",
+    "build:win": "pnpm -F electron build:win"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.12.0",
