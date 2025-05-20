@@ -6,13 +6,16 @@
   "main": "out/main/index.cjs",
   "scripts": {
     "start": "electron-vite preview",
-    "dev": "pnpm exec electron-rebuild -f -w better-sqlite3 && electron-vite dev",
+    "dev": "electron-vite dev",
     "prebuild": "electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "type-check": "tsc -b",
+    "test:unit": "vitest",
+    "rebuild:electron": "pnpm exec electron-rebuild -f -w better-sqlite3",
+    "rebuild:node": "pnpm rebuild",
     "build:unpack": "cross-env NODE_ENV=production electron-vite build && electron-builder --dir",
     "build:win": "cross-env NODE_ENV=production electron-vite build && electron-builder --win",
-    "build:mac": "pnpm exec electron-rebuild -f -w better-sqlite3 && cross-env NODE_ENV=production electron-vite build && electron-builder --mac",
+    "build:mac": "cross-env NODE_ENV=production electron-vite build && electron-builder --mac",
     "build:linux": "cross-env NODE_ENV=production electron-vite build && electron-builder --linux",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "cross-env NODE_ENV=development tsx src/main/db/migrate.ts"

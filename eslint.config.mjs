@@ -24,4 +24,11 @@ export default antfu(
       'node/prefer-global/process': ['off'],
     },
   },
+  {
+    files: ['packages/**/*.{spec,test}.{ts,tsx}'],
+    rules: {
+      'import/order': ['off'],
+      'perfectionist/sort-imports': ['off'],
+    },
+  },
 )
