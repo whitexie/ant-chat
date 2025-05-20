@@ -122,7 +122,7 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
               }, '')
 
         }
-        header={<BubbleHeader time={msg.createAt} modelInfo={msg.role === Role.AI ? msg.modelInfo : undefined} />}
+        header={<BubbleHeader time={msg.createdAt} modelInfo={msg.role === Role.AI ? msg.modelInfo : undefined} />}
         footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
       />,
     )

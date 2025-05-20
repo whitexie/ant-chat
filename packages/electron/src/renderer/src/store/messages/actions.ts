@@ -1,11 +1,11 @@
 import type { ConversationsId, IMessage, MessageId, ModelConfig } from '@ant-chat/shared'
 import type { ChatFeatures } from '../features'
 import type { RequestStatus } from './store'
+import { produce } from 'immer'
 import { Role } from '@/constants'
 import { addMessage, deleteMessage, getMessagesByConvIdWithPagination, getSystemMessageByConvId, updateMessage } from '@/db'
 import { createAIMessage, createSystemMessage } from '@/db/dataFactory'
 import { getServiceProviderConstructor } from '@/services-provider'
-import { produce } from 'immer'
 import { useMessagesStore } from './store'
 
 export function setRequestStatus(status: RequestStatus) {
@@ -27,11 +27,17 @@ export async function setActiveConversationsId(id: ConversationsId | '') {
 }
 
 export async function addMessageAction(message: IMessage) {
-  await addMessage(message)
+  const data = await addMessage(message)
+
+  if (!data) {
+    throw new Error('addMessage fail')
+  }
 
   useMessagesStore.setState(state => produce(state, (draft) => {
-    draft.messages.push(message)
+    draft.messages.push({ ...data })
   }))
+
+  return data
 }
 
 export async function deleteMessageAction(messageId: MessageId) {
@@ -85,10 +91,10 @@ export function abortSendChatCompletions() {
 export async function sendChatCompletions(conversationId: ConversationsId, config: ModelConfig, features: ChatFeatures) {
   const messages = useMessagesStore.getState().messages
   const { model, id: provider } = config
-  const aiMessage = createAIMessage({ convId: conversationId, role: Role.AI, status: 'loading', modelInfo: { model, provider } })
+  let aiMessage: IMessage = createAIMessage({ convId: conversationId, role: Role.AI, status: 'loading', modelInfo: { model, provider } })
 
   // 这里aiMessage需要展开，避免被冻结， 后面的updateMessage同理
-  await addMessageAction({ ...aiMessage })
+  aiMessage = await addMessageAction({ ...aiMessage })
 
   try {
     setRequestStatus('loading')

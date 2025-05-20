@@ -1,7 +1,6 @@
 import type { ConversationsId, IMessage, IMessageSystem, MessageId } from '@ant-chat/shared'
 import { Role } from '@/constants'
 import { uuid } from '@/utils'
-import { updateConversationsUpdateAt } from './conversationsActions'
 import { dbApi } from './dbApi'
 
 export function generateMessageId() {
@@ -36,7 +35,6 @@ export async function addMessage(message: IMessage) {
 }
 
 export async function updateMessage(message: IMessage) {
-  await updateConversationsUpdateAt(message.convId, Date.now())
   const response = await dbApi.updateMessage(message)
   return response.success ? response.data : null
 }

@@ -1,4 +1,4 @@
-import type { ConversationsId, IConversations, IMessageAI, IMessageSystem, IMessageUser, MessageId } from '@ant-chat/shared'
+import type { ConversationsId, IConversations, IMessageAI, IMessageSystem, IMessageUser } from '@ant-chat/shared'
 import type { RequireKey } from '@/types/global'
 import { DEFAULT_TITLE, Role } from '@/constants'
 import { getNow, uuid } from '@/utils'
@@ -19,10 +19,10 @@ export function createConversations(option?: Partial<IConversations>): IConversa
 
 function createMessageBase<T extends Role = Role.USER>(role: T) {
   return {
-    id: uuid() as MessageId,
+    // id: uuid() as MessageId,
     convId: '' as ConversationsId,
     role,
-    content: '',
+    content: [],
     createAt: getNow(),
   }
 }

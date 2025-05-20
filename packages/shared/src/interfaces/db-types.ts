@@ -42,7 +42,7 @@ export type IModelInfo = ModelInfo
 export interface IMessageBase {
   id: string
   convId: string
-  createAt: Timestamp
+  createdAt: Timestamp
 }
 
 // 系统消息
@@ -76,7 +76,7 @@ export interface IMessageAI extends IMessageBase {
 export interface IMessage {
   id: MessageId
   convId: ConversationsId
-  createAt: Timestamp
+  createdAt: Timestamp
   role: 'system' | 'user' | 'assistant'
   content: IMessageContent
   reasoningContent?: string

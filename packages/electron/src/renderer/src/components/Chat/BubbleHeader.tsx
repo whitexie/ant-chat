@@ -1,6 +1,6 @@
 import type { IModelInfo } from '@ant-chat/shared'
-import { formatTime } from '@/utils'
 import { Tag } from 'antd'
+import { formatTime } from '@/utils'
 
 interface BubbleHeaderProps {
   time?: number

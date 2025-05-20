@@ -1,12 +1,12 @@
 import type { ModelConfig, ModelConfigId } from '@ant-chat/shared'
-import type { IModel } from '@/services-provider/interface'
 import type { InputRef, SelectProps } from 'antd'
-import DEFAULT_MODELS_MAPPING from '@/constants/models'
-import { addCustomModel, createCustomModel, getCustomModelsByOwnedBy } from '@/db'
-import { getProviderDefaultApiHost, SERVICE_PROVIDER_MAPPING } from '@/services-provider'
+import type { IModel } from '@/services-provider/interface'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { App, Button, Form, Input, Select, Slider } from 'antd'
 import { Suspense, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import DEFAULT_MODELS_MAPPING from '@/constants/models'
+import { addCustomModel, createCustomModel, getCustomModelsByOwnedBy } from '@/db'
+import { getProviderDefaultApiHost, SERVICE_PROVIDER_MAPPING } from '@/services-provider'
 
 const CommonRules = {
   required: true,
@@ -180,7 +180,7 @@ export default function ModelSettingsForm({ header, ref, showReset, ...props }: 
           options={modelOptions}
           placeholder="请选择模型"
           allowClear
-          dropdownRender={(menu) => {
+          popupRender={(menu) => {
             return (
               <div>
                 {menu}

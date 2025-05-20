@@ -22,7 +22,7 @@ export const ConversationsSchema = z.object({
   title: z.string(),
   createdAt: z.number(),
   updatedAt: z.number(),
-  settings: ConversationsSettingsSchema.optional(),
+  settings: ConversationsSettingsSchema.optional().nullable(),
 })
 
 export type ConversationsSchema = z.infer<typeof ConversationsSchema>
