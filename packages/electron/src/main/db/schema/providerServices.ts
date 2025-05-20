@@ -1,6 +1,7 @@
-import { sql } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { nanoid } from 'nanoid'
+import { providerServiceModelsTable } from './providerServiceModels'
 
 export const providerServicesTable = sqliteTable('provider_services', {
   id: text('id').primaryKey().$defaultFn(() => `provider-${nanoid()}`),
@@ -13,3 +14,13 @@ export const providerServicesTable = sqliteTable('provider_services', {
   createdAt: integer('created_at').notNull().default(sql`(strftime('%s','now'))`),
   updatedAt: integer('updated_at').notNull().default(sql`(strftime('%s','now'))`),
 })
+
+/**
+ * 定义关联关系
+ */
+export const providerServicesRelations = relations(
+  providerServicesTable,
+  ({ many }) => ({
+    models: many(providerServiceModelsTable),
+  }),
+)

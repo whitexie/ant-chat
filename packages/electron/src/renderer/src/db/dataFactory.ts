@@ -1,5 +1,5 @@
-import type { RequireKey } from '@/types/global'
 import type { ConversationsId, IConversations, IMessageAI, IMessageSystem, IMessageUser, MessageId } from '@ant-chat/shared'
+import type { RequireKey } from '@/types/global'
 import { DEFAULT_TITLE, Role } from '@/constants'
 import { getNow, uuid } from '@/utils'
 
@@ -10,8 +10,8 @@ export function createConversations(option?: Partial<IConversations>): IConversa
   return Object.assign({
     id: uuid('conv-'),
     title: DEFAULT_TITLE,
-    createAt: time,
-    updateAt: time,
+    createdAt: time,
+    updatedAt: time,
   }, option)
 }
 

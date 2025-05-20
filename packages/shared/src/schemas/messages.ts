@@ -70,7 +70,6 @@ const BaseMessage = z.object({
   convId: z.string(),
   content: MessageContentSchema,
   createAt: z.number(),
-  // updateAt: z.number(),
 })
 
 export const UserMessage = BaseMessage.extend({

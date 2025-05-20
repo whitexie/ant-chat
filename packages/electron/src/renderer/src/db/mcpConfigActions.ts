@@ -7,7 +7,7 @@ export async function getAllMcpConfigs() {
   if (!response.success || !response.data) {
     return []
   }
-  return response.data.sort((a: McpConfigSchema, b: McpConfigSchema) => b.updateAt - a.updateAt)
+  return response.data.sort((a: McpConfigSchema, b: McpConfigSchema) => b.updatedAt - a.updatedAt)
 }
 
 export async function getMcpConfigByName(name: string) {
@@ -29,7 +29,7 @@ export async function addMcpConfig(config: McpConfigSchema) {
 }
 
 export async function updateMcpConfig(config: McpConfigSchema) {
-  const updatedConfig = { ...config, updateAt: getNow() }
+  const updatedConfig = { ...config, updatedAt: getNow() }
   const response = await dbApi.updateMcpConfig(updatedConfig)
   return response.success ? response.data : null
 }

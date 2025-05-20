@@ -46,7 +46,7 @@ export async function setConversationsSystemPrompt(id: string, systemPrompt: str
 
   return dbApi.updateConversation({
     ...conversation,
-    updateAt: getNow(),
+    updatedAt: getNow(),
   })
 }
 
@@ -64,7 +64,7 @@ export async function setConversationsModelConfig(id: string, modelConfig: Model
 
   return dbApi.updateConversation({
     ...conversation,
-    updateAt: getNow(),
+    updatedAt: getNow(),
   })
 }
 
@@ -77,7 +77,7 @@ export async function updateConversationsSettings(id: string, config: IConversat
 
   return dbApi.updateConversation({
     ...conversation,
-    updateAt: getNow(),
+    updatedAt: getNow(),
   })
 }
 
@@ -89,7 +89,7 @@ export async function renameConversations(id: string, newName: string) {
 
   const conversation = response.data
   conversation.title = newName
-  conversation.updateAt = getNow()
+  conversation.updatedAt = getNow()
 
   return dbApi.updateConversation(conversation)
 }
@@ -101,7 +101,7 @@ export async function fetchConversations(pageIndex: number, pageSize: number = 1
     return { conversations: [], total: 0 }
   }
 
-  const allConversations = resp.data.sort((a: IConversations, b: IConversations) => b.updateAt - a.updateAt)
+  const allConversations = resp.data.sort((a: IConversations, b: IConversations) => b.updatedAt - a.updatedAt)
   const conversations = allConversations.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
 
   return {
@@ -110,13 +110,13 @@ export async function fetchConversations(pageIndex: number, pageSize: number = 1
   }
 }
 
-export async function updateConversationsUpdateAt(id: string, updateAt: number) {
+export async function updateConversationsUpdateAt(id: string, updatedAt: number) {
   const conversation = await getConversationsById(id)
   if (!conversation) {
     throw new Error(`conversations not exists: ${id}`)
   }
 
-  conversation.updateAt = updateAt || getNow()
+  conversation.updatedAt = updatedAt || getNow()
 
   return dbApi.updateConversation(conversation)
 }

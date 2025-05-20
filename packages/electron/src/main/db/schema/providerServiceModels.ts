@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 import { providerServicesTable } from './providerServices'
 
@@ -21,3 +21,10 @@ export const providerServiceModelsTable = sqliteTable(
   },
   t => [unique().on(t.model, t.providerServiceId)],
 )
+
+/**
+ * 定义关联关系
+ */
+export const providerServiceModelsRelations = relations(providerServiceModelsTable, ({ one }) => ({
+  providerService: one(providerServicesTable, { fields: [providerServiceModelsTable.providerServiceId], references: [providerServicesTable.id] }),
+}))

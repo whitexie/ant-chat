@@ -1,6 +1,11 @@
 import type { ConversationsId, IConversations } from '@ant-chat/shared'
 import type { ConversationsProps } from '@ant-design/x'
 import type { MenuProps } from 'antd'
+import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
+import { Conversations } from '@ant-design/x'
+import { App, Button, Dropdown } from 'antd'
+import dayjs from 'dayjs'
+import { lazy, Suspense, useState } from 'react'
 import Settings from '@/components/Settings'
 import { ANT_CHAT_STRUCTURE } from '@/constants'
 import { exportMessages } from '@/db'
@@ -15,11 +20,6 @@ import {
 } from '@/store/conversation'
 import { setActiveConversationsId, useMessagesStore } from '@/store/messages'
 import { exportAntChatFile, getNow, importAntChatFile } from '@/utils'
-import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
-import { Conversations } from '@ant-design/x'
-import { App, Button, Dropdown } from 'antd'
-import dayjs from 'dayjs'
-import { lazy, Suspense, useState } from 'react'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
 import { VersionButton } from '../Version'
@@ -78,7 +78,7 @@ export default function ConversationsManage() {
     },
   })
 
-  const items = [...conversations].sort((a, b) => b.updateAt - a.updateAt).map((item) => {
+  const items = [...conversations].sort((a, b) => b.updatedAt - a.updatedAt).map((item) => {
     const { id: key, title: label } = item
     return { key, label, icon: <MessageOutlined />, group: getGroup(item) }
   })
@@ -194,7 +194,7 @@ export default function ConversationsManage() {
 
 function getGroup(item: IConversations) {
   const now = dayjs()
-  const createAtDate = dayjs(item.updateAt)
+  const createAtDate = dayjs(item.updatedAt)
   const createAtTs = createAtDate.valueOf()
   const todayStart = now.startOf('day').valueOf()
   const yesterdayStart = now.subtract(1, 'day').startOf('day').valueOf()

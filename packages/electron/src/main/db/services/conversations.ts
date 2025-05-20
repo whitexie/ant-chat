@@ -18,7 +18,7 @@ export async function getConversationsTotal() {
 export async function getConversations(pageIndex: number, pageSize: number = 10): Promise<IConversations[]> {
   const results = await db.select()
     .from(conversationsTable)
-    .orderBy(sql`${conversationsTable.updateAt} DESC`)
+    .orderBy(sql`${conversationsTable.updatedAt} DESC`)
     .limit(pageSize)
     .offset((pageIndex - 1) * pageSize)
 
@@ -64,8 +64,8 @@ export async function deleteConversation(id: string): Promise<boolean> {
   return true
 }
 
-export async function updateConversationUpdateAt(id: string, updateAt: number): Promise<IConversations> {
-  const data = UpdateConversationsSchema.parse({ id, updateAt })
+export async function updateConversationUpdateAt(id: string, updatedAt: number): Promise<IConversations> {
+  const data = UpdateConversationsSchema.parse({ id, updatedAt })
   const result = db.update(conversationsTable)
     .set(data)
     .where(eq(conversationsTable.id, id))

@@ -38,7 +38,7 @@ export function registerDbHandlers() {
   mainListener.handle('db:add-conversation', async (_, conversation) => {
     try {
       // 确保所有必需的字段都存在
-      if (!conversation.id || !conversation.title || !conversation.createAt || !conversation.updateAt) {
+      if (!conversation.id || !conversation.title || !conversation.createdAt || !conversation.updatedAt) {
         return createErrorIpcResponse('会话信息不完整')
       }
 

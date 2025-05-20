@@ -74,8 +74,8 @@ describe('conversationStore', () => {
   it('import conversation', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
-    const conversation = createConversations({ updateAt: 1 })
-    const conversation2 = createConversations({ updateAt: 2 })
+    const conversation = createConversations({ updatedAt: 1 })
+    const conversation2 = createConversations({ updatedAt: 2 })
     const importData = Object.assign({}, ANT_CHAT_STRUCTURE, { conversations: [conversation, conversation2] })
 
     await act(async () => {

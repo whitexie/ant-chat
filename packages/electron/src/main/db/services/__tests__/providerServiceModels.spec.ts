@@ -12,14 +12,16 @@ describe('providerServiceModels', () => {
     it('获取所有可用的模型', async () => {
       await createProviderService({ id: 'provider-service-id', isEnabled: true })
       await createProviderService({ id: 'provider-service-id-2', isEnabled: false })
-      await createProviderServiceModel({ id: 'provider-service-model-id', providerServiceId: 'provider-service-id' })
+      await createProviderServiceModel({ model: 'enabled-model', providerServiceId: 'provider-service-id' })
+      await createProviderServiceModel({ model: 'enabled-model-2', providerServiceId: 'provider-service-id', isEnabled: false })
       await createProviderServiceModel({ providerServiceId: 'provider-service-id-2' })
 
       const models = await getAllAvailableModels()
 
       expect(models).toHaveLength(1)
-      expect(models[0].id).toBe('provider-service-model-id')
-      expect(models[0].providerServiceId).toBe('provider-service-id')
+      expect(models[0].id).toBe('provider-service-id')
+      expect(models[0].models).toHaveLength(1)
+      expect(models[0].models[0].model).toBe('enabled-model')
     })
 
     it('获取提供商下的所有模型', async () => {

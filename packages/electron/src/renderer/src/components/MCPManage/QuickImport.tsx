@@ -1,8 +1,8 @@
 import type { McpConfigSchema } from '@ant-chat/shared'
-import { getNow } from '@/utils'
 import { Alert, Button } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import React from 'react'
+import { getNow } from '@/utils'
 
 interface QuickImportProps {
   onImport?: (e: McpConfigSchema) => void
@@ -121,8 +121,8 @@ function parseMcpServerJsonText(text: string): McpConfigSchema {
       command: config.command,
       args: config.args,
       env: config.env || {},
-      createAt: getNow(),
-      updateAt: getNow(),
+      createdAt: getNow(),
+      updatedAt: getNow(),
     }
   }
   else if (config.url) {
@@ -131,8 +131,8 @@ function parseMcpServerJsonText(text: string): McpConfigSchema {
       icon: '🛠️',
       serverName,
       url: config.url,
-      createAt: getNow(),
-      updateAt: getNow(),
+      createdAt: getNow(),
+      updatedAt: getNow(),
     }
   }
 
