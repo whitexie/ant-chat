@@ -2,9 +2,9 @@ import { db } from './db'
 import { providerServiceModelsTable, providerServicesTable } from './schema'
 
 const providerServiceData = [
-  { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com', apiMode: 'openai', isOfficial: true },
-  { id: 'deepseek', name: 'DeepSeek', baseUrl: 'https://api.deepseek.com', apiMode: 'openai', isOfficial: true },
-  { id: 'gemini', name: 'gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta', apiMode: 'gemini', isOfficial: true },
+  { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com', apiMode: 'openai' as const, isOfficial: true },
+  { id: 'deepseek', name: 'DeepSeek', baseUrl: 'https://api.deepseek.com', apiMode: 'openai' as const, isOfficial: true },
+  { id: 'gemini', name: 'Gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta', apiMode: 'gemini' as const, isOfficial: true },
 ]
 
 const providerServiceModelsData = [

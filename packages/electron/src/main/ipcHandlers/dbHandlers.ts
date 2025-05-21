@@ -1,3 +1,6 @@
+import type {
+  UpdateProviderServiceSchema,
+} from '@ant-chat/shared'
 import {
   AddMessage,
   createErrorIpcResponse,
@@ -158,40 +161,6 @@ export function registerDbHandlers() {
     }
   })
 
-  // ============================ 自定义模型操作 ============================
-  mainListener.handle('db:get-custom-models', async () => {
-    try {
-      const data = await services.getCustomModels()
-      return createIpcResponse(true, data)
-    }
-    catch (error) {
-      logger.error('获取自定义模型失败:', error)
-      return createErrorIpcResponse(error as Error)
-    }
-  })
-
-  mainListener.handle('db:add-model', async (_, model) => {
-    try {
-      const data = await services.addCustomModel(model)
-      return createIpcResponse(true, data)
-    }
-    catch (error) {
-      logger.error('添加自定义模型失败:', error)
-      return createErrorIpcResponse(error as Error)
-    }
-  })
-
-  mainListener.handle('db:delete-model', async (_, id) => {
-    try {
-      await services.deleteCustomModel(id)
-      return createIpcResponse(true, null)
-    }
-    catch (error) {
-      logger.error('删除自定义模型失败:', error)
-      return createErrorIpcResponse(error as Error)
-    }
-  })
-
   // ============================ MCP配置操作 ============================
   mainListener.handle('db:get-mcp-configs', async () => {
     try {
@@ -244,6 +213,131 @@ export function registerDbHandlers() {
     }
     catch (error) {
       logger.error('删除MCP配置失败:', error)
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  // ============================ 自定义模型操作 ============================
+  mainListener.handle('db:get-custom-models', async () => {
+    try {
+      const data = await services.getCustomModels()
+      return createIpcResponse(true, data)
+    }
+    catch (error) {
+      logger.error('获取自定义模型失败:', error)
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  mainListener.handle('db:add-model', async (_, model) => {
+    try {
+      const data = await services.addCustomModel(model)
+      return createIpcResponse(true, data)
+    }
+    catch (error) {
+      logger.error('添加自定义模型失败:', error)
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  mainListener.handle('db:delete-model', async (_, id) => {
+    try {
+      await services.deleteCustomModel(id)
+      return createIpcResponse(true, null)
+    }
+    catch (error) {
+      logger.error('删除自定义模型失败:', error)
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  // ============================ AI提供商相关 ============================
+  mainListener.handle('db:get-all-provider-services', async (_) => {
+    try {
+      const data = services.getAllProviderServices()
+      return createIpcResponse(true, data)
+    }
+    catch (error) {
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  mainListener.handle('db:update-provider-services', async (_, serviceData: UpdateProviderServiceSchema) => {
+    try {
+      const updatedData = services.updateProviderService(serviceData)
+      return createIpcResponse(true, updatedData)
+    }
+    catch (error) {
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  // 新增 Provider Service
+  mainListener.handle('db:add-provider-services', async (_, data) => {
+    try {
+      const result = services.addProviderService(data)
+      return createIpcResponse(true, result)
+    }
+    catch (error) {
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  // 删除 Provider Service
+  mainListener.handle('db:delete-provider-services', async (_, id) => {
+    try {
+      await services.deleteProviderService(id)
+      return createIpcResponse(true, null)
+    }
+    catch (error) {
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  // 根据 ID 获取 Provider Service
+  mainListener.handle('db:get-provider-services-by-id', async (_, id) => {
+    try {
+      const result = services.getProviderServiceById(id)
+
+      if (!result) {
+        return createErrorIpcResponse(new Error('not found'))
+      }
+      return createIpcResponse(true, result)
+    }
+    catch (error) {
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  // 获取所有可用模型
+  mainListener.handle('db:get-all-abvailable-models', async () => {
+    try {
+      const result = await services.getAllAvailableModels()
+      return createIpcResponse(true, result)
+    }
+    catch (error) {
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  // 根据 Provider Service ID 获取模型
+  mainListener.handle('db:get-models-by-provider-service-id', async (_, id) => {
+    try {
+      const result = await services.getModelsByProviderServiceId(id)
+      return createIpcResponse(true, result)
+    }
+    catch (error) {
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  // 设置模型启用状态
+  mainListener.handle('db:set-model-enabled-status', async (_, id, status) => {
+    try {
+      const result = await services.setModelEnabledStatus(id, status)
+      return createIpcResponse(true, result)
+    }
+    catch (error) {
       return createErrorIpcResponse(error as Error)
     }
   })

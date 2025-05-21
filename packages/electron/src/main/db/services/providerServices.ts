@@ -1,10 +1,10 @@
-import type { UpdateProviderServiceSchema } from '@ant-chat/shared'
+import type { ProviderServiceSchema, UpdateProviderServiceSchema } from '@ant-chat/shared'
 import { AddProviderServiceSchema } from '@ant-chat/shared'
 import { and, eq } from 'drizzle-orm'
 import { db } from '../db'
 import { providerServicesTable } from '../schema'
 
-export function getAllProviderServices() {
+export function getAllProviderServices(): ProviderServiceSchema[] {
   return db.select().from(providerServicesTable).all()
 }
 
