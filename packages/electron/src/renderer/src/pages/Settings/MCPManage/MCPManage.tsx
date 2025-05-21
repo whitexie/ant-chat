@@ -42,6 +42,7 @@ export default function MCPManage() {
                     icon={<PlusOutlined />}
                     onClick={() => {
                       setMode('add')
+                      setEditData(null)
                       setOpen(true)
                     }}
                   >

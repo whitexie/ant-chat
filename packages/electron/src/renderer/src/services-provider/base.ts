@@ -1,13 +1,12 @@
-import type { IMcpToolCall, IMessage, IMessageContent } from '@ant-chat/shared'
-import type { SSEOutput, XReadableStream } from '@/utils/stream'
-import type { ITextContent, McpTool } from '@ant-chat/shared'
+import type { IMcpToolCall, IMessage, IMessageContent, ITextContent, McpTool } from '@ant-chat/shared'
 import type {
   ChatCompletionsCallbacks,
   SendChatCompletionsOptions,
   ServiceConstructorOptions,
 } from './interface'
-import { getAllAvailableToolsList } from '@/mcp/api'
+import type { SSEOutput, XReadableStream } from '@/utils/stream'
 import { DEFAULT_MCP_TOOL_NAME_SEPARATOR } from '@ant-chat/shared'
+import { getAllAvailableToolsList } from '@/api/mcpApi'
 
 // BaseService 是一个抽象类，提供了与服务交互的基础功能，例如验证、设置参数和解析 SSE 数据。
 export default abstract class BaseService {

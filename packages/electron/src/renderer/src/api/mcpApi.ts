@@ -1,21 +1,16 @@
 import type { McpConfigSchema, McpConnection, McpToolCall, McpToolCallResponse } from '@ant-chat/shared'
 import { uuid } from '@/utils'
-import { emitter } from '@/utils/ipc-bus'
+import { emitter, unwrapIpcResponse } from '@/utils/ipc-bus'
 
 export async function getMcpServers(): Promise<McpConnection[]> {
   try {
-    return await window.electronAPI.ipcRenderer.invoke('mcp:getConnections')
+    return unwrapIpcResponse(await emitter.invoke('mcp:getConnections'))
   }
   catch (e) {
     const error = e as Error
     console.warn('getMcpServers fail: ', error.message)
     return []
   }
-}
-
-// 获取App操作系统
-export async function getAppOS() {
-  return await window.electronAPI.ipcRenderer.invoke('app-os')
 }
 
 export async function getAllAvailableToolsList() {

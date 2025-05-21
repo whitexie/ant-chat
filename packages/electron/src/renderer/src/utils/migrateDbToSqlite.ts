@@ -1,5 +1,5 @@
 // import db from '@/db/db'
-// import { dbApi } from '@/db/dbApi'
+// import { dbApi } from '@/api/dbApi'
 
 /**
  * 将IndexedDB中的数据迁移到SQLite

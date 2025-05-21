@@ -1,6 +1,6 @@
 import type { IMcpToolCall, McpToolCallResponse, MessageId } from '@ant-chat/shared'
-import { dbApi } from '@/db/dbApi'
-import { executeMcpToolCall } from '@/mcp/api'
+import { dbApi } from '@/api/dbApi'
+import { executeMcpToolCall } from '@/api/mcpApi'
 import { setRequestStatus, updateMessageAction } from './actions'
 
 export async function setMcpToolCallexecuteState(id: MessageId, toolId: string, state: IMcpToolCall['executeState']) {

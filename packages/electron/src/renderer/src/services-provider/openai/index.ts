@@ -1,4 +1,3 @@
-import type { SSEOutput, XReadableStream } from '@/utils/stream'
 import type { IMcpToolCall, IMessage, IMessageContent, IMessageUser } from '@ant-chat/shared'
 import type {
   ChatCompletionsCallbacks,
@@ -15,8 +14,9 @@ import type {
   ToolCallMessage,
   ToolResultMessage,
 } from './interface'
+import type { SSEOutput, XReadableStream } from '@/utils/stream'
+import { createMcpToolCall } from '@/api/mcpApi'
 import { Role } from '@/constants'
-import { createMcpToolCall } from '@/mcp'
 import { request, Stream } from '@/utils'
 import BaseService from '../base'
 

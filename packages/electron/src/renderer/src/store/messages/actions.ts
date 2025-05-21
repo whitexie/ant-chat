@@ -2,9 +2,9 @@ import type { ConversationsId, IMessage, MessageId, ModelConfig } from '@ant-cha
 import type { ChatFeatures } from '../features'
 import type { RequestStatus } from './store'
 import { produce } from 'immer'
-import { Role } from '@/constants'
 import { createAIMessage } from '@/api/dataFactory'
-import { dbApi } from '@/db/dbApi'
+import { dbApi } from '@/api/dbApi'
+import { Role } from '@/constants'
 import { getServiceProviderConstructor } from '@/services-provider'
 import { useMessagesStore } from './store'
 

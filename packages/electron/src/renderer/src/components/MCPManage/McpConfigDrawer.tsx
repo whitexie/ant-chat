@@ -5,9 +5,9 @@ import { MinusCircleOutlined, PlusOutlined, RightOutlined } from '@ant-design/ic
 import { Alert, Avatar, Button, Descriptions, Drawer, Empty, Form, Input, Select, Tag } from 'antd'
 import React from 'react'
 import { useImmer } from 'use-immer'
+import { dbApi } from '@/api/dbApi'
+import { connectMcpServer, fetchMcpServerTools } from '@/api/mcpApi'
 import { EmojiPickerHoc } from '@/components/EmojiPiker'
-import { dbApi } from '@/db/dbApi'
-import { connectMcpServer, fetchMcpServerTools } from '@/mcp'
 import { QuickImport } from './QuickImport'
 import { SelectTransportType } from './SelectTransportType'
 

@@ -1,7 +1,7 @@
 import type { McpConfigSchema, McpServerStatus } from '@ant-chat/shared'
 import { produce } from 'immer'
-import { dbApi } from '@/db/dbApi'
-import { connectMcpServer, disconnectMcpServer } from '@/mcp'
+import { dbApi } from '@/api/dbApi'
+import { connectMcpServer, disconnectMcpServer } from '@/api/mcpApi'
 import { useMcpConfigsStore } from './store'
 
 export async function initializeMcpConfigs() {
