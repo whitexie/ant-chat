@@ -7,7 +7,7 @@ import { Notification } from '../utils/notification'
 import { getMainWindow } from '../window'
 
 export function registerMcpHandlers(clientHub: MCPClientHub) {
-  mainListener.handle('mcp:getConnections', async (_e) => {
+  mainListener.handle('mcp:get-connections', async (_e) => {
     const result: Pick<McpServer, 'name' | 'config' | 'tools' | 'status'>[] = clientHub.connections.map((item) => {
       const { server } = item
       const { name, config, tools = [], status } = server
@@ -18,12 +18,12 @@ export function registerMcpHandlers(clientHub: MCPClientHub) {
     return createIpcResponse(true, result)
   })
 
-  mainListener.handle('mcp:getAllAvailableToolsList', async () => {
+  mainListener.handle('mcp:get-all-available-tools-list', async () => {
     const data = clientHub.getAllAvailableToolsList()
     return createIpcResponse(true, data)
   })
 
-  mainListener.handle('mcp:callTool', async (_, serverName: string, toolName: string, toolArguments?: Record<string, unknown>) => {
+  mainListener.handle('mcp:call-tool', async (_, serverName: string, toolName: string, toolArguments?: Record<string, unknown>) => {
     const data = await clientHub.callTool(serverName, toolName, toolArguments)
 
     // data.content.forEach((item) => {
@@ -43,7 +43,7 @@ export function registerMcpHandlers(clientHub: MCPClientHub) {
     return createIpcResponse(true, { content, isError: data.isError })
   })
 
-  mainListener.handle('mcp:connectMcpServer', async (_, name: string, mcpConfig: McpConfigSchema) => {
+  mainListener.handle('mcp:connect-mcp-server', async (_, name: string, mcpConfig: McpConfigSchema) => {
     let ok = false
     let msg = ''
     let status: 'connected' | 'disconnected' = 'connected'
@@ -66,12 +66,12 @@ export function registerMcpHandlers(clientHub: MCPClientHub) {
     return createIpcResponse(ok, null, msg)
   })
 
-  mainListener.handle('mcp:disconnectMcpServer', async (_, name: string) => {
+  mainListener.handle('mcp:disconnect-mcp-server', async (_, name: string) => {
     const ok = await clientHub.deleteConnection(name)
     return createIpcResponse(ok, null)
   })
 
-  mainListener.handle('mcp:reconnectMcpServer', async (_, name: string, mcpConfig: McpConfigSchema) => {
+  mainListener.handle('mcp:reconnect-mcp-server', async (_, name: string, mcpConfig: McpConfigSchema) => {
     let ok = true
     let msg = ''
     try {
@@ -86,7 +86,7 @@ export function registerMcpHandlers(clientHub: MCPClientHub) {
     return createIpcResponse(ok, null, msg)
   })
 
-  mainListener.handle('mcp:fetchMcpServerTools', async (_, name: string) => {
+  mainListener.handle('mcp:fetch-mcp-server-tools', async (_, name: string) => {
     const data = await clientHub.fetchToolsList(name)
     return createIpcResponse(true, data)
   })

@@ -1,12 +1,7 @@
+import type { ModelFeaturesSchema } from '@ant-chat/shared'
 import { relations, sql } from 'drizzle-orm'
 import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 import { providerServicesTable } from './providerServices'
-
-interface ModelFeature {
-  functionCall?: boolean
-  deepThinking?: boolean
-  vision?: boolean
-}
 
 export const providerServiceModelsTable = sqliteTable(
   'provider_service_models',
@@ -15,7 +10,7 @@ export const providerServiceModelsTable = sqliteTable(
     model: text('model').notNull(),
     isBuiltin: integer('is_builtin', { mode: 'boolean' }).notNull().default(false),
     isEnabled: integer('is_enabled', { mode: 'boolean' }).notNull().default(true),
-    modelFeatures: text('model_features', { mode: 'json' }).$type<ModelFeature | null>(),
+    modelFeatures: text('model_features', { mode: 'json' }).$type<ModelFeaturesSchema | null>(),
     providerServiceId: text('provider_service_id').notNull().references(() => providerServicesTable.id),
     createdAt: integer('created_at').notNull().default(sql`(strftime('%s','now'))`),
   },

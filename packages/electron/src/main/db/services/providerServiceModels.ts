@@ -28,11 +28,19 @@ export async function getAllAvailableModels(): Promise<AllAvailableModelsSchema[
   return data as AllAvailableModelsSchema[]
 }
 
-export async function getAllModelsByProviderServiceId(providerServiceId: string): Promise<ProviderServiceModelsSchema[]> {
+export async function getModelsByProviderServiceId(providerServiceId: string): Promise<ProviderServiceModelsSchema[]> {
   const models = await db.select()
     .from(providerServiceModelsTable)
     .where(eq(providerServiceModelsTable.providerServiceId, providerServiceId))
     .orderBy(desc(providerServiceModelsTable.createdAt))
 
   return models
+}
+
+export async function setModelEnabledStatus(id: string, status: boolean) {
+  return db.update(providerServiceModelsTable)
+    .set({ isEnabled: status })
+    .where(eq(providerServiceModelsTable.id, id))
+    .returning()
+    .get()
 }

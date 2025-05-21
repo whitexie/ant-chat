@@ -1,6 +1,6 @@
 import { mockDb } from './utils'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { getAllAvailableModels, getAllModelsByProviderServiceId } from '../providerServiceModels'
+import { getAllAvailableModels, getModelsByProviderServiceId } from '../providerServiceModels'
 import { createProviderService, createProviderServiceModel } from './factory'
 
 describe('providerServiceModels', () => {
@@ -30,7 +30,7 @@ describe('providerServiceModels', () => {
       await createProviderServiceModel({ id: 'provider-service-model-id-1', model: 'test-1', providerServiceId: 'provider-service-id', createdAt: 1 })
       await createProviderServiceModel({ id: 'provider-service-model-id-2', model: 'test-2', providerServiceId: 'provider-service-id', createdAt: 2 })
 
-      const models = await getAllModelsByProviderServiceId('provider-service-id')
+      const models = await getModelsByProviderServiceId('provider-service-id')
 
       expect(models).toHaveLength(2)
       expect(models[0].id).toBe('provider-service-model-id-2')

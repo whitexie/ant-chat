@@ -4,7 +4,7 @@ import { emitter, unwrapIpcResponse } from '@/utils/ipc-bus'
 
 export async function getMcpServers(): Promise<McpConnection[]> {
   try {
-    return unwrapIpcResponse(await emitter.invoke('mcp:getConnections'))
+    return unwrapIpcResponse(await emitter.invoke('mcp:get-connections'))
   }
   catch (e) {
     const error = e as Error
@@ -14,7 +14,7 @@ export async function getMcpServers(): Promise<McpConnection[]> {
 }
 
 export async function getAllAvailableToolsList() {
-  return await emitter.invoke('mcp:getAllAvailableToolsList')
+  return await emitter.invoke('mcp:get-all-available-tools-list')
 }
 
 type CreateMcpToolCallOptions = Partial<Omit<McpToolCall, 'serverName' | 'toolName' | 'args'>> & Pick<McpToolCall, 'serverName' | 'toolName' | 'args'>
@@ -33,7 +33,7 @@ export function createMcpToolCall(options: CreateMcpToolCallOptions): McpToolCal
 
 export async function executeMcpToolCall(toolCall: McpToolCall): Promise<McpToolCallResponse> {
   const { serverName, toolName, args } = toolCall
-  const resp = await emitter.invoke('mcp:callTool', serverName, toolName, args)
+  const resp = await emitter.invoke('mcp:call-tool', serverName, toolName, args)
   if (resp.success) {
     return resp.data
   }
@@ -43,25 +43,25 @@ export async function executeMcpToolCall(toolCall: McpToolCall): Promise<McpTool
 export async function connectMcpServer(config: McpConfigSchema): Promise<[boolean, string]> {
   const { serverName } = config
 
-  const resp = await emitter.invoke('mcp:connectMcpServer', serverName, config)
+  const resp = await emitter.invoke('mcp:connect-mcp-server', serverName, config)
 
   return [resp.success, resp.success ? '' : resp.msg]
 }
 
 export async function disconnectMcpServer(name: string): Promise<boolean> {
-  return (await emitter.invoke('mcp:disconnectMcpServer', name)).success
+  return (await emitter.invoke('mcp:disconnect-mcp-server', name)).success
 }
 
 export async function reconnectMcpServer(config: McpConfigSchema): Promise<[boolean, string]> {
   const { serverName } = config
 
-  const resp = await emitter.invoke('mcp:reconnectMcpServer', serverName, config)
+  const resp = await emitter.invoke('mcp:reconnect-mcp-server', serverName, config)
 
   return [resp.success, resp.success ? '' : resp.msg]
 }
 
 export async function fetchMcpServerTools(name: string) {
-  const resp = await emitter.invoke('mcp:fetchMcpServerTools', name)
+  const resp = await emitter.invoke('mcp:fetch-mcp-server-tools', name)
   if (resp.success) {
     return resp.data
   }

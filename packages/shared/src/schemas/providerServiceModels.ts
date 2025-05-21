@@ -21,6 +21,8 @@ export const AllAvailableModels = ProviderServiceSchema.omit({ isEnabled: true }
   models: z.array(ProviderServiceModelsSchema.pick({ model: true, modelFeatures: true })),
 })
 
+export type ModelFeaturesSchema = z.infer<typeof ModelFeaturesSchema>
+
 export type AllAvailableModelsSchema = z.infer<typeof AllAvailableModels>
 
 export type ProviderServiceModelsSchema = z.infer<typeof ProviderServiceModelsSchema>
