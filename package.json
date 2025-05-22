@@ -10,7 +10,9 @@
     "test:unit": "pnpm -F electron test:unit",
     "type-check": "pnpm -F electron type-check",
     "build:mac": "pnpm -F electron build:mac",
-    "build:win": "pnpm -F electron build:win"
+    "build:win": "pnpm -F electron build:win",
+    "db:generate": "pnpm -F electron db:generate",
+    "db:migrate": "pnpm -F electron db:migrate"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.12.0",
