@@ -43,6 +43,13 @@
       "when": 1747704184505,
       "tag": "0005_round_sabra",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1747899238542,
+      "tag": "0006_oval_rockslide",
+      "breakpoints": true
     }
   ]
 }

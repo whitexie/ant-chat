@@ -1,12 +1,14 @@
 import type { ModelFeaturesSchema } from '@ant-chat/shared'
 import { relations, sql } from 'drizzle-orm'
 import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
+import { nanoid } from 'nanoid'
 import { providerServicesTable } from './providerServices'
 
 export const providerServiceModelsTable = sqliteTable(
   'provider_service_models',
   {
-    id: text('id').primaryKey(),
+    id: text('id').primaryKey().$defaultFn(() => `model-${nanoid()}`),
+    name: text('name').notNull(),
     model: text('model').notNull(),
     isBuiltin: integer('is_builtin', { mode: 'boolean' }).notNull().default(false),
     isEnabled: integer('is_enabled', { mode: 'boolean' }).notNull().default(true),

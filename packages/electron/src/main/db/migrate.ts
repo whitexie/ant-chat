@@ -16,6 +16,9 @@ const db = drizzle(sqlite, { schema })
 
 // 执行迁移
 console.log('应用迁移...')
+
+db.run('PRAGMA foreign_keys=OFF;')
 migrate(db, { migrationsFolder: path.resolve('./migrations') })
+db.run('PRAGMA foreign_keys=ON;')
 
 console.log('数据库迁移完成!')
