@@ -1,7 +1,7 @@
-import { useThemeStore } from '@/store/theme'
 import { CloudSyncOutlined, MoonFilled, SunFilled } from '@ant-design/icons'
 import { Popover } from 'antd'
 import { useState } from 'react'
+import { useThemeStore } from '@/store/theme'
 
 const options = [
   { id: 'auto' as const, icon: <CloudSyncOutlined />, label: '跟随系统' },
@@ -56,7 +56,7 @@ function ThemeButton() {
           w-9 h-9 
           flex justify-center items-center 
           rounded-md 
-          hover:bg-black/3 hover:dark:bg-white/10 
+          hover:bg-(--hover-bg-color)
           cursor-pointer 
           text-base
         `}

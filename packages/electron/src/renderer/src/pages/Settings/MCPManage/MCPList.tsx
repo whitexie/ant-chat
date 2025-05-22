@@ -1,8 +1,8 @@
 import type { McpConfigSchema } from '@ant-chat/shared'
 import type { McpConfigActionsProps } from './McpConfigActions'
-import { useMcpConfigsStore } from '@/store/mcpConfigs'
 import { LoadingOutlined } from '@ant-design/icons'
 import { Tag } from 'antd'
+import { useMcpConfigsStore } from '@/store/mcpConfigs'
 import { McpConfigActions } from './McpConfigActions'
 
 interface MCPListProps {
@@ -17,7 +17,7 @@ export function MCPList({ items, onTriggerAction }: MCPListProps) {
     <div className="pt-4 flex flex-col gap-4">
       {
         items?.map(item => (
-          <div className="py-2 px-4 flex items-center justify-between border border-solid dark:border-white/20 border-black/10 rounded-xl" key={item.serverName}>
+          <div className="py-2 px-4 flex items-center justify-between border border-solid border-(--border-color) rounded-xl" key={item.serverName}>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xl">{item.icon}</span>

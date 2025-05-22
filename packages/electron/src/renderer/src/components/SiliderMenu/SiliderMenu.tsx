@@ -14,7 +14,7 @@ export function SliderMenu() {
   }
 
   return (
-    <div className="h-full w-12.5 border-black/10 dark:border-white/20 slider border-r-solid border-r-1">
+    <div className="h-full w-12.5 border-(--border-color) slider border-r-solid border-r-1">
       <div className="flex flex-col justify-between items-center h-full">
         <div className="flex flex-col items-center pt-2 gap-5">
           <div className="flex justify-center items-center w-8 h-8 p-1">

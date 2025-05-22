@@ -1,6 +1,6 @@
-import MCPIcon from '@/assets/icons/mcp.svg?react'
 import Icon, { CrownOutlined } from '@ant-design/icons'
 import { Outlet, useLocation, useNavigate } from 'react-router'
+import MCPIcon from '@/assets/icons/mcp.svg?react'
 
 export default function Settings() {
   const navigrate = useNavigate()
@@ -13,7 +13,7 @@ export default function Settings() {
 
   return (
     <div className="w-full h-full grid grid-cols-[max-content_1fr]">
-      <div className="h-full w-50 border-r-solid border-black/10 border-r-1 p-2 text-gray py-4 dark:border-white/20">
+      <div className="h-full w-50 border-r-solid border-(--border-color) border-r-1 p-2 text-gray py-4">
         <div className="flex flex-col gap-3">
           {
             menus.map(item => (
@@ -22,10 +22,10 @@ export default function Settings() {
                 className={`
                   flex gap-3 items-center 
                   px-4 h-10
-                  hover:bg-black/3 hover:dark:bg-white/6
+                  hover:bg-(--hover-bg-color)
                   rounded-md 
                   cursor-pointer
-                  ${activeName === item.id ? 'dark:text-white bg-black/3 dark:bg-white/10 text-black' : ''}
+                  ${activeName === item.id ? 'text-white bg-(--hover-bg-color)' : ''}
                 `}
                 onClick={() => {
                   navigrate(`/settings/${item.id}`)

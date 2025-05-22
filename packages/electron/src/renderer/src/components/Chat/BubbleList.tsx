@@ -262,7 +262,7 @@ function getRoleAvatar({ role, ...rest }: IMessage): React.ReactElement {
     const ProviderLogo = getProviderLogo(provider || '')
     if (ProviderLogo) {
       return (
-        <div className="w-8 h-8 flex items-center justify-center text-white dark:bg-black border-solid text-lg border-black/10 dark:border-white/20 border-1 bg-white rounded-full">
+        <div className="w-8 h-8 flex items-center justify-center text-white dark:bg-black border-solid text-lg border-(--border-color) border-1 bg-white rounded-full">
           <ProviderLogo />
         </div>
       )

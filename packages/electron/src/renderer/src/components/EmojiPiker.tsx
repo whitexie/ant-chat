@@ -20,14 +20,14 @@ export function EmojiPickerHoc({ value, onChange }: EmojiPickerProps) {
       open={open}
       trigger="click"
       placement="rightTop"
-      destroyTooltipOnHide
-      styles={{ body: { padding: 0 } }}
+      destroyOnHidden
+      styles={{ body: { padding: 0, width: 300 } }}
       content={(
         <div className="">
-          <EmojiPicker className="border-black/10 dark:border-white/20" onEmojiSelect={handleEmojiSelect}>
-            <EmojiPicker.Header>
+          <EmojiPicker className="border-(--border-color)" onEmojiSelect={handleEmojiSelect}>
+            {/* <EmojiPicker.Header>
               <EmojiPicker.Input placeholder="Search emoji" />
-            </EmojiPicker.Header>
+            </EmojiPicker.Header> */}
             <EmojiPicker.Group>
               <EmojiPicker.List containerHeight={200} />
             </EmojiPicker.Group>

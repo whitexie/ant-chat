@@ -25,7 +25,7 @@ export default function MCPManage() {
 
   return (
     <div className="p-2">
-      <div className="flex justify-between border border-solid dark:border-white/20 border-black/10 rounded-xl p-4 mb-4">
+      <div className="flex justify-between border border-solid border-(--border-color) rounded-xl p-4 mb-4">
         <div>
           启用MCP功能
         </div>

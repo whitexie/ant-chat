@@ -170,7 +170,7 @@ export default function ConversationsManage() {
           items={items}
         />
       </InfiniteScroll>
-      <div className="border-1px border-black/10 flex flex-col px-1 py-2 footer border-t-solid dark:border-white/20 gap-1">
+      <div className="border-1px border-(--border-color) flex flex-col px-1 py-2 footer border-t-solid gap-1">
         <Settings />
         <VersionButton />
       </div>

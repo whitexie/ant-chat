@@ -22,7 +22,7 @@ export default function ProviderManage() {
   return (
     <div className="flex h-full">
       <div className="flex flex-shrink-0 flex-col
-      h-[100dvh] overflow-y-auto gap-2 px-2 py-2 w-50 border-r border-r-solid border-black/10 dark:border-white/20"
+      h-[100dvh] overflow-y-auto gap-2 px-2 py-2 w-50 border-r border-r-solid border-(--border-color)"
       >
         {
           data?.map(item => (
