@@ -36,3 +36,18 @@ Use 简体中文.
 Only give the name, nothing else.
 The name is:
 `
+
+export const AI_OFFICIAL_API_INFO: { [provider: string]: { url: string, keyUrl: string } } = {
+  openai: {
+    url: 'https://api.openai.com',
+    keyUrl: 'https://platform.openai.com/api-keys',
+  },
+  deepseek: {
+    url: 'https://api.deepseek.com',
+    keyUrl: 'https://platform.deepseek.com/api_keys',
+  },
+  gemini: {
+    url: 'https://generativelanguage.googleapis.com/v1beta',
+    keyUrl: 'https://aistudio.google.com/apikey',
+  },
+} as const

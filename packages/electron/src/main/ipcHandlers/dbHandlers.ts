@@ -262,7 +262,7 @@ export function registerDbHandlers() {
     }
   })
 
-  mainListener.handle('db:update-provider-services', async (_, serviceData: UpdateProviderServiceSchema) => {
+  mainListener.handle('db:update-provider-service', async (_, serviceData: UpdateProviderServiceSchema) => {
     try {
       const updatedData = services.updateProviderService(serviceData)
       return createIpcResponse(true, updatedData)
@@ -284,7 +284,7 @@ export function registerDbHandlers() {
   })
 
   // 删除 Provider Service
-  mainListener.handle('db:delete-provider-services', async (_, id) => {
+  mainListener.handle('db:delete-provider-service', async (_, id) => {
     try {
       await services.deleteProviderService(id)
       return createIpcResponse(true, null)
@@ -336,6 +336,26 @@ export function registerDbHandlers() {
     try {
       const result = await services.setModelEnabledStatus(id, status)
       return createIpcResponse(true, result)
+    }
+    catch (error) {
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  mainListener.handle('db:add-provider-service-model', async (_, config) => {
+    try {
+      const result = await services.addProviderServiceModel(config)
+      return createIpcResponse(true, result)
+    }
+    catch (error) {
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  mainListener.handle('db:delete-provider-service-model', async (_, id) => {
+    try {
+      await services.deleteProviderServiceModel(id)
+      return createIpcResponse(true, null)
     }
     catch (error) {
       return createErrorIpcResponse(error as Error)

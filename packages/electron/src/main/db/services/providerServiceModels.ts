@@ -1,5 +1,6 @@
 import type { AllAvailableModelsSchema, ProviderServiceModelsSchema } from '@ant-chat/shared'
-import { desc, eq } from 'drizzle-orm'
+import { AddProviderServiceModelSchema } from '@ant-chat/shared'
+import { and, desc, eq } from 'drizzle-orm'
 import { db } from '../db'
 import { providerServiceModelsTable, providerServicesTable } from '../schema'
 
@@ -43,4 +44,26 @@ export async function setModelEnabledStatus(id: string, status: boolean) {
     .where(eq(providerServiceModelsTable.id, id))
     .returning()
     .get()
+}
+
+export async function addProviderServiceModel(config: AddProviderServiceModelSchema) {
+  const data = AddProviderServiceModelSchema.parse(config)
+
+  const count = await db.$count(providerServiceModelsTable, and(
+    eq(providerServiceModelsTable.providerServiceId, data.providerServiceId),
+    eq(providerServiceModelsTable.model, data.model),
+  ))
+
+  if (count >= 1) {
+    throw new Error(`${data.model} 已存在，不可重复添加`)
+  }
+
+  return db.insert(providerServiceModelsTable)
+    .values({ ...data, isEnabled: true })
+    .returning()
+    .get()
+}
+
+export async function deleteProviderServiceModel(id: string) {
+  return db.delete(providerServiceModelsTable).where(eq(providerServiceModelsTable.id, id))
 }

@@ -1,5 +1,5 @@
 import type { IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption } from './interfaces'
-import type { AddMcpConfigSchema, AddProviderServiceSchema, AllAvailableModelsSchema, McpConfigSchema, ProviderServiceModelsSchema, ProviderServiceSchema, UpdateConversationsSchema, UpdateMcpConfigSchema, UpdateProviderServiceSchema } from './schemas'
+import type { AddMcpConfigSchema, AddProviderServiceModelSchema, AddProviderServiceSchema, AllAvailableModelsSchema, McpConfigSchema, ProviderServiceModelsSchema, ProviderServiceSchema, UpdateConversationsSchema, UpdateMcpConfigSchema, UpdateProviderServiceSchema } from './schemas'
 
 export function createIpcResponse<T>(success: boolean, data: T, msg?: string): IpcResponse<T> | ErrorIpcResponse {
   if (success) {
@@ -94,15 +94,17 @@ export type IpcEvents =
 
     // ============================ AI服务商相关 ============================
     'db:get-all-provider-services': () => Promise<IpcResponse<ProviderServiceSchema[]>>
-    'db:update-provider-services': (data: UpdateProviderServiceSchema) => Promise<IpcResponse<ProviderServiceSchema>>
+    'db:update-provider-service': (data: UpdateProviderServiceSchema) => Promise<IpcResponse<ProviderServiceSchema>>
     'db:add-provider-services': (data: AddProviderServiceSchema) => Promise<IpcResponse<ProviderServiceSchema>>
-    'db:delete-provider-services': (id: string) => Promise<IpcResponse<null>>
+    'db:delete-provider-service': (id: string) => Promise<IpcResponse<null>>
     'db:get-provider-services-by-id': (id: string) => Promise<IpcResponse<ProviderServiceSchema>>
 
     // ============================ 模型相关 ============================
     'db:get-all-abvailable-models': () => Promise<IpcResponse<AllAvailableModelsSchema[]>>
     'db:get-models-by-provider-service-id': (id: string) => Promise<IpcResponse<ProviderServiceModelsSchema[]>>
     'db:set-model-enabled-status': (id: string, status: boolean) => Promise<IpcResponse<ProviderServiceModelsSchema>>
+    'db:add-provider-service-model': (data: AddProviderServiceModelSchema) => Promise<IpcResponse<ProviderServiceModelsSchema>>
+    'db:delete-provider-service-model': (id: string) => Promise<IpcResponse<null>>
 
     'db:get-custom-models': (provider: string) => Promise<IpcResponse<any>>
     'db:delete-model': (id: string) => Promise<IpcResponse<null>>

@@ -1,5 +1,5 @@
 import type { IConversations, IMessage } from '@ant-chat/shared'
-import type { McpConfigSchema, UpdateConversationsSchema } from '@ant-chat/shared/src/schemas'
+import type { AddProviderServiceModelSchema, AddProviderServiceSchema, McpConfigSchema, UpdateConversationsSchema, UpdateProviderServiceSchema } from '@ant-chat/shared/src/schemas'
 import { emitter, unwrapIpcPaginatedResponse, unwrapIpcResponse } from '@/utils/ipc-bus'
 
 /**
@@ -68,19 +68,6 @@ export const dbApi = {
     return unwrapIpcResponse(await emitter.invoke('db:batch-delete-messages', ids))
   },
 
-  // 自定义模型操作
-  getCustomModels: async (provider: string) => {
-    return unwrapIpcResponse(await emitter.invoke('db:get-custom-models', provider))
-  },
-
-  addCustomModel: async (model: any) => {
-    return unwrapIpcResponse(await emitter.invoke('db:add-model', model))
-  },
-
-  deleteCustomModel: async (id: string) => {
-    return unwrapIpcResponse(await emitter.invoke('db:delete-model', id))
-  },
-
   // MCP配置操作
   getMcpConfigs: async () => {
     return unwrapIpcResponse(await emitter.invoke('db:get-mcp-configs'))
@@ -100,5 +87,59 @@ export const dbApi = {
 
   deleteMcpConfig: async (serverName: string) => {
     return unwrapIpcResponse(await emitter.invoke('db:delete-mcp-config', serverName))
+  },
+
+  // 自定义模型操作
+  getCustomModels: async (provider: string) => {
+    return unwrapIpcResponse(await emitter.invoke('db:get-custom-models', provider))
+  },
+
+  addCustomModel: async (model: any) => {
+    return unwrapIpcResponse(await emitter.invoke('db:add-model', model))
+  },
+
+  deleteCustomModel: async (id: string) => {
+    return unwrapIpcResponse(await emitter.invoke('db:delete-model', id))
+  },
+
+  // ============================ AI 提供商相关 ============================
+  async getAllProviderServices() {
+    return unwrapIpcResponse(await emitter.invoke('db:get-all-provider-services'))
+  },
+
+  async AddProviderService(config: AddProviderServiceSchema) {
+    return unwrapIpcResponse(await emitter.invoke('db:add-provider-services', config))
+  },
+
+  async updateProviderService(config: UpdateProviderServiceSchema) {
+    return unwrapIpcResponse(await emitter.invoke('db:update-provider-service', config))
+  },
+
+  async deleteProviderService(id: string) {
+    return unwrapIpcResponse(await emitter.invoke('db:delete-provider-service', id))
+  },
+
+  async getProviderServiceById(id: string) {
+    return unwrapIpcResponse(await emitter.invoke('db:get-provider-services-by-id', id))
+  },
+
+  // ============================ 模型 ============================
+  async getAllAbvailableModels() {
+    return unwrapIpcResponse(await emitter.invoke('db:get-all-abvailable-models'))
+  },
+  async getModelsByProviderServiceId(id: string) {
+    return unwrapIpcResponse(await emitter.invoke('db:get-models-by-provider-service-id', id))
+  },
+
+  async setModelEnabledStatus(id: string, status: boolean) {
+    return unwrapIpcResponse(await emitter.invoke('db:set-model-enabled-status', id, status))
+  },
+
+  async addProviderServiceModel(config: AddProviderServiceModelSchema) {
+    return unwrapIpcResponse(await emitter.invoke('db:add-provider-service-model', config))
+  },
+
+  async deleteProviderServiceModel(id: string) {
+    return unwrapIpcResponse(await emitter.invoke('db:delete-provider-service-model', id))
   },
 }

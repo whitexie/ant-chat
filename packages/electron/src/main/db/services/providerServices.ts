@@ -10,7 +10,7 @@ export function getAllProviderServices(): ProviderServiceSchema[] {
 
 export function updateProviderService(config: UpdateProviderServiceSchema) {
   return db.update(providerServicesTable)
-    .set({ ...config, updatedAt: Date.now() })
+    .set({ ...config, updatedAt: Math.floor(Date.now() / 1000) })
     .where(eq(providerServicesTable.id, config.id))
     .returning()
     .get({ id: config.id })
