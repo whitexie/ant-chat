@@ -17,6 +17,8 @@ export async function getAllAvailableModels(): Promise<AllAvailableModelsSchema[
     with: {
       models: {
         columns: {
+          id: true,
+          name: true,
           model: true,
           modelFeatures: true,
         },
