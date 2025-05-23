@@ -25,7 +25,7 @@ export default function Settings() {
                   hover:bg-(--hover-bg-color)
                   rounded-md 
                   cursor-pointer
-                  ${activeName === item.id ? 'text-white bg-(--hover-bg-color)' : ''}
+                  ${activeName === item.id ? 'bg-(--hover-bg-color)' : ''}
                 `}
                 onClick={() => {
                   navigrate(`/settings/${item.id}`)
