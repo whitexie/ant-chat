@@ -100,6 +100,7 @@ export interface IImageContent {
   type: 'image'
   mimeType: string
   data: string
+  url?: string
 }
 
 // 消息内容

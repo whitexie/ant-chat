@@ -114,13 +114,14 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
             ? msg.content
             : msg.content.reduce((a, b) => {
                 if (b.type === 'image') {
-                  return `${a}\n![](data:${b.mimeType};base64,${b.data})\n`
+                  return b?.url
+                    ? `\n![](${b.url})`
+                    : `${a}\n![](data:${b.mimeType};base64,${b.data})\n`
                 }
                 else {
                   return `${a}\n${b.text}`
                 }
               }, '')
-
         }
         header={<BubbleHeader time={msg.createdAt} modelInfo={msg.role === Role.AI ? msg.modelInfo : undefined} />}
         footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
