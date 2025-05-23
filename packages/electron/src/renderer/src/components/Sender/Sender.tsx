@@ -1,12 +1,6 @@
-import type { IAttachment, IImage } from '@ant-chat/shared'
-import type { ChatFeatures } from '@/services-provider/interface'
+import type { AllAvailableModelsSchema, IAttachment, IImage } from '@ant-chat/shared'
 import type { UploadFile } from 'antd'
-import MCPIcon from '@/assets/icons/mcp.svg?react'
-import StopSvg from '@/assets/icons/stop.svg?react'
-import { useFeatures, useFeaturesState } from '@/store/features'
-import { useMessagesStore } from '@/store/messages'
-import { checkModelConfig, setOpenSettingsModalAction } from '@/store/modelConfig'
-import { fileToBase64 } from '@/utils'
+import type { ChatFeatures } from '@/services-provider/interface'
 import Icon, {
   ArrowUpOutlined,
   AudioOutlined,
@@ -18,7 +12,14 @@ import { Attachments } from '@ant-design/x'
 import useSpeech from '@ant-design/x/es/sender/useSpeech'
 import { App, Badge, Button, Tooltip } from 'antd'
 import { useState } from 'react'
+import MCPIcon from '@/assets/icons/mcp.svg?react'
+import StopSvg from '@/assets/icons/stop.svg?react'
+import { useFeatures, useFeaturesState } from '@/store/features'
+import { useMessagesStore } from '@/store/messages'
+import { checkModelConfig, setOpenSettingsModalAction } from '@/store/modelConfig'
+import { fileToBase64 } from '@/utils'
 import SwitchButton from '../SwitchButton'
+import { PickerModel } from './PickerModel'
 
 interface SenderProps {
   loading?: boolean
@@ -82,6 +83,9 @@ function Sender({ loading = false, ...props }: SenderProps) {
     return { images, attachments }
   }
 
+  // ============================ 选择模型 ============================
+  const [model, setModel] = useState<AllAvailableModelsSchema['models'][number] | null>(null)
+
   return (
     <div
       className={`
@@ -142,7 +146,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
             const value = e.target.value
             setText(value)
             const length = value.split('\n').length
-            if (length > 2) {
+            if (length > 2 || rows > 2) {
               setRows(length < 6 ? length : 6)
             }
           }}
@@ -153,7 +157,10 @@ function Sender({ loading = false, ...props }: SenderProps) {
             }
           }}
           placeholder="Enter发送消息，Shift+Enter换行"
-          className="w-full h-full scrollbar bg-transparent border-none p-1 outline-none resize-none placeholder-[#b4b4b4] text-base dark:text-[var(--ant-layout-color-text-body)] dark:placeholder-[var(--ant-layout-color-text-body)]"
+          className={`
+            w-full h-full bg-transparent border-none p-1 outline-none resize-none 
+            placeholder-[#b4b4b4] 
+            dark:text-[var(--ant-layout-color-text-body)]  dark:placeholder-[var(--ant-layout-color-text-body)]`}
         />
       </div>
       <div className="footer flex justify-between">
@@ -188,6 +195,10 @@ function Sender({ loading = false, ...props }: SenderProps) {
               />
             </div>
           </Tooltip>
+          <PickerModel
+            value={model}
+            onChange={setModel}
+          />
         </div>
         <div className="flex gap-1 items-center">
           <Button

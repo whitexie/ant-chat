@@ -4,8 +4,8 @@ import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import { SettingOutlined } from '@ant-design/icons'
 import { Skeleton } from 'antd'
 import { lazy, Suspense, useState } from 'react'
-import { DEFAULT_TITLE } from '@/constants'
 import { createConversations, createUserMessage } from '@/api/dataFactory'
+import { DEFAULT_TITLE } from '@/constants'
 import {
   addConversationsAction,
   initConversationsTitle,
