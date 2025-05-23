@@ -44,7 +44,7 @@ export function ModelList({ providerServiceId }: ModelListProps) {
           data?.map(item => (
             <div key={item.id} className="flex border-b border-(--ant-color-border) last:border-0 py-2 px-3 justify-between items-center">
               <div className="flex items-center gap-1">
-                {item.model}
+                {item.name}
               </div>
 
               <div className="flex items-center gap-2">
