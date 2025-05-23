@@ -1,5 +1,5 @@
-import type { IConversations, IMessage } from '@ant-chat/shared'
-import type { AddProviderServiceModelSchema, AddProviderServiceSchema, McpConfigSchema, UpdateConversationsSchema, UpdateProviderServiceSchema } from '@ant-chat/shared/src/schemas'
+import type { IMessage } from '@ant-chat/shared'
+import type { AddConversationsSchema, AddProviderServiceModelSchema, AddProviderServiceSchema, McpConfigSchema, UpdateConversationsSchema, UpdateProviderServiceSchema } from '@ant-chat/shared/src/schemas'
 import { emitter, unwrapIpcPaginatedResponse, unwrapIpcResponse } from '@/utils/ipc-bus'
 
 /**
@@ -20,7 +20,7 @@ export const dbApi = {
     return unwrapIpcResponse(await emitter.invoke('db:get-conversation-by-id', id))
   },
 
-  addConversation: async (conversation: IConversations) => {
+  addConversation: async (conversation: AddConversationsSchema) => {
     return unwrapIpcResponse(await emitter.invoke('db:add-conversation', conversation))
   },
 
