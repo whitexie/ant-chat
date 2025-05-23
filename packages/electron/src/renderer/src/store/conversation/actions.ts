@@ -1,4 +1,4 @@
-import type { ConversationsId, IConversations, ITextContent, ModelConfig } from '@ant-chat/shared'
+import type { AddConversationsSchema, ConversationsId, ITextContent, ModelConfig } from '@ant-chat/shared'
 import type { AntChatFileStructure } from '@/constants'
 import { produce } from 'immer'
 import { isEqual } from 'lodash-es'
@@ -9,7 +9,7 @@ import { setActiveConversationsId, useMessagesStore } from '../messages'
 import { getActiveModelConfig, useModelConfigStore } from '../modelConfig'
 import { useConversationsStore } from './conversationsStore'
 
-export async function addConversationsAction(conversation: IConversations) {
+export async function addConversationsAction(conversation: AddConversationsSchema) {
   const data = await dbApi.addConversation(conversation)
 
   useConversationsStore.setState(state => produce(state, (draft) => {

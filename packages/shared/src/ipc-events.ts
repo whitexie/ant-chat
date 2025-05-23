@@ -1,5 +1,5 @@
 import type { IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption } from './interfaces'
-import type { AddMcpConfigSchema, AddProviderServiceModelSchema, AddProviderServiceSchema, AllAvailableModelsSchema, McpConfigSchema, ProviderServiceModelsSchema, ProviderServiceSchema, UpdateConversationsSchema, UpdateMcpConfigSchema, UpdateProviderServiceSchema } from './schemas'
+import type { AddConversationsSchema, AddMcpConfigSchema, AddProviderServiceModelSchema, AddProviderServiceSchema, AllAvailableModelsSchema, McpConfigSchema, ProviderServiceModelsSchema, ProviderServiceSchema, UpdateConversationsSchema, UpdateMcpConfigSchema, UpdateProviderServiceSchema } from './schemas'
 
 export function createIpcResponse<T>(success: boolean, data: T, msg?: string): IpcResponse<T> | ErrorIpcResponse {
   if (success) {
@@ -64,7 +64,7 @@ export type IpcEvents =
     'db:get-conversations': (pageIndex: number, pageSize: number) => Promise<IpcPaginatedResponse<IConversations[]>>
     'db:conversations-is-exists': (id: string) => Promise<IpcResponse<null>>
     'db:get-conversation-by-id': (id: string) => Promise<IpcResponse<IConversations>>
-    'db:add-conversation': (conversations: Partial<IConversations>) => Promise<IpcResponse<IConversations>>
+    'db:add-conversation': (conversations: AddConversationsSchema) => Promise<IpcResponse<IConversations>>
     'db:update-conversation': (conversations: UpdateConversationsSchema) => Promise<IpcResponse<IConversations>>
     'db:delete-conversation': (id: string) => Promise<IpcResponse<null>>
 
