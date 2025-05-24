@@ -3,7 +3,7 @@ import { Role } from '@/constants'
 import { createAIMessage, createUserMessage } from '@/api/dataFactory'
 import request from '@/utils/request'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import GeminiService from '../google'
+import GeminiService from '../gemini'
 import { createMockResponse, createMockStream } from './util'
 
 vi.mock('@/utils/request')
