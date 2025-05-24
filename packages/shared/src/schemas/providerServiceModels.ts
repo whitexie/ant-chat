@@ -19,7 +19,7 @@ export const ProviderServiceModelsSchema = z.object({
 })
 
 export const AllAvailableModels = ProviderServiceSchema.omit({ isEnabled: true }).extend({
-  models: z.array(ProviderServiceModelsSchema.pick({ id: true, name: true, model: true, modelFeatures: true })),
+  models: z.array(ProviderServiceModelsSchema.pick({ id: true, name: true, model: true, modelFeatures: true, providerServiceId: true })),
 })
 
 export const AddProviderServiceModelSchema = ProviderServiceModelsSchema.pick({ name: true, model: true, providerServiceId: true })

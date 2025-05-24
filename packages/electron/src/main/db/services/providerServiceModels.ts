@@ -21,6 +21,7 @@ export async function getAllAvailableModels(): Promise<AllAvailableModelsSchema[
           name: true,
           model: true,
           modelFeatures: true,
+          providerServiceId: true,
         },
         where: eq(providerServiceModelsTable.isEnabled, true),
       },

@@ -8,7 +8,7 @@ export async function createProviderService(data: Partial<typeof providerService
     id: `provider-${nanoid()}`,
     name: 'Test Service',
     baseUrl: 'http://localhost',
-    apiMode: 'test',
+    apiMode: 'openai' as const,
     isOfficial: false,
     isEnabled: true,
     createdAt: Math.floor(Date.now() / 1000),
@@ -23,11 +23,12 @@ export async function createProviderService(data: Partial<typeof providerService
 export async function createProviderServiceModel(data: Partial<typeof providerServiceModelsTable.$inferInsert> = {}): Promise<any> {
   const defaultData = {
     id: nanoid(),
-    model: 'Test Model',
+    name: 'Test Model',
+    model: 'test-model',
     isBuiltin: false,
     isEnabled: true,
     modelFeatures: null,
-    providerServiceId: data.providerServiceId || `provider-1`, // 需传入真实 providerServiceId
+    providerServiceId: data.providerServiceId || `provider-${nanoid()}`,
     createdAt: Math.floor(Date.now() / 1000),
   }
   const insertData = { ...defaultData, ...data }
