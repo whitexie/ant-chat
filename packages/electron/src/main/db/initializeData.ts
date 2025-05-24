@@ -18,7 +18,7 @@ const providerServiceModelsData = [
   { id: 'deepseek-reasoner', name: 'deepseek-reasoner', modelFeatures: { functionCall: false, deepThinking: true, vision: false }, isBuiltin: true, isEnabled: true, providerServiceId: 'deepseek' },
 
   // ============================ Gemini 内置模型 ============================
-  { id: 'gemini-2.5-flash-preview-0417', name: 'Gemini 2.5 Flash Preview 0417', modelFeatures: { functionCall: true, deepThinking: true, vision: true }, isBuiltin: true, isEnabled: true, providerServiceId: 'gemini' },
+  { id: 'gemini-2.5-flash-preview-04-17', name: 'Gemini 2.5 Flash Preview 04-17', modelFeatures: { functionCall: true, deepThinking: true, vision: true }, isBuiltin: true, isEnabled: true, providerServiceId: 'gemini' },
   { id: 'gemini-2.5-pro-preview-05-06', name: 'Gemini 2.5 Pro Preview 05-06', modelFeatures: { functionCall: true, deepThinking: false, vision: true }, isBuiltin: true, isEnabled: true, providerServiceId: 'gemini' },
   { id: 'gemini 2.5-pro-exp-03-25', name: 'Gemini 2.5 Pro Exp 03-25', modelFeatures: { functionCall: true, deepThinking: false, vision: true }, isBuiltin: true, isEnabled: true, providerServiceId: 'gemini' },
   { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', modelFeatures: { functionCall: true, deepThinking: false, vision: true }, isBuiltin: true, isEnabled: true, providerServiceId: 'gemini' },
