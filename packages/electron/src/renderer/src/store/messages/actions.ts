@@ -1,4 +1,4 @@
-import type { ConversationsId, IMessage, MessageId, ModelConfig } from '@ant-chat/shared'
+import type { AllAvailableModelsSchema, ConversationsId, IMessage, MessageId } from '@ant-chat/shared'
 import type { ChatFeatures } from '../features'
 import type { RequestStatus } from './store'
 import { produce } from 'immer'
@@ -83,19 +83,33 @@ export function abortSendChatCompletions() {
   }
 }
 
-export async function sendChatCompletions(conversationId: ConversationsId, config: ModelConfig, features: ChatFeatures) {
+export async function sendChatCompletions(conversationId: ConversationsId, features: ChatFeatures, model: AllAvailableModelsSchema['models'][number]) {
   const messages = useMessagesStore.getState().messages
-  const { model, id: provider } = config
-  let aiMessage: IMessage = createAIMessage({ convId: conversationId, role: Role.AI, status: 'loading', modelInfo: { model, provider } })
+
+  const serviceProviderInfo = await dbApi.getProviderServiceById(model.providerServiceId)
+
+  let aiMessage: IMessage = createAIMessage({
+    convId: conversationId,
+    role: Role.AI,
+    status: 'loading',
+    modelInfo: { model: model.model, provider: serviceProviderInfo.name },
+  })
 
   // 这里aiMessage需要展开，避免被冻结， 后面的updateMessage同理
   aiMessage = await addMessageAction({ ...aiMessage })
 
   try {
     setRequestStatus('loading')
-    const Service = getServiceProviderConstructor(config.id)
+    const Service = getServiceProviderConstructor(serviceProviderInfo.id)
     const { enableMCP } = features
-    const instance = new Service({ ...config, enableMCP })
+    const instance = new Service({
+      apiHost: serviceProviderInfo.baseUrl,
+      apiKey: serviceProviderInfo.apiKey,
+      // TODO 暂时写死0.7， 后续从模型配置中获取，或者是用户在对话框中设置
+      temperature: 0.7,
+      enableMCP,
+      model: model.model,
+    })
 
     const abortController = new AbortController()
 
@@ -147,13 +161,14 @@ export async function sendChatCompletions(conversationId: ConversationsId, confi
   }
 }
 
-export async function onRequestAction(conversationId: ConversationsId, config: ModelConfig, features: ChatFeatures) {
-  await sendChatCompletions(conversationId, config, features)
+export async function onRequestAction(conversationId: ConversationsId, features: ChatFeatures, model: AllAvailableModelsSchema['models'][number]) {
+  await sendChatCompletions(conversationId, features, model)
 }
 
-export async function refreshRequestAction(conversationId: ConversationsId, message: IMessage, config: ModelConfig, features: ChatFeatures) {
+export async function refreshRequestAction(conversationId: ConversationsId, message: IMessage, features: ChatFeatures, model: AllAvailableModelsSchema['models'][number]) {
   await deleteMessageAction(message.id)
-  await sendChatCompletions(conversationId, config, features)
+
+  await sendChatCompletions(conversationId, features, model)
 }
 
 export async function nextPageMessagesAction(conversationsId: ConversationsId) {

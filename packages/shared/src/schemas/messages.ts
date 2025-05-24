@@ -85,7 +85,7 @@ export const AIMessage = BaseMessage.extend({
   role: z.literal('assistant'),
   status: z.enum(['success', 'error', 'loading', 'typing', 'cancel']),
   modelInfo: ModelInfoSchema,
-  mcpTool: z.array(McpToolCallSchema).optional(),
+  mcpTool: z.array(McpToolCallSchema).optional().nullable(),
 })
 
 export type AIMessage = z.infer<typeof AIMessage>

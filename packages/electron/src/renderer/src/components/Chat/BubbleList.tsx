@@ -1,4 +1,4 @@
-import type { ConversationsId, IMessage, IMessageAI, MessageId, ModelConfig } from '@ant-chat/shared'
+import type { ConversationsId, IMessage, IMessageAI, MessageId } from '@ant-chat/shared'
 import type { BubbleProps } from '@ant-design/x'
 import type { ImperativeHandleRef } from '../InfiniteScroll'
 import type { BubbleContent } from '@/types/global'
@@ -8,8 +8,7 @@ import { App, Button } from 'antd'
 import { pick } from 'lodash-es'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Role } from '@/constants'
-import { getFeatures } from '@/store/features'
-import { deleteMessageAction, executeMcpToolAction, nextPageMessagesAction, refreshRequestAction, useMessagesStore } from '@/store/messages'
+import { deleteMessageAction, executeMcpToolAction, nextPageMessagesAction, useMessagesStore } from '@/store/messages'
 import { clipboardWrite } from '@/utils'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
@@ -23,7 +22,7 @@ import { getProviderLogo } from './providerLogo'
 interface Props {
   messages: IMessage[]
   conversationsId: string
-  config: ModelConfig
+  onRefresh?: (message: IMessage) => void
   onExecuteAllCompleted?: (messageId: MessageId) => void
 }
 
@@ -35,7 +34,7 @@ const rightBubbleContentStyle: React.CSSProperties = {
   marginLeft: '44px',
 }
 
-function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }: Props) {
+function BubbleList({ messages, conversationsId, onExecuteAllCompleted, onRefresh }: Props) {
   const { message: messageFunc } = App.useApp()
 
   // ============================ transform Bubble ============================
@@ -143,7 +142,7 @@ function BubbleList({ config, messages, conversationsId, onExecuteAllCompleted }
   async function handleFooterButtonClick(buttonName: string, message: IMessage) {
     const mapping = {
       copy: () => copyMessage(message),
-      refresh: () => refreshRequestAction(conversationsId as ConversationsId, message, config, getFeatures()),
+      refresh: () => onRefresh?.(message),
       delete: () => deleteMessageAction(message.id),
     }
     mapping[buttonName as keyof typeof mapping]?.()

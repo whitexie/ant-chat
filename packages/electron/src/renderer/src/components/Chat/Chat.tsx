@@ -1,8 +1,8 @@
-import type { ConversationsId, IAttachment, IImage, IMessage } from '@ant-chat/shared'
+import type { AllAvailableModelsSchema, ConversationsId, IAttachment, IImage, IMessage } from '@ant-chat/shared'
 import type { ChatFeatures } from '@/services-provider/interface'
 import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import { SettingOutlined } from '@ant-design/icons'
-import { Skeleton } from 'antd'
+import { App, Skeleton } from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import { createConversations, createUserMessage } from '@/api/dataFactory'
 import { DEFAULT_TITLE } from '@/constants'
@@ -16,14 +16,15 @@ import { useFeaturesState } from '@/store/features'
 import {
   abortSendChatCompletions,
   addMessageAction,
+  deleteMessageAction,
   onRequestAction,
   setActiveConversationsId,
   setRequestStatus,
   useMessagesStore,
 } from '@/store/messages'
-import { useActiveModelConfig } from '@/store/modelConfig'
 import Loading from '../Loading'
 import Sender from '../Sender'
+import { PickerModel } from '../Sender/PickerModel'
 import TypingEffect from '../TypingEffect'
 import ConversationsTitle from './ConversationsTitle'
 
@@ -36,11 +37,15 @@ export default function Chat() {
   const messages = useMessagesStore(state => state.messages)
   const activeConversationsId = useMessagesStore(state => state.activeConversationsId)
   const currentConversations = useConversationsStore(state => state.conversations.find(item => item.id === activeConversationsId))
-  const defaultModelConfig = useActiveModelConfig()
+
   const isLoading = useMessagesStore(state => state.requestStatus === 'loading')
   const features = useFeaturesState()
 
-  const config = currentConversations?.settings?.modelConfig || defaultModelConfig
+  const { notification } = App.useApp()
+
+  // ============================ 选择模型 ============================
+  const [model, setModel] = useState<AllAvailableModelsSchema['models'][number] | null>(null)
+
   const items = [
     {
       label: '对话设置',
@@ -53,6 +58,14 @@ export default function Chat() {
   ]
 
   async function onSubmit(message: string, images: IImage[], attachments: IAttachment[], features: ChatFeatures) {
+    if (!model) {
+      notification.error({
+        message: '请选择模型',
+        placement: 'bottomRight',
+      })
+      return
+    }
+
     let id = activeConversationsId
     let isNewConversation = false
     // 如果当前没有会话，则创建一个
@@ -62,13 +75,13 @@ export default function Chat() {
       isNewConversation = true
     }
 
-    await setActiveConversationsId(id as ConversationsId)
+    await setActiveConversationsId(id)
 
     const messageItem: IMessage = createUserMessage({ images, attachments, content: [{ type: 'text', text: message }], convId: id as ConversationsId })
     await addMessageAction(messageItem)
 
     // 发送请求
-    await onRequestAction(id as ConversationsId, config, features)
+    await onRequestAction(id, features, model)
 
     // 初始化会话标题
     if (currentConversations?.title === DEFAULT_TITLE || isNewConversation) {
@@ -102,12 +115,23 @@ export default function Chat() {
           ? (
               <Suspense fallback={<BubbleSkeleton />}>
                 <BubbleList
-                  config={config}
                   messages={messages}
                   conversationsId={activeConversationsId}
+                  onRefresh={async (message) => {
+                    if (!model) {
+                      notification.error({ message: '请选择模型' })
+                      return
+                    }
+                    await deleteMessageAction(message.id)
+                    onRequestAction(activeConversationsId, features, model)
+                  }}
                   onExecuteAllCompleted={
-                    async () => {
-                      await onRequestAction(activeConversationsId, config, features)
+                    () => {
+                      if (!model) {
+                        notification.error({ message: '请选择模型' })
+                        return
+                      }
+                      onRequestAction(activeConversationsId, features, model)
                     }
                   }
                 />
@@ -122,6 +146,12 @@ export default function Chat() {
       <div className="px-2 pb-4">
         <Sender
           loading={isLoading}
+          actions={(
+            <PickerModel
+              value={model}
+              onChange={setModel}
+            />
+          )}
           onSubmit={onSubmit}
           onCancel={() => {
             abortSendChatCompletions()

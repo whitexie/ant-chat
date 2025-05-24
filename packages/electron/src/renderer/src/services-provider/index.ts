@@ -1,11 +1,12 @@
 import DeepSeekService from './deepseek'
-import GoogleService from './google'
+import GeminiService from './gemini'
 import OpenAIService from './openai'
 
+// key 全小写
 export const SERVICE_PROVIDER_MAPPING = {
-  Google: GoogleService,
-  OpenAI: OpenAIService,
-  DeepSeek: DeepSeekService,
+  gemini: GeminiService,
+  openai: OpenAIService,
+  deepseek: DeepSeekService,
 }
 
 type ProviderName = keyof typeof SERVICE_PROVIDER_MAPPING

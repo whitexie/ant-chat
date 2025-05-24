@@ -1,4 +1,4 @@
-import type { AllAvailableModelsSchema, IAttachment, IImage } from '@ant-chat/shared'
+import type { IAttachment, IImage } from '@ant-chat/shared'
 import type { UploadFile } from 'antd'
 import type { ChatFeatures } from '@/services-provider/interface'
 import Icon, {
@@ -16,19 +16,18 @@ import MCPIcon from '@/assets/icons/mcp.svg?react'
 import StopSvg from '@/assets/icons/stop.svg?react'
 import { useFeatures, useFeaturesState } from '@/store/features'
 import { useMessagesStore } from '@/store/messages'
-import { checkModelConfig, setOpenSettingsModalAction } from '@/store/modelConfig'
 import { fileToBase64 } from '@/utils'
 import SwitchButton from '../SwitchButton'
-import { PickerModel } from './PickerModel'
 
 interface SenderProps {
   loading?: boolean
+  actions?: React.ReactNode
   onSubmit?: (message: string, images: IImage[], attachments: IAttachment[], features: ChatFeatures) => void
   onCancel?: () => void
 }
 
-function Sender({ loading = false, ...props }: SenderProps) {
-  const { message, notification } = App.useApp()
+function Sender({ loading = false, actions, ...props }: SenderProps) {
+  const { message } = App.useApp()
   const [text, setText] = useState('')
   const [openHeader, setOpenHeader] = useState(false)
   const [attachmentList, setAttachmentList] = useState<UploadFile[]>([])
@@ -42,25 +41,6 @@ function Sender({ loading = false, ...props }: SenderProps) {
   const [allowSpeech, triggerSpeech, recording] = useSpeech((transcript: string) => {
     setText(prev => `${prev}${transcript}`)
   })
-
-  async function handleSubmit() {
-    const { ok, errMsg } = checkModelConfig()
-    if (!ok) {
-      notification.error({
-        message: '模型配置未完善',
-        description: errMsg,
-        placement: 'bottomRight',
-      })
-      setOpenSettingsModalAction(true)
-      return
-    }
-    const { images, attachments } = await transformAttachments()
-    props?.onSubmit?.(text, images, attachments, features)
-    setAttachmentList([])
-    setText('')
-    setOpenHeader(false)
-    setRows(2)
-  }
 
   async function transformAttachments() {
     const images: IAttachment[] = []
@@ -83,8 +63,14 @@ function Sender({ loading = false, ...props }: SenderProps) {
     return { images, attachments }
   }
 
-  // ============================ 选择模型 ============================
-  const [model, setModel] = useState<AllAvailableModelsSchema['models'][number] | null>(null)
+  async function handleSubmit() {
+    const { images, attachments } = await transformAttachments()
+    props?.onSubmit?.(text, images, attachments, features)
+    setAttachmentList([])
+    setText('')
+    setOpenHeader(false)
+    setRows(2)
+  }
 
   return (
     <div
@@ -195,10 +181,7 @@ function Sender({ loading = false, ...props }: SenderProps) {
               />
             </div>
           </Tooltip>
-          <PickerModel
-            value={model}
-            onChange={setModel}
-          />
+          {actions}
         </div>
         <div className="flex gap-1 items-center">
           <Button
@@ -233,5 +216,25 @@ function Sender({ loading = false, ...props }: SenderProps) {
     </div>
   )
 }
+
+// function checkModel(model: AllAvailableModelsSchema['models'][number] | null) {
+//   return !!model
+// }
+
+// function checkProviderServiceConfig(provider: AllAvailableModelsSchema) {
+//   if (!provider.apiKey) {
+//     return [false, 'apiKey 未配置']
+//   }
+
+//   if (!provider.baseUrl) {
+//     return [false, 'baseUrl 未配置']
+//   }
+
+//   if (!provider.models.length) {
+//     return [false, '该提供商下没有可用的模型']
+//   }
+
+//   return [true, '']
+// }
 
 export default Sender
