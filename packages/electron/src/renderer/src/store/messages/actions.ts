@@ -95,8 +95,8 @@ export async function sendChatCompletions(conversationId: ConversationsId, featu
     modelInfo: { model: model.model, provider: serviceProviderInfo.name },
   })
 
-  // 这里aiMessage需要展开，避免被冻结， 后面的updateMessage同理
-  aiMessage = await addMessageAction({ ...aiMessage })
+  // 这里重新赋值是获得id
+  aiMessage = await addMessageAction(aiMessage)
 
   try {
     setRequestStatus('loading')

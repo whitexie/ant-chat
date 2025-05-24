@@ -16,8 +16,8 @@ import { useFeaturesState } from '@/store/features'
 import {
   abortSendChatCompletions,
   addMessageAction,
-  deleteMessageAction,
   onRequestAction,
+  refreshRequestAction,
   setActiveConversationsId,
   setRequestStatus,
   useMessagesStore,
@@ -122,8 +122,7 @@ export default function Chat() {
                       notification.error({ message: '请选择模型' })
                       return
                     }
-                    await deleteMessageAction(message.id)
-                    onRequestAction(activeConversationsId, features, model)
+                    refreshRequestAction(activeConversationsId, message, features, model)
                   }}
                   onExecuteAllCompleted={
                     () => {
