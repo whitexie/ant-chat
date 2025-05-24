@@ -1,5 +1,5 @@
-import type { Role } from '@/constants'
 import type { McpTool } from '@ant-chat/shared'
+import type { Role } from '@/constants'
 
 export interface TextContent {
   type: 'text'

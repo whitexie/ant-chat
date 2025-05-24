@@ -207,17 +207,21 @@ function transformMessageItem(message: IMessage, hasMedia: boolean): MessageItem
 
   else {
     const messages: MessageItem[] = []
-    messages.push({
+
+    const msgItem: MessageItem = {
       role: Role.AI,
-      content: message.content.map((item) => {
-        if (item.type === 'image') {
-          return { type: 'image_url', image_url: { url: `data:${item.mimeType};base64,${item.data}` } }
-        }
-        else {
-          return { type: 'text', text: item.text }
-        }
-      }),
-    })
+      content: message.content.map(
+        item => item.type === 'image'
+          ? { type: 'image_url', image_url: { url: `data:${item.mimeType};base64,${item.data}` } }
+          : { type: 'text', text: item.text },
+      ),
+    }
+
+    if (Array.isArray(msgItem.content) && msgItem.content.length === 1 && 'text' in msgItem.content[0]) {
+      msgItem.content = msgItem.content[0].text as string
+    }
+
+    messages.push(msgItem)
 
     if (message.mcpTool) {
       messages.push({
