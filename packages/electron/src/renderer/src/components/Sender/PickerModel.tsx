@@ -28,7 +28,7 @@ export function PickerModel({ value, onChange }: PickerModelProps) {
     <Popover
       open={openPopover}
       arrow={false}
-      placement="bottom"
+      placement="bottomLeft"
       trigger="click"
       styles={{
         body: {
@@ -46,32 +46,40 @@ export function PickerModel({ value, onChange }: PickerModelProps) {
             />
           </div>
 
-          <div className="mt-1 max-h-[150px] px-2 overflow-y-auto">
+          <div className="mt-1 max-h-38 px-2 overflow-y-auto">
             {
-              data?.map(item => (
-                <div key={item.id}>
-                  <div className="text-xs text-gray-500 mt-1">{item.name}</div>
-                  <div>
-                    {item.models.filter(model => model.name.includes(keyword)).map(model => (
-                      <div
-                        key={model.id}
-                        className="flex items-center  gap-1 p-2 text-xs cursor-pointer hover:bg-(--hover-bg-color) rounded-md"
-                        onClick={() => {
-                          onChange?.(model)
-                          setKeyword('')
-                          setOpenPopover(false)
-                        }}
-                      >
-                        {renderProviderLogo(item.id)}
-                        <span className="font-medium">
-                          {model.name}
-                        </span>
+              data?.length
+                ? (
+                    data.map(item => (
+                      <div key={item.id}>
+                        <div className="text-xs text-gray-500 mt-1">{item.name}</div>
+                        <div>
+                          {item.models.filter(model => model.name.includes(keyword)).map(model => (
+                            <div
+                              key={model.id}
+                              className="flex items-center gap-1 p-2 text-xs cursor-pointer hover:bg-(--hover-bg-color) rounded-md"
+                              onClick={() => {
+                                onChange?.(model)
+                                setKeyword('')
+                                setOpenPopover(false)
+                              }}
+                            >
+                              {renderProviderLogo(item.id)}
+                              <span className="font-medium">
+                                {model.name}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="h-1"></div>
                       </div>
-                    ))}
-                  </div>
-                  <div className="h-1"></div>
-                </div>
-              ))
+                    ))
+                  )
+                : (
+                    <div className="text-xs text-center p-2">
+                      暂无模型，请先启用AI服务商
+                    </div>
+                  )
             }
           </div>
 
@@ -86,11 +94,11 @@ export function PickerModel({ value, onChange }: PickerModelProps) {
           h-8 rounded-md border-1 border-solid border-(--border-color) cursor-pointer
         `}
       >
-        <div className="flex items-center gap-1 hover:bg-(--hover-bg-color)">
+        <div className="flex items-center pl-2 gap-1 hover:bg-(--hover-bg-color)">
           {renderProviderLogo(activeProviderServiceInfo?.id || '')}
-          <div className="flex items-center gap-2 text-xs font-medium">
-            {value?.name}
-            <RightOutlined />
+          <div className="flex items-center text-xs font-medium max-w-30 truncate">
+            <span className="truncate">{value?.name}</span>
+            <RightOutlined className="px-2" />
           </div>
         </div>
         <div className="overflow-hidden flex items-center justify-center group-hover">
