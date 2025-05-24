@@ -1,6 +1,6 @@
 import type { AddMessage, IMessage, UpdateMessageSchema } from '@ant-chat/shared'
 
-import { eq, sql } from 'drizzle-orm'
+import { desc, eq, sql } from 'drizzle-orm'
 import { db } from '../db'
 import {
   conversationsTable,
@@ -69,13 +69,13 @@ export async function getMessagesByConvIdWithPagination(id: string, pageIndex: n
   const results = db.select()
     .from(messagesTable)
     .where(eq(messagesTable.convId, id))
-    .orderBy(messagesTable.createdAt)
+    .orderBy(desc(messagesTable.createdAt))
     .limit(pageSize)
-    .offset(pageIndex * pageSize)
+    .offset((pageIndex - 1) * pageSize)
     .all()
 
   return {
-    data: results as IMessage[],
+    data: (results as IMessage[]).toReversed(),
     total,
   }
 }
