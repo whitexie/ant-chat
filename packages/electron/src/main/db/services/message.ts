@@ -71,7 +71,7 @@ export async function getMessagesByConvIdWithPagination(id: string, pageIndex: n
     .where(eq(messagesTable.convId, id))
     .orderBy(desc(messagesTable.createdAt))
     .limit(pageSize)
-    .offset((pageIndex - 1) * pageSize)
+    .offset(pageIndex * pageSize)
     .all()
 
   return {
