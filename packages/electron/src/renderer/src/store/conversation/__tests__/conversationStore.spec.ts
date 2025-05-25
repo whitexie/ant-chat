@@ -11,6 +11,7 @@ import {
   renameConversationsAction,
 } from '../actions'
 import { useConversationsStore } from '../conversationsStore'
+import type { IConversations } from '@ant-chat/shared'
 
 describe('conversationStore', () => {
   beforeEach(() => {
@@ -34,17 +35,17 @@ describe('conversationStore', () => {
   it('rename conversation', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
-    const conversation = createConversations()
+    let conversation: IConversations | null = null
 
     await act(async () => {
-      await addConversationsAction(conversation)
+      conversation = await addConversationsAction(createConversations())
     })
 
     expect(result.current.conversations).toHaveLength(1)
     expect(result.current.conversations).toEqual([conversation])
 
     await act(async () => {
-      await renameConversationsAction(conversation.id, 'new name')
+      await renameConversationsAction(conversation!.id, 'new name')
     })
 
     expect(result.current.conversations[0].title).toEqual('new name')
@@ -53,16 +54,16 @@ describe('conversationStore', () => {
   it('delete conversation', async () => {
     const { result } = renderHook(() => useConversationsStore())
 
-    const conversation = createConversations()
+    let conversation: IConversations | null = null
 
     await act(async () => {
-      await addConversationsAction(conversation)
+      conversation = await addConversationsAction(createConversations())
     })
 
     expect(result.current.conversations).toHaveLength(1)
 
     await act(async () => {
-      await deleteConversationsAction(conversation.id)
+      await deleteConversationsAction(conversation!.id)
     })
 
     expect(result.current.conversations).toHaveLength(0)

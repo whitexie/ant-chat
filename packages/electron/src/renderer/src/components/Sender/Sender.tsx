@@ -84,7 +84,7 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
         focus-within:border-(--ant-color-primary) focus-within:shadow-(--ant-box-shadow-secondary)
       `}
     >
-      <div className={`header transition-height overflow-hidden h-0 ${openHeader && 'h-100px'}`}>
+      <div className={`header transition-height overflow-hidden h-0 ${openHeader && 'h-25'}`}>
         {
           openHeader && (
             <div data-testid="header-content" className="content">

@@ -57,6 +57,8 @@ export async function updateMessageAction(_message: IMessage) {
 
     draft.messages[index] = message
   }))
+
+  return message
 }
 
 export function setAbortFunction(callback: () => void) {
@@ -146,16 +148,26 @@ export async function sendChatCompletions(conversationId: ConversationsId, featu
         updateMessageAction({ ...aiMessage, status: 'success' })
         resetAbortFunction()
       },
-      onError: () => {
+      onError: (e) => {
         setRequestStatus('error')
+        if (aiMessage.content.length) {
+          aiMessage.content.push({ type: 'error', text: (e as Error).message })
+        }
         updateMessageAction({ ...aiMessage, status: 'error' })
       },
     })
   }
   catch (e) {
     const error = e as Error
-    aiMessage.content = [{ type: 'text', text: error.message }]
-    aiMessage.status = 'error'
+
+    // 如果content已经有内容了之后报错，就添加，否则覆盖
+    if (aiMessage.content.length && aiMessage.content[0].type === 'text' && aiMessage.content[0].text.length > 1) {
+      aiMessage.content.push({ type: 'error', text: error.message })
+    }
+    else {
+      aiMessage.content = [{ type: 'error', text: error.message }]
+      aiMessage.status = 'error'
+    }
     updateMessageAction(aiMessage)
     setRequestStatus('error')
   }

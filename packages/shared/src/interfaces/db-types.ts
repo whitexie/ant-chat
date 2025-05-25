@@ -95,6 +95,11 @@ export interface ITextContent {
   text: string
 }
 
+export interface IErrorContent {
+  type: 'error'
+  text: string
+}
+
 // 图片内容
 export interface IImageContent {
   type: 'image'
@@ -104,7 +109,7 @@ export interface IImageContent {
 }
 
 // 消息内容
-export type IMessageContent = (ITextContent | IImageContent)[]
+export type IMessageContent = (ITextContent | IImageContent | IErrorContent)[]
 
 // MCP服务器状态
 export type McpServerStatus = 'connected' | 'connecting' | 'disconnected'

@@ -133,6 +133,13 @@ export default class OpenAIService extends BaseService {
 
         throw new Error(`${status} ${json.error.message}`)
       }
+
+      const text = await response.text()
+
+      if (text) {
+        throw new Error(text)
+      }
+
       throw new Error(`${response.status} ${response.statusText}`)
     }
 
