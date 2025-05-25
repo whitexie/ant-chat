@@ -200,7 +200,11 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
             type={loading ? 'text' : 'primary'}
             shape={loading ? 'default' : 'circle'}
             disabled={text.length === 0 && !loading}
-            icon={loading ? <StopSvg className="w-8 h-8 color-[var(--ant-color-primary)]!" /> : <ArrowUpOutlined />}
+            icon={loading
+              ? (
+                  <StopSvg className="w-8 h-8 !text-(--ant-color-primary)" />
+                )
+              : <ArrowUpOutlined />}
             onClick={
               () => {
                 if (loading) {
