@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "pnpm -F electron dev",
     "rebuild:electron": "pnpm -F electron rebuild:electron",
-    "rebuild:node": "pnpm -F electron rebuild:electron",
+    "rebuild:node": "pnpm -F electron rebuild:node",
     "test:unit": "pnpm -F electron test:unit",
     "type-check": "pnpm -F electron type-check",
     "build:mac": "pnpm -F electron build:mac",
