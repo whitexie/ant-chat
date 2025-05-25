@@ -1,7 +1,7 @@
-import type { ProviderServiceModelsSchema } from '@ant-chat/shared'
+import type { ServiceProviderModelsSchema } from '@ant-chat/shared'
 import { Form, Input, Modal } from 'antd'
 
-type AddModelForm = Omit<ProviderServiceModelsSchema, 'providerServiceId'>
+type AddModelForm = Omit<ServiceProviderModelsSchema, 'providerServiceId'>
 
 interface AddModelFormModalProps {
   open: boolean

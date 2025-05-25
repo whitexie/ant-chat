@@ -1,5 +1,5 @@
 import type { IMessage } from '@ant-chat/shared'
-import type { AddConversationsSchema, AddProviderServiceModelSchema, AddProviderServiceSchema, McpConfigSchema, UpdateConversationsSchema, UpdateProviderServiceSchema } from '@ant-chat/shared/src/schemas'
+import type { AddConversationsSchema, AddServiceProviderModelSchema, AddServiceProviderSchema, McpConfigSchema, UpdateConversationsSchema, UpdateServiceProviderSchema } from '@ant-chat/shared/src/schemas'
 import { emitter, unwrapIpcPaginatedResponse, unwrapIpcResponse } from '@/utils/ipc-bus'
 
 /**
@@ -107,19 +107,19 @@ export const dbApi = {
     return unwrapIpcResponse(await emitter.invoke('db:get-all-provider-services'))
   },
 
-  async AddProviderService(config: AddProviderServiceSchema) {
+  async AddServiceProvider(config: AddServiceProviderSchema) {
     return unwrapIpcResponse(await emitter.invoke('db:add-provider-services', config))
   },
 
-  async updateProviderService(config: UpdateProviderServiceSchema) {
+  async updateServiceProvider(config: UpdateServiceProviderSchema) {
     return unwrapIpcResponse(await emitter.invoke('db:update-provider-service', config))
   },
 
-  async deleteProviderService(id: string) {
+  async deleteServiceProvider(id: string) {
     return unwrapIpcResponse(await emitter.invoke('db:delete-provider-service', id))
   },
 
-  async getProviderServiceById(id: string) {
+  async getServiceProviderById(id: string) {
     return unwrapIpcResponse(await emitter.invoke('db:get-provider-services-by-id', id))
   },
 
@@ -127,7 +127,7 @@ export const dbApi = {
   async getAllAbvailableModels() {
     return unwrapIpcResponse(await emitter.invoke('db:get-all-abvailable-models'))
   },
-  async getModelsByProviderServiceId(id: string) {
+  async getModelsByServiceProviderId(id: string) {
     return unwrapIpcResponse(await emitter.invoke('db:get-models-by-provider-service-id', id))
   },
 
@@ -135,11 +135,11 @@ export const dbApi = {
     return unwrapIpcResponse(await emitter.invoke('db:set-model-enabled-status', id, status))
   },
 
-  async addProviderServiceModel(config: AddProviderServiceModelSchema) {
+  async addServiceProviderModel(config: AddServiceProviderModelSchema) {
     return unwrapIpcResponse(await emitter.invoke('db:add-provider-service-model', config))
   },
 
-  async deleteProviderServiceModel(id: string) {
+  async deleteServiceProviderModel(id: string) {
     return unwrapIpcResponse(await emitter.invoke('db:delete-provider-service-model', id))
   },
 }

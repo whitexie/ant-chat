@@ -1,11 +1,11 @@
-import type { ProviderServiceSchema, UpdateProviderServiceSchema } from '@ant-chat/shared'
+import type { ServiceProviderSchema, UpdateServiceProviderSchema } from '@ant-chat/shared'
 import { Form, Input } from 'antd'
 import { ModelList } from '@/components/ProviderManage/ModelList/ModelList'
 import { AI_OFFICIAL_API_INFO } from '@/constants'
 
 export interface ProviderServiceSettingsProps {
-  item: ProviderServiceSchema | null
-  onChange?: (e: UpdateProviderServiceSchema) => void
+  item: ServiceProviderSchema | null
+  onChange?: (e: UpdateServiceProviderSchema) => void
 }
 
 export function ProviderServiceSettings({ item, onChange }: ProviderServiceSettingsProps) {
@@ -62,7 +62,7 @@ export function ProviderServiceSettings({ item, onChange }: ProviderServiceSetti
         </Form.Item>
 
         <Form.Item label={<span className="font-medium">模型列表</span>}>
-          <ModelList providerServiceId={item.id} />
+          <ModelList serviceProviderId={item.id} />
         </Form.Item>
       </Form>
     </div>

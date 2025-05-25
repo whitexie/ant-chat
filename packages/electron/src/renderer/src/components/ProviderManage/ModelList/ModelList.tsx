@@ -6,19 +6,19 @@ import { dbApi } from '@/api/dbApi'
 import { AddModelFormModal } from './AddModelForm'
 
 export interface ModelListProps {
-  providerServiceId: string
+  serviceProviderId: string
 }
 
-export function ModelList({ providerServiceId }: ModelListProps) {
+export function ModelList({ serviceProviderId }: ModelListProps) {
   const { message } = App.useApp()
   const [openAddModal, setAddModal] = React.useState(false)
-  const { data, error, refresh, run, mutate } = useRequest(dbApi.getModelsByProviderServiceId, {
-    defaultParams: [providerServiceId],
+  const { data, error, refresh, run, mutate } = useRequest(dbApi.getModelsByServiceProviderId, {
+    defaultParams: [serviceProviderId],
   })
 
   React.useEffect(() => {
-    run(providerServiceId)
-  }, [providerServiceId])
+    run(serviceProviderId)
+  }, [serviceProviderId])
 
   if (error) {
     return (
@@ -70,9 +70,9 @@ export function ModelList({ providerServiceId }: ModelListProps) {
         onCancel={() => setAddModal(false)}
         onClose={() => setAddModal(false)}
         onSave={async (e) => {
-          dbApi.addProviderServiceModel({
-            providerServiceId,
+          dbApi.addServiceProviderModel({
             ...e,
+            serviceProviderId,
           }).then(
             (modelInfo) => {
               setAddModal(false)

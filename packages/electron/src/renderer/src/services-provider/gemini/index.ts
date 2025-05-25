@@ -1,4 +1,4 @@
-import type { IAttachment, IMcpToolCall, IMessage, IMessageContent, ITextContent, McpTool } from '@ant-chat/shared'
+import type { IAttachment, IImageContent, IMcpToolCall, IMessage, IMessageContent, ITextContent, McpTool } from '@ant-chat/shared'
 import type {
   ChatFeatures,
   SendChatCompletionsOptions,
@@ -130,10 +130,11 @@ class GeminiService extends BaseService {
         else if (msg.content.length > 0) {
           result.contents.push({
             role: 'model',
-            parts: msg.content.map((item) => {
+            parts: (msg.content.filter(item => item.type !== 'error') as (ITextContent | IImageContent)[]).map((item) => {
               if (item.type === 'text') {
                 return { text: item.text }
               }
+
               return {
                 inlineData: {
                   mimeType: item.mimeType,

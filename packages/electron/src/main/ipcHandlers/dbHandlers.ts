@@ -1,5 +1,5 @@
 import type {
-  UpdateProviderServiceSchema,
+  UpdateServiceProviderSchema,
 } from '@ant-chat/shared'
 import {
   AddMessage,
@@ -257,7 +257,7 @@ export function registerDbHandlers() {
     }
   })
 
-  mainListener.handle('db:update-provider-service', async (_, serviceData: UpdateProviderServiceSchema) => {
+  mainListener.handle('db:update-provider-service', async (_, serviceData: UpdateServiceProviderSchema) => {
     try {
       const updatedData = services.updateProviderService(serviceData)
       return createIpcResponse(true, updatedData)
@@ -318,7 +318,7 @@ export function registerDbHandlers() {
   // 根据 Provider Service ID 获取模型
   mainListener.handle('db:get-models-by-provider-service-id', async (_, id) => {
     try {
-      const result = await services.getModelsByProviderServiceId(id)
+      const result = await services.getModelsByServiceProviderId(id)
       return createIpcResponse(true, result)
     }
     catch (error) {
@@ -339,7 +339,7 @@ export function registerDbHandlers() {
 
   mainListener.handle('db:add-provider-service-model', async (_, config) => {
     try {
-      const result = await services.addProviderServiceModel(config)
+      const result = await services.addServiceProviderModel(config)
       return createIpcResponse(true, result)
     }
     catch (error) {
@@ -349,7 +349,7 @@ export function registerDbHandlers() {
 
   mainListener.handle('db:delete-provider-service-model', async (_, id) => {
     try {
-      await services.deleteProviderServiceModel(id)
+      await services.deleteServiceProviderModel(id)
       return createIpcResponse(true, null)
     }
     catch (error) {

@@ -1,4 +1,4 @@
-import type { ProviderServiceSchema } from '@ant-chat/shared'
+import type { ServiceProviderSchema } from '@ant-chat/shared'
 import { useRequest } from 'ahooks'
 import { Button, Empty, Switch } from 'antd'
 import React from 'react'
@@ -8,7 +8,7 @@ import { getProviderLogo } from '@/components/Chat/providerLogo'
 import { ProviderServiceSettings } from '@/components/ProviderManage/ProviderServiceSettings'
 
 export default function ProviderManage() {
-  const [activeProvider, setActiveProvider] = React.useState<ProviderServiceSchema | null>(null)
+  const [activeProvider, setActiveProvider] = React.useState<ServiceProviderSchema | null>(null)
   const { data, error, refresh } = useRequest(dbApi.getAllProviderServices)
 
   if (error) {
@@ -54,7 +54,7 @@ export default function ProviderManage() {
               <Switch
                 value={item.isEnabled}
                 onChange={async (e) => {
-                  await dbApi.updateProviderService({ id: item.id, isEnabled: e })
+                  await dbApi.updateServiceProvider({ id: item.id, isEnabled: e })
                   refresh()
                 }}
                 size="small"
@@ -72,7 +72,7 @@ export default function ProviderManage() {
                 key={activeProvider?.id || ''}
                 item={activeProvider}
                 onChange={async (e) => {
-                  await dbApi.updateProviderService(e)
+                  await dbApi.updateServiceProvider(e)
                   refresh()
                 }}
               />

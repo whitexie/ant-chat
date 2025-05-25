@@ -1,9 +1,9 @@
 import { mockDb } from './utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeTestDb } from '../../db'
-import { addProviderService, updateProviderService } from '../providerServices'
+import { addProviderService, updateProviderService } from '../serviceProvider'
 
-describe('providerServices', () => {
+describe('serviceProvider', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     await initializeTestDb()
@@ -39,11 +39,11 @@ describe('providerServices', () => {
         apiKey: 'test2',
         apiMode: 'openai',
       }
-  
+
       data = addProviderService(data)
-  
+
       expect(data.isEnabled).toBeFalsy()
-  
+
       data = updateProviderService({
         id: data.id,
         isEnabled: true,
@@ -58,7 +58,7 @@ describe('providerServices', () => {
         apiKey: 'test2',
         apiMode: 'openai',
       }
-  
+
       data = addProviderService(data)
       const newUrl = 'https://test3.com'
       data = updateProviderService({

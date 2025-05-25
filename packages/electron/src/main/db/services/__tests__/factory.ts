@@ -1,9 +1,9 @@
 import { nanoid } from 'nanoid'
 import { db } from '../../db'
-import { providerServiceModelsTable, providerServicesTable } from '../../schema'
+import { serviceProviderModelsTable, serviceProviderTable } from '../../schema'
 
 // 插入 providerServices 测试数据
-export async function createProviderService(data: Partial<typeof providerServicesTable.$inferInsert> = {}): Promise<any> {
+export async function createProviderService(data: Partial<typeof serviceProviderTable.$inferInsert> = {}): Promise<any> {
   const defaultData = {
     id: `provider-${nanoid()}`,
     name: 'Test Service',
@@ -15,12 +15,12 @@ export async function createProviderService(data: Partial<typeof providerService
     updatedAt: Math.floor(Date.now() / 1000),
   }
   const insertData = { ...defaultData, ...data }
-  const [row] = await db.insert(providerServicesTable).values(insertData).returning()
+  const [row] = await db.insert(serviceProviderTable).values(insertData).returning()
   return row
 }
 
-// 插入 providerServiceModels 测试数据
-export async function createProviderServiceModel(data: Partial<typeof providerServiceModelsTable.$inferInsert> = {}): Promise<any> {
+// 插入 serviceProviderModels 测试数据
+export async function createProviderServiceModel(data: Partial<typeof serviceProviderModelsTable.$inferInsert> = {}): Promise<any> {
   const defaultData = {
     id: nanoid(),
     name: 'Test Model',
@@ -28,10 +28,10 @@ export async function createProviderServiceModel(data: Partial<typeof providerSe
     isBuiltin: false,
     isEnabled: true,
     modelFeatures: null,
-    providerServiceId: data.providerServiceId || `provider-${nanoid()}`,
+    serviceProviderId: data.serviceProviderId || `provider-${nanoid()}`,
     createdAt: Math.floor(Date.now() / 1000),
   }
   const insertData = { ...defaultData, ...data }
-  const [row] = await db.insert(providerServiceModelsTable).values(insertData).returning()
+  const [row] = await db.insert(serviceProviderModelsTable).values(insertData).returning()
   return row
 }

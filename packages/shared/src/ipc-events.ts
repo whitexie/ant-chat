@@ -1,5 +1,5 @@
 import type { IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption } from './interfaces'
-import type { AddConversationsSchema, AddMcpConfigSchema, AddProviderServiceModelSchema, AddProviderServiceSchema, AllAvailableModelsSchema, McpConfigSchema, ProviderServiceModelsSchema, ProviderServiceSchema, UpdateConversationsSchema, UpdateMcpConfigSchema, UpdateProviderServiceSchema } from './schemas'
+import type { AddConversationsSchema, AddMcpConfigSchema, AddServiceProviderModelSchema, AddServiceProviderSchema, AllAvailableModelsSchema, McpConfigSchema, ServiceProviderModelsSchema, ServiceProviderSchema, UpdateConversationsSchema, UpdateMcpConfigSchema, UpdateServiceProviderSchema } from './schemas'
 
 export function createIpcResponse<T>(success: boolean, data: T, msg?: string): IpcResponse<T> | ErrorIpcResponse {
   if (success) {
@@ -93,17 +93,17 @@ export type IpcEvents =
     'mcp:mcpToggle': (isEnable: boolean, mcpConfig?: McpConfigSchema[]) => Promise<IpcResponse<null>>
 
     // ============================ AI服务商相关 ============================
-    'db:get-all-provider-services': () => Promise<IpcResponse<ProviderServiceSchema[]>>
-    'db:update-provider-service': (data: UpdateProviderServiceSchema) => Promise<IpcResponse<ProviderServiceSchema>>
-    'db:add-provider-services': (data: AddProviderServiceSchema) => Promise<IpcResponse<ProviderServiceSchema>>
+    'db:get-all-provider-services': () => Promise<IpcResponse<ServiceProviderSchema[]>>
+    'db:update-provider-service': (data: UpdateServiceProviderSchema) => Promise<IpcResponse<ServiceProviderSchema>>
+    'db:add-provider-services': (data: AddServiceProviderSchema) => Promise<IpcResponse<ServiceProviderSchema>>
     'db:delete-provider-service': (id: string) => Promise<IpcResponse<null>>
-    'db:get-provider-services-by-id': (id: string) => Promise<IpcResponse<ProviderServiceSchema>>
+    'db:get-provider-services-by-id': (id: string) => Promise<IpcResponse<ServiceProviderSchema>>
 
     // ============================ 模型相关 ============================
     'db:get-all-abvailable-models': () => Promise<IpcResponse<AllAvailableModelsSchema[]>>
-    'db:get-models-by-provider-service-id': (id: string) => Promise<IpcResponse<ProviderServiceModelsSchema[]>>
-    'db:set-model-enabled-status': (id: string, status: boolean) => Promise<IpcResponse<ProviderServiceModelsSchema>>
-    'db:add-provider-service-model': (data: AddProviderServiceModelSchema) => Promise<IpcResponse<ProviderServiceModelsSchema>>
+    'db:get-models-by-provider-service-id': (id: string) => Promise<IpcResponse<ServiceProviderModelsSchema[]>>
+    'db:set-model-enabled-status': (id: string, status: boolean) => Promise<IpcResponse<ServiceProviderModelsSchema>>
+    'db:add-provider-service-model': (data: AddServiceProviderModelSchema) => Promise<IpcResponse<ServiceProviderModelsSchema>>
     'db:delete-provider-service-model': (id: string) => Promise<IpcResponse<null>>
 
     'db:get-custom-models': (provider: string) => Promise<IpcResponse<any>>

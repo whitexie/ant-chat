@@ -2,10 +2,10 @@ import type { ModelFeaturesSchema } from '@ant-chat/shared'
 import { relations, sql } from 'drizzle-orm'
 import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 import { nanoid } from 'nanoid'
-import { providerServicesTable } from './providerServices'
+import { serviceProviderTable } from './serviceProviders'
 
-export const providerServiceModelsTable = sqliteTable(
-  'provider_service_models',
+export const serviceProviderModelsTable = sqliteTable(
+  'service_provider_models',
   {
     id: text('id').primaryKey().$defaultFn(() => `model-${nanoid()}`),
     name: text('name').notNull(),
@@ -13,15 +13,15 @@ export const providerServiceModelsTable = sqliteTable(
     isBuiltin: integer('is_builtin', { mode: 'boolean' }).notNull().default(false),
     isEnabled: integer('is_enabled', { mode: 'boolean' }).notNull().default(true),
     modelFeatures: text('model_features', { mode: 'json' }).$type<ModelFeaturesSchema | null>(),
-    providerServiceId: text('provider_service_id').notNull().references(() => providerServicesTable.id),
+    serviceProviderId: text('service_provider_id').notNull().references(() => serviceProviderTable.id),
     createdAt: integer('created_at').notNull().default(sql`(strftime('%s','now'))`),
   },
-  t => [unique().on(t.model, t.providerServiceId)],
+  t => [unique().on(t.model, t.serviceProviderId)],
 )
 
 /**
  * 定义关联关系
  */
-export const providerServiceModelsRelations = relations(providerServiceModelsTable, ({ one }) => ({
-  providerService: one(providerServicesTable, { fields: [providerServiceModelsTable.providerServiceId], references: [providerServicesTable.id] }),
+export const providerServiceModelsRelations = relations(serviceProviderModelsTable, ({ one }) => ({
+  providerService: one(serviceProviderTable, { fields: [serviceProviderModelsTable.serviceProviderId], references: [serviceProviderTable.id] }),
 }))

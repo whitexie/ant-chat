@@ -88,7 +88,7 @@ export function abortSendChatCompletions() {
 export async function sendChatCompletions(conversationId: ConversationsId, features: ChatFeatures, model: AllAvailableModelsSchema['models'][number]) {
   const messages = useMessagesStore.getState().messages
 
-  const serviceProviderInfo = await dbApi.getProviderServiceById(model.providerServiceId)
+  const serviceProviderInfo = await dbApi.getServiceProviderById(model.serviceProviderId)
 
   let aiMessage: IMessage = createAIMessage({
     convId: conversationId,

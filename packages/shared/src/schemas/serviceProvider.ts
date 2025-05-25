@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const ProviderServiceSchema = z.object({
+export const ServiceProviderSchema = z.object({
   id: z.string(),
   name: z.string(),
   baseUrl: z.string().url(),
@@ -12,17 +12,17 @@ export const ProviderServiceSchema = z.object({
   updatedAt: z.number(),
 })
 
-export const AddProviderServiceSchema = ProviderServiceSchema
+export const AddServiceProviderSchema = ServiceProviderSchema
   .omit({ isOfficial: true, updatedAt: true, createdAt: true })
   .partial({ isEnabled: true, id: true })
   .required({ apiKey: true })
   .transform(config => ({ ...config, isOfficial: false }))
 
-export const UpdateProviderServiceSchema = ProviderServiceSchema
+export const UpdateServiceProviderSchema = ServiceProviderSchema
   .omit({ updatedAt: true, createdAt: true })
   .partial()
   .required({ id: true })
 
-export type AddProviderServiceSchema = z.infer<typeof AddProviderServiceSchema>
-export type UpdateProviderServiceSchema = z.infer<typeof UpdateProviderServiceSchema>
-export type ProviderServiceSchema = z.infer<typeof ProviderServiceSchema>
+export type AddServiceProviderSchema = z.infer<typeof AddServiceProviderSchema>
+export type UpdateServiceProviderSchema = z.infer<typeof UpdateServiceProviderSchema>
+export type ServiceProviderSchema = z.infer<typeof ServiceProviderSchema>
