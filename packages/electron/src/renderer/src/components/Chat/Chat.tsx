@@ -1,4 +1,4 @@
-import type { AllAvailableModelsSchema, ConversationsId, IAttachment, IImage, IMessage } from '@ant-chat/shared'
+import type { ConversationsId, IAttachment, IImage, IMessage } from '@ant-chat/shared'
 import type { ChatFeatures } from '@/services-provider/interface'
 import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import { SettingOutlined } from '@ant-design/icons'
@@ -6,6 +6,7 @@ import { App, Skeleton } from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import { createConversations, createUserMessage } from '@/api/dataFactory'
 import { DEFAULT_TITLE } from '@/constants'
+import { setModel, useChatSttings } from '@/store/chatSettings'
 import {
   addConversationsAction,
   initConversationsTitle,
@@ -44,7 +45,7 @@ export default function Chat() {
   const { notification } = App.useApp()
 
   // ============================ 选择模型 ============================
-  const [model, setModel] = useState<AllAvailableModelsSchema['models'][number] | null>(null)
+  const model = useChatSttings(state => state.model)
 
   const items = [
     {

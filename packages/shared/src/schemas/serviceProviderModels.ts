@@ -21,7 +21,7 @@ export const ServiceProviderModelsSchema = z.object({
 })
 
 export const AllAvailableModels = ServiceProviderSchema.omit({ isEnabled: true, createdAt: true, updatedAt: true }).extend({
-  models: z.array(ServiceProviderModelsSchema.pick({ id: true, name: true, model: true, modelFeatures: true, serviceProviderId: true })),
+  models: z.array(ServiceProviderModelsSchema.pick({ id: true, name: true, model: true, modelFeatures: true, serviceProviderId: true, maxTokens: true, contextLength: true })),
 })
 
 export const AddServiceProviderModelSchema = ServiceProviderModelsSchema.pick({ name: true, model: true, serviceProviderId: true, maxTokens: true, contextLength: true })

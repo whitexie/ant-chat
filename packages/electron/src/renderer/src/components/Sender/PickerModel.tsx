@@ -1,5 +1,5 @@
 import type { AllAvailableModelsSchema } from '@ant-chat/shared'
-import { RightOutlined, SettingOutlined } from '@ant-design/icons'
+import { ControlOutlined, RightOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
 import { Popover } from 'antd'
 import React from 'react'
@@ -72,7 +72,7 @@ export function ModelControlPanel({ value, onChange }: ModelControlPanelProps) {
           </div>
         </div>
         <div className="overflow-hidden flex items-center justify-center group-hover">
-          <SettingOutlined
+          <ControlOutlined
             className="px-2 h-full hover:bg-(--hover-bg-color)"
             onClick={(e) => {
               e.preventDefault()
