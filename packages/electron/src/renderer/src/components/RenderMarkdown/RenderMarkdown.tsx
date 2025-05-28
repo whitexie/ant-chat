@@ -2,10 +2,12 @@ import { Typography } from 'antd'
 import { useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { remarkAlert } from 'remark-github-blockquote-alert'
 import { visit } from 'unist-util-visit'
 import { useThemeStore } from '@/store/theme'
 import CodeBlock from './CodeBlock'
 import style from './style.module.scss'
+import 'remark-github-blockquote-alert/alert.css'
 
 export interface RenderMarkdownProps {
   content: string
@@ -26,6 +28,7 @@ export default function RenderMarkdown({ content }: RenderMarkdownProps) {
   const remarkPlugins = useMemo(() => [
     defaultLangPlugin,
     remarkGfm,
+    remarkAlert,
   ], [])
 
   const components = useMemo(() => ({
@@ -46,7 +49,6 @@ export default function RenderMarkdown({ content }: RenderMarkdownProps) {
           )
     },
   }), [theme])
-
 
   return (
     <Typography className={style['markdown-typography']}>

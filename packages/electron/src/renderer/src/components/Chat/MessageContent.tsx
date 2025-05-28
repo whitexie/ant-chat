@@ -1,8 +1,8 @@
 import type { BubbleContent } from '@/types/global'
-import RenderMarkdown from '@/components/RenderMarkdown/RenderMarkdown'
 import { ReloadOutlined } from '@ant-design/icons'
 import { Attachments } from '@ant-design/x'
 import { Collapse, Image, Typography } from 'antd'
+import RenderMarkdown from '@/components/RenderMarkdown/RenderMarkdown'
 
 // 提取消息渲染逻辑到独立组件
 export default function MessageContent({ content = '', images = [], attachments = [], reasoningContent = '', status }: Partial<BubbleContent>) {
