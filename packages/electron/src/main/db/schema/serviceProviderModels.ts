@@ -12,6 +12,8 @@ export const serviceProviderModelsTable = sqliteTable(
     model: text('model').notNull(),
     isBuiltin: integer('is_builtin', { mode: 'boolean' }).notNull().default(false),
     isEnabled: integer('is_enabled', { mode: 'boolean' }).notNull().default(true),
+    maxTokens: integer('max_tokens').notNull().default(4096),
+    contextLength: integer('context_length').notNull().default(2048576),
     modelFeatures: text('model_features', { mode: 'json' }).$type<ModelFeaturesSchema | null>(),
     serviceProviderId: text('service_provider_id').notNull().references(() => serviceProviderTable.id),
     createdAt: integer('created_at').notNull().default(sql`(strftime('%s','now'))`),
