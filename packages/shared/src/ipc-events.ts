@@ -102,6 +102,8 @@ export type IpcEvents =
     // ============================ 模型相关 ============================
     'db:get-all-abvailable-models': () => Promise<IpcResponse<AllAvailableModelsSchema[]>>
     'db:get-models-by-provider-service-id': (id: string) => Promise<IpcResponse<ServiceProviderModelsSchema[]>>
+    'db:get-model-by-id': (id: string) => Promise<IpcResponse<ServiceProviderModelsSchema>>
+    'db:get-provider-service-by-model-id': (id: string) => Promise<IpcResponse<ServiceProviderSchema>>
     'db:set-model-enabled-status': (id: string, status: boolean) => Promise<IpcResponse<ServiceProviderModelsSchema>>
     'db:add-provider-service-model': (data: AddServiceProviderModelSchema) => Promise<IpcResponse<ServiceProviderModelsSchema>>
     'db:delete-provider-service-model': (id: string) => Promise<IpcResponse<null>>

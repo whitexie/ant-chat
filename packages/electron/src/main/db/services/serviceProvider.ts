@@ -1,8 +1,8 @@
 import type { ServiceProviderSchema, UpdateServiceProviderSchema } from '@ant-chat/shared'
 import { AddServiceProviderSchema } from '@ant-chat/shared'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, getTableColumns } from 'drizzle-orm'
 import { db } from '../db'
-import { serviceProviderTable } from '../schema'
+import { serviceProviderModelsTable, serviceProviderTable } from '../schema'
 
 export function getAllProviderServices(): ServiceProviderSchema[] {
   return db.select().from(serviceProviderTable).all()
@@ -31,4 +31,12 @@ export async function deleteProviderService(id: string) {
 
 export function getProviderServiceById(id: string) {
   return db.select().from(serviceProviderTable).where(eq(serviceProviderTable.id, id)).get()
+}
+
+export function getServiceProviderByModelId(id: string) {
+  return db.select({ ...getTableColumns(serviceProviderTable) })
+    .from(serviceProviderTable)
+    .leftJoin(serviceProviderModelsTable, eq(serviceProviderTable.id, serviceProviderModelsTable.serviceProviderId))
+    .where(eq(serviceProviderModelsTable.id, id))
+    .get()
 }

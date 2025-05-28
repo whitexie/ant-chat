@@ -23,7 +23,7 @@ export type AntChatFileStructure = typeof ANT_CHAT_STRUCTURE
 export const ANT_CHAT_FILE_TYPE = { description: 'ant chat files', appcept: { 'text/plain': ['.antchat'] } }
 
 export const TITLE_PROMPT = `Based on the chat history, give this conversation a name.
-Keep it short - 10 characters max, no quotes.
+Keep it short.
 Use 简体中文.
 Just provide the name, nothing else.
 

@@ -73,3 +73,7 @@ export async function addServiceProviderModel(config: AddServiceProviderModelSch
 export async function deleteServiceProviderModel(id: string) {
   return db.delete(serviceProviderModelsTable).where(eq(serviceProviderModelsTable.id, id))
 }
+
+export async function getModelById(id: string) {
+  return db.select().from(serviceProviderModelsTable).where(eq(serviceProviderModelsTable.id, id)).get()
+}

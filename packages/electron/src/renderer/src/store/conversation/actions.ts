@@ -5,6 +5,7 @@ import { isEqual } from 'lodash-es'
 import { dbApi } from '@/api/dbApi'
 import { Role, TITLE_PROMPT } from '@/constants'
 import { getServiceProviderConstructor } from '@/services-provider'
+import { useGeneralSettingsStore } from '../generalSettings'
 import { setActiveConversationsId, useMessagesStore } from '../messages'
 import { useConversationsStore } from './conversationsStore'
 
@@ -71,7 +72,9 @@ export async function nextPageConversationsAction() {
 
 export async function initConversationsTitle(model: AllAvailableModelsSchema['models'][number]) {
   const { messages } = useMessagesStore.getState()
-  const serviceProviderInfo = await dbApi.getServiceProviderById(model.serviceProviderId)
+  const { assistantModelId } = useGeneralSettingsStore.getState()
+  const modelInfo = assistantModelId ? await dbApi.getModelById(assistantModelId) : model
+  const serviceProviderInfo = await dbApi.getServiceProviderById(modelInfo.serviceProviderId)
 
   const userMessage = messages.find(item => item.role === Role.USER)
 
@@ -80,14 +83,19 @@ export async function initConversationsTitle(model: AllAvailableModelsSchema['mo
     return
   }
 
-  const text = messages.map(item => item.content).join('\n————————————————————\n')
+  const text = messages.map(
+    item => item.content
+      .filter(item => item.type === 'text')
+      .map(item => item.text)
+      .join('\n'),
+  ).join('\n————————————————————\n')
 
   const content = TITLE_PROMPT.replace('pGqat5J/L@~U', text)
   const Service = getServiceProviderConstructor(serviceProviderInfo.id)
   const service = new Service({
     apiHost: serviceProviderInfo.baseUrl,
     apiKey: serviceProviderInfo.apiKey,
-    model: model.model,
+    model: modelInfo.model,
   })
 
   const stream = await service.sendChatCompletions(

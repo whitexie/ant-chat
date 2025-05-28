@@ -326,6 +326,32 @@ export function registerDbHandlers() {
     }
   })
 
+  mainListener.handle('db:get-model-by-id', async (_, id) => {
+    try {
+      const result = await services.getModelById(id)
+      if (!result) {
+        throw new Error('not found')
+      }
+      return createIpcResponse(true, result)
+    }
+    catch (error) {
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
+  mainListener.handle('db:get-provider-service-by-model-id', async (_, id) => {
+    try {
+      const result = services.getServiceProviderByModelId(id)
+      if (!result) {
+        throw new Error('not found')
+      }
+      return createIpcResponse(true, result)
+    }
+    catch (error) {
+      return createErrorIpcResponse(error as Error)
+    }
+  })
+
   // 设置模型启用状态
   mainListener.handle('db:set-model-enabled-status', async (_, id, status) => {
     try {

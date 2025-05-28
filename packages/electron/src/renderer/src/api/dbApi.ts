@@ -123,6 +123,10 @@ export const dbApi = {
     return unwrapIpcResponse(await emitter.invoke('db:get-provider-services-by-id', id))
   },
 
+  async getServiceProviderByModelId(id: string) {
+    return unwrapIpcResponse(await emitter.invoke('db:get-provider-service-by-model-id', id))
+  },
+
   // ============================ 模型 ============================
   async getAllAbvailableModels() {
     return unwrapIpcResponse(await emitter.invoke('db:get-all-abvailable-models'))
@@ -141,5 +145,9 @@ export const dbApi = {
 
   async deleteServiceProviderModel(id: string) {
     return unwrapIpcResponse(await emitter.invoke('db:delete-provider-service-model', id))
+  },
+
+  async getModelById(id: string) {
+    return unwrapIpcResponse(await emitter.invoke('db:get-model-by-id', id))
   },
 }
