@@ -24,7 +24,7 @@ import {
 } from '@/store/messages'
 import Loading from '../Loading'
 import Sender from '../Sender'
-import { PickerModel } from '../Sender/PickerModel'
+import { ModelControlPanel } from '../Sender/PickerModel'
 import TypingEffect from '../TypingEffect'
 import ConversationsTitle from './ConversationsTitle'
 
@@ -87,7 +87,7 @@ export default function Chat() {
     if (currentConversations?.title === DEFAULT_TITLE || isNewConversation) {
       // 1s后再次初始化会话标题, 避免请求频繁导致的标题未更新
       setTimeout(() => {
-        initConversationsTitle()
+        initConversationsTitle(model)
       }, 1000)
     }
   }
@@ -146,7 +146,7 @@ export default function Chat() {
         <Sender
           loading={isLoading}
           actions={(
-            <PickerModel
+            <ModelControlPanel
               value={model}
               onChange={setModel}
             />

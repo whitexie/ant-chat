@@ -1,4 +1,4 @@
-import type { AddConversationsSchema, ConversationsId, ITextContent, ModelConfig } from '@ant-chat/shared'
+import type { AddConversationsSchema, AllAvailableModelsSchema, ConversationsId, ModelConfig, TextContent } from '@ant-chat/shared'
 import type { AntChatFileStructure } from '@/constants'
 import { produce } from 'immer'
 import { isEqual } from 'lodash-es'
@@ -6,7 +6,6 @@ import { dbApi } from '@/api/dbApi'
 import { Role, TITLE_PROMPT } from '@/constants'
 import { getServiceProviderConstructor } from '@/services-provider'
 import { setActiveConversationsId, useMessagesStore } from '../messages'
-import { getActiveModelConfig, useModelConfigStore } from '../modelConfig'
 import { useConversationsStore } from './conversationsStore'
 
 export async function addConversationsAction(conversation: AddConversationsSchema) {
@@ -70,10 +69,9 @@ export async function nextPageConversationsAction() {
   }))
 }
 
-export async function initConversationsTitle() {
+export async function initConversationsTitle(model: AllAvailableModelsSchema['models'][number]) {
   const { messages } = useMessagesStore.getState()
-  const { active } = useModelConfigStore.getState()
-  const config = getActiveModelConfig()
+  const serviceProviderInfo = await dbApi.getServiceProviderById(model.serviceProviderId)
 
   const userMessage = messages.find(item => item.role === Role.USER)
 
@@ -85,8 +83,12 @@ export async function initConversationsTitle() {
   const text = messages.map(item => item.content).join('\n————————————————————\n')
 
   const content = TITLE_PROMPT.replace('pGqat5J/L@~U', text)
-  const Service = getServiceProviderConstructor(active)
-  const service = new Service(config.modelConfig)
+  const Service = getServiceProviderConstructor(serviceProviderInfo.id)
+  const service = new Service({
+    apiHost: serviceProviderInfo.baseUrl,
+    apiKey: serviceProviderInfo.apiKey,
+    model: model.model,
+  })
 
   const stream = await service.sendChatCompletions(
     [
@@ -102,7 +104,7 @@ export async function initConversationsTitle() {
         title = result.message
       }
       else {
-        title = result.message.filter(item => item.type === 'text').reduce((a, b) => (a + (b as ITextContent).text), '')
+        title = result.message.filter(item => item.type === 'text').reduce((a, b) => (a + (b as TextContent).text), '')
       }
 
       if (title) {
