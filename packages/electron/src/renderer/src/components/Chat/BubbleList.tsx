@@ -183,15 +183,18 @@ function BubbleList({ messages, conversationsId, onExecuteAllCompleted, onRefres
   // ============================ 操作 ============================
   async function copyMessage(message: IMessage) {
     const data = { text: '', html: '' }
-    message.content.forEach((b) => {
+    message.content.forEach((b, index) => {
+      if (index !== 0) {
+        data.text += '\n'
+      }
       if (b.type === 'image') {
-        data.text += `\n![](data:${b.mimeType};base64,${b.data})\n`
+        data.text += `![](data:${b.mimeType};base64,${b.data})\n`
       }
       else if (b.type === 'error') {
-        data.text += `\n> [!CAUTION]\n> ${b.error}`
+        data.text += `> [!CAUTION]\n> ${b.error}`
       }
       else {
-        data.text += `\n${b.text}`
+        data.text += `${b.text}`
       }
     })
 
