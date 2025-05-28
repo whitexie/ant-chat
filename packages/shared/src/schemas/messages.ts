@@ -13,12 +13,21 @@ export const ImageContentSchema = z.object({
   type: z.literal('image'),
   mimeType: z.string(),
   data: z.string(),
+  url: z.string().optional(),
 })
+
+// 错误内容
+export const ErrorContentSchema = z.object({
+  type: z.literal('error'),
+  error: z.string(),
+})
+
+export type ErrorContent = z.infer<typeof ErrorContentSchema>
 
 export type ImageContent = z.infer<typeof ImageContentSchema>
 
 // 消息内容
-export const MessageContentSchema = z.array(z.union([TextContentSchema, ImageContentSchema]))
+export const MessageContentSchema = z.array(z.union([TextContentSchema, ImageContentSchema, ErrorContentSchema]))
 
 export type MessageContent = z.infer<typeof MessageContentSchema>
 

@@ -1,4 +1,4 @@
-import type { AttachmentSchema, ConversationsSchema, ConversationsSettingsSchema, McpToolCall, McpToolResult, ModelInfo } from '../schemas'
+import type { AttachmentSchema, ConversationsSchema, ConversationsSettingsSchema, McpToolCall, McpToolResult, MessageContent, ModelInfo } from '../schemas'
 
 // 基础类型
 export type MessageId = string
@@ -89,27 +89,8 @@ export interface IMessage {
   modelInfo?: IModelInfo
 }
 
-// 文本内容
-export interface ITextContent {
-  type: 'text'
-  text: string
-}
-
-export interface IErrorContent {
-  type: 'error'
-  text: string
-}
-
-// 图片内容
-export interface IImageContent {
-  type: 'image'
-  mimeType: string
-  data: string
-  url?: string
-}
-
 // 消息内容
-export type IMessageContent = (ITextContent | IImageContent | IErrorContent)[]
+export type IMessageContent = MessageContent
 
 // MCP服务器状态
 export type McpServerStatus = 'connected' | 'connecting' | 'disconnected'

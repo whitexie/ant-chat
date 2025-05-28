@@ -151,7 +151,7 @@ export async function sendChatCompletions(conversationId: ConversationsId, featu
       onError: (e) => {
         setRequestStatus('error')
         if (aiMessage.content.length) {
-          aiMessage.content.push({ type: 'error', text: (e as Error).message })
+          aiMessage.content.push({ type: 'error', error: (e as Error).message })
         }
         updateMessageAction({ ...aiMessage, status: 'error' })
       },
@@ -162,10 +162,10 @@ export async function sendChatCompletions(conversationId: ConversationsId, featu
 
     // 如果content已经有内容了之后报错，就添加，否则覆盖
     if (aiMessage.content.length && aiMessage.content[0].type === 'text' && aiMessage.content[0].text.length > 1) {
-      aiMessage.content.push({ type: 'error', text: error.message })
+      aiMessage.content.push({ type: 'error', error: error.message })
     }
     else {
-      aiMessage.content = [{ type: 'error', text: error.message }]
+      aiMessage.content = [{ type: 'error', error: error.message }]
       aiMessage.status = 'error'
     }
     updateMessageAction(aiMessage)

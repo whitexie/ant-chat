@@ -67,11 +67,12 @@ function BubbleList({ messages, conversationsId, onExecuteAllCompleted, onRefres
         messageRender={(content) => {
           if (msg.role !== Role.AI) {
             const pickList = ['status']
+
             if (msg.role === Role.USER) {
               pickList.push('images', 'attachments')
             }
+
             const messageContentProps: Partial<BubbleContent> = { ...pick(msg, pickList), content }
-            // console.log('messageContentProps => ', JSON.stringify(messageContentProps))
 
             return <MessageContent {...messageContentProps} />
           }
@@ -111,11 +112,14 @@ function BubbleList({ messages, conversationsId, onExecuteAllCompleted, onRefres
         content={
           typeof msg.content === 'string'
             ? msg.content
-            : msg.content.reduce((a, b) => {
+            : msg.content.reduce((a, b, index) => {
                 if (b.type === 'image') {
                   return b?.url
                     ? `\n![](${b.url})`
                     : `${a}\n![](data:${b.mimeType};base64,${b.data})\n`
+                }
+                else if (b.type === 'error') {
+                  return index === 0 ? `${a}\n${b.error}` : `${a}\n> [!CAUTION]\n> ${b.error}`
                 }
                 else {
                   return `${a}\n${b.text}`
@@ -181,12 +185,13 @@ function BubbleList({ messages, conversationsId, onExecuteAllCompleted, onRefres
     const data = { text: '', html: '' }
     message.content.forEach((b) => {
       if (b.type === 'image') {
-        // data.html += `\n<div><img src="data:${b.mimeType};base64,${b.data}" /></div>\n`
         data.text += `\n![](data:${b.mimeType};base64,${b.data})\n`
       }
+      else if (b.type === 'error') {
+        data.text += `\n> [!CAUTION]\n> ${b.error}`
+      }
       else {
-        // data.html += `\n<p>${b.text}</p>\n`
-        data.text += b.text
+        data.text += `\n${b.text}`
       }
     })
 
