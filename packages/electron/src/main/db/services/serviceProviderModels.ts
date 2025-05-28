@@ -22,6 +22,7 @@ export async function getAllAvailableModels(): Promise<AllAvailableModelsSchema[
           model: true,
           modelFeatures: true,
           maxTokens: true,
+          temperature: true,
           contextLength: true,
           serviceProviderId: true,
         },

@@ -3,12 +3,13 @@ import { produce } from 'immer'
 import { useChatSttings } from './store'
 
 export function setModel(model: AllAvailableModelsSchema['models'][number]) {
-  const { maxTokens } = useChatSttings.getState()
+  const { maxTokens, temperature } = useChatSttings.getState()
 
   useChatSttings.setState(state =>
     produce(state, (draft) => {
       draft.model = model
       draft.maxTokens = maxTokens < model.maxTokens ? maxTokens : model.maxTokens
+      draft.temperature = temperature
     }),
   )
 }

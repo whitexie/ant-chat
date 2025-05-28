@@ -1,0 +1,1 @@
+ALTER TABLE `service_provider_models` ADD `temperature` real DEFAULT 0.7 NOT NULL;

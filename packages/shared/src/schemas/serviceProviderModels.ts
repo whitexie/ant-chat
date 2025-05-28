@@ -15,13 +15,14 @@ export const ServiceProviderModelsSchema = z.object({
   isEnabled: z.union([z.boolean(), z.number()]).transform(val => Boolean(val)),
   maxTokens: z.number(),
   contextLength: z.number(),
+  temperature: z.number().min(0).max(2),
   modelFeatures: ModelFeaturesSchema.optional().nullable(),
   serviceProviderId: z.string(),
   createdAt: z.number(),
 })
 
 export const AllAvailableModels = ServiceProviderSchema.omit({ isEnabled: true, createdAt: true, updatedAt: true }).extend({
-  models: z.array(ServiceProviderModelsSchema.pick({ id: true, name: true, model: true, modelFeatures: true, serviceProviderId: true, maxTokens: true, contextLength: true })),
+  models: z.array(ServiceProviderModelsSchema.pick({ id: true, name: true, model: true, modelFeatures: true, serviceProviderId: true, maxTokens: true, contextLength: true, temperature: true })),
 })
 
 export const AddServiceProviderModelSchema = ServiceProviderModelsSchema.pick({ name: true, model: true, serviceProviderId: true, maxTokens: true, contextLength: true })

@@ -64,6 +64,13 @@
       "when": 1748412977489,
       "tag": "0008_burly_scalphunter",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1748430183752,
+      "tag": "0009_yellow_wendigo",
+      "breakpoints": true
     }
   ]
 }
