@@ -1,6 +1,6 @@
 import process from 'node:process'
 import { MCPClientHub } from '@ant-chat/mcp-client-hub'
-import { app, session } from 'electron'
+import { app } from 'electron'
 import { installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer'
 import { initializeDb } from './db'
 import { registerCommonHandlers } from './ipcHandlers/commonHandlers'
@@ -65,11 +65,5 @@ app.whenReady().then(async () => {
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin')
       app.quit()
-  })
-
-  session.defaultSession.extensions.getAllExtensions().forEach((e) => {
-    if (e.name === 'React Developer Tools') {
-      session.defaultSession.loadExtension(e.path)
-    }
   })
 })
