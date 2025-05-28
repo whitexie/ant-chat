@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid'
 import { db } from '../../db'
-import { serviceProviderModelsTable, serviceProviderTable } from '../../schema'
+import { messagesTable, serviceProviderModelsTable, serviceProviderTable } from '../../schema'
 
 // 插入 providerServices 测试数据
 export async function createProviderService(data: Partial<typeof serviceProviderTable.$inferInsert> = {}): Promise<any> {
@@ -33,5 +33,18 @@ export async function createProviderServiceModel(data: Partial<typeof servicePro
   }
   const insertData = { ...defaultData, ...data }
   const [row] = await db.insert(serviceProviderModelsTable).values(insertData).returning()
+  return row
+}
+
+export async function createMessage(data: Partial<typeof messagesTable.$inferInsert> = {}): Promise<any> {
+  const defaultData = {
+    id: `msg-${nanoid()}`,
+    content: [{ type: 'text', text: 'Test Message' } as const],
+    role: 'user',
+    status: 'success',
+    convId: `conv-${nanoid()}`,
+  }
+  const insertData = { ...defaultData, ...data }
+  const [row] = await db.insert(messagesTable).values(insertData).returning()
   return row
 }
