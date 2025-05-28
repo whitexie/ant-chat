@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 
 const initialState = {
-  topicModelId: '',
+  assistantModelId: '',
 }
 
 export const useGeneralSettingsStore = create<typeof initialState>()(

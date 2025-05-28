@@ -1,4 +1,4 @@
-import Icon, { CrownOutlined } from '@ant-design/icons'
+import Icon, { CrownOutlined, SettingOutlined } from '@ant-design/icons'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import MCPIcon from '@/assets/icons/mcp.svg?react'
 
@@ -7,6 +7,7 @@ export default function Settings() {
   const location = useLocation()
   const activeName = location.pathname.split('/').pop() || 'provider'
   const menus = [
+    { id: 'general', name: '通用设置', icon: <SettingOutlined /> },
     { id: 'provider', name: 'AI服务商设置', icon: <CrownOutlined /> },
     { id: 'mcp', name: 'MCP设置', icon: <Icon component={MCPIcon} /> },
   ]

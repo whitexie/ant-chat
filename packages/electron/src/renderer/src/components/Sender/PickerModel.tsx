@@ -4,15 +4,17 @@ import { useRequest } from 'ahooks'
 import { Popover } from 'antd'
 import React from 'react'
 import { dbApi } from '@/api/dbApi'
+import { ModelParameterSettingsPanel } from './ModelParameterSettingsPanel'
 import { renderProviderLogo, SelectModel } from './SelectModel'
 
-interface PickerModelProps {
+interface ModelControlPanelProps {
   value: AllAvailableModelsSchema['models'][number] | null
   onChange?: (value: AllAvailableModelsSchema['models'][number]) => void
 }
 
-export function PickerModel({ value, onChange }: PickerModelProps) {
+export function ModelControlPanel({ value, onChange }: ModelControlPanelProps) {
   const [openPopover, setOpenPopover] = React.useState(false)
+  const [panel, setPanel] = React.useState<'select' | 'parameter'>('select')
   const { data } = useRequest<AllAvailableModelsSchema[], []>(dbApi.getAllAbvailableModels)
 
   const activeProviderServiceInfo = !value ? data?.[0] : data?.find(item => item.models.some(model => model.id === value.id))
@@ -36,15 +38,24 @@ export function PickerModel({ value, onChange }: PickerModelProps) {
         },
       }}
       content={(
-        <SelectModel
-          onChange={(e) => {
-            onChange?.(e)
-            setOpenPopover(false)
-          }}
-          options={data}
-        />
+        panel === 'select'
+          ? (
+              <SelectModel
+                onChange={(e) => {
+                  onChange?.(e)
+                  setOpenPopover(false)
+                }}
+                options={data}
+              />
+            )
+          : (<ModelParameterSettingsPanel />)
       )}
-      onOpenChange={setOpenPopover}
+      onOpenChange={(value) => {
+        setOpenPopover(value)
+        if (!value && panel === 'parameter') {
+          setPanel('select')
+        }
+      }}
     >
       <div
         className={`
@@ -66,7 +77,10 @@ export function PickerModel({ value, onChange }: PickerModelProps) {
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
-              // TODO 温度、最大TOKEN等配置
+              setPanel('parameter')
+              setTimeout(() => {
+                setOpenPopover(true)
+              }, 100)
             }}
           />
         </div>
