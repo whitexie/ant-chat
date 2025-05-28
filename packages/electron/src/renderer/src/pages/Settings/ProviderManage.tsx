@@ -21,19 +21,22 @@ export default function ProviderManage() {
 
   return (
     <div className="flex h-full">
-      <div className="flex flex-shrink-0 flex-col
-      h-[100dvh] overflow-y-auto gap-2 px-2 py-2 w-50 border-r border-r-solid border-(--border-color)"
+      <div
+        className="flex flex-shrink-0 flex-col
+          h-[100dvh] overflow-y-auto gap-2 px-2 py-2 w-50
+          border-r border-r-solid border-(--border-color)
+        "
       >
         {
           data?.map(item => (
             <div
               key={item.id}
               className={`
-                ${activeProvider?.id === item.id ? 'bg-black/3' : ''}
+                ${activeProvider?.id === item.id ? 'bg-(--hover-bg-color)' : ''}
                 group
                 flex justify-between items-center gap-2 
                 px-3 p-2 select-none
-                hover:bg-black/3 rounded-md cursor-pointer
+                hover:bg-(--hover-bg-color) rounded-md cursor-pointer
               `}
               onClick={() => {
                 setActiveProvider(item)

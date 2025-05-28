@@ -1,11 +1,11 @@
 import type { ModelConfig, ModelConfigId } from '@ant-chat/shared'
-import { DEFAULT_SYSTEM_MESSAGE } from '@/constants'
-import { validatorProvider } from '@/services-provider'
-import { uuid } from '@/utils'
 import { produce } from 'immer'
 import { pick } from 'lodash-es'
 import { create } from 'zustand'
 import { createJSONStorage, devtools, persist } from 'zustand/middleware'
+import { DEFAULT_SYSTEM_MESSAGE } from '@/constants'
+import { validatorProvider } from '@/services-provider'
+import { uuid } from '@/utils'
 import storage from './storage'
 
 interface Action {
