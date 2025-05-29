@@ -65,6 +65,7 @@ export interface GeminiRequestBody {
   generationConfig?: {
     temperature?: number
     responseModalities?: ('TEXT' | 'IMAGE')[]
+    maxOutputTokens?: number
   }
   tools?: (GoogleSearchTool | FunctionDeclaration)[]
   toolConfig?: {

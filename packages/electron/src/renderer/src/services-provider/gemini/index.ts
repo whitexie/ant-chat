@@ -1,4 +1,4 @@
-import type { IAttachment, IImageContent, IMcpToolCall, IMessage, IMessageContent, ITextContent, McpTool } from '@ant-chat/shared'
+import type { IAttachment, ImageContent, IMcpToolCall, IMessage, IMessageContent, McpTool, TextContent } from '@ant-chat/shared'
 import type {
   ChatFeatures,
   SendChatCompletionsOptions,
@@ -26,6 +26,7 @@ const DEFAULT_OPTIONS = {
   apiKey: '',
   model: 'gemini-1.5-flash-latest',
   temperature: 0.7,
+  maxTokens: 4096,
 }
 
 class GeminiService extends BaseService {
@@ -130,7 +131,7 @@ class GeminiService extends BaseService {
         else if (msg.content.length > 0) {
           result.contents.push({
             role: 'model',
-            parts: (msg.content.filter(item => item.type !== 'error') as (ITextContent | IImageContent)[]).map((item) => {
+            parts: (msg.content.filter(item => item.type !== 'error') as (TextContent | ImageContent)[]).map((item) => {
               if (item.type === 'text') {
                 return { text: item.text }
               }
@@ -158,7 +159,7 @@ class GeminiService extends BaseService {
             parts: [],
           }
         }
-        result.system_instruction.parts.push({ text: (msg.content[0] as ITextContent).text })
+        result.system_instruction.parts.push({ text: (msg.content[0] as TextContent).text })
       }
     })
     return result
@@ -197,6 +198,7 @@ class GeminiService extends BaseService {
     const body = this.transformMessages(_messages)
     body.generationConfig = {
       temperature: this.temperature,
+      maxOutputTokens: this.maxTokens,
     }
 
     if (features?.onlineSearch) {
@@ -256,7 +258,7 @@ class GeminiService extends BaseService {
         if (!message[index]) {
           message[index] = { type: 'text', text: '' }
         }
-        (message[index] as ITextContent).text += part.text
+        (message[index] as TextContent).text += part.text
       }
       else if ('functionCall' in part) {
         const { name, args } = part.functionCall

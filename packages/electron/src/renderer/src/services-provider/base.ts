@@ -1,4 +1,4 @@
-import type { IMcpToolCall, IMessage, IMessageContent, ITextContent, McpTool } from '@ant-chat/shared'
+import type { IMcpToolCall, IMessage, IMessageContent, McpTool, TextContent } from '@ant-chat/shared'
 import type {
   ChatCompletionsCallbacks,
   SendChatCompletionsOptions,
@@ -18,6 +18,9 @@ export default abstract class BaseService {
   protected model: string
   // 温度参数，用于控制生成内容的随机性
   protected temperature: number = 0.7
+
+  // 最大令牌数
+  protected maxTokens: number = 4096
   // 是否启用 MCP（多工具调用）功能
   protected enableMCP = false
 
@@ -30,6 +33,7 @@ export default abstract class BaseService {
     this.apiKey = options.apiKey
     this.model = options.model
     this.temperature = options.temperature
+    this.maxTokens = options.maxTokens
     this.enableMCP = !!options.enableMCP
 
     if (this.enableMCP) {
@@ -103,7 +107,7 @@ export default abstract class BaseService {
           // 合并连续的文本消息
           result.message.forEach((item) => {
             if (item.type === 'text' && message.length > 0 && message[message.length - 1].type === 'text') {
-              (message[message.length - 1] as ITextContent).text += item.text
+              (message[message.length - 1] as TextContent).text += item.text
             }
             else {
               message.push(item)

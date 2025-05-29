@@ -7,6 +7,7 @@ export interface ServiceConstructorOptions {
   apiHost: string
   apiKey: string
   model: string
+  maxTokens: number
   temperature: number
   enableMCP?: boolean
 }

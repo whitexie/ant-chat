@@ -69,6 +69,7 @@ export interface OpenAIRequestBody {
       name: string
     }
   }
+  max_tokens?: number
 }
 
 export interface OpenAIResponseChoice {

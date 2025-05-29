@@ -25,6 +25,7 @@ const DEFAULT_OPTIONS = {
   model: '',
   apiKey: '',
   temperature: 0.7,
+  maxTokens: 4096,
 }
 
 export default class OpenAIService extends BaseService {
@@ -95,6 +96,7 @@ export default class OpenAIService extends BaseService {
       messages: this.transformMessages(_messages),
       stream: true,
       temperature: this.temperature,
+      max_tokens: this.maxTokens,
     }
 
     if (this.enableMCP) {
@@ -217,10 +219,10 @@ function transformMessageItem(message: IMessage, hasMedia: boolean): MessageItem
 
     const msgItem: MessageItem = {
       role: Role.AI,
-      content: message.content.map(
+      content: message.content.filter(item => item.type !== 'error').map(
         item => item.type === 'image'
           ? { type: 'image_url', image_url: { url: `data:${item.mimeType};base64,${item.data}` } }
-          : { type: 'text', text: item.text },
+          : { type: 'text', text: (item as TextContent).text } as TextContent,
       ),
     }
 

@@ -86,7 +86,7 @@ export async function initConversationsTitle(model: AllAvailableModelsSchema['mo
   const text = messages.map(
     item => item.content
       .filter(item => item.type === 'text')
-      .map(item => item.text)
+      .map(item => (item as TextContent).text)
       .join('\n'),
   ).join('\n————————————————————\n')
 

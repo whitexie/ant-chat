@@ -6,6 +6,7 @@ import { createAIMessage } from '@/api/dataFactory'
 import { dbApi } from '@/api/dbApi'
 import { Role } from '@/constants'
 import { getServiceProviderConstructor } from '@/services-provider'
+import { useChatSttingsStore } from '../chatSettings'
 import { useMessagesStore } from './store'
 
 export function setRequestStatus(status: RequestStatus) {
@@ -88,6 +89,8 @@ export function abortSendChatCompletions() {
 export async function sendChatCompletions(conversationId: ConversationsId, features: ChatFeatures, model: AllAvailableModelsSchema['models'][number]) {
   const messages = useMessagesStore.getState().messages
 
+  const { temperature, maxTokens } = useChatSttingsStore.getState()
+
   const serviceProviderInfo = await dbApi.getServiceProviderById(model.serviceProviderId)
 
   let aiMessage: IMessage = createAIMessage({
@@ -107,8 +110,8 @@ export async function sendChatCompletions(conversationId: ConversationsId, featu
     const instance = new Service({
       apiHost: serviceProviderInfo.baseUrl,
       apiKey: serviceProviderInfo.apiKey,
-      // TODO 暂时写死0.7， 后续从模型配置中获取，或者是用户在对话框中设置
-      temperature: 0.7,
+      temperature,
+      maxTokens,
       enableMCP,
       model: model.model,
     })
