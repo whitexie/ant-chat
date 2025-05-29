@@ -3,10 +3,10 @@ import { useShallow } from 'zustand/react/shallow'
 import PromptIcon from '@/assets/icons/prompt.svg?react'
 import ReturnIcon from '@/assets/icons/return.svg?react'
 import TemperatureIcon from '@/assets/icons/temperature.svg?react'
-import { setMaxTokens, setSystemPrompt, setTemperature, useChatSttings } from '@/store/chatSettings'
+import { setMaxTokens, setSystemPrompt, setTemperature, useChatSttingsStore } from '@/store/chatSettings'
 
 export function ModelParameterSettingsPanel() {
-  const { systemPrompt, temperature, maxTokens, model } = useChatSttings(useShallow(state => ({
+  const { systemPrompt, temperature, maxTokens, model } = useChatSttingsStore(useShallow(state => ({
     model: state.model,
     systemPrompt: state.systemPrompt,
     temperature: state.temperature,

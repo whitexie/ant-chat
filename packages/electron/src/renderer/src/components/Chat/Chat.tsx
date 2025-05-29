@@ -6,7 +6,7 @@ import { App, Skeleton } from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import { createConversations, createUserMessage } from '@/api/dataFactory'
 import { DEFAULT_TITLE } from '@/constants'
-import { setModel, useChatSttings } from '@/store/chatSettings'
+import { setModel, useChatSttingsStore } from '@/store/chatSettings'
 import {
   addConversationsAction,
   initConversationsTitle,
@@ -45,7 +45,7 @@ export default function Chat() {
   const { notification } = App.useApp()
 
   // ============================ 选择模型 ============================
-  const model = useChatSttings(state => state.model)
+  const model = useChatSttingsStore(state => state.model)
 
   const items = [
     {

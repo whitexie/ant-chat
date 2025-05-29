@@ -9,7 +9,7 @@ const initializeState = {
   maxTokens: 4000,
 }
 
-export const useChatSttings = create<typeof initializeState>()(
+export const useChatSttingsStore = create<typeof initializeState>()(
   devtools(
     persist(
       () => ({ ...initializeState }),
