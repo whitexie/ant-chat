@@ -1,9 +1,9 @@
-import type { ConversationsId, IAttachment, IImage, IMessage } from '@ant-chat/shared'
-import type { ChatFeatures } from '@/services-provider/interface'
+import type { ChatFeatures, ConversationsId, IAttachment, IImage, IMessage } from '@ant-chat/shared'
 import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import { SettingOutlined } from '@ant-design/icons'
 import { App, Skeleton } from 'antd'
 import { lazy, Suspense, useState } from 'react'
+import { useShallow } from 'zustand/shallow'
 import { createConversations, createUserMessage } from '@/api/dataFactory'
 import { DEFAULT_TITLE } from '@/constants'
 import { setModel, useChatSttingsStore } from '@/store/chatSettings'
@@ -13,7 +13,6 @@ import {
   updateConversationsSettingsAction,
   useConversationsStore,
 } from '@/store/conversation'
-import { useFeaturesState } from '@/store/features'
 import {
   abortSendChatCompletions,
   addMessageAction,
@@ -40,7 +39,7 @@ export default function Chat() {
   const currentConversations = useConversationsStore(state => state.conversations.find(item => item.id === activeConversationsId))
 
   const isLoading = useMessagesStore(state => state.requestStatus === 'loading')
-  const features = useFeaturesState()
+  const features = useChatSttingsStore(useShallow(state => ({ onlineSearch: state.onlineSearch, enableMCP: state.enableMCP })))
 
   const { notification } = App.useApp()
 

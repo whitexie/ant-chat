@@ -1,6 +1,5 @@
-import type { IAttachment, ImageContent, IMcpToolCall, IMessage, IMessageContent, McpTool, TextContent } from '@ant-chat/shared'
+import type { ChatFeatures, IAttachment, ImageContent, IMcpToolCall, IMessage, IMessageContent, McpTool, TextContent } from '@ant-chat/shared'
 import type {
-  ChatFeatures,
   SendChatCompletionsOptions,
   ServiceConstructorOptions,
 } from '../interface'

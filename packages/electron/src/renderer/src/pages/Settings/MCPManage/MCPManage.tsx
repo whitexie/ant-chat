@@ -2,7 +2,7 @@ import type { McpConfigSchema, SSEMcpConfig, StdioMcpConfig } from '@ant-chat/sh
 import { PlusOutlined } from '@ant-design/icons'
 import { App, Button, Empty, Switch } from 'antd'
 import React from 'react'
-import { useMcpStore } from '@/store/features'
+import { setEnableMCP, useChatSttingsStore } from '@/store/chatSettings'
 import { addMcpConfigAction, connectMcpServerAction, deleteMcpConfigAction, disconnectMcpServerAction, initializeMcpConfigs, reconnectMcpServerAction, upadteMcpConfigAction, useMcpConfigsStore } from '@/store/mcpConfigs'
 import { MCPList } from './MCPList'
 
@@ -16,7 +16,8 @@ export default function MCPManage() {
   // const { data, refreshAsync } = useRequest(getAllMcpConfigs)
   const data = useMcpConfigsStore(state => state.mcpConfigs)
   const mcpServerRuningStatusMap = useMcpConfigsStore(state => state.mcpServerRuningStatusMap)
-  const { enableMCP, setEnableMCP } = useMcpStore()
+  // const { enableMCP, setEnableMCP } = useMcpStore()
+  const enableMCP = useChatSttingsStore(state => state.enableMCP)
   const refreshAsync = initializeMcpConfigs
 
   React.useEffect(() => {

@@ -1,5 +1,4 @@
-import type { AllAvailableModelsSchema, ConversationsId, IMessage, MessageId } from '@ant-chat/shared'
-import type { ChatFeatures } from '../features'
+import type { AllAvailableModelsSchema, ChatFeatures, ConversationsId, IMessage, MessageId } from '@ant-chat/shared'
 import type { RequestStatus } from './store'
 import { produce } from 'immer'
 import { createAIMessage } from '@/api/dataFactory'

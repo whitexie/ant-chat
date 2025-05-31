@@ -1,7 +1,4 @@
-import type { IMcpToolCall, IMessageContent } from '@ant-chat/shared'
-import type { ChatFeatures as _ChatFeatures } from '@/store/features'
-
-export type ChatFeatures = _ChatFeatures
+import type { ChatFeatures, IMcpToolCall, IMessageContent } from '@ant-chat/shared'
 
 export interface ServiceConstructorOptions {
   apiHost: string

@@ -7,6 +7,11 @@ const initializeState = {
   systemPrompt: '',
   temperature: 0.7,
   maxTokens: 4000,
+
+  /** 联网搜索 */
+  onlineSearch: false,
+  /** MCP */
+  enableMCP: false,
 }
 
 export const useChatSttingsStore = create<typeof initializeState>()(

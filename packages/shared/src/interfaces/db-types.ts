@@ -94,3 +94,10 @@ export type IMessageContent = MessageContent
 
 // MCP服务器状态
 export type McpServerStatus = 'connected' | 'connecting' | 'disconnected'
+
+export interface ChatFeatures {
+  /** 联网搜索 */
+  onlineSearch: boolean
+  /** MCP */
+  enableMCP: boolean
+}
