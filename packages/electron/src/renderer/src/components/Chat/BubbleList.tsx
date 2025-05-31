@@ -1,23 +1,13 @@
-import type { ConversationsId, IMessage, IMessageAI, MessageId } from '@ant-chat/shared'
-import type { BubbleProps } from '@ant-design/x'
-import type { ImperativeHandleRef } from '../InfiniteScroll'
-import type { BubbleContent } from '@/types/global'
-import { ArrowDownOutlined, RobotFilled, SmileFilled, UserOutlined } from '@ant-design/icons'
-import { Bubble } from '@ant-design/x'
-import { App, Button } from 'antd'
-import { pick } from 'lodash-es'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Role } from '@/constants'
-import { deleteMessageAction, executeMcpToolAction, nextPageMessagesAction, useMessagesStore } from '@/store/messages'
-import { clipboardWrite } from '@/utils'
+import type { IMessage, MessageId } from '@ant-chat/shared'
+import { ArrowDownOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
+import { useEffect } from 'react'
+import { useAutoScroll } from '@/hooks/useAutoScroll'
+import { useMessageActions } from '@/hooks/useMessageActions'
+import { usePagination } from '@/hooks/usePagination'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
-import BubbleFooter from './BubbleFooter'
-
-import { BubbleHeader } from './BubbleHeader'
-import { McpToolCallPanel } from './McpToolCallPanel'
-import MessageContent from './MessageContent'
-import { getProviderLogo } from './providerLogo'
+import { MessageBubble } from './MessageBubble'
 
 interface Props {
   messages: IMessage[]
@@ -26,186 +16,43 @@ interface Props {
   onExecuteAllCompleted?: (messageId: MessageId) => void
 }
 
-const leftBubbleContentStyle: React.CSSProperties = {
-  marginRight: '44px',
-}
-
-const rightBubbleContentStyle: React.CSSProperties = {
-  marginLeft: '44px',
-}
-
 function BubbleList({ messages, conversationsId, onExecuteAllCompleted, onRefresh }: Props) {
-  const { message: messageFunc } = App.useApp()
+  // 自动滚动逻辑
+  const {
+    autoScrollToBottom,
+    infiniteScrollRef,
+    handleScroll,
+    scrollToBottom,
+  } = useAutoScroll()
 
-  // ============================ transform Bubble ============================
-  const items: React.ReactNode[] = []
+  // 分页逻辑
+  const {
+    isLoading,
+    messageTotal,
+    handleLoadMore,
+  } = usePagination(conversationsId)
 
-  for (const msg of messages) {
-    const commonProps: Partial<BubbleProps> = {
-      loading: msg.status === 'loading',
-      placement: msg.role === Role.USER ? 'end' : 'start',
-      avatar: getRoleAvatar(msg),
-      className: 'group',
-      typing: msg.status === 'typing' ? { step: 1, interval: 50 } : false,
-      styles: { content: msg.role === Role.USER ? { ...rightBubbleContentStyle } : { ...leftBubbleContentStyle } },
-    }
+  // 消息操作逻辑
+  const { copyMessage, deleteMessage } = useMessageActions()
 
-    if (msg.role === Role.AI) {
-      if (msg?.mcpTool?.length) {
-        commonProps.styles = {
-          content: {
-            width: 'calc(100% - 44px)',
-          },
-        }
-      }
-    }
+  const hasMore = messages.length < messageTotal
 
-    items.push(
-      <Bubble
-        key={msg.id}
-        {...commonProps}
-        messageRender={(content) => {
-          if (msg.role !== Role.AI) {
-            const pickList = ['status']
-
-            if (msg.role === Role.USER) {
-              pickList.push('images', 'attachments')
-            }
-
-            const messageContentProps: Partial<BubbleContent> = { ...pick(msg, pickList), content }
-
-            return <MessageContent {...messageContentProps} />
-          }
-          else {
-            return (
-              <>
-                <MessageContent
-                  content={content}
-                  reasoningContent={msg.reasoningContent}
-                  status={msg.status}
-                />
-                {
-                  msg.role === Role.AI && msg.mcpTool && (
-                    <div className="flex flex-col gap-4 mt-3">
-                      {
-                        msg.mcpTool?.map(tool => (
-                          <McpToolCallPanel
-                            key={tool.id}
-                            item={tool}
-                            onExecute={async (item) => {
-                              const { isAllCompleted } = await executeMcpToolAction(msg.id, item)
-
-                              if (isAllCompleted) {
-                                onExecuteAllCompleted?.(msg.id)
-                              }
-                            }}
-                          />
-                        ))
-                      }
-                    </div>
-                  )
-                }
-              </>
-            )
-          }
-        }}
-        content={
-          typeof msg.content === 'string'
-            ? msg.content
-            : msg.content.reduce((a, b, index) => {
-                if (b.type === 'image') {
-                  return b?.url
-                    ? `\n![](${b.url})`
-                    : `${a}\n![](data:${b.mimeType};base64,${b.data})\n`
-                }
-                else if (b.type === 'error') {
-                  return index === 0 ? `${a}\n${b.error}` : `${a}\n> [!CAUTION]\n> ${b.error}`
-                }
-                else {
-                  return `${a}\n${b.text}`
-                }
-              }, '')
-        }
-        header={<BubbleHeader time={msg.createdAt} modelInfo={msg.role === Role.AI ? msg.modelInfo : undefined} />}
-        footer={<BubbleFooter message={msg} onClick={handleFooterButtonClick} />}
-      />,
-    )
-  }
-
-  // ============================ 自动滚动 ============================
-  const [autoScrollToBottom, setAutoScrollToBottom] = useState(true)
-  const infiniteScrollRef = useRef<ImperativeHandleRef>(null)
-
-  function handleScroll(e: React.UIEvent<HTMLDivElement>) {
-    const target = e.target as HTMLElement
-    setAutoScrollToBottom(
-      target.scrollHeight - Math.abs(target.scrollTop) - target.clientHeight <= 1,
-    )
-  }
-
+  // 处理底部按钮点击
   async function handleFooterButtonClick(buttonName: string, message: IMessage) {
     const mapping = {
       copy: () => copyMessage(message),
       refresh: () => onRefresh?.(message),
-      delete: () => deleteMessageAction(message.id),
+      delete: () => deleteMessage(message.id),
     }
     mapping[buttonName as keyof typeof mapping]?.()
   }
 
-  // 自动滚动到最底部
+  // 当消息数量变化时自动滚动
   useEffect(() => {
     if (autoScrollToBottom) {
-      infiniteScrollRef.current?.scrollToBottom()
+      scrollToBottom()
     }
-  })
-
-  useEffect(() => {
-    if (autoScrollToBottom) {
-      infiniteScrollRef.current?.scrollToBottom()
-    }
-  }, [messages.length])
-
-  //  ============================ 分页 ============================
-  const [isLoading, setIsLoading] = useState(false)
-  const messageTotal = useMessagesStore(state => state.messageTotal)
-  const hasMore = messages.length < messageTotal
-
-  const handleLoadMore = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      await nextPageMessagesAction(conversationsId as ConversationsId)
-    }
-    finally {
-      setIsLoading(false)
-    }
-  }, [conversationsId])
-
-  // ============================ 操作 ============================
-  async function copyMessage(message: IMessage) {
-    const data = { text: '', html: '' }
-    message.content.forEach((b, index) => {
-      if (index !== 0) {
-        data.text += '\n'
-      }
-      if (b.type === 'image') {
-        data.text += `![](data:${b.mimeType};base64,${b.data})\n`
-      }
-      else if (b.type === 'error') {
-        data.text += `> [!CAUTION]\n> ${b.error}`
-      }
-      else {
-        data.text += `${b.text}`
-      }
-    })
-
-    try {
-      await clipboardWrite(data)
-      messageFunc.success('复制成功')
-    }
-    catch {
-      messageFunc.error('复制失败')
-    }
-  }
+  }, [messages.length, autoScrollToBottom, scrollToBottom])
 
   return (
     <InfiniteScroll
@@ -222,64 +69,24 @@ function BubbleList({ messages, conversationsId, onExecuteAllCompleted, onRefres
       )}
       onScroll={handleScroll}
     >
-      {items}
+      {messages.map(message => (
+        <MessageBubble
+          key={message.id}
+          message={message}
+          onFooterButtonClick={handleFooterButtonClick}
+          onExecuteAllCompleted={onExecuteAllCompleted}
+        />
+      ))}
+
       <Button
         size="small"
         className={`!sticky block w-6 min-h-6 left-1/2 bottom-8 -translate-x-1/2 transition-opacity duration-300 ${autoScrollToBottom ? 'opacity-0' : 'opacity-100'}`}
         shape="circle"
         icon={<ArrowDownOutlined />}
-        onClick={() => {
-          infiniteScrollRef.current?.scrollToBottom()
-        }}
+        onClick={scrollToBottom}
       />
     </InfiniteScroll>
   )
-}
-
-function getRoleAvatar({ role, ...rest }: IMessage): React.ReactElement {
-  const defaultAvatar = (
-    <div className="w-8 h-8 flex items-center justify-center text-white text-lg bg-[#69b1ff] rounded-full">
-      <RobotFilled />
-    </div>
-  )
-
-  if (role === Role.USER) {
-    return (
-      <div className="w-8 h-8 flex items-center justify-center text-white text-lg bg-[#87d068] rounded-full">
-        <UserOutlined />
-      </div>
-    )
-  }
-  else if (role === Role.SYSTEM) {
-    return (
-      <div className="w-8 h-8 flex items-center justify-center text-white text-lg bg-[#DE732D] rounded-full">
-        <SmileFilled />
-      </div>
-    )
-  }
-  else if (role === Role.AI) {
-    /** Role.AI */
-
-    const { modelInfo } = rest as IMessageAI
-    if (!modelInfo) {
-      return defaultAvatar
-    }
-
-    const provider = modelInfo?.provider.toLowerCase()
-
-    const ProviderLogo = getProviderLogo(provider || '')
-    if (ProviderLogo) {
-      return (
-        <div className="w-8 h-8 flex items-center justify-center text-white dark:bg-black border-solid text-lg border-(--border-color) border-1 bg-white rounded-full">
-          <ProviderLogo />
-        </div>
-      )
-    }
-
-    return defaultAvatar
-  }
-
-  return defaultAvatar
 }
 
 export default BubbleList
