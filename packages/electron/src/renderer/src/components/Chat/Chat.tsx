@@ -1,6 +1,5 @@
 import type { ChatFeatures, ConversationsId, IAttachment, IImage, IMessage } from '@ant-chat/shared'
 import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
-import { SettingOutlined } from '@ant-design/icons'
 import { App, Skeleton } from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import { useShallow } from 'zustand/shallow'
@@ -26,7 +25,6 @@ import Loading from '../Loading'
 import Sender from '../Sender'
 import { ModelControlPanel } from '../Sender/PickerModel'
 import TypingEffect from '../TypingEffect'
-import ConversationsTitle from './ConversationsTitle'
 
 const ConversationsSettings = lazy(() => import('./ConversationsSettings'))
 const BubbleList = lazy(() => import('./BubbleList'))
@@ -45,17 +43,6 @@ export default function Chat() {
 
   // ============================ 选择模型 ============================
   const model = useChatSttingsStore(state => state.model)
-
-  const items = [
-    {
-      label: '对话设置',
-      key: 'setting',
-      icon: <SettingOutlined />,
-      onClick: () => {
-        setOpen(true)
-      },
-    },
-  ]
 
   async function onSubmit(message: string, images: IImage[], attachments: IAttachment[], features: ChatFeatures) {
     if (!model) {
@@ -102,14 +89,13 @@ export default function Chat() {
   }
 
   return (
-    <div key={currentConversations?.id} className="grid w-full grid-rows-[max-content_1fr_max-content] h-(--mainHeight) md:h-[100dvh] relative mx-auto">
-      <div>
-        <ConversationsTitle
-          conversation={currentConversations}
-          items={items}
-        />
+    <div key={currentConversations?.id} className="grid w-full grid-rows-[1fr_max-content] h-(--mainHeight) md:h-[100dvh] relative mx-auto">
+      <div
+        className="absolute left-0 top-0 z-10
+          w-full h-5
+          bg-linear-to-b from-white dark:from-black to-transparent"
+      >
       </div>
-
       {
         messages.length > 0
           ? (
