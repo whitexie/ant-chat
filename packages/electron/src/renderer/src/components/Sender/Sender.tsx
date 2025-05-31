@@ -1,6 +1,6 @@
-import type { IAttachment, IImage } from '@ant-chat/shared'
+import type { ChatFeatures, IAttachment, IImage } from '@ant-chat/shared'
 import type { UploadFile } from 'antd'
-import type { ChatFeatures } from '@/services-provider/interface'
+
 import Icon, {
   ArrowUpOutlined,
   AudioOutlined,
@@ -14,10 +14,11 @@ import { App, Badge, Button, Tooltip } from 'antd'
 import { useState } from 'react'
 import MCPIcon from '@/assets/icons/mcp.svg?react'
 import StopSvg from '@/assets/icons/stop.svg?react'
-import { useFeatures, useFeaturesState } from '@/store/features'
+import { setOnlieSearch, useChatSttingsStore } from '@/store/chatSettings'
 import { useMessagesStore } from '@/store/messages'
 import { fileToBase64 } from '@/utils'
 import SwitchButton from '../SwitchButton'
+import MCPManagementPanel from './MCPManagementPanel'
 
 interface SenderProps {
   loading?: boolean
@@ -33,8 +34,11 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
   const [attachmentList, setAttachmentList] = useState<UploadFile[]>([])
   const [rows, setRows] = useState(2)
   const hasMessage = useMessagesStore(state => !!state.messages.length)
-  const features = useFeaturesState()
-  const { setOnlieSearch, setEnableMCP } = useFeatures()
+
+  // ============================ MCP、联网搜索 ============================
+  const mcpEnabled = useChatSttingsStore(state => state.enableMCP)
+  const onlineSearch = useChatSttingsStore(state => state.onlineSearch)
+
   // 新增输入法状态
   const [isComposing, setIsComposing] = useState(false)
 
@@ -65,7 +69,7 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
 
   async function handleSubmit() {
     const { images, attachments } = await transformAttachments()
-    props?.onSubmit?.(text, images, attachments, features)
+    props?.onSubmit?.(text, images, attachments, { enableMCP: mcpEnabled, onlineSearch })
     setAttachmentList([])
     setText('')
     setOpenHeader(false)
@@ -166,21 +170,17 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
             <div>
               <SwitchButton
                 dataTestId="onlineSearch"
-                checked={features.onlineSearch}
+                checked={onlineSearch}
                 onChange={setOnlieSearch}
                 icon={<GlobalOutlined />}
               />
             </div>
           </Tooltip>
-          <Tooltip title="MCP(token消耗较大)">
-            <div>
-              <SwitchButton
-                checked={features.enableMCP}
-                onChange={setEnableMCP}
-                icon={<Icon component={MCPIcon} />}
-              />
-            </div>
-          </Tooltip>
+          <SwitchButton
+            checked={mcpEnabled}
+            icon={<Icon component={MCPIcon} />}
+            popoverContent={<MCPManagementPanel />}
+          />
           {actions}
         </div>
         <div className="flex gap-1 items-center">
@@ -220,25 +220,5 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
     </div>
   )
 }
-
-// function checkModel(model: AllAvailableModelsSchema['models'][number] | null) {
-//   return !!model
-// }
-
-// function checkProviderServiceConfig(provider: AllAvailableModelsSchema) {
-//   if (!provider.apiKey) {
-//     return [false, 'apiKey 未配置']
-//   }
-
-//   if (!provider.baseUrl) {
-//     return [false, 'baseUrl 未配置']
-//   }
-
-//   if (!provider.models.length) {
-//     return [false, '该提供商下没有可用的模型']
-//   }
-
-//   return [true, '']
-// }
 
 export default Sender
