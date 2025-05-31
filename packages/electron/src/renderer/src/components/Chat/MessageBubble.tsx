@@ -81,7 +81,7 @@ export function MessageBubble({ message, onFooterButtonClick, onExecuteAllComple
       loading={message.status === 'loading'}
       placement={isUser ? 'end' : 'start'}
       avatar={<MessageAvatar message={message} />}
-      className="group"
+      className="group w-full max-w-(--chat-width) mx-auto"
       typing={message.status === 'typing' ? { step: 1, interval: 50 } : false}
       styles={bubbleStyle}
       messageRender={renderMessageContent}

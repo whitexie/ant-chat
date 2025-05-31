@@ -79,7 +79,7 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
   return (
     <div
       className={`
-        w-(--chat-width) mx-auto
+        w-full max-w-(--chat-width) mx-auto
         ${hasMessage ? 'relative' : 'absolute left-2 right-2 bottom-[50%]'} 
         transition transition-duration-500 p-3 
         bg-white dark:bg-[var(--ant-layout-color-bg-body)]
