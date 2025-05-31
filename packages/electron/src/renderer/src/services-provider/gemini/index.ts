@@ -48,7 +48,7 @@ class GeminiService extends BaseService {
     const result: GeminiRequestBody['contents'] = []
     for (const tool of tools) {
       const { serverName, toolName, args } = tool
-      const name = serverName + this.DEFAULT_MCP_TOOL_NAME_SEPARATOR + toolName
+      const name = serverName + this.mcpToolNameSeparator + toolName
       result.push({
         role: 'model',
         parts: [
@@ -261,7 +261,7 @@ class GeminiService extends BaseService {
       }
       else if ('functionCall' in part) {
         const { name, args } = part.functionCall
-        const [serverName, toolName] = name.split(this.DEFAULT_MCP_TOOL_NAME_SEPARATOR)
+        const [serverName, toolName] = name.split(this.mcpToolNameSeparator)
 
         functioncalls.push(
           createMcpToolCall({

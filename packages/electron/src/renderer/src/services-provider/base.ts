@@ -25,7 +25,7 @@ export default abstract class BaseService {
   protected enableMCP = false
 
   // MCP 工具名称分隔符的默认值
-  protected DEFAULT_MCP_TOOL_NAME_SEPARATOR = DEFAULT_MCP_TOOL_NAME_SEPARATOR
+  protected mcpToolNameSeparator = DEFAULT_MCP_TOOL_NAME_SEPARATOR
 
   // 构造函数，用于初始化服务配置
   constructor(options: ServiceConstructorOptions) {

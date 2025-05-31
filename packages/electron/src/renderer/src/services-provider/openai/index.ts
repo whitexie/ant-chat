@@ -47,7 +47,7 @@ export default class OpenAIService extends BaseService {
 
     const messages: MessageItem[] = []
     _messages.forEach((msg) => {
-      messages.push(...transformMessageItem(msg, isHasFile))
+      messages.push(...transformMessageItem(msg, isHasFile, this.mcpToolNameSeparator))
     })
 
     return messages
@@ -160,7 +160,7 @@ export default class OpenAIService extends BaseService {
         if (this.enableMCP && Object.keys(this.mcpToolRawMapping).length) {
           const functionCalls = Object.entries(this.mcpToolRawMapping).map((temp) => {
             const [id, funcObj] = temp
-            const [serverName, toolName] = funcObj.name.split(this.DEFAULT_MCP_TOOL_NAME_SEPARATOR)
+            const [serverName, toolName] = funcObj.name.split(this.mcpToolNameSeparator)
 
             return createMcpToolCall({ id, serverName, toolName, args: safeParseJson(funcObj.arguments) })
           })
@@ -189,7 +189,7 @@ function safeParseJson(str: string) {
   }
 }
 
-function transformMessageItem(message: IMessage, hasMedia: boolean): MessageItem[] {
+function transformMessageItem(message: IMessage, hasMedia: boolean, mcpToolNameSeparator: string): MessageItem[] {
   const content = message.content[0].type === 'text' ? message.content[0].text : ''
   if (message.role === Role.SYSTEM) {
     return [{ role: Role.SYSTEM, content }]
@@ -237,7 +237,7 @@ function transformMessageItem(message: IMessage, hasMedia: boolean): MessageItem
         role: Role.AI,
         tool_calls: message.mcpTool.map(tool => ({
           function: {
-            name: tool.serverName + tool.toolName,
+            name: tool.serverName + mcpToolNameSeparator + tool.toolName,
             arguments: typeof tool.args === 'object' ? JSON.stringify(tool.args) : tool.args,
           },
           id: tool.id,
