@@ -1,11 +1,11 @@
 import process from 'node:process'
-import { MCPClientHub } from '@ant-chat/mcp-client-hub'
 import { app } from 'electron'
 import { installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer'
 import { initializeDb } from './db'
 import { registerCommonHandlers } from './ipcHandlers/commonHandlers'
 import { registerDbHandlers } from './ipcHandlers/dbHandlers'
 import { registerMcpHandlers } from './ipcHandlers/mcpHandlers'
+import { clientHub } from './mcpClientHub'
 import { isDev } from './utils/env'
 import { logger } from './utils/logger'
 import { MainWindow } from './window'
@@ -53,7 +53,6 @@ app.whenReady().then(async () => {
   await mainWindow.createWindow()
 
   // 初始化 MCP 服务
-  const clientHub = new MCPClientHub()
   registerMcpHandlers(clientHub)
 
   app.on('activate', () => {
