@@ -67,8 +67,6 @@ const ReadMoreContainer: React.FC<ReadMoreContainerProps> = ({
 
   return (
     <div>
-      {' '}
-      {/* Container */}
       <div
         ref={contentRef}
         style={contentStyle}
