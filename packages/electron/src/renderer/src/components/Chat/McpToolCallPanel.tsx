@@ -37,7 +37,6 @@ export function McpToolCallPanel({ item, onExecute }: McpToolCallPanelProps) {
       result.push(
         <>
           <Tag color="red">执行失败</Tag>
-          <Button size="small" title="重试" type="text" icon={<ReloadOutlined />} />
         </>,
       )
     }
@@ -63,7 +62,6 @@ export function McpToolCallPanel({ item, onExecute }: McpToolCallPanelProps) {
   return (
     <Collapse
       size="small"
-      defaultActiveKey={['mcp']}
       items={[
         {
           key: 'mcp',
