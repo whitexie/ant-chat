@@ -32,7 +32,24 @@ export async function executeMcpToolAction(messageId: MessageId, tool: IMcpToolC
     throw new Error('message not has mcpTool')
   }
 
-  const mcpToolCallResponse = await executeMcpToolCall(tool)
+  let mcpToolCallResponse: null | McpToolCallResponse = null
+
+  try {
+    mcpToolCallResponse = await executeMcpToolCall(tool)
+  }
+  catch (e) {
+    const error = e as Error
+    console.error(error)
+
+    mcpToolCallResponse = {
+      isError: true,
+      content: [{
+        type: 'text',
+        text: error.message,
+      }],
+    }
+  }
+
   const result = createMcpToolCallResponse(mcpToolCallResponse)
 
   const toolIndex = message.mcpTool?.findIndex(item => item.id === tool.id)
