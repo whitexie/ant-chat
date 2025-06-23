@@ -1,7 +1,6 @@
 import type { ChatFeatures, ConversationsId, IAttachment, IImage, IMessage } from '@ant-chat/shared'
-import type { UpdateConversationsSettingsConfig } from '@/store/conversation'
 import { App, Skeleton } from 'antd'
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense } from 'react'
 import { useShallow } from 'zustand/shallow'
 import { createConversations, createUserMessage } from '@/api/dataFactory'
 import { DEFAULT_TITLE } from '@/constants'
@@ -9,7 +8,6 @@ import { setModel, useChatSttingsStore } from '@/store/chatSettings'
 import {
   addConversationsAction,
   initConversationsTitle,
-  updateConversationsSettingsAction,
   useConversationsStore,
 } from '@/store/conversation'
 import {
@@ -26,12 +24,10 @@ import Sender from '../Sender'
 import { ModelControlPanel } from '../Sender/PickerModel'
 import TypingEffect from '../TypingEffect'
 
-const ConversationsSettings = lazy(() => import('./ConversationsSettings'))
 const BubbleList = lazy(() => import('./BubbleList'))
 const RunnerCode = lazy(() => import('../RunnerCode'))
 
 export default function Chat() {
-  const [open, setOpen] = useState(false)
   const messages = useMessagesStore(state => state.messages)
   const activeConversationsId = useMessagesStore(state => state.activeConversationsId)
   const currentConversations = useConversationsStore(state => state.conversations.find(item => item.id === activeConversationsId))
@@ -77,15 +73,6 @@ export default function Chat() {
         initConversationsTitle(model)
       }, 1000)
     }
-  }
-
-  async function handleSave(config: UpdateConversationsSettingsConfig) {
-    if (!currentConversations) {
-      console.error('save fail. current conversation not exists')
-      return
-    }
-    const id = currentConversations?.id
-    await updateConversationsSettingsAction(id, config)
   }
 
   return (
@@ -144,17 +131,6 @@ export default function Chat() {
           }}
         />
       </div>
-      {
-        currentConversations && (
-          <ConversationsSettings
-            key={currentConversations.id}
-            open={open}
-            onClose={() => setOpen(false)}
-            conversations={currentConversations}
-            onSave={handleSave}
-          />
-        )
-      }
       <Suspense fallback={<Loading />}>
         <RunnerCode />
       </Suspense>

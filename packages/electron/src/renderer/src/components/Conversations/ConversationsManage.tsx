@@ -1,12 +1,11 @@
 import type { ConversationsId, IConversations } from '@ant-chat/shared'
 import type { ConversationsProps } from '@ant-design/x'
 import type { MenuProps } from 'antd'
-import { ClearOutlined, DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, MessageOutlined } from '@ant-design/icons'
+import { ClearOutlined, DeleteOutlined, EditOutlined, MessageOutlined } from '@ant-design/icons'
 import { Conversations } from '@ant-design/x'
 import { App, Button, Dropdown } from 'antd'
 import dayjs from 'dayjs'
 import { lazy, Suspense, useState } from 'react'
-import Settings from '@/components/Settings'
 import { useConversationRename } from '@/hooks/useConversationRename'
 import {
   clearConversationsAction,
@@ -20,7 +19,6 @@ import { setActiveConversationsId, useMessagesStore } from '@/store/messages'
 import { importAntChatFile } from '@/utils'
 import { InfiniteScroll } from '../InfiniteScroll'
 import Loading from '../Loading'
-import { VersionButton } from '../Version'
 
 const RenameModal = lazy(() => import('./RenameModal'))
 
@@ -46,8 +44,8 @@ export default function ConversationsManage() {
   const disabledClear = conversations.length === 0
 
   const dropdownButtons = [
-    { key: 'import', label: '导入', icon: <ImportOutlined /> },
-    { key: 'export', label: '导出', icon: <ExportOutlined /> },
+    // { key: 'import', label: '导入', icon: <ImportOutlined /> },
+    // { key: 'export', label: '导出', icon: <ExportOutlined /> },
     { key: 'clear', label: '清空', icon: <ClearOutlined />, danger: true, disabled: disabledClear },
   ]
 
@@ -170,10 +168,6 @@ export default function ConversationsManage() {
           items={items}
         />
       </InfiniteScroll>
-      <div className="border-1px border-(--border-color) flex flex-col px-1 py-2 footer border-t-solid gap-1">
-        <Settings />
-        <VersionButton />
-      </div>
       <Suspense fallback={<Loading />}>
         <RenameModal
           isRenameModalOpen={isRenameModalOpen}

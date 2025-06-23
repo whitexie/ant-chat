@@ -124,7 +124,7 @@ export const InfiniteScroll: React.FC<Props> = ({
     >
       {/* 触顶加载观察器 */}
       {(direction === 'top' || direction === 'both') && inited && (
-        <div ref={topObserverRef} className="h-4">
+        <div ref={topObserverRef} className="h-1">
           {!hasMore && noMoreComponent}
         </div>
       )}
@@ -135,7 +135,7 @@ export const InfiniteScroll: React.FC<Props> = ({
 
       {/* 触底加载观察器 */}
       {(direction === 'bottom' || direction === 'both') && (
-        <div ref={bottomObserverRef} className="h-4">
+        <div ref={bottomObserverRef} className="h-1">
           {!hasMore && noMoreComponent}
         </div>
       )}
