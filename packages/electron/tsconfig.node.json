@@ -6,7 +6,7 @@
     "baseUrl": ".",
     "paths": {
       "@main/*": [
-        "src/mian/*"
+        "src/main/*"
       ]
     },
     "types": ["electron-vite/node"],
