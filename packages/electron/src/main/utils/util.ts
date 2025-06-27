@@ -2,6 +2,7 @@ import { existsSync, mkdirSync } from 'node:fs'
 import path, { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { app, clipboard } from 'electron'
+import { nanoid } from 'nanoid'
 
 export function clipboardWrite(data: Electron.Data, type?: 'selection' | 'clipboard') {
   clipboard.write(data, type)
@@ -66,4 +67,8 @@ export function generateDbPath(dirString: string) {
     console.error('Database connection error:', error)
     throw error
   }
+}
+
+export function uuid(prefix?: string) {
+  return `${prefix || ''}${nanoid()}`
 }

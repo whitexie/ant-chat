@@ -1,4 +1,4 @@
-import type { IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption } from './interfaces'
+import type { handleChatCompletionsOptions, IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption } from './interfaces'
 import type { AddConversationsSchema, AddMcpConfigSchema, AddServiceProviderModelSchema, AddServiceProviderSchema, AllAvailableModelsSchema, McpConfigSchema, ServiceProviderModelsSchema, ServiceProviderSchema, UpdateConversationsSchema, UpdateMcpConfigSchema, UpdateServiceProviderSchema } from './schemas'
 
 export function createIpcResponse<T>(success: boolean, data: T, msg?: string): IpcResponse<T> | ErrorIpcResponse {
@@ -54,7 +54,7 @@ export type IpcEvents =
      * const emitter = new IpcEmitter<IpcEvents>()
      * emitter.send('ping', 'pong')
      */
-    ping: [string] // listener event map
+    'chat:send-chat-completions': [handleChatCompletionsOptions]
   }
   | {
     // ============================ 全局 相关 ============================
@@ -117,6 +117,6 @@ export type IpcEvents =
 export interface IpcRendererEvent {
   'mcp:McpServerStatusChanged': [string, 'disconnected' | 'connected']
   'common:Notification': [NotificationOption]
-
+  'chat:stream-message': [IMessage]
   [key: string]: unknown[]
 }

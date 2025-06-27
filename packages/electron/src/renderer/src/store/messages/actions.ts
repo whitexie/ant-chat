@@ -1,6 +1,8 @@
 import type { AllAvailableModelsSchema, ChatFeatures, ConversationsId, IMessage, MessageId } from '@ant-chat/shared'
 import type { RequestStatus } from './store'
 import { produce } from 'immer'
+import { pick } from 'lodash-es'
+import chatApi from '@/api/chatApi'
 import { createAIMessage } from '@/api/dataFactory'
 import { dbApi } from '@/api/dbApi'
 import { Role } from '@/constants'
@@ -61,6 +63,25 @@ export async function updateMessageAction(_message: IMessage) {
   return message
 }
 
+export async function updateMessageActionV2(message: IMessage) {
+  const { convId } = message
+  const { activeConversationsId } = useMessagesStore.getState()
+  if (convId !== activeConversationsId) {
+    return
+  }
+
+  useMessagesStore.setState(state => produce(state, (draft) => {
+    const messageIndex = draft.messages.findIndex(msg => msg.id === message.id)
+
+    if (messageIndex > -1) {
+      draft.messages[messageIndex] = message
+    }
+    else {
+      draft.messages.push(message)
+    }
+  }))
+}
+
 export function setAbortFunction(callback: () => void) {
   useMessagesStore.setState(state => produce(state, (draft) => {
     draft.abortFunction = callback
@@ -85,12 +106,25 @@ export function abortSendChatCompletions() {
   }
 }
 
-export async function sendChatCompletions(conversationId: ConversationsId, features: ChatFeatures, model: AllAvailableModelsSchema['models'][number]) {
+export async function sendChatCompletions(conversationId: string | ConversationsId, features: ChatFeatures, model: AllAvailableModelsSchema['models'][number]) {
+  const serviceProviderInfo = await dbApi.getServiceProviderById(model.serviceProviderId)
+  if (serviceProviderInfo.apiMode === 'openai') {
+    console.log('is openai')
+    const chatSettings = pick(useChatSttingsStore.getState(), ['maxTokens', 'systemPrompt', 'temperature', 'maxTokens'])
+    chatApi.sendChatCompletions({
+      conversationsId: conversationId as string,
+      chatSettings: {
+        ...chatSettings,
+        providerId: model.serviceProviderId,
+        model: model.model,
+        features,
+      },
+    })
+    return
+  }
   const messages = useMessagesStore.getState().messages
 
   const { temperature, maxTokens } = useChatSttingsStore.getState()
-
-  const serviceProviderInfo = await dbApi.getServiceProviderById(model.serviceProviderId)
 
   let aiMessage: IMessage = createAIMessage({
     convId: conversationId,

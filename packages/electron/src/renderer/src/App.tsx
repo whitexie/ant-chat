@@ -1,13 +1,11 @@
-import type { NotificationOption } from '@ant-chat/shared'
-import { useThemeStore } from '@/store/theme'
 import { App, ConfigProvider, theme } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { useEffect } from 'react'
 import { Outlet } from 'react-router'
+import { useThemeStore } from '@/store/theme'
 import { RunnerCodeProvider } from './components/RunnerCode'
 import { SliderMenu } from './components/SiliderMenu'
-import { onMcpServerStatusChanged } from './store/mcpConfigs'
-import { ipc } from './utils/ipc-bus'
+import { useIpcEventListener } from './hooks/useIpcEventListener'
 
 function AppWrapper() {
   const currentThemeMode = useThemeStore(state => state.mode)
@@ -54,24 +52,7 @@ function AppWrapper() {
 }
 
 function AntChatApp() {
-  const { notification } = App.useApp()
-  /**
-   * 监听来自主线程的`notification` 事件
-   */
-  useEffect(() => {
-    const handle = (_: Electron.IpcRendererEvent, { type, message, description }: NotificationOption) => {
-      const func = notification[type]
-      func({ message, description })
-    }
-
-    ipc.on('common:Notification', handle)
-    ipc.on('mcp:McpServerStatusChanged', onMcpServerStatusChanged)
-
-    return () => {
-      window.electronAPI.ipcRenderer.removeAllListeners('common:Notification')
-      window.electronAPI.ipcRenderer.removeAllListeners('mcp:McpServerStatusChanged')
-    }
-  }, [])
+  useIpcEventListener()
 
   return (
     <div className="w-full h-full bg-white dark:bg-black">

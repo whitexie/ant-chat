@@ -1,4 +1,4 @@
-import type { AddMessage, IMessage, UpdateMessageSchema } from '@ant-chat/shared'
+import type { AddMessage, AIMessage, IMessage, UpdateMessageSchema } from '@ant-chat/shared'
 
 import { desc, eq, sql } from 'drizzle-orm'
 import { db } from '../db'
@@ -38,6 +38,16 @@ export async function addMessage(message: AddMessage): Promise<IMessage> {
     .get()
 
   return result as IMessage
+}
+
+export async function createAIMessage(convId: string, modelInfo: AIMessage['modelInfo']) {
+  return await addMessage({
+    convId,
+    content: [],
+    role: 'assistant',
+    status: 'typing',
+    modelInfo,
+  })
 }
 
 export async function updateMessage(message: UpdateMessageSchema): Promise<IMessage> {

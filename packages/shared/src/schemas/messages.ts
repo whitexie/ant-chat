@@ -94,25 +94,26 @@ export const AIMessage = BaseMessage.extend({
   role: z.literal('assistant'),
   status: z.enum(['success', 'error', 'loading', 'typing', 'cancel']),
   modelInfo: ModelInfoSchema,
+  reasoningContent: z.string().optional(),
   mcpTool: z.array(McpToolCallSchema).optional().nullable(),
 })
 
 export type AIMessage = z.infer<typeof AIMessage>
 
-export const Message = z.union([AIMessage, UserMessage])
+export const Message = z.discriminatedUnion('role', [AIMessage, UserMessage])
 export type Message = z.infer<typeof Message>
 
 // ============================ Add Message Schema ============================
-export const AddMessage = z.union([
+export const AddMessage = z.discriminatedUnion('role', [
   AIMessage.omit({ id: true, createAt: true }),
   UserMessage.omit({ id: true, createAt: true }),
 ])
 export type AddMessage = z.infer<typeof AddMessage>
 
 // ============================ Update Message Schema ============================
-export const UpdateMessageSchema = z.union([
-  AIMessage.partial().extend({ id: z.string() }),
-  UserMessage.partial().extend({ id: z.string() }),
+export const UpdateMessageSchema = z.discriminatedUnion('role', [
+  AIMessage.partial().extend({ id: z.string(), role: AIMessage.shape.role }),
+  UserMessage.partial().extend({ id: z.string(), role: UserMessage.shape.role }),
 ])
 
 export type UpdateMessageSchema = z.infer<typeof UpdateMessageSchema>

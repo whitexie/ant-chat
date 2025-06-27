@@ -2,6 +2,7 @@ import process from 'node:process'
 import { app } from 'electron'
 import { installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer'
 import { initializeDb } from './db'
+import { registerChatHandlers } from './ipcHandlers/chatHandlers'
 import { registerCommonHandlers } from './ipcHandlers/commonHandlers'
 import { registerDbHandlers } from './ipcHandlers/dbHandlers'
 import { registerMcpHandlers } from './ipcHandlers/mcpHandlers'
@@ -17,6 +18,7 @@ logger.info('Electron 主进程启动', __dirname)
 app.whenReady().then(async () => {
   registerDbHandlers()
   registerCommonHandlers()
+  registerChatHandlers()
 
   // 安装开发工具扩展
   if (isDev) {
