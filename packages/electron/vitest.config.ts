@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'node:url'
-import svgr from 'vite-plugin-svgr'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -9,7 +8,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: [
-        'src/**/*.{ts,tsx}',
+        'src/main/**/*.test.{ts,tsx}',
       ],
       exclude: [
         'src/**/*.d.ts',
@@ -22,6 +21,7 @@ export default defineConfig({
       '@ant-design/x/es/sender/useSpeech': '@ant-design/x/es/sender/useSpeech',
       '@ant-design/x': '@ant-design/x/es',
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@main': fileURLToPath(new URL('./src/main', import.meta.url)),
     },
     environment: 'jsdom',
     setupFiles: [],
