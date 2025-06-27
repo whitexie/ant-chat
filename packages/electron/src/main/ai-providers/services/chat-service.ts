@@ -1,6 +1,7 @@
 import type { handleChatCompletionsOptions, SendChatCompletionsOptions, TextContent } from '@ant-chat/shared'
 import type { AIProvider } from '../providers/interface'
 import { createAIMessage, getMessagesByConvId, getProviderServiceById, updateMessage } from '@main/db/services'
+import { clientHub } from '@main/mcpClientHub'
 import { mainEmitter } from '@main/utils/ipc-events-bus'
 import { getMainWindow } from '@main/window'
 import { AIProviderMapping } from '../providers'
@@ -43,7 +44,9 @@ export async function handleChatCompletions(options: handleChatCompletionsOption
 
   chatService.initializeProvider(chatSettings.providerId)
 
-  const stream = await chatService.sendChatCompletions({ messages, chatSettings })
+  const mcpTools = clientHub.getAllAvailableToolsList()
+
+  const stream = await chatService.sendChatCompletions({ messages, chatSettings, mcpTools })
 
   const aiMessage = await createAIMessage(
     conversationsId,
