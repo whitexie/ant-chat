@@ -94,7 +94,7 @@ export const AIMessage = BaseMessage.extend({
   role: z.literal('assistant'),
   status: z.enum(['success', 'error', 'loading', 'typing', 'cancel']),
   modelInfo: ModelInfoSchema,
-  reasoningContent: z.string().optional(),
+  reasoningContent: z.string().optional().nullable(),
   mcpTool: z.array(McpToolCallSchema).optional().nullable(),
 })
 

@@ -108,7 +108,7 @@ export function abortSendChatCompletions() {
 
 export async function sendChatCompletions(conversationId: string | ConversationsId, features: ChatFeatures, model: AllAvailableModelsSchema['models'][number]) {
   const serviceProviderInfo = await dbApi.getServiceProviderById(model.serviceProviderId)
-  if (serviceProviderInfo.apiMode === 'openai') {
+  if (['openai', 'gemini'].includes(serviceProviderInfo.apiMode)) {
     console.log('is openai')
     const chatSettings = pick(useChatSttingsStore.getState(), ['maxTokens', 'systemPrompt', 'temperature', 'maxTokens'])
     chatApi.sendChatCompletions({
@@ -120,6 +120,7 @@ export async function sendChatCompletions(conversationId: string | Conversations
         features,
       },
     })
+
     return
   }
   const messages = useMessagesStore.getState().messages
