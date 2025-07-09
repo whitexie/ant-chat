@@ -1,5 +1,6 @@
 import Chat from '@/components/Chat'
 import ConversationsManage from '@/components/Conversations/ConversationsManage'
+import { ChatSettingsProvider } from '@/contexts/chatSettings'
 
 export function ChatPage() {
   return (
@@ -10,7 +11,9 @@ export function ChatPage() {
         </div>
       </div>
       <div className="relative flex-1 flex h-(--mainHeight) transition-all">
-        <Chat />
+        <ChatSettingsProvider>
+          <Chat />
+        </ChatSettingsProvider>
       </div>
     </div>
   )

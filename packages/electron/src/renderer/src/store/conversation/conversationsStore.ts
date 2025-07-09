@@ -6,6 +6,7 @@ import { initialState } from './initialState'
 
 interface StoreActions {
   reset: () => void
+  setActiveConversationsId: (id: string) => void
 }
 export type ConversationsStore = StoreState & StoreActions
 
@@ -16,6 +17,9 @@ export const useConversationsStore = create<ConversationsStore>()(
       ...initialState,
       reset: () => {
         set(initialState)
+      },
+      setActiveConversationsId: (id: string) => {
+        set({ activeConversationsId: id })
       },
     }),
     {

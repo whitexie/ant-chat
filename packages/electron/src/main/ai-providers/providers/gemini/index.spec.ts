@@ -111,7 +111,6 @@ describe('test GeminiService', () => {
         },
       ],
       chatSettings: {
-        providerId: 'Gemini',
         model: 'test-model',
         temperature: 0.5,
         maxTokens: 100,

@@ -11,8 +11,10 @@ export const ModelConfigSchema = z.object({
 
 // 会话设置
 export const ConversationsSettingsSchema = z.object({
-  modelConfig: z.union([ModelConfigSchema, z.null()]).optional(),
-  systemPrompt: z.string().optional(),
+  modelId: z.string(),
+  systemPrompt: z.string(),
+  temperature: z.number(),
+  maxTokens: z.number(),
 })
 
 export type ConversationsSettingsSchema = z.infer<typeof ConversationsSettingsSchema>
@@ -22,7 +24,7 @@ export const ConversationsSchema = z.object({
   title: z.string(),
   createdAt: z.number(),
   updatedAt: z.number(),
-  settings: ConversationsSettingsSchema.optional().nullable(),
+  settings: ConversationsSettingsSchema,
 })
 
 export type ConversationsSchema = z.infer<typeof ConversationsSchema>
@@ -32,6 +34,6 @@ export const AddConversationsSchema = ConversationsSchema.omit({ id: true })
 export type AddConversationsSchema = z.infer<typeof AddConversationsSchema>
 
 // ============================ Update Conversations Schema ============================
-export const UpdateConversationsSchema = ConversationsSchema.partial().extend({ id: z.string() })
+export const UpdateConversationsSchema = ConversationsSchema.extend({ settings: ConversationsSettingsSchema }).partial().extend({ id: z.string() })
 
 export type UpdateConversationsSchema = z.infer<typeof UpdateConversationsSchema>

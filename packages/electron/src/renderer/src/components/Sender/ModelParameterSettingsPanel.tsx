@@ -1,17 +1,24 @@
+import type { ServiceProviderModelsSchema } from '@ant-chat/shared'
 import { Input, Slider } from 'antd'
-import { useShallow } from 'zustand/react/shallow'
+import { useEffect, useState } from 'react'
+import { dbApi } from '@/api/dbApi'
 import PromptIcon from '@/assets/icons/prompt.svg?react'
 import ReturnIcon from '@/assets/icons/return.svg?react'
 import TemperatureIcon from '@/assets/icons/temperature.svg?react'
-import { setMaxTokens, setSystemPrompt, setTemperature, useChatSttingsStore } from '@/store/chatSettings'
+import { useChatSettingsContext } from '@/contexts/chatSettings'
 
 export function ModelParameterSettingsPanel() {
-  const { systemPrompt, temperature, maxTokens, model } = useChatSttingsStore(useShallow(state => ({
-    model: state.model,
-    systemPrompt: state.systemPrompt,
-    temperature: state.temperature,
-    maxTokens: state.maxTokens,
-  })))
+  const { settings, updateSettings } = useChatSettingsContext()
+
+  const [modelInfo, setModelInfo] = useState<ServiceProviderModelsSchema | null>(null)
+
+  useEffect(() => {
+    const fetchModelInfo = async () => {
+      const info = await dbApi.getModelInfoById(settings.modelId)
+      setModelInfo(info)
+    }
+    fetchModelInfo()
+  }, [settings.modelId])
 
   return (
     <div className="w-80 p-2 px-4">
@@ -20,26 +27,26 @@ export function ModelParameterSettingsPanel() {
       </div>
       <div className="form">
         <FormItem label="系统提示词" icon={<PromptIcon />}>
-          <Input.TextArea value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} />
+          <Input.TextArea value={settings.systemPrompt} onChange={e => updateSettings({ systemPrompt: e.target.value })} />
         </FormItem>
         <FormItem label="temperature" icon={<TemperatureIcon />}>
           <CustomSlider
             min={0}
             max={2}
             step={0.1}
-            value={temperature}
-            onChange={value => setTemperature(value)}
+            value={settings.temperature}
+            onChange={value => updateSettings({ temperature: value })}
           />
         </FormItem>
         <FormItem label="maxTokens" icon={<ReturnIcon />}>
           <CustomSlider
-            defaultValue={model?.maxTokens ?? 4096}
+            defaultValue={modelInfo?.maxTokens ?? 4096}
             min={1000}
-            max={model?.maxTokens ?? 8000}
+            max={modelInfo?.maxTokens ?? 8000}
             formatter={value => `${Math.floor((value ?? 0) / 1000)}k`}
             step={1000}
-            value={maxTokens}
-            onChange={value => setMaxTokens(value)}
+            value={settings.maxTokens}
+            onChange={value => updateSettings({ maxTokens: value })}
           />
         </FormItem>
       </div>

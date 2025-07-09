@@ -9,5 +9,5 @@ export const conversationsTable = sqliteTable('conversations', {
   title: text('title').notNull(),
   createdAt: integer('created_at').notNull().default(sql`(strftime('%s','now'))`),
   updatedAt: integer('updated_at').notNull().default(sql`(strftime('%s','now'))`),
-  settings: text('settings', { mode: 'json' }).$type<ConversationsSettingsSchema>(),
+  settings: text('settings', { mode: 'json' }).$type<ConversationsSettingsSchema>().notNull(),
 })

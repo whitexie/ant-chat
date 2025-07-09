@@ -6,6 +6,7 @@ export interface StoreState {
   pageIndex: number
   pageSize: number
   conversationsTotal: number
+  activeConversationsId: string
 }
 
 export const initialState: StoreState = {
@@ -14,4 +15,5 @@ export const initialState: StoreState = {
   pageIndex: 0,
   pageSize: 20,
   conversationsTotal: 1,
+  activeConversationsId: '',
 }

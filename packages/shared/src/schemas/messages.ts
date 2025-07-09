@@ -111,9 +111,11 @@ export const AddMessage = z.discriminatedUnion('role', [
 export type AddMessage = z.infer<typeof AddMessage>
 
 // ============================ Update Message Schema ============================
-export const UpdateMessageSchema = z.discriminatedUnion('role', [
-  AIMessage.partial().extend({ id: z.string(), role: AIMessage.shape.role }),
-  UserMessage.partial().extend({ id: z.string(), role: UserMessage.shape.role }),
-])
+export const UpdateMessageSchema = BaseMessage.extend({
+  status: AIMessage.shape.status,
+  role: z.enum(['assistant', 'user']),
+  ...(AIMessage.pick({ modelInfo: true, reasoningContent: true, mcpTool: true }).shape),
+  ...(UserMessage.pick({ images: true, attachments: true }).shape),
+}).partial().extend({ id: z.string() })
 
 export type UpdateMessageSchema = z.infer<typeof UpdateMessageSchema>

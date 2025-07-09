@@ -1,6 +1,6 @@
 import type { handleChatCompletionsOptions, SendChatCompletionsOptions, TextContent } from '@ant-chat/shared'
 import type { AIProvider, StreamChunk } from '../providers/interface'
-import { createAIMessage, getMessagesByConvId, getProviderServiceById, updateMessage } from '@main/db/services'
+import { createAIMessage, getMessagesByConvId, getModelById, getProviderServiceById, updateMessage } from '@main/db/services'
 import { clientHub } from '@main/mcpClientHub'
 import { mainEmitter } from '@main/utils/ipc-events-bus'
 import { getMainWindow } from '@main/window'
@@ -31,18 +31,22 @@ class ChatService {
       throw new Error('AI provider not set')
     }
 
-    return this.aiProvider.sendChatCompletions(options)
+    return await this.aiProvider.sendChatCompletions(options)
   }
 }
 
 export async function handleChatCompletions(options: handleChatCompletionsOptions) {
   const { conversationsId, chatSettings } = options
+  const modelInfo = await getModelById(chatSettings.modelId)
+  if (!modelInfo) {
+    throw new Error(`Model not found for id: ${chatSettings.modelId}`)
+  }
 
   const messages = await getMessagesByConvId(conversationsId)
 
   const chatService = new ChatService()
 
-  chatService.initializeProvider(chatSettings.providerId)
+  chatService.initializeProvider(modelInfo.serviceProviderId)
   const mcpTools = clientHub.getAllAvailableToolsList()
   const mainWindow = getMainWindow()
 
@@ -53,8 +57,8 @@ export async function handleChatCompletions(options: handleChatCompletionsOption
   const aiMessage = await createAIMessage(
     conversationsId,
     {
-      provider: chatSettings.providerId,
-      model: chatSettings.model,
+      provider: modelInfo.serviceProviderId,
+      model: modelInfo.name,
     },
   )
 
@@ -62,49 +66,67 @@ export async function handleChatCompletions(options: handleChatCompletionsOption
 
   let stream: AsyncIterable<StreamChunk> | null = null
   try {
-    stream = await chatService.sendChatCompletions({ messages, chatSettings, mcpTools })
+    stream = await chatService.sendChatCompletions(
+      {
+        messages,
+        chatSettings: {
+          ...chatSettings,
+          model: modelInfo.model,
+        },
+        mcpTools,
+      },
+    )
   }
   catch (e) {
+    console.error('throw error for sendChatCompletions', e)
     aiMessage.content.push({ type: 'error', error: (e as Error).message })
     const errorMessage = await updateMessage({ ...aiMessage, role: 'assistant', status: 'error' })
     mainEmitter.send(mainWindow.webContents, 'chat:stream-message', errorMessage)
     return
   }
 
-  for await (const chunk of stream) {
-    const { reasoningContent, content, functionCalls } = chunk
-    if (reasoningContent) {
-      aiMessage.reasoningContent += reasoningContent
-    }
+  try {
+    for await (const chunk of stream) {
+      const { reasoningContent, content, functionCalls } = chunk
+      if (reasoningContent) {
+        aiMessage.reasoningContent += reasoningContent
+      }
 
-    if (content) {
-      const aiContent = aiMessage.content
-      // 合并连续的文本消息
-      content.forEach((item) => {
-        if (item.type === 'text' && aiContent.length > 0 && aiContent[aiContent.length - 1].type === 'text') {
-          (aiContent[aiContent.length - 1] as TextContent).text += item.text
-        }
-        else {
-          aiContent.push(item)
-        }
+      if (content) {
+        const aiContent = aiMessage.content
+        // 合并连续的文本消息
+        content.forEach((item) => {
+          if (item.type === 'text' && aiContent.length > 0 && aiContent[aiContent.length - 1].type === 'text') {
+            (aiContent[aiContent.length - 1] as TextContent).text += item.text
+          }
+          else {
+            aiContent.push(item)
+          }
+        })
+      }
+
+      if (functionCalls) {
+        console.log('functionCalls => ', functionCalls.length)
+        aiMessage.mcpTool = functionCalls
+      }
+
+      // 合并到数据库
+      const updatedMessage = await updateMessage({
+        ...aiMessage,
+        role: 'assistant',
+        status: 'typing',
       })
+
+      // 将最新的消息推送给前端
+      mainEmitter.send(mainWindow.webContents, 'chat:stream-message', updatedMessage)
+      console.log('chat:stream-message:', JSON.stringify(updatedMessage, null, 2))
     }
-
-    if (functionCalls) {
-      console.log('functionCalls => ', functionCalls.length)
-      aiMessage.mcpTool = functionCalls
-    }
-
-    // 合并到数据库
-    const updatedMessage = await updateMessage({
-      ...aiMessage,
-      role: 'assistant',
-      status: 'typing',
-    })
-
-    // 将最新的消息推送给前端
-    mainEmitter.send(mainWindow.webContents, 'chat:stream-message', updatedMessage)
-    console.log('chat:stream-message:', JSON.stringify(updatedMessage, null, 2))
+  }
+  catch (e) {
+    aiMessage.content.push({ type: 'error', error: (e as Error).message })
+    const errorMessage = await updateMessage({ ...aiMessage, role: 'assistant', status: 'error' })
+    mainEmitter.send(mainWindow.webContents, 'chat:stream-message', errorMessage)
+    return
   }
 
   const finalMessage = await updateMessage({ id: aiMessage.id, role: 'assistant', status: 'success' })

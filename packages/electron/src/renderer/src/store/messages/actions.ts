@@ -1,13 +1,9 @@
-import type { AllAvailableModelsSchema, ChatFeatures, ConversationsId, IMessage, MessageId } from '@ant-chat/shared'
+import type { ChatFeatures, ConversationsId, ConversationsSettingsSchema, IMessage, MessageId } from '@ant-chat/shared'
 import type { RequestStatus } from './store'
 import { produce } from 'immer'
-import { pick } from 'lodash-es'
 import chatApi from '@/api/chatApi'
-import { createAIMessage } from '@/api/dataFactory'
 import { dbApi } from '@/api/dbApi'
-import { Role } from '@/constants'
-import { getServiceProviderConstructor } from '@/services-provider'
-import { useChatSttingsStore } from '../chatSettings'
+import { useConversationsStore } from '../conversation/conversationsStore'
 import { useMessagesStore } from './store'
 
 export function setRequestStatus(status: RequestStatus) {
@@ -26,6 +22,7 @@ export async function setActiveConversationsId(id: ConversationsId | '') {
     draft.pageIndex = 1
     draft.messageTotal = total
   }))
+  useConversationsStore.getState().setActiveConversationsId(id)
 }
 
 export async function addMessageAction(message: IMessage) {
@@ -106,118 +103,24 @@ export function abortSendChatCompletions() {
   }
 }
 
-export async function sendChatCompletions(conversationId: string | ConversationsId, features: ChatFeatures, model: AllAvailableModelsSchema['models'][number]) {
-  const serviceProviderInfo = await dbApi.getServiceProviderById(model.serviceProviderId)
-  if (['openai', 'gemini'].includes(serviceProviderInfo.apiMode)) {
-    console.log('is openai')
-    const chatSettings = pick(useChatSttingsStore.getState(), ['maxTokens', 'systemPrompt', 'temperature', 'maxTokens'])
-    chatApi.sendChatCompletions({
-      conversationsId: conversationId as string,
-      chatSettings: {
-        ...chatSettings,
-        providerId: model.serviceProviderId,
-        model: model.model,
-        features,
-      },
-    })
-
-    return
-  }
-  const messages = useMessagesStore.getState().messages
-
-  const { temperature, maxTokens } = useChatSttingsStore.getState()
-
-  let aiMessage: IMessage = createAIMessage({
-    convId: conversationId,
-    role: Role.AI,
-    status: 'loading',
-    modelInfo: { model: model.model, provider: serviceProviderInfo.name },
+export async function sendChatCompletions(conversationId: string | ConversationsId, features: ChatFeatures, chatSettings: ConversationsSettingsSchema) {
+  chatApi.sendChatCompletions({
+    conversationsId: conversationId as string,
+    chatSettings: {
+      ...chatSettings,
+      features,
+    },
   })
-
-  // 这里重新赋值是获得id
-  aiMessage = await addMessageAction(aiMessage)
-
-  try {
-    setRequestStatus('loading')
-    const Service = getServiceProviderConstructor(serviceProviderInfo.id)
-    const { enableMCP } = features
-    const instance = new Service({
-      apiHost: serviceProviderInfo.baseUrl,
-      apiKey: serviceProviderInfo.apiKey,
-      temperature,
-      maxTokens,
-      enableMCP,
-      model: model.model,
-    })
-
-    const abortController = new AbortController()
-
-    setAbortFunction(() => {
-      abortController.abort()
-      updateMessageAction({ ...aiMessage, status: 'cancel' })
-    })
-
-    const stream = await instance.sendChatCompletions(messages, { features, abortController })
-
-    if (!stream) {
-      throw new Error('stream is null')
-    }
-
-    const reader = stream.getReader()
-
-    setAbortFunction(() => {
-      reader.cancel()
-      updateMessageAction({ ...aiMessage, status: 'cancel' })
-    })
-
-    await instance.parseSse(reader, {
-      onUpdate: (result) => {
-        aiMessage.content = result.message
-        aiMessage.reasoningContent = result.reasoningContent
-        aiMessage.mcpTool = result.functioncalls
-        updateMessageAction({ ...aiMessage, status: 'typing' })
-      },
-      onSuccess: (data) => {
-        setRequestStatus('success')
-        if (data.functioncalls) {
-          aiMessage.mcpTool = data.functioncalls
-        }
-        updateMessageAction({ ...aiMessage, status: 'success' })
-        resetAbortFunction()
-      },
-      onError: (e) => {
-        setRequestStatus('error')
-        if (aiMessage.content.length) {
-          aiMessage.content.push({ type: 'error', error: (e as Error).message })
-        }
-        updateMessageAction({ ...aiMessage, status: 'error' })
-      },
-    })
-  }
-  catch (e) {
-    const error = e as Error
-
-    // 如果content已经有内容了之后报错，就添加，否则覆盖
-    if (aiMessage.content.length && aiMessage.content[0].type === 'text' && aiMessage.content[0].text.length > 1) {
-      aiMessage.content.push({ type: 'error', error: error.message })
-    }
-    else {
-      aiMessage.content = [{ type: 'error', error: error.message }]
-      aiMessage.status = 'error'
-    }
-    updateMessageAction(aiMessage)
-    setRequestStatus('error')
-  }
 }
 
-export async function onRequestAction(conversationId: ConversationsId, features: ChatFeatures, model: AllAvailableModelsSchema['models'][number]) {
-  await sendChatCompletions(conversationId, features, model)
+export async function onRequestAction(conversationId: ConversationsId, features: ChatFeatures, chatSettings: ConversationsSettingsSchema) {
+  await sendChatCompletions(conversationId, features, chatSettings)
 }
 
-export async function refreshRequestAction(conversationId: ConversationsId, message: IMessage, features: ChatFeatures, model: AllAvailableModelsSchema['models'][number]) {
+export async function refreshRequestAction(conversationId: ConversationsId, message: IMessage, features: ChatFeatures, chatSettings: ConversationsSettingsSchema) {
   await deleteMessageAction(message.id)
 
-  await sendChatCompletions(conversationId, features, model)
+  await sendChatCompletions(conversationId, features, chatSettings)
 }
 
 export async function nextPageMessagesAction(conversationsId: ConversationsId) {

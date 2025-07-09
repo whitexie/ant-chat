@@ -1,4 +1,4 @@
-import type { AddConversationsSchema, ConversationsId, IMessageAI, IMessageUser } from '@ant-chat/shared'
+import type { AddConversationsSchema, ConversationsId, ConversationsSettingsSchema, IMessageAI, IMessageUser } from '@ant-chat/shared'
 import type { RequireKey } from '@/types/global'
 import { DEFAULT_TITLE, Role } from '@/constants'
 import { getNow } from '@/utils'
@@ -11,6 +11,7 @@ export function createConversations(option?: Partial<AddConversationsSchema>): A
     title: DEFAULT_TITLE,
     createdAt: time,
     updatedAt: time,
+    settings: {} as ConversationsSettingsSchema,
   }, option)
 }
 

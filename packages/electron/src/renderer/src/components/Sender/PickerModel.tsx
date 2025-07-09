@@ -8,8 +8,8 @@ import { ModelParameterSettingsPanel } from './ModelParameterSettingsPanel'
 import { renderProviderLogo, SelectModel } from './SelectModel'
 
 interface ModelControlPanelProps {
-  value: AllAvailableModelsSchema['models'][number] | null
-  onChange?: (value: AllAvailableModelsSchema['models'][number]) => void
+  value: string
+  onChange?: (modelInfo: AllAvailableModelsSchema['models'][number]) => void
 }
 
 export function ModelControlPanel({ value, onChange }: ModelControlPanelProps) {
@@ -17,7 +17,8 @@ export function ModelControlPanel({ value, onChange }: ModelControlPanelProps) {
   const [panel, setPanel] = React.useState<'select' | 'parameter'>('select')
   const { data } = useRequest<AllAvailableModelsSchema[], []>(dbApi.getAllAbvailableModels)
 
-  const activeProviderServiceInfo = !value ? data?.[0] : data?.find(item => item.models.some(model => model.id === value.id))
+  const activeProviderServiceInfo = !value ? data?.[0] : data?.find(item => item.models.some(model => model.id === value))
+  const currentModelInfo = activeProviderServiceInfo?.models.find(model => model.id === value)
 
   React.useEffect(() => {
     if (!value && activeProviderServiceInfo?.models.length) {
@@ -67,7 +68,7 @@ export function ModelControlPanel({ value, onChange }: ModelControlPanelProps) {
         <div className="flex items-center pl-2 gap-1 hover:bg-(--hover-bg-color)">
           {renderProviderLogo(activeProviderServiceInfo?.id || '')}
           <div className="flex items-center text-xs font-medium max-w-30 truncate">
-            <span className="truncate">{value?.name}</span>
+            <span className="truncate">{currentModelInfo?.name}</span>
             <RightOutlined className="px-2" />
           </div>
         </div>

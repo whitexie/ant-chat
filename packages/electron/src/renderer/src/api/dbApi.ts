@@ -147,7 +147,7 @@ export const dbApi = {
     return unwrapIpcResponse(await emitter.invoke('db:delete-provider-service-model', id))
   },
 
-  async getModelById(id: string) {
+  async getModelInfoById(id: string) {
     return unwrapIpcResponse(await emitter.invoke('db:get-model-by-id', id))
   },
 }

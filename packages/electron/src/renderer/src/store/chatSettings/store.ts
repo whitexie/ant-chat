@@ -1,23 +1,27 @@
-import type { AllAvailableModelsSchema } from '@ant-chat/shared'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 
-const initializeState = {
-  model: null as AllAvailableModelsSchema['models'][number] | null,
-  systemPrompt: '',
-  temperature: 0.7,
-  maxTokens: 4000,
-
+interface ChatSettingsState {
   /** 联网搜索 */
-  onlineSearch: false,
+  onlineSearch: boolean
   /** MCP */
-  enableMCP: false,
+  enableMCP: boolean
 }
 
-export const useChatSttingsStore = create<typeof initializeState>()(
+interface ChatSettingsActions {
+  setOnlineSearch: (onlineSearch: boolean) => void
+  setEnableMCP: (enableMCP: boolean) => void
+}
+
+export const useChatSttingsStore = create<ChatSettingsState & ChatSettingsActions>()(
   devtools(
     persist(
-      () => ({ ...initializeState }),
+      set => ({
+        onlineSearch: false,
+        enableMCP: false,
+        setOnlineSearch: onlineSearch => set({ onlineSearch }),
+        setEnableMCP: enableMCP => set({ enableMCP }),
+      }),
       { name: 'chat-settings' },
     ),
     { enabled: import.meta.env.MODE === 'development' },

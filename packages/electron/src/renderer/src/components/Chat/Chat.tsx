@@ -4,10 +4,10 @@ import { lazy, Suspense } from 'react'
 import { useShallow } from 'zustand/shallow'
 import { createConversations, createUserMessage } from '@/api/dataFactory'
 import { DEFAULT_TITLE } from '@/constants'
-import { setModel, useChatSttingsStore } from '@/store/chatSettings'
+import { useChatSettingsContext } from '@/contexts/chatSettings'
+import { useChatSttingsStore } from '@/store/chatSettings'
 import {
   addConversationsAction,
-  initConversationsTitle,
   useConversationsStore,
 } from '@/store/conversation'
 import {
@@ -36,12 +36,15 @@ export default function Chat() {
   const features = useChatSttingsStore(useShallow(state => ({ onlineSearch: state.onlineSearch, enableMCP: state.enableMCP })))
 
   const { notification } = App.useApp()
+  const { settings, updateSettings } = useChatSettingsContext()
 
-  // ============================ 选择模型 ============================
-  const model = useChatSttingsStore(state => state.model)
-
-  async function onSubmit(message: string, images: IImage[], attachments: IAttachment[], features: ChatFeatures) {
-    if (!model) {
+  async function onSubmit(
+    message: string,
+    images: IImage[],
+    attachments: IAttachment[],
+    features: ChatFeatures,
+  ) {
+    if (!settings.modelId) {
       notification.error({
         message: '请选择模型',
         placement: 'bottomRight',
@@ -53,7 +56,7 @@ export default function Chat() {
     let isNewConversation = false
     // 如果当前没有会话，则创建一个
     if (!activeConversationsId) {
-      const conversation = await addConversationsAction(createConversations())
+      const conversation = await addConversationsAction(createConversations({ settings }))
       id = conversation.id
       isNewConversation = true
     }
@@ -64,13 +67,14 @@ export default function Chat() {
     await addMessageAction(messageItem)
 
     // 发送请求
-    await onRequestAction(id, features, model)
+    await onRequestAction(id, features, settings)
 
     // 初始化会话标题
     if (currentConversations?.title === DEFAULT_TITLE || isNewConversation) {
       // 1s后再次初始化会话标题, 避免请求频繁导致的标题未更新
       setTimeout(() => {
-        initConversationsTitle(model)
+        // TODO 初始化标题
+        // initConversationsTitle(id, )
       }, 1000)
     }
   }
@@ -91,19 +95,19 @@ export default function Chat() {
                   messages={messages}
                   conversationsId={activeConversationsId}
                   onRefresh={async (message) => {
-                    if (!model) {
+                    if (!settings.modelId) {
                       notification.error({ message: '请选择模型' })
                       return
                     }
-                    refreshRequestAction(activeConversationsId, message, features, model)
+                    refreshRequestAction(activeConversationsId, message, features, settings)
                   }}
                   onExecuteAllCompleted={
                     () => {
-                      if (!model) {
+                      if (!settings.modelId) {
                         notification.error({ message: '请选择模型' })
                         return
                       }
-                      onRequestAction(activeConversationsId, features, model)
+                      onRequestAction(activeConversationsId, features, settings)
                     }
                   }
                 />
@@ -120,8 +124,11 @@ export default function Chat() {
           loading={isLoading}
           actions={(
             <ModelControlPanel
-              value={model}
-              onChange={setModel}
+              value={settings.modelId}
+              onChange={(modelInfo) => {
+                const { id: modelId, maxTokens, temperature } = modelInfo
+                updateSettings({ modelId, maxTokens, temperature })
+              }}
             />
           )}
           onSubmit={onSubmit}
