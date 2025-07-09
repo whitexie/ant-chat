@@ -10,7 +10,7 @@
     "prebuild": "electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "type-check": "tsc -b",
-    "test:unit": "vitest",
+    "test:unit": "vitest -c ./vitest.config.ts",
     "rebuild:electron": "pnpm exec electron-rebuild -f -w better-sqlite3",
     "rebuild:node": "pnpm rebuild",
     "build:unpack": "cross-env NODE_ENV=production electron-vite build && electron-builder --dir",
@@ -85,7 +85,6 @@
     "use-immer": "^0.11.0",
     "vite-plugin-electron": "^0.29.0",
     "vite-plugin-svgr": "^4.3.0",
-    "zod": "^3.24.4",
     "zustand": "^5.0.3"
   }
 }

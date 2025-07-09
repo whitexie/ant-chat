@@ -6,10 +6,5 @@
   "author": "",
   "license": "ISC",
   "keywords": [],
-  "main": "src/index.ts",
-  "scripts": {
-  },
-  "peerDependencies": {
-    "zod": "^3.24.4"
-  }
+  "main": "src/index.ts"
 }
