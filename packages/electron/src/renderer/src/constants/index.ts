@@ -22,20 +22,6 @@ export type AntChatFileStructure = typeof ANT_CHAT_STRUCTURE
 
 export const ANT_CHAT_FILE_TYPE = { description: 'ant chat files', appcept: { 'text/plain': ['.antchat'] } }
 
-export const TITLE_PROMPT = `Based on the chat history, give this conversation a name.
-Keep it short.
-Use 简体中文.
-Just provide the name, nothing else.
-
-Here's the conversation:
---------------------------------
-pGqat5J/L@~U
---------------------------------
-Use 简体中文.
-Only give the name, nothing else.
-The name is:
-`
-
 export const AI_OFFICIAL_API_INFO: { [provider: string]: { url: string, keyUrl: string } } = {
   openai: {
     url: 'https://api.openai.com',
