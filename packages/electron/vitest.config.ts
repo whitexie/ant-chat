@@ -24,6 +24,8 @@ export default defineConfig({
       '@main': fileURLToPath(new URL('./src/main', import.meta.url)),
     },
     environment: 'jsdom',
-    setupFiles: [],
+    setupFiles: [
+      './tests/setup.ts',
+    ],
   },
 })
