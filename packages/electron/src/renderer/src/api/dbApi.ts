@@ -89,19 +89,6 @@ export const dbApi = {
     return unwrapIpcResponse(await emitter.invoke('db:delete-mcp-config', serverName))
   },
 
-  // 自定义模型操作
-  getCustomModels: async (provider: string) => {
-    return unwrapIpcResponse(await emitter.invoke('db:get-custom-models', provider))
-  },
-
-  addCustomModel: async (model: any) => {
-    return unwrapIpcResponse(await emitter.invoke('db:add-model', model))
-  },
-
-  deleteCustomModel: async (id: string) => {
-    return unwrapIpcResponse(await emitter.invoke('db:delete-model', id))
-  },
-
   // ============================ AI 提供商相关 ============================
   async getAllProviderServices() {
     return unwrapIpcResponse(await emitter.invoke('db:get-all-provider-services'))

@@ -212,40 +212,6 @@ export function registerDbHandlers() {
     }
   })
 
-  // ============================ 自定义模型操作 ============================
-  mainListener.handle('db:get-custom-models', async () => {
-    try {
-      const data = await services.getCustomModels()
-      return createIpcResponse(true, data)
-    }
-    catch (error) {
-      logger.error('获取自定义模型失败:', error)
-      return createErrorIpcResponse(error as Error)
-    }
-  })
-
-  mainListener.handle('db:add-model', async (_, model) => {
-    try {
-      const data = await services.addCustomModel(model)
-      return createIpcResponse(true, data)
-    }
-    catch (error) {
-      logger.error('添加自定义模型失败:', error)
-      return createErrorIpcResponse(error as Error)
-    }
-  })
-
-  mainListener.handle('db:delete-model', async (_, id) => {
-    try {
-      await services.deleteCustomModel(id)
-      return createIpcResponse(true, null)
-    }
-    catch (error) {
-      logger.error('删除自定义模型失败:', error)
-      return createErrorIpcResponse(error as Error)
-    }
-  })
-
   // ============================ AI提供商相关 ============================
   mainListener.handle('db:get-all-provider-services', async (_) => {
     try {
