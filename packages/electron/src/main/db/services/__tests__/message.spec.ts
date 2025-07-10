@@ -16,8 +16,8 @@ describe('message service', () => {
         role: 'assistant',
         content: [
           {
-            type: 'error',
-            error: 'Failed to deserialize the JSON body into the target type: messages[5]: data did not match any variant of untagged enum ChatCompletionRequestContent at line 1 column 1562573',
+            type: 'text',
+            text: 'old text',
           } as const,
         ],
         createdAt: 1748395533791,
@@ -28,14 +28,15 @@ describe('message service', () => {
         mcpTool: null,
         modelInfo: { provider: 'DeepSeek', model: 'deepseek-chat' },
       })
+      const updatedContent = [...message.content, { type: 'error', error: 'new error' } as const]
       message = await updateMessage({
         id: message.id,
-        content: [...message.content, { type: 'error', error: 'Test Error' } as const],
+        content: updatedContent,
       })
 
       expect(message.content).toEqual([
-        { type: 'text', text: 'hello' },
-        { type: 'error', error: 'Test Error' },
+        { type: 'text', text: 'old text' },
+        { type: 'error', error: 'new error' },
       ])
     })
   })

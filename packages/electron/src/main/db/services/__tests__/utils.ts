@@ -1,6 +1,5 @@
-import { vi } from "vitest";
-import { initializeTestDb } from "../../db";
-
+import { vi } from 'vitest'
+import { initializeTestDb } from '../../db'
 
 export async function mockDb() {
   vi.mock('../../../utils/util', () => ({

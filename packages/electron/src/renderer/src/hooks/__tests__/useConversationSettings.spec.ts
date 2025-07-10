@@ -32,7 +32,7 @@ describe('useConversationSettings', () => {
 
     const { result } = renderHook(() => useConversationSettings())
     expect(result.current.settings).toEqual({
-      model: '',
+      modelId: '',
       systemPrompt: '',
       temperature: 0.7,
       maxTokens: 1000,
@@ -56,7 +56,7 @@ describe('useConversationSettings', () => {
 
     const { result } = renderHook(() => useConversationSettings())
     expect(result.current.settings).toEqual({
-      model: 'gpt-3',
+      modelId: 'gpt-3',
       systemPrompt: 'You are a bot',
       temperature: 0.5,
       maxTokens: 500,
@@ -87,7 +87,7 @@ describe('useConversationSettings', () => {
     })
 
     expect(updateConversationsSettingsAction).toHaveBeenCalledWith('conv3', {
-      model: 'gpt-4',
+      modelId: 'gpt-4',
       temperature: 0.9,
     })
     expect(result.current.settings.modelId).toBe('gpt-4')
@@ -136,7 +136,7 @@ describe('useConversationSettings', () => {
     activeId = ''
     rerender()
     expect(result.current.settings).toEqual({
-      model: '',
+      modelId: '',
       systemPrompt: '',
       temperature: 0.7,
       maxTokens: 1000,
