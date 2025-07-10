@@ -1,10 +1,11 @@
-import type { handleChatCompletionsOptions, SendChatCompletionsOptions, TextContent } from '@ant-chat/shared'
+import type { CreateConversationTitleOptions, handleChatCompletionsOptions, handleInitConversationTitleOptions, SendChatCompletionsOptions, TextContent } from '@ant-chat/shared'
 import type { AIProvider, StreamChunk } from '../providers/interface'
-import { createAIMessage, getMessagesByConvId, getModelById, getProviderServiceById, updateMessage } from '@main/db/services'
+import { createAIMessage, getMessagesByConvId, getModelById, getProviderServiceById, getServiceProviderByModelId, updateMessage } from '@main/db/services'
 import { clientHub } from '@main/mcpClientHub'
 import { mainEmitter } from '@main/utils/ipc-events-bus'
 import { getMainWindow } from '@main/window'
 import { AIProviderMapping } from '../providers'
+import { formatMessagesForContext } from './utils'
 
 class ChatService {
   private aiProvider: AIProvider | null = null
@@ -32,6 +33,14 @@ class ChatService {
     }
 
     return await this.aiProvider.sendChatCompletions(options)
+  }
+
+  async createConversationTitle(options: CreateConversationTitleOptions) {
+    if (!this.aiProvider) {
+      throw new Error('AI provider not set')
+    }
+
+    return this.aiProvider.createConversationTitle(options)
   }
 }
 
@@ -132,4 +141,21 @@ export async function handleChatCompletions(options: handleChatCompletionsOption
   const finalMessage = await updateMessage({ id: aiMessage.id, role: 'assistant', status: 'success' })
 
   mainEmitter.send(mainWindow.webContents, 'chat:stream-message', { ...finalMessage, status: 'success' })
+}
+
+export async function handleInitConversationTitle(options: handleInitConversationTitleOptions) {
+  const { conversationsId, modelId: model } = options
+  const messages = await getMessagesByConvId(conversationsId)
+  const serviceProvider = getServiceProviderByModelId(model)
+
+  if (!serviceProvider) {
+    throw new Error(`ServiceProvider not found for modelId: ${model}`)
+  }
+
+  const chatService = new ChatService()
+  chatService.initializeProvider(serviceProvider?.id)
+
+  const context = formatMessagesForContext(messages)
+
+  return await chatService.createConversationTitle({ context, model })
 }

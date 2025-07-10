@@ -1,4 +1,4 @@
-import type { IAttachment, IMcpToolCall, IMessage, MessageContent, SendChatCompletionsOptions } from '@ant-chat/shared'
+import type { CreateConversationTitleOptions, IAttachment, IMcpToolCall, IMessage, MessageContent, SendChatCompletionsOptions } from '@ant-chat/shared'
 import type { GenerateContentParameters, Part, Tool } from '@google/genai'
 import type { AIProvider, ProviderOptions } from '../interface'
 import { DEFAULT_MCP_TOOL_NAME_SEPARATOR } from '@ant-chat/shared'
@@ -23,6 +23,18 @@ class GeminiService implements AIProvider {
         baseUrl: options.baseUrl,
       },
     })
+  }
+
+  async createConversationTitle(options: CreateConversationTitleOptions) {
+    const { context, model } = options
+
+    const resp = await this.client.models.generateContent({
+      model,
+      contents: [
+        { parts: [{ text: context }], role: 'user' },
+      ],
+    })
+    return resp.text ?? ''
   }
 
   async* sendChatCompletions(options: SendChatCompletionsOptions) {

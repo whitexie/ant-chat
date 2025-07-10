@@ -19,3 +19,13 @@ export interface handleChatCompletionsOptions {
   conversationsId: string
   chatSettings: Omit<ChatSettings, 'model'> & { modelId: string }
 }
+
+export interface handleInitConversationTitleOptions {
+  conversationsId: string
+  modelId: string
+}
+
+export interface CreateConversationTitleOptions {
+  context: string
+  model: string
+}

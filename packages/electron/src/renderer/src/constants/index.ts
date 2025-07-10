@@ -31,7 +31,6 @@ Here's the conversation:
 --------------------------------
 pGqat5J/L@~U
 --------------------------------
-Name this conversation in 10 characters or less.
 Use 简体中文.
 Only give the name, nothing else.
 The name is:

@@ -1,4 +1,4 @@
-import type { handleChatCompletionsOptions, IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption } from './interfaces'
+import type { handleChatCompletionsOptions, handleInitConversationTitleOptions, IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption } from './interfaces'
 import type { AddConversationsSchema, AddMcpConfigSchema, AddServiceProviderModelSchema, AddServiceProviderSchema, AllAvailableModelsSchema, McpConfigSchema, ServiceProviderModelsSchema, ServiceProviderSchema, UpdateConversationsSchema, UpdateMcpConfigSchema, UpdateServiceProviderSchema } from './schemas'
 
 export function createIpcResponse<T>(success: boolean, data: T, msg?: string): IpcResponse<T> | ErrorIpcResponse {
@@ -108,9 +108,11 @@ export type IpcEvents =
     'db:add-provider-service-model': (data: AddServiceProviderModelSchema) => Promise<IpcResponse<ServiceProviderModelsSchema>>
     'db:delete-provider-service-model': (id: string) => Promise<IpcResponse<null>>
 
-    'db:get-custom-models': (provider: string) => Promise<IpcResponse<any>>
     'db:delete-model': (id: string) => Promise<IpcResponse<null>>
     'db:add-model': (model: any) => Promise<IpcResponse<null>>
+
+    // ============================ 对话相关 ============================
+    'chat:create-conversations-title': (options: handleInitConversationTitleOptions) => Promise<IpcResponse<IConversations>>
   }
 
 // Renderer ipc events

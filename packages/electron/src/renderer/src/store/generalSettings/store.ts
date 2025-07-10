@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 
 const initialState = {
+  // 助理模型ID，用于初始化对话标题
   assistantModelId: '',
 }
 

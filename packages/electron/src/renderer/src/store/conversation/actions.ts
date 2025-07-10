@@ -1,6 +1,7 @@
-import type { AddConversationsSchema, AllAvailableModelsSchema, ConversationsId, ConversationsSettingsSchema } from '@ant-chat/shared'
+import type { AddConversationsSchema, ConversationsId, ConversationsSettingsSchema } from '@ant-chat/shared'
 import type { AntChatFileStructure } from '@/constants'
 import { produce } from 'immer'
+import chatApi from '@/api/chatApi'
 import { dbApi } from '@/api/dbApi'
 import { setActiveConversationsId } from '../messages'
 import { useConversationsStore } from './conversationsStore'
@@ -70,60 +71,22 @@ export async function nextPageConversationsAction() {
   }))
 }
 
-export async function initConversationsTitle(model: AllAvailableModelsSchema['models'][number]) {
-  // TODO 重构
-  console.log('model', model)
-  // const { messages } = useMessagesStore.getState()
-  // const { assistantModelId } = useGeneralSettingsStore.getState()
-  // const modelInfo = assistantModelId ? await dbApi.getModelInfoById(assistantModelId) : model
-  // const serviceProviderInfo = await dbApi.getServiceProviderById(modelInfo.serviceProviderId)
+export async function initConversationsTitle(conversationsId: string) {
+  const resp = await chatApi.initConversationsTitle(conversationsId)
 
-  // const userMessage = messages.find(item => item.role === Role.USER)
+  if (!resp.success) {
+    console.error('initConversationsTitle fail. id => ', conversationsId)
+    return
+  }
 
-  // if (!userMessage) {
-  //   console.error('current conversation not found user message')
-  //   return
-  // }
+  const { data } = resp
+  useConversationsStore.setState(state => produce(state, (draft) => {
+    const index = draft.conversations.findIndex(item => item.id === data.id)
 
-  // const text = messages.map(
-  //   item => item.content
-  //     .filter(item => item.type === 'text')
-  //     .map(item => (item as TextContent).text)
-  //     .join('\n'),
-  // ).join('\n————————————————————\n')
-
-  // const content = TITLE_PROMPT.replace('pGqat5J/L@~U', text)
-  // const Service = getServiceProviderConstructor(serviceProviderInfo.id)
-  // const service = new Service({
-  //   apiHost: serviceProviderInfo.baseUrl,
-  //   apiKey: serviceProviderInfo.apiKey,
-  //   model: modelInfo.model,
-  // })
-
-  // const stream = await service.sendChatCompletions(
-  //   [
-  //     { ...userMessage, content: [{ type: 'text', text: content }], images: [], attachments: [] },
-  //   ],
-  // )
-
-  // const reader = stream.getReader()
-  // service.parseSse(reader, {
-  //   onSuccess: (result) => {
-  //     let title = ''
-  //     if (typeof result.message === 'string') {
-  //       title = result.message
-  //     }
-  //     else {
-  //       title = result.message.filter(item => item.type === 'text').reduce((a, b) => (a + (b as TextContent).text), '')
-  //     }
-
-  //     if (title) {
-  //       renameConversationsAction(messages[0].convId, title)
-  //       return
-  //     }
-  //     console.error('标题初始化失败. 响应数据:', JSON.stringify(result))
-  //   },
-  // })
+    if (index > -1) {
+      draft.conversations[index] = data
+    }
+  }))
 }
 
 export async function updateConversationsSettingsAction(id: ConversationsId, config: Partial<ConversationsSettingsSchema>) {

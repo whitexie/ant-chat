@@ -1,4 +1,4 @@
-import type { IMessage, McpTool, MessageContent, SendChatCompletionsOptions } from '@ant-chat/shared'
+import type { CreateConversationTitleOptions, IMessage, McpTool, MessageContent, SendChatCompletionsOptions } from '@ant-chat/shared'
 import type { ChatCompletionAssistantMessageParam, ChatCompletionChunk, ChatCompletionTool, ChatCompletionToolChoiceOption, ChatCompletionUserMessageParam } from 'openai/resources/index'
 import type { AIProvider, ProviderOptions, StreamChunk } from '../interface'
 import { DEFAULT_MCP_TOOL_NAME_SEPARATOR } from '@ant-chat/shared'
@@ -145,6 +145,18 @@ class OpenAIService implements AIProvider {
         reasoningContent: reasoning_content ?? '',
       }
     }
+  }
+
+  async createConversationTitle(options: CreateConversationTitleOptions) {
+    const { context, model } = options
+
+    const resp = await this.client.chat.completions.create({
+      messages: [{ role: 'user', content: context }],
+      model,
+      stream: false,
+    })
+
+    return resp.choices[0].message.content ?? ''
   }
 }
 

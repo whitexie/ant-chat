@@ -8,6 +8,7 @@ import { useChatSettingsContext } from '@/contexts/chatSettings'
 import { useChatSttingsStore } from '@/store/chatSettings'
 import {
   addConversationsAction,
+  initConversationsTitle,
   useConversationsStore,
 } from '@/store/conversation'
 import {
@@ -73,8 +74,7 @@ export default function Chat() {
     if (currentConversations?.title === DEFAULT_TITLE || isNewConversation) {
       // 1s后再次初始化会话标题, 避免请求频繁导致的标题未更新
       setTimeout(() => {
-        // TODO 初始化标题
-        // initConversationsTitle(id, )
+        initConversationsTitle(id)
       }, 1000)
     }
   }

@@ -1,4 +1,4 @@
-import type { McpToolCall, MessageContent, SendChatCompletionsOptions } from '@ant-chat/shared'
+import type { CreateConversationTitleOptions, McpToolCall, MessageContent, SendChatCompletionsOptions } from '@ant-chat/shared'
 
 export interface ProviderOptions {
   baseUrl: string
@@ -7,6 +7,7 @@ export interface ProviderOptions {
 
 export interface AIProvider {
   sendChatCompletions: (options: SendChatCompletionsOptions) => AsyncIterable<StreamChunk>
+  createConversationTitle: (options: CreateConversationTitleOptions) => Promise<string>
 }
 
 export interface AIProviderConstructor {
