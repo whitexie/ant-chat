@@ -34,7 +34,7 @@
     "@ant-chat/shared": "workspace:*",
     "@ant-design/icons": "^5.5.2",
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
-    "@ant-design/x": "^1.2.0",
+    "@ant-design/x": "^1.4.0",
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@electron-toolkit/typed-ipc": "^1.0.2",
