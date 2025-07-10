@@ -24,7 +24,7 @@ export async function getConversations(pageIndex: number, pageSize: number = 10)
     .from(conversationsTable)
     .orderBy(sql`${conversationsTable.updatedAt} DESC`)
     .limit(pageSize)
-    .offset((pageIndex - 1) * pageSize)
+    .offset(pageIndex * pageSize)
 
   return results as IConversations[]
 }
