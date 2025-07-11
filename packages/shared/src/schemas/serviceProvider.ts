@@ -13,16 +13,16 @@ export const ServiceProviderSchema = z.object({
 })
 
 export const AddServiceProviderSchema = ServiceProviderSchema
-  .omit({ isOfficial: true, updatedAt: true, createdAt: true })
-  .partial({ isEnabled: true, id: true })
+  .omit({ updatedAt: true, createdAt: true })
+  .partial({ isEnabled: true, id: true, isOfficial: true })
   .required({ apiKey: true })
-  .transform(config => ({ ...config, isOfficial: false }))
+
+export type AddServiceProviderSchema = z.infer<typeof AddServiceProviderSchema>
 
 export const UpdateServiceProviderSchema = ServiceProviderSchema
   .omit({ updatedAt: true, createdAt: true })
   .partial()
   .required({ id: true })
 
-export type AddServiceProviderSchema = z.infer<typeof AddServiceProviderSchema>
 export type UpdateServiceProviderSchema = z.infer<typeof UpdateServiceProviderSchema>
 export type ServiceProviderSchema = z.infer<typeof ServiceProviderSchema>

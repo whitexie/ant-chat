@@ -1,15 +1,21 @@
 import type { ServiceProviderSchema } from '@ant-chat/shared'
 import { useRequest } from 'ahooks'
-import { Button, Empty, Switch } from 'antd'
+import { Button, Empty, message, Switch } from 'antd'
 import React from 'react'
 import Logo from '@/../public/logo.svg?react'
 import { dbApi } from '@/api/dbApi'
 import { getProviderLogo } from '@/components/Chat/providerLogo'
+import { AddCustomProvider } from '@/components/ProviderManage/AddCustomProvider'
 import { ProviderServiceSettings } from '@/components/ProviderManage/ProviderServiceSettings'
 
 export default function ProviderManage() {
   const [activeProvider, setActiveProvider] = React.useState<ServiceProviderSchema | null>(null)
-  const { data, error, refresh } = useRequest(dbApi.getAllProviderServices)
+  const { data, error, refresh, loading } = useRequest(dbApi.getAllProviderServices)
+
+  const handleAddProvider = async (provider: Parameters<typeof dbApi.AddServiceProvider>[0]) => {
+    await dbApi.AddServiceProvider(provider)
+    refresh()
+  }
 
   if (error) {
     return (
@@ -66,7 +72,9 @@ export default function ProviderManage() {
             </div>
           ))
         }
-        {/* TODO 添加自定义提供商 */}
+        <div className="p-2">
+          <AddCustomProvider onAdd={handleAddProvider} loading={loading} />
+        </div>
       </div>
       {
         activeProvider
@@ -76,6 +84,18 @@ export default function ProviderManage() {
                 item={activeProvider}
                 onChange={async (e) => {
                   await dbApi.updateServiceProvider(e)
+                  refresh()
+                }}
+                onDelete={async () => {
+                  try {
+                    await dbApi.deleteServiceProvider(activeProvider.id)
+                  }
+                  catch (e) {
+                    message.error((e as Error).message)
+                    return
+                  }
+
+                  setActiveProvider(null)
                   refresh()
                 }}
               />

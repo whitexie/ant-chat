@@ -1,6 +1,6 @@
 import type { ServiceProviderSchema, UpdateServiceProviderSchema } from '@ant-chat/shared'
 import { AddServiceProviderSchema } from '@ant-chat/shared'
-import { and, eq, getTableColumns } from 'drizzle-orm'
+import { eq, getTableColumns } from 'drizzle-orm'
 import { db } from '../db'
 import { serviceProviderModelsTable, serviceProviderTable } from '../schema'
 
@@ -18,15 +18,24 @@ export function updateProviderService(config: UpdateServiceProviderSchema) {
 
 export function addProviderService(config: AddServiceProviderSchema) {
   const data = AddServiceProviderSchema.parse(config)
-  return db.insert(serviceProviderTable).values(data).returning().get()
+  return db.insert(serviceProviderTable).values({
+    ...data,
+    isOfficial: false,
+  }).returning().get()
 }
 
 export async function deleteProviderService(id: string) {
-  return await db.delete(serviceProviderTable)
-    .where(and(
-      eq(serviceProviderTable.id, id),
-      eq(serviceProviderTable.isOfficial, false),
-    ))
+  return db.transaction((tx) => {
+    // 先删除关联的models
+    tx.delete(serviceProviderModelsTable)
+      .where(eq(serviceProviderModelsTable.serviceProviderId, id))
+      .run()
+
+    // 再删除provider
+    tx.delete(serviceProviderTable)
+      .where(eq(serviceProviderTable.id, id))
+      .run()
+  })
 }
 
 export function getProviderServiceById(id: string) {

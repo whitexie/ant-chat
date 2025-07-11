@@ -25,7 +25,13 @@ export const AllAvailableModels = ServiceProviderSchema.omit({ isEnabled: true, 
   models: z.array(ServiceProviderModelsSchema.pick({ id: true, name: true, model: true, modelFeatures: true, serviceProviderId: true, maxTokens: true, contextLength: true, temperature: true })),
 })
 
-export const AddServiceProviderModelSchema = ServiceProviderModelsSchema.pick({ name: true, model: true, serviceProviderId: true, maxTokens: true, contextLength: true })
+export const AddServiceProviderModelSchema = ServiceProviderModelsSchema.omit({
+  id: true,
+  isBuiltin: true,
+  isEnabled: true,
+  modelFeatures: true,
+  createdAt: true,
+})
 
 // ============================ Schema 转换类型 ============================
 export type AddServiceProviderModelSchema = z.infer<typeof AddServiceProviderModelSchema>

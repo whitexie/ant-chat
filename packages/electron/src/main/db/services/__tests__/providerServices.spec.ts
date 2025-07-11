@@ -1,7 +1,8 @@
 import { mockDb } from './utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeTestDb } from '../../db'
-import { addProviderService, updateProviderService } from '../serviceProvider'
+import { addProviderService, deleteProviderService, getProviderServiceById, updateProviderService } from '../serviceProvider'
+import { addServiceProviderModel, getModelsByServiceProviderId } from '../serviceProviderModels'
 
 describe('serviceProvider', () => {
   beforeEach(async () => {
@@ -85,6 +86,53 @@ describe('serviceProvider', () => {
       })
 
       expect(data.apiKey).toBe(newKey)
+    })
+  })
+
+  describe('deleteProviderService', () => {
+    it('能够正确的删除一个提供商服务', async () => {
+      const provider1: any = {
+        id: '1',
+        name: 'test',
+        baseUrl: 'https://test.com',
+        apiKey: 'test',
+        apiMode: 'openai',
+        isOfficial: true,
+      }
+
+      const service = addProviderService(provider1)
+      await deleteProviderService(service.id)
+
+      const result = getProviderServiceById(service.id)
+      expect(result).toBeUndefined()
+    })
+
+    it('能够正确的删除提供商和关联的模型', async () => {
+      const provider1: any = {
+        id: '1',
+        name: 'test',
+        baseUrl: 'https://test.com',
+        apiKey: 'test',
+        apiMode: 'openai',
+        isOfficial: true,
+      }
+      const service = addProviderService(provider1)
+      await addServiceProviderModel({
+        name: 'test-model',
+        model: 'test-model',
+        maxTokens: 1,
+        contextLength: 1,
+        temperature: 0,
+        serviceProviderId: service.id,
+      })
+
+      await deleteProviderService(service.id)
+
+      const serviceResult = getProviderServiceById(service.id)
+      expect(serviceResult).toBeUndefined()
+
+      const models = await getModelsByServiceProviderId(service.id)
+      expect(models).toHaveLength(0)
     })
   })
 })

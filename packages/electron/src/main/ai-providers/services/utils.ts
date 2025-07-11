@@ -26,10 +26,16 @@ The name is:
  * 将messages格式化为指定的上下文字符串，并插入到提示词中。
  */
 export function formatMessagesForContext(messages: IMessage[]): string {
-  const textList = messages.map((message) => {
-    return message.content.filter(item => item.type === 'text').reduce((acc, item) => {
-      return acc + item.text
-    }, `Role: ${message.role}\n`)
-  })
-  return TITLE_PROMPT.replace(TITLE_PROMPT_PLACEHOLDER, textList.join('\n----------\n'))
+  const textList = messages.map(
+    message => message.content
+      .filter(item => item.type === 'text')
+      .reduce((acc, item) => {
+        return acc + item.text
+      }, `Role: ${message.role}\n`),
+  )
+
+  return TITLE_PROMPT.replace(
+    TITLE_PROMPT_PLACEHOLDER,
+    textList.join('\n----------\n'),
+  )
 }

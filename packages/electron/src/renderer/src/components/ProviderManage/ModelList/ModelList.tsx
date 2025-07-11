@@ -1,4 +1,4 @@
-import { CheckCircleOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
 import { App, Button, Empty } from 'antd'
 import React from 'react'
@@ -48,7 +48,17 @@ export function ModelList({ serviceProviderId }: ModelListProps) {
               </div>
 
               <div className="flex items-center gap-2">
-                {item.isBuiltin && 'default'}
+                {
+                  item.isBuiltin
+                    ? 'default'
+                    : (
+                        <Button
+                          type="text"
+                          danger
+                          icon={<DeleteOutlined />}
+                        />
+                      )
+                }
                 <Button
                   type="text"
                   size="small"
