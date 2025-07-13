@@ -11,13 +11,12 @@ interface AddModelFormModalProps {
   onSave?: (data: AddModelForm) => void
 }
 
-export function AddModelFormModal({ open, title, onClose, onCancel, onSave }: AddModelFormModalProps) {
+export function AddModelFormModal({ open, title, onCancel, onSave }: AddModelFormModalProps) {
   const [form] = Form.useForm<AddModelForm>()
 
   return (
     <Modal
       open={open}
-      onClose={() => onClose?.()}
       title={title}
       onCancel={() => onCancel?.()}
       onOk={() => {
