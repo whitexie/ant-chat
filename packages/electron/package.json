@@ -65,7 +65,7 @@
     "electron": "^36.2.1",
     "electron-builder": "^26.0.0",
     "electron-devtools-installer": "^4.0.0",
-    "electron-vite": "^3.1.0",
+    "electron-vite": "^4.0.0",
     "immer": "^10.1.1",
     "js-base64": "^3.7.7",
     "lodash-es": "^4.17.21",
