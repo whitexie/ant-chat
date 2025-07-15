@@ -19,7 +19,6 @@ export function useConversationSettings() {
   const [settings, _updateSettings] = useImmer(conversations?.settings || { ...DEFAULT_SETTINGS })
 
   async function updateSettings(options: Partial<ConversationsSettingsSchema>) {
-    console.log('updateSettings => ', options)
     const updatedSettings: Partial<ConversationsSettingsSchema> = {}
 
     if (has(options, 'modelId')) {
