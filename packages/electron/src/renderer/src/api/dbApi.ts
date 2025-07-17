@@ -137,4 +137,11 @@ export const dbApi = {
   async getModelInfoById(id: string) {
     return unwrapIpcResponse(await emitter.invoke('db:get-model-by-id', id))
   },
+
+  // ============================ 搜索相关 ============================
+  async searchByKeyword(keyword: string) {
+    return unwrapIpcResponse(
+      await emitter.invoke('db:search-by-keyword', keyword),
+    )
+  },
 }

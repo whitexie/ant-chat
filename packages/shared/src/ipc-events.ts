@@ -1,4 +1,4 @@
-import type { handleChatCompletionsOptions, handleInitConversationTitleOptions, IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption } from './interfaces'
+import type { handleChatCompletionsOptions, handleInitConversationTitleOptions, IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption, SearchResult } from './interfaces'
 import type { AddConversationsSchema, AddMcpConfigSchema, AddServiceProviderModelSchema, AddServiceProviderSchema, AllAvailableModelsSchema, McpConfigSchema, ServiceProviderModelsSchema, ServiceProviderSchema, UpdateConversationsSchema, UpdateMcpConfigSchema, UpdateServiceProviderSchema } from './schemas'
 
 export function createIpcResponse<T>(success: boolean, data: T, msg?: string): IpcResponse<T> | ErrorIpcResponse {
@@ -41,13 +41,27 @@ export interface ErrorIpcResponse {
   msg: string
 }
 
+/**
+ * @see https://www.electronjs.org/docs/latest/api/clipboard#clipboardwrite-text
+ */
+export interface ElectronData {
+  text?: string
+  html?: string
+  image?: any
+  rtf?: string
+  /**
+   * The title of the URL at `text`.
+   */
+  bookmark?: string
+}
+
 export type IpcResponse<T> = IpcResponseSuccess<T> | ErrorIpcResponse
 
 export type IpcPaginatedResponse<T> = IpcPaginatedResponseSuccess<T> | ErrorIpcResponse
 
 // Main process ipc events
-export type IpcEvents =
-  | {
+export type IpcEvents
+  = | {
     /**
      *  这里是定义的是在渲染进程使用
      * @example
@@ -58,7 +72,7 @@ export type IpcEvents =
   }
   | {
     // ============================ 全局 相关 ============================
-    'common:clipboard-write': (data: Electron.Data, type?: 'selection' | 'clipboard') => Promise<boolean>
+    'common:clipboard-write': (data: ElectronData, type?: 'selection' | 'clipboard') => Promise<boolean>
 
     // ============================ Conversaations 相关 ============================
     'db:get-conversations': (pageIndex: number, pageSize: number) => Promise<IpcPaginatedResponse<IConversations[]>>
@@ -113,6 +127,9 @@ export type IpcEvents =
 
     // ============================ 对话相关 ============================
     'chat:create-conversations-title': (options: handleInitConversationTitleOptions) => Promise<IpcResponse<IConversations>>
+
+    // ============================ 搜索相关 ============================
+    'db:search-by-keyword': (query: string) => Promise<IpcResponse<SearchResult[]>>
   }
 
 // Renderer ipc events

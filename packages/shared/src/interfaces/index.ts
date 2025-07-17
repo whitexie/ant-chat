@@ -1,4 +1,5 @@
 export * from './chat-service'
 export * from './common'
 export * from './db-types'
+export * from './global-search'
 export * from './mcp'

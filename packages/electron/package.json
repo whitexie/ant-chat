@@ -25,8 +25,8 @@
     "better-sqlite3": "^11.10.0",
     "drizzle-orm": "^0.40.0",
     "electron-log": "^5.4.0",
-    "electron-store": "^8.2.0",
     "electron-updater": "^6.2.0",
+    "motion": "^12.23.5",
     "openai": "^5.2.0"
   },
   "devDependencies": {

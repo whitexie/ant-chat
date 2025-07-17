@@ -348,4 +348,17 @@ export function registerDbHandlers() {
       return createErrorIpcResponse(error as Error)
     }
   })
+
+  // ============================ 全局搜索 ============================
+
+  mainListener.handle('db:search-by-keyword', async (_, query) => {
+    try {
+      const data = await services.searchMessagesByKeyword(query)
+      return createIpcResponse(true, data)
+    }
+    catch (error) {
+      logger.error('全局搜索消息失败:', error)
+      return createErrorIpcResponse(error as Error)
+    }
+  })
 }
