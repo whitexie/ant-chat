@@ -1,14 +1,16 @@
 import type { AllAvailableModelsSchema } from '@ant-chat/shared'
+import { CheckOutlined } from '@ant-design/icons'
 import { Input } from 'antd'
 import React from 'react'
 import { getProviderLogo } from '../Chat/providerLogo'
 
 export interface SelectModelProps {
+  value: string
   onChange?: (value: AllAvailableModelsSchema['models'][number]) => void
   options?: AllAvailableModelsSchema[]
 }
 
-export function SelectModel({ onChange, options }: SelectModelProps) {
+export function SelectModel({ value, onChange, options }: SelectModelProps) {
   const [keyword, setKeyword] = React.useState('')
 
   return (
@@ -22,27 +24,35 @@ export function SelectModel({ onChange, options }: SelectModelProps) {
         />
       </div>
 
-      <div className="mt-1 max-h-38 px-2 overflow-y-auto">
+      <div className="mt-1 max-h-38 overflow-y-auto px-2">
         {
           options?.length
             ? (
                 options.map(item => (
                   <div key={item.id}>
-                    <div className="text-xs text-gray-500 mt-1">{item.name}</div>
+                    <div className="mt-1 text-xs text-gray-500">{item.name}</div>
                     <div>
                       {item.models.filter(model => model.name.includes(keyword)).map(model => (
                         <div
                           key={model.id}
-                          className="flex items-center gap-1 p-2 text-xs cursor-pointer hover:bg-(--hover-bg-color) rounded-md"
+                          className={`
+                            flex cursor-pointer items-center justify-between rounded-md p-2 text-xs
+                            hover:bg-(--hover-bg-color)
+                          `}
                           onClick={() => {
                             onChange?.(model)
                             setKeyword('')
                           }}
                         >
-                          {renderProviderLogo(item.id)}
-                          <span className="font-medium">
-                            {model.name}
-                          </span>
+                          <div className="flex items-center gap-1">
+                            {renderProviderLogo(item.id)}
+                            <span className="font-medium">
+                              {model.name}
+                            </span>
+                          </div>
+                          <div>
+                            {value === model.id ? (<CheckOutlined />) : null}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -51,7 +61,7 @@ export function SelectModel({ onChange, options }: SelectModelProps) {
                 ))
               )
             : (
-                <div className="text-xs text-center p-2">
+                <div className="p-2 text-center text-xs">
                   暂无模型，请先启用AI服务商
                 </div>
               )
@@ -68,5 +78,5 @@ export function renderProviderLogo(providerServiceId: string) {
   if (!Logo)
     return null
 
-  return <span className="bg-white p-1 rounded-md"><Logo /></span>
+  return <span className="rounded-md bg-white p-1"><Logo /></span>
 }

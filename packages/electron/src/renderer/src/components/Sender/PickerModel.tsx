@@ -42,6 +42,7 @@ export function ModelControlPanel({ value, onChange }: ModelControlPanelProps) {
         panel === 'select'
           ? (
               <SelectModel
+                value={value}
                 onChange={(e) => {
                   onChange?.(e)
                   setOpenPopover(false)
@@ -60,21 +61,28 @@ export function ModelControlPanel({ value, onChange }: ModelControlPanelProps) {
     >
       <div
         className={`
-          group grid grid-cols-[max-content_0fr] hover:grid-cols-[max-content_1fr]
-          transition-all duration-300
-          h-8 rounded-md border-1 border-solid border-(--border-color) cursor-pointer
+          group grid h-8 cursor-pointer grid-cols-[max-content_0fr] rounded-md border-1 border-solid
+          border-(--border-color) transition-all duration-300
+          hover:grid-cols-[max-content_1fr]
         `}
       >
-        <div className="flex items-center pl-2 gap-1 hover:bg-(--hover-bg-color)">
+        <div className={`
+          flex items-center gap-1 pl-2
+          hover:bg-(--hover-bg-color)
+        `}
+        >
           {renderProviderLogo(activeProviderServiceInfo?.id || '')}
-          <div className="flex items-center text-xs font-medium max-w-30 truncate">
+          <div className="flex max-w-30 items-center truncate text-xs font-medium">
             <span className="truncate">{currentModelInfo?.name}</span>
             <RightOutlined className="px-2" />
           </div>
         </div>
-        <div className="overflow-hidden flex items-center justify-center group-hover">
+        <div className="flex items-center justify-center overflow-hidden">
           <ControlOutlined
-            className="px-2 h-full hover:bg-(--hover-bg-color)"
+            className={`
+              h-full px-2
+              hover:bg-(--hover-bg-color)
+            `}
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
