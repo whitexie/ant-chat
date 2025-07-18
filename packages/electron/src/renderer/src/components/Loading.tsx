@@ -4,7 +4,7 @@ export default function Loading() {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 100 100"
       preserveAspectRatio="xMidYMid"
-      className="w-5 h-5"
+      className="size-5"
     >
       <g>
         <circle r="20" fill="#0099e5" cy="50" cx="30">

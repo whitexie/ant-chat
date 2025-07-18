@@ -19,10 +19,10 @@ export function SearchResults({ items, keywords }: SearchResultsProps) {
             items.map(item => (
               <div
                 key={item.id}
-                className="
-                  p-2 border mt-2 rounded-md border-solid border-(--border-color)
-                  transition-colors duration-200
-                "
+                className={`
+                  mt-2 rounded-md border border-solid border-(--border-color) p-2 transition-colors
+                  duration-200
+                `}
               >
                 <div className="text-xs">
                   <div className="flex items-center gap-2 text-xs">
@@ -31,14 +31,25 @@ export function SearchResults({ items, keywords }: SearchResultsProps) {
                   </div>
                   <div className="mt-2 w-full">
                     {item.messages.map((message, index) => (
-                      <div key={message.id} className="flex justify-between items-center w-full text-xs p-2 cursor-pointer hover:bg-(--hover-bg-color) group/message">
-                        <div className="flex gap-2 items-center">
+                      <div
+                        key={message.id}
+                        className={`
+                          group/message flex w-full cursor-pointer items-center justify-between p-2
+                          text-xs
+                          hover:bg-(--hover-bg-color)
+                        `}
+                      >
+                        <div className="flex items-center gap-2">
                           <span>
                             {index + 1}
                           </span>
                           {message.content}
                         </div>
-                        <span className="hidden group-hover/message:block">
+                        <span className={`
+                          hidden
+                          group-hover/message:block
+                        `}
+                        >
                           <EnterOutlined />
                         </span>
                       </div>
@@ -52,7 +63,7 @@ export function SearchResults({ items, keywords }: SearchResultsProps) {
       )
     : (
         keywords && (
-          <div className="flex justify-center items-center w-full h-full">
+          <div className="flex h-full w-full items-center justify-center">
             <Empty />
           </div>
         )

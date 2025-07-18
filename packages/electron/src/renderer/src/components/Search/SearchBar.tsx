@@ -36,16 +36,22 @@ export function SearchBar() {
   return (
     <>
       <div
-        className="
-        absolute top-20 left-1/2 translate-x-[-50%]
-        w-4xl bg-white dark:bg-gray-800 rounded-xl
-      "
+        className={`
+          absolute top-20 left-1/2 w-4xl translate-x-[-50%] rounded-xl bg-white
+          dark:bg-gray-800
+        `}
       >
-        <div className="flex gap-2 items-center rounded-md p-2 border m-3 border-solid border-(--border-color)">
+        <div className={`
+          m-3 flex items-center gap-2 rounded-md border border-solid border-(--border-color) p-2
+        `}
+        >
           <SearchOutlined className="text-[1.5em] !text-[#9ca3af]" />
           <input
             ref={inputRef}
-            className="h-8 w-full focus:outline-none"
+            className={`
+              h-8 w-full
+              focus:outline-none
+            `}
             type="text"
             placeholder="Search..."
             value={keywords}
