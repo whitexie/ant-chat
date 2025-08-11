@@ -5,7 +5,11 @@ import React from 'react'
 import { dbApi } from '@/api/dbApi'
 import { SearchResults } from './SearchResults'
 
-export function SearchBar() {
+interface SearchBarProps {
+  onItemClick: (item: SearchResult, messageId: string) => void
+}
+
+export function SearchBar({ onItemClick }: SearchBarProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const [keywords, setKeyword] = React.useState('')
   const [items, setItems] = React.useState<SearchResult[]>([])
@@ -66,6 +70,7 @@ export function SearchBar() {
                   <SearchResults
                     keywords={keywords}
                     items={items}
+                    onItemClick={onItemClick}
                   />
                 </div>
               )

@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
 import React from 'react'
+import { setActiveConversationsId } from '@/store/messages'
 import { SearchBar } from './SearchBar'
 
 export function SearchContainer() {
@@ -33,7 +34,6 @@ export function SearchContainer() {
   )
 
   return (
-
     <AnimatePresence>
       {
         openModal
@@ -49,7 +49,11 @@ export function SearchContainer() {
                   }
                 }}
               >
-                <SearchBar />
+                <SearchBar onItemClick={(item, _) => {
+                  setOpenModal(false)
+                  setActiveConversationsId(item.conversationId)
+                }}
+                />
               </motion.div>
             )
           : null
