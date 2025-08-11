@@ -41,7 +41,7 @@ const config: Configuration = {
     ],
   },
   win: {
-    icon: 'assets/icon/tray.png',
+    icon: 'app-icons/win/logo-win.ico', // 建议使用 .ico 格式
     target: [
       {
         target: 'nsis',
@@ -51,12 +51,16 @@ const config: Configuration = {
       },
     ],
     artifactName: '${productName}_${version}.${ext}',
+    requestedExecutionLevel: 'asInvoker', // 避免 UAC 提示
   },
   nsis: {
     oneClick: false,
     perMachine: false,
     allowToChangeInstallationDirectory: true,
     deleteAppDataOnUninstall: true,
+    createDesktopShortcut: true, // 创建桌面快捷方式
+    createStartMenuShortcut: true, // 创建开始菜单快捷方式
+    shortcutName: 'Ant Chat', // 快捷方式名称
   },
 }
 
