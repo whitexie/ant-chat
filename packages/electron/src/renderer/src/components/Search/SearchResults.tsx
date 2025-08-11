@@ -1,6 +1,7 @@
 import type { SearchResult } from '@ant-chat/shared'
 import { EnterOutlined, MessageOutlined } from '@ant-design/icons'
 import { Empty } from 'antd'
+import { HighlightText } from './HighlightText'
 
 interface SearchResultsProps {
   keywords: string
@@ -27,15 +28,17 @@ export function SearchResults({ items, keywords }: SearchResultsProps) {
                 <div className="text-xs">
                   <div className="flex items-center gap-2 text-xs">
                     {IconMapping[item.type]}
-                    {item.conversationTitle}
+                    <HighlightText
+                      text={item.conversationTitle}
+                      keywords={keywords}
+                    />
                   </div>
                   <div className="mt-2 w-full">
                     {item.messages.map((message, index) => (
                       <div
                         key={message.id}
                         className={`
-                          group/message flex w-full cursor-pointer items-center justify-between p-2
-                          text-xs
+                          group flex w-full cursor-pointer items-center justify-between p-2 text-xs
                           hover:bg-(--hover-bg-color)
                         `}
                       >
@@ -43,7 +46,11 @@ export function SearchResults({ items, keywords }: SearchResultsProps) {
                           <span>
                             {index + 1}
                           </span>
-                          {message.content}
+                          <HighlightText
+                            text={message.content}
+                            keywords={keywords}
+                            className="flex-1"
+                          />
                         </div>
                         <span className={`
                           hidden
