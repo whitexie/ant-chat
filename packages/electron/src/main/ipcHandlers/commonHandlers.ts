@@ -1,4 +1,5 @@
 import type { BrowserWindow } from 'electron'
+import { isWindows } from '@main/utils/env'
 import { app } from 'electron'
 import { mainListener } from '../utils/ipc-events-bus'
 import { clipboardWrite } from '../utils/util'
@@ -17,9 +18,15 @@ export function registerCommonHandlers(mainWindow: BrowserWindow) {
 
   mainListener.on('common:maximize-or-resore-window', async () => {
     const flag = mainWindow.isMaximized()
-    console.log('isMaximized', flag)
+    console.log('isMaximized', flag, previousBounds)
     if (flag) {
-      mainWindow.setBounds(previousBounds)
+      if (isWindows) {
+        mainWindow.restore()
+      }
+      else {
+        // macos 不支持restore，直接设置之前的大小和位置
+        mainWindow.setBounds(previousBounds)
+      }
     }
     else {
       previousBounds = mainWindow.getBounds()
