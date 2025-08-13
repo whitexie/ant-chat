@@ -1,7 +1,7 @@
 /* eslint-disable no-template-curly-in-string */
 export default {
   // 调试模式
-  dryRun: true,
+  // dryRun: true,
   // 这里改成你自己的仓库地址
   repositoryUrl: 'https://github.com/whitexie/ant-chat.git',
   branches: ['main'], // 指定在哪个分支下要执行发布操作
