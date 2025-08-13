@@ -8,7 +8,7 @@
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
     "prebuild": "electron-vite build",
-    "postinstall": "electron-builder install-app-deps",
+    "postinstall": "node ./node_modules/electron/install.js",
     "type-check": "tsc -b",
     "test:unit": "vitest -c ./vitest.config.ts",
     "rebuild:electron": "pnpm exec electron-rebuild -f -w better-sqlite3",
