@@ -5,6 +5,19 @@ export default {
   // 这里改成你自己的仓库地址
   repositoryUrl: 'https://github.com/whitexie/ant-chat.git',
   branches: ['main'], // 指定在哪个分支下要执行发布操作
+  
+  // 分析提交记录
+  analyzeCommits: {
+    preset: 'conventionalcommits',
+    releaseRules: [
+      { type: 'feat', release: 'minor' },
+      { type: 'fix', release: 'patch' },
+      { type: 'perf', release: 'patch' },
+      { type: 'refactor', release: 'patch' },
+      { type: 'chore', release: 'patch' },
+    ],
+  },
+  
   plugins: [
     // 1. 解析 commit 信息，默认就是 Angular 规范
     '@semantic-release/commit-analyzer',
