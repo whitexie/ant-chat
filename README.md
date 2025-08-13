@@ -97,8 +97,8 @@
 
 ### 环境要求
 
-- Node.js 18+
-- pnpm 8+
+- Node.js 22+
+- pnpm 10+
 - Python 3.x (用于node-gyp)
 
 ### 快速开始
@@ -177,15 +177,6 @@ pnpm build:win           # 构建Windows版本
 - 确保代码通过 ESLint 检查
 - 添加必要的单元测试
 - 更新相关文档
-
-## 路线图 🗺️
-
-- [ ] 更多AI提供商支持 (Anthropic Claude, Azure OpenAI)
-- [ ] 插件系统扩展
-- [ ] 多语言国际化
-- [ ] 云同步功能
-- [ ] 团队协作功能
-- [ ] 自定义主题编辑器
 
 ## 许可证 📄
 
