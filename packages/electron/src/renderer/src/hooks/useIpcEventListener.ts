@@ -22,9 +22,9 @@ export function useIpcEventListener() {
     })
 
     return () => {
-      window.electronAPI.ipcRenderer.removeAllListeners('common:Notification')
-      window.electronAPI.ipcRenderer.removeAllListeners('mcp:McpServerStatusChanged')
-      window.electronAPI.ipcRenderer.removeAllListeners('chat:stream-message')
+      window.electron.ipcRenderer.removeAllListeners('common:Notification')
+      window.electron.ipcRenderer.removeAllListeners('mcp:McpServerStatusChanged')
+      window.electron.ipcRenderer.removeAllListeners('chat:stream-message')
     }
   }, [])
 }

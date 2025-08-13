@@ -8,7 +8,6 @@ console.log('process.contextIsolated => ', process.contextIsolated)
 // just add to the DOM global.
 if (process.contextIsolated) {
   try {
-    contextBridge.exposeInMainWorld('electronAPI', electronAPI)
     contextBridge.exposeInMainWorld('electron', electronAPI)
   }
   catch (error) {
