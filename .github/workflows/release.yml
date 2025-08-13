@@ -34,7 +34,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.ANT_CHAT_RELEASE }}
         
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
@@ -86,8 +86,8 @@ jobs:
         
     - name: Run semantic-release
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.ANT_CHAT_RELEASE }}
+        GH_TOKEN: ${{ secrets.ANT_CHAT_RELEASE }}
       run: pnpm release
 
   build:
@@ -163,6 +163,12 @@ jobs:
     if: always()
     
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.ANT_CHAT_RELEASE }}
+        
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       
@@ -184,4 +190,4 @@ jobs:
         tag_name: ${{ steps.get-tag.outputs.tag }}
         generate_release_notes: true
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.ANT_CHAT_RELEASE }}
