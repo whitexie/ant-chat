@@ -4,14 +4,25 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@plugin "@iconify/tailwind4";
+
+@layer utilities {
+  .app-region-drag {
+    -webkit-app-region: drag;
+  }
+  .app-region-no-drag {
+    -webkit-app-region: no-drag;
+  }
+}
+
 
 :root {
   /* 交互相关颜色 */
   --hover-bg-color: color-mix(in oklab, #000 3%, transparent);
   --border-color: #d9d9d9;
 
-  --headerHeight: 50px;
-  --mainHeight: calc(100dvh - var(--headerHeight));
+  --appBarHeight: 28px;
+  --mainHeight: calc(100dvh - var(--appBarHeight));
   --conversationWidth: 240px;
   --chat-width: calc(100vw - var(--conversationWidth) - 1rem);
   --titleHeight: 50px;
@@ -57,4 +68,10 @@ body,
 
 .ant-conversations > li {
   list-style: none;
+}
+
+
+.app-bar {
+    /* 让这个区域可以拖动整个窗口 */
+  -webkit-app-region: drag;
 }

@@ -40,6 +40,8 @@
     "@electron-toolkit/typed-ipc": "^1.0.2",
     "@electron/rebuild": "^4.0.1",
     "@ferrucc-io/emoji-picker": "^0.0.44",
+    "@iconify-json/tdesign": "^1.2.8",
+    "@iconify/tailwind4": "^1.0.6",
     "@tailwindcss/vite": "^4.1.6",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
