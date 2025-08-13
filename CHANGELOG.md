@@ -1,3 +1,10 @@
+# [0.7.0](https://github.com/whitexie/ant-chat/compare/v0.6.0...v0.7.0) (2025-08-13)
+
+
+### Features
+
+* release version [skip ci] ([5aa2d23](https://github.com/whitexie/ant-chat/commit/5aa2d232edf9a9114cb52257048adb993e595b1e))
+
 # [0.5.0](https://github.com/whitexie/ant-chat/compare/v0.4.7...v0.5.0) (2025-03-30)
 
 
