@@ -38,6 +38,12 @@ export default antfu(
 
       // or configure rules individually
       'better-tailwindcss/enforce-consistent-line-wrapping': ['warn', { printWidth: 100 }],
+      'better-tailwindcss/no-unregistered-classes': ['error', {
+        ignore: [
+          'app-region-drag',
+          'icon-*',
+        ],
+      }],
       'ts/no-require-imports': ['off'],
       'node/prefer-global/process': ['off'],
     },
