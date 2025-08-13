@@ -1,9 +1,10 @@
-name: Build Electron App
+name: Release Electron App
 
 on:
   workflow_dispatch:
-  release:
-    types: [ published ]
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -73,7 +74,7 @@ jobs:
           !packages/electron/release/**/*-unpacked/
         
     - name: Upload release assets
-      if: github.event_name == 'release' && github.event.action == 'published'
+      if: github.event_name == 'release' && github.event.action == 'published' || startsWith(github.ref, 'refs/tags/v')
       uses: softprops/action-gh-release@v2
       with:
         files: |
@@ -81,5 +82,6 @@ jobs:
           packages/electron/release/**/*.dmg
           packages/electron/release/**/*.blockmap
           !packages/electron/release/**/*-unpacked/
+        tag_name: ${{ github.ref_name }}
       env:
         GITHUB_TOKEN: ${{ secrets.ANT_CHAT_RELEASE }}
