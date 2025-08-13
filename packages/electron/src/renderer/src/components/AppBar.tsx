@@ -11,8 +11,11 @@ export function AppBar() {
     >
       <div>
       </div>
-      <div className="app-region-drag h-full flex-1">
-
+      <div className={`
+        app-region-drag flex h-full flex-1 items-center justify-center text-center font-medium
+      `}
+      >
+        Ant Chat
       </div>
       <div className="flex items-center gap-1">
 

@@ -13,19 +13,16 @@ export default function Settings() {
   ]
 
   return (
-    <div className="w-full h-full grid grid-cols-[max-content_1fr]">
-      <div className="h-full w-50 border-r-solid border-(--border-color) border-r-1 p-2 text-gray py-4">
+    <div className="grid h-(--mainHeight) w-full grid-cols-[max-content_1fr]">
+      <div className="h-full w-50 border-r-1 border-(--border-color) p-2 py-4">
         <div className="flex flex-col gap-3">
           {
             menus.map(item => (
               <div
                 key={item.id}
                 className={`
-                  flex gap-3 items-center 
-                  px-4 h-10
+                  flex h-10 cursor-pointer items-center gap-3 rounded-md px-4
                   hover:bg-(--hover-bg-color)
-                  rounded-md 
-                  cursor-pointer
                   ${activeName === item.id ? 'bg-(--hover-bg-color)' : ''}
                 `}
                 onClick={() => {

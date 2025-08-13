@@ -64,7 +64,7 @@ function AntChatApp() {
       <div className="flex-shrink-0">
         <AppBar />
       </div>
-      <div className="grid h-(--mianHeight) w-full grid-cols-[max-content_1fr]">
+      <div className="grid h-(--mainHeight) w-full grid-cols-[max-content_1fr]">
         <SliderMenu />
         <Outlet />
       </div>
