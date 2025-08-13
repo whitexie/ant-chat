@@ -1,3 +1,11 @@
+# [0.6.0](https://github.com/whitexie/ant-chat/compare/v0.5.0...v0.6.0) (2025-08-13)
+
+
+### Features
+
+* release version [skip ci] ([5cd61b7](https://github.com/whitexie/ant-chat/commit/5cd61b798109f142f5c077bb6fa989e5082defa7))
+* 重构为electron 应用 ([#9](https://github.com/whitexie/ant-chat/issues/9)) ([7a53328](https://github.com/whitexie/ant-chat/commit/7a53328f34f45ecece53d2cead66c48772bee3e2))
+
 # [0.5.0](https://github.com/whitexie/ant-chat/compare/v0.4.7...v0.5.0) (2025-03-30)
 
 
@@ -239,6 +247,3 @@
 * add vitest ([557e836](https://github.com/whitexie/ant-chat/commit/557e836af51e68b4ba59492dace26ba11bdb2d2d))
 * first commit ([7fbc120](https://github.com/whitexie/ant-chat/commit/7fbc12020c88b27fe94637cb14e4b4aaa8dec4b5))
 * lazy load RenderMarkdown and SettingsModal components ([dc5bc6b](https://github.com/whitexie/ant-chat/commit/dc5bc6be37187a1a2b80a276ddaac2f9f4e33ce6))
-
-
-
