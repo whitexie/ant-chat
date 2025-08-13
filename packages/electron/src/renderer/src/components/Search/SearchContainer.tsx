@@ -9,7 +9,6 @@ export function SearchContainer() {
   React.useEffect(
     () => {
       const handleKeyDown = (e: KeyboardEvent) => {
-        console.log('Key pressed:', e.key)
         if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
           e.preventDefault()
           setOpenModal(!openModal)
