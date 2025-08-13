@@ -25,13 +25,17 @@ on:
         default: false
         type: boolean
 
+env:
+  NODE_VERSION: '22'
+  PNPM_VERSION: '10'
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
-        node-version: [22]
+        node-version: ['${{ env.NODE_VERSION }}']
     
     steps:
     - name: Checkout code
@@ -40,13 +44,13 @@ jobs:
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
-        version: 10
+        version: ${{ env.PNPM_VERSION }}
         run_install: false
         
-    - name: Setup Node.js ${{ matrix.node-version }}
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: ['${{ env.NODE_VERSION }}']
         cache: 'pnpm'
         
     - name: Get pnpm store directory
@@ -104,6 +108,35 @@ jobs:
         fetch-depth: 0
         token: ${{ secrets.ANT_CHAT_RELEASE }}
         
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ env.PNPM_VERSION }}
+        run_install: false
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'pnpm'
+        
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+        
+    - name: Setup pnpm cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+          
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       
