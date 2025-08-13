@@ -1,14 +1,3 @@
-# [0.6.0](https://github.com/whitexie/ant-chat/compare/v0.5.0...v0.6.0) (2025-08-13)
-
-
-### Features
-
-* release version [skip ci] ([9b1d2bf](https://github.com/whitexie/ant-chat/commit/9b1d2bfbf6fa79df63e844765fa19bb5c178facc))
-* release version [skip ci] ([30b6bc5](https://github.com/whitexie/ant-chat/commit/30b6bc57efe7016e78d985e4020721e69ef45a7e))
-* release version [skip ci] ([5aa2d23](https://github.com/whitexie/ant-chat/commit/5aa2d232edf9a9114cb52257048adb993e595b1e))
-* release version [skip ci] ([5cd61b7](https://github.com/whitexie/ant-chat/commit/5cd61b798109f142f5c077bb6fa989e5082defa7))
-* 重构为electron 应用 ([#9](https://github.com/whitexie/ant-chat/issues/9)) ([7a53328](https://github.com/whitexie/ant-chat/commit/7a53328f34f45ecece53d2cead66c48772bee3e2))
-
 # [0.5.0](https://github.com/whitexie/ant-chat/compare/v0.4.7...v0.5.0) (2025-03-30)
 
 

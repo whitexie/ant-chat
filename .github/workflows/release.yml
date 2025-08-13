@@ -26,77 +26,12 @@ on:
         type: boolean
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        token: ${{ secrets.ANT_CHAT_RELEASE }}
-        
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 10
-        run_install: false
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-        cache: 'pnpm'
-        
-    - name: Get pnpm store directory
-      id: pnpm-cache
-      run: |
-        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-        
-    - name: Setup pnpm cache
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-store-
-          
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-      
-    - name: Configure Git
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        
-    - name: Create release commit
-      run: |
-        # Create a conventional commit for the release based on selected type
-        if [ "${{ github.event.inputs.release-type }}" = "patch" ]; then
-          git commit --allow-empty -m "fix: release version [skip ci]"
-        elif [ "${{ github.event.inputs.release-type }}" = "minor" ]; then
-          git commit --allow-empty -m "feat: release version [skip ci]"
-        elif [ "${{ github.event.inputs.release-type }}" = "major" ]; then
-          git commit --allow-empty -m "feat: major release version [skip ci]\n\nBREAKING CHANGE: Major version update"
-        fi
-        
-    - name: Push release commit
-      run: |
-        git push origin main
-        
-    - name: Run semantic-release
-      env:
-        GITHUB_TOKEN: ${{ secrets.ANT_CHAT_RELEASE }}
-        GH_TOKEN: ${{ secrets.ANT_CHAT_RELEASE }}
-      run: pnpm release
-
   build:
-    needs: release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
-        node-version: [20]
+        node-version: [22]
     
     steps:
     - name: Checkout code
@@ -157,8 +92,8 @@ jobs:
           packages/electron/release/**
           !packages/electron/release/**/*-unpacked/
 
-  upload-release:
-    needs: [release, build]
+  finalize-release:
+    needs: build
     runs-on: ubuntu-latest
     if: always()
     
@@ -172,22 +107,14 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       
-    - name: Get latest tag
-      id: get-tag
+    - name: Configure Git
       run: |
-        TAG=$(git describe --tags --abbrev=0)
-        echo "tag=$TAG" >> $GITHUB_OUTPUT
-      
-    - name: Upload release assets
-      uses: softprops/action-gh-release@v2
-      with:
-        files: |
-          windows-build/**/*.exe
-          windows-build/**/*.blockmap
-          macos-build/**/*.dmg
-          macos-build/**/*.zip
-        prerelease: ${{ github.event.inputs.pre-release == 'true' }}
-        tag_name: ${{ steps.get-tag.outputs.tag }}
-        generate_release_notes: true
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        
+    - name: Run semantic-release
       env:
         GITHUB_TOKEN: ${{ secrets.ANT_CHAT_RELEASE }}
+        GH_TOKEN: ${{ secrets.ANT_CHAT_RELEASE }}
+      run: pnpm release
+    

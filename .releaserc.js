@@ -30,11 +30,11 @@ export default {
         changelogFile: 'CHANGELOG.md',
       },
     ],
-    // 4. 更新 package.json 中的版本号
+    // 4. 使用自定义脚本更新所有 package.json 中的版本号
     [
-      '@semantic-release/npm',
+      '@semantic-release/exec',
       {
-        packageFiles: ['package.json', 'packages/electron/package.json', 'packages/mcp-client-hub/package.json', 'packages/shared/package.json'],
+        preparecmd: 'pnpm -r version ${nextRelease.version} --no-git-tag-version',
       },
     ],
     // 5. 将变更推送回 Git（版本号和 changelog）
@@ -43,6 +43,18 @@ export default {
       {
         assets: ['CHANGELOG.md', 'package.json', 'packages/electron/package.json', 'packages/mcp-client-hub/package.json', 'packages/shared/package.json'],
         message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
+      },
+    ],
+    // 6. 上传构建产物到 GitHub Releases
+    [
+      '@semantic-release/github',
+      {
+        assets: [
+          'windows-build/**/*.exe',
+          'windows-build/**/*.blockmap',
+          'macos-build/**/*.dmg',
+          'macos-build/**/*.zip',
+        ],
       },
     ],
   ],
