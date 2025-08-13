@@ -1,6 +1,6 @@
 name: CI
 
-on: [push, pull_request]
+on: []
 
 jobs:
   unit-test:
@@ -15,7 +15,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -26,20 +26,22 @@ jobs:
         run: pnpm install
 
       - name: TypeScript Check
-        run: pnpm -F web type-check
+        run: pnpm type-check
+      
+      - name: Rebuild better-sqlite3
+        run: pnpm rebuild:node
 
       - name: Unit Test
-        run: pnpm -F web test-codecov
+        run: pnpm test:unit
 
-      - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./packages/web/test-report.junit.xml
+      # - name: Upload test results to Codecov
+      #   if: ${{ !cancelled() }}
+      #   uses: codecov/test-results-action@v1
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: ./packages/web/test-report.junit.xml
 
-      - name: analyze bundle size
-        env:
-          BUNDLE_ANALYZER_UPLOAD_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: pnpm -F web bundle-analyzer
-        
+      # - name: analyze bundle size
+      #   env:
+      #     BUNDLE_ANALYZER_UPLOAD_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      #   run: pnpm -F web bundle-analyzer

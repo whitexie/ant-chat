@@ -29,6 +29,15 @@ coverage
 
 .env
 
+*.db
+
 debug.http
 report-*.html
 .npmrc
+
+
+# electron
+dist-electron
+out
+build
+release
