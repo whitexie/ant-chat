@@ -31,12 +31,15 @@ export function ChatPage() {
 
   return (
     <div className="flex">
-      <div className="border-solid w-60 border-(--border-color) overflow-hidden border-r-1 h-[100dvh]">
-        <div className="h-full relative">
+      <div className={`
+        h-(--mainHeight) w-60 overflow-hidden border-r-1 border-solid border-(--border-color)
+      `}
+      >
+        <div className="relative h-full">
           <ConversationsManage />
         </div>
       </div>
-      <div className="relative flex-1 flex h-(--mainHeight) transition-all">
+      <div className="relative flex h-(--mainHeight) flex-1 transition-all">
         <ChatSettingsProvider>
           <Chat />
         </ChatSettingsProvider>

@@ -14,8 +14,6 @@ const __dirname = process.cwd()
 logger.info('Electron 主进程启动', __dirname)
 
 app.whenReady().then(async () => {
-  registerIpcEvents()
-
   // 安装开发工具扩展
   if (isDev) {
     installDevTools()
@@ -26,6 +24,7 @@ app.whenReady().then(async () => {
 
   const mainWindow = new MainWindow()
   await mainWindow.createWindow()
+  registerIpcEvents(mainWindow.getWindow()!)
 
   // 初始化 MCP 服务
   registerMcpHandlers(clientHub)

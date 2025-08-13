@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 import process from 'node:process'
 import { app, BrowserWindow, Menu, shell } from 'electron'
-import { isDev } from './utils/env'
+import { isDev, isMacOS, isWindows } from './utils/env'
 import { logger } from './utils/logger'
 
 // const __dirname = process.cwd()
@@ -12,11 +12,9 @@ export class MainWindow {
   private window: BrowserWindow | null = null
 
   private createMenu() {
-    const isMac = process.platform === 'darwin'
-
     const template = [
       // macOS 应用菜单
-      ...(isMac
+      ...(isMacOS
         ? [{
             label: app.name,
             submenu: [
@@ -42,7 +40,7 @@ export class MainWindow {
           { role: 'cut', label: '剪切' },
           { role: 'copy', label: '复制' },
           { role: 'paste', label: '粘贴' },
-          ...(isMac
+          ...(isMacOS
             ? [
                 { role: 'pasteAndMatchStyle', label: '粘贴并匹配样式' },
                 { role: 'delete', label: '删除' },
@@ -55,21 +53,25 @@ export class MainWindow {
               ]),
         ],
       },
-      // 视图菜单
-      {
-        label: '视图',
-        submenu: [
-          { role: 'reload', label: '重新加载' },
-          { role: 'forceReload', label: '强制重新加载' },
-          { role: 'toggleDevTools', label: '开发者工具' },
-          { type: 'separator' },
-          { role: 'resetZoom', label: '重置缩放' },
-          { role: 'zoomIn', label: '放大' },
-          { role: 'zoomOut', label: '缩小' },
-          { type: 'separator' },
-          { role: 'togglefullscreen', label: '全屏' },
-        ],
-      },
+      ...(isDev
+        ? [
+            // 视图菜单
+            {
+              label: '视图',
+              submenu: [
+                { role: 'reload', label: '重新加载' },
+                { role: 'forceReload', label: '强制重新加载' },
+                { role: 'toggleDevTools', label: '开发者工具' },
+                { type: 'separator' },
+                { role: 'resetZoom', label: '重置缩放' },
+                { role: 'zoomIn', label: '放大' },
+                { role: 'zoomOut', label: '缩小' },
+                { type: 'separator' },
+                { role: 'togglefullscreen', label: '全屏' },
+              ],
+            },
+          ]
+        : []),
     ]
 
     const menu = Menu.buildFromTemplate(template as any)
@@ -84,12 +86,14 @@ export class MainWindow {
     this.window = new BrowserWindow({
       width: 1200,
       height: 900,
+      frame: !(isWindows),
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
         webSecurity: true,
         preload,
       },
+      titleBarStyle: isMacOS ? 'hidden' : 'default',
     })
 
     mainWindow = this.window
@@ -104,14 +108,6 @@ export class MainWindow {
         logger.error('Failed to load dev server:', err)
         logger.info('Please make sure the web project is running (pnpm dev)')
       })
-
-      // 在开发模式下安装 React DevTools
-      // await installExtension(REACT_DEVELOPER_TOOLS)
-      //   .then(name => logger.info(`Added Extension:  ${name.name}`))
-      //   .catch(err => logger.error('An error occurred: ', err))
-
-      // 自动打开开发者工具
-      // this.window.webContents.openDevTools()
 
       // 添加快捷键支持
       this.window.webContents.on('before-input-event', (event, input) => {

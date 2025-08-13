@@ -21,3 +21,19 @@ export function uuid(prefix?: string) {
 export async function clipboardWrite(data: Electron.Data) {
   return await emitter.invoke('common:clipboard-write', data)
 }
+
+export function getSystemPlatform() {
+  return window.electron.process.platform as 'linux' | 'darwin' | 'win32'
+}
+
+export function minimizeWindow() {
+  emitter.send('common:minimize-window')
+}
+
+export function maximizeOrRestoreWindow() {
+  emitter.send('common:maximize-or-resore-window')
+}
+
+export function quitApp() {
+  emitter.send('common:quit-app')
+}

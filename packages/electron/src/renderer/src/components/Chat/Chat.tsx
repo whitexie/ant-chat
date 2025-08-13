@@ -80,11 +80,15 @@ export default function Chat() {
   }
 
   return (
-    <div key={currentConversations?.id} className="grid w-full grid-rows-[1fr_max-content] h-(--mainHeight) md:h-[100dvh] relative mx-auto">
+    <div
+      key={currentConversations?.id}
+      className="relative mx-auto grid h-(--mainHeight) w-full grid-rows-[1fr_max-content]"
+    >
       <div
-        className="absolute left-0 top-0 z-10
-          w-full h-5
-          bg-linear-to-b from-white dark:from-black to-transparent"
+        className={`
+          absolute top-0 left-0 z-10 h-5 w-full bg-linear-to-b from-white to-transparent
+          dark:from-black
+        `}
       >
       </div>
       {
@@ -114,7 +118,10 @@ export default function Chat() {
               </Suspense>
             )
           : (
-              <h1 className="text-center text-4xl absolute bottom-[70%] py-3 left-0 right-0 text-gray-500">
+              <h1 className={`
+                absolute right-0 bottom-[70%] left-0 py-3 text-center text-4xl text-gray-500
+              `}
+              >
                 <TypingEffect text="有什么可以帮忙的？" />
               </h1>
             )
@@ -147,7 +154,7 @@ export default function Chat() {
 
 function BubbleSkeleton() {
   return (
-    <div className="w-(--chat-width) mx-auto flex flex-col gap-3">
+    <div className="mx-auto flex w-(--chat-width) flex-col gap-3">
       <Skeleton avatar paragraph={{ rows: 4 }} active />
       <Skeleton avatar paragraph={{ rows: 4 }} active />
       <Skeleton avatar paragraph={{ rows: 4 }} active />

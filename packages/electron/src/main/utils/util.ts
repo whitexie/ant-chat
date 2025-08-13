@@ -37,14 +37,6 @@ export function getResourcePath() {
 }
 
 /**
- * 是否是mac
- * @returns string
- */
-export function isMac() {
-  return process.platform === 'darwin'
-}
-
-/**
  * 获取当前文件目录
  * @param importMetaUrl import.meta.url
  * @returns string

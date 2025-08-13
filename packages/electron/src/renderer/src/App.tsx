@@ -3,6 +3,7 @@ import zhCN from 'antd/locale/zh_CN'
 import { useEffect } from 'react'
 import { Outlet } from 'react-router'
 import { useThemeStore } from '@/store/theme'
+import { AppBar } from './components/AppBar'
 import { RunnerCodeProvider } from './components/RunnerCode'
 import { SliderMenu } from './components/SiliderMenu'
 import { useIpcEventListener } from './hooks/useIpcEventListener'
@@ -55,8 +56,15 @@ function AntChatApp() {
   useIpcEventListener()
 
   return (
-    <div className="w-full h-full bg-white dark:bg-black">
-      <div className="grid h-full w-full grid-cols-[max-content_1fr]">
+    <div className={`
+      flex h-[100dvh] w-full flex-col overflow-hidden bg-white
+      dark:bg-black
+    `}
+    >
+      <div className="flex-shrink-0">
+        <AppBar />
+      </div>
+      <div className="grid h-(--mianHeight) w-full grid-cols-[max-content_1fr]">
         <SliderMenu />
         <Outlet />
       </div>

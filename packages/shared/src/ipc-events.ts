@@ -69,6 +69,9 @@ export type IpcEvents
      * emitter.send('ping', 'pong')
      */
     'chat:send-chat-completions': [handleChatCompletionsOptions]
+    'common:minimize-window': []
+    'common:maximize-or-resore-window': []
+    'common:quit-app': []
   }
   | {
     // ============================ 全局 相关 ============================
