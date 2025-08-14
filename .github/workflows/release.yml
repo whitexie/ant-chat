@@ -1,137 +1,59 @@
-name: Release Electron App
+name: Release Electron app
 
 on:
-  workflow_dispatch:
-    inputs:
-      release-type:
-        description: |
-          Release type - 选择版本发布类型：
-          • patch: 补丁版本，修复 bug (例: 0.5.0 → 0.5.1)
-          • minor: 次要版本，新增功能 (例: 0.5.0 → 0.6.0)
-          • major: 主要版本，破坏性更新 (例: 0.5.0 → 1.0.0)
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-      pre-release:
-        description: |
-          Create as pre-release - 是否创建为预发布版本
-          • true: 预发布版本，不会推送给所有用户
-          • false: 正式发布版本，会推送给所有用户
-        required: false
-        default: false
-        type: boolean
+  push:
+    tags:
+      - v*.*.*
 
 jobs:
-  build:
+  release:
     runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
-        node-version: ['22']
-    timeout-minutes: 20
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 10
-        run_install: false
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
-        cache: 'pnpm'
-        
-    - name: Get pnpm store directory
-      id: pnpm-cache
-      shell: bash
-      run: |
-        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-        
-    - name: Setup pnpm cache
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-store-
-          
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-      
-    - name: Build app (Windows)
-      if: matrix.os == 'windows-latest'
-      run: pnpm build:win
-      
-    - name: Build app (macOS)
-      if: matrix.os == 'macos-latest'
-      run: pnpm build:mac
-      
-    - name: Upload artifacts (Windows)
-      if: matrix.os == 'windows-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: windows-build
-        path: |
-          packages/electron/release/**
-          !packages/electron/release/**/*-unpacked/
-        
-    - name: Upload artifacts (macOS)
-      if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: macos-build
-        path: |
-          packages/electron/release/**
-          !packages/electron/release/**/*-unpacked/
+        os: [macos-latest, windows-latest]
 
-  finalize-release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: needs.build.result == 'success'
-    timeout-minutes: 20
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        token: ${{ secrets.ANT_CHAT_RELEASE }}
-        
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 10
-        run_install: false
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
-        cache: 'pnpm'
-        
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-      
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      
-    - name: Configure Git
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        
-    - name: Run semantic-release
-      env:
-        GITHUB_TOKEN: ${{ secrets.ANT_CHAT_RELEASE }}
-        GH_TOKEN: ${{ secrets.ANT_CHAT_RELEASE }}
-      run: pnpm release
-    
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build app (Windows)
+        if: matrix.os == 'windows-latest'
+        run: pnpm build:win
+
+      - name: Build app (macOS)
+        if: matrix.os == 'macos-latest'
+        run: pnpm build:mac
+
+      - name: release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: |
+            packages/electron/release/**/*.exe
+            packages/electron/release/**/*.zip
+            packages/electron/release/**/*.dmg
+            packages/electron/release/**/*.AppImage
+            packages/electron/release/**/*.snap
+            packages/electron/release/**/*.deb
+            packages/electron/release/**/*.rpm
+            packages/electron/release/**/*.tar.gz
+            packages/electron/release/**/*.yml
+            packages/electron/release/**/*.blockmap
+        env:
+          GITHUB_TOKEN: ${{ secrets.ANT_CHAT_RELEASE }}
