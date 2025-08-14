@@ -1,8 +1,6 @@
 {
   "name": "@ant-chat/mcp-client-hub",
   "type": "module",
-  "version": "1.0.0",
-  "packageManager": "pnpm@10.5.2",
   "description": "MCP client for Ant Chat",
   "author": "Ant Chat",
   "license": "MIT",
