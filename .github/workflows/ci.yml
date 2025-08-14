@@ -1,6 +1,8 @@
 name: CI
 
-on: []
+# 暂停掉，后续优化完单元测试再开启
+on:
+  workflow_dispatch:
 
 jobs:
   unit-test:

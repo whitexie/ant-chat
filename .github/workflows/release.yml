@@ -45,15 +45,18 @@ jobs:
         with:
           draft: true
           files: |
-            packages/electron/release/**/*.exe
-            packages/electron/release/**/*.zip
-            packages/electron/release/**/*.dmg
-            packages/electron/release/**/*.AppImage
-            packages/electron/release/**/*.snap
-            packages/electron/release/**/*.deb
-            packages/electron/release/**/*.rpm
-            packages/electron/release/**/*.tar.gz
-            packages/electron/release/**/*.yml
-            packages/electron/release/**/*.blockmap
+            packages/electron/release/*/*.exe
+            packages/electron/release/*/*.zip
+            packages/electron/release/*/*.dmg
+            packages/electron/release/*/*.AppImage
+            packages/electron/release/*/*.snap
+            packages/electron/release/*/*.deb
+            packages/electron/release/*/*.rpm
+            packages/electron/release/*/*.tar.gz
+            packages/electron/release/*/*.yml
+            packages/electron/release/*/*.blockmap
+            !packages/electron/release/*/elevate.exe
+            !packages/electron/release/*/*-debug.yml
+            !packages/electron/release/*/*debug.yml
         env:
           GITHUB_TOKEN: ${{ secrets.ANT_CHAT_RELEASE }}
