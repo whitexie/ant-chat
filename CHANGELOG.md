@@ -1,3 +1,7 @@
+# [0.6.0-alpha.1](https://github.com/whitexie/ant-chat/compare/v0.6.0-alpha.0...v0.6.0-alpha.1) (2025-08-14)
+
+
+
 # [0.6.0-alpha.0](https://github.com/whitexie/ant-chat/compare/v0.5.0...v0.6.0-alpha.0) (2025-08-14)
 
 
