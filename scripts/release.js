@@ -229,7 +229,10 @@ function main() {
   // 3. 更新changelog
   if (!options.skipChangelog) {
     console.log('\n3️⃣ 更新 CHANGELOG.md...')
-    if (!executeCommand('npx -y conventional-changelog-cli -p angular -i CHANGELOG.md -s -r 0')) {
+    // 获取新版本号
+    const newVersion = getCurrentVersion()
+    // 使用 future-release 参数确保只生成指定版本的内容
+    if (!executeCommand(`npx -y conventional-changelog-cli -p angular -i CHANGELOG.md -s --future-release ${newVersion}`)) {
       console.error('❌ 更新 CHANGELOG.md 失败')
       process.exit(1)
     }
