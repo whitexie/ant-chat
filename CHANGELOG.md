@@ -1,21 +1,19 @@
-# [0.6.0](https://github.com/whitexie/ant-chat/compare/v0.5.0...v0.6.0) (2025-08-13)
+# [0.6.0-alpha.0](https://github.com/whitexie/ant-chat/compare/v0.5.0...v0.6.0-alpha.0) (2025-08-14)
 
 
 ### Features
 
-* release version [skip ci] ([9b1d2bf](https://github.com/whitexie/ant-chat/commit/9b1d2bfbf6fa79df63e844765fa19bb5c178facc))
-* release version [skip ci] ([30b6bc5](https://github.com/whitexie/ant-chat/commit/30b6bc57efe7016e78d985e4020721e69ef45a7e))
-* release version [skip ci] ([5aa2d23](https://github.com/whitexie/ant-chat/commit/5aa2d232edf9a9114cb52257048adb993e595b1e))
-* release version [skip ci] ([5cd61b7](https://github.com/whitexie/ant-chat/commit/5cd61b798109f142f5c077bb6fa989e5082defa7))
 * 重构为electron 应用 ([#9](https://github.com/whitexie/ant-chat/issues/9)) ([7a53328](https://github.com/whitexie/ant-chat/commit/7a53328f34f45ecece53d2cead66c48772bee3e2))
+
 
 # [0.5.0](https://github.com/whitexie/ant-chat/compare/v0.4.7...v0.5.0) (2025-03-30)
 
 
 ### Features
 
-* **Mermaid:** 新增 Mermaid 图表支持 ([49a4aae](https://github.com/whitexie/ant-chat/commit/49a4aae2a90fb03ed00c9748b5a29cd835b5f660))
+* 支持 渲染Mermaid 图表 ([afb8f9d](https://github.com/whitexie/ant-chat/commit/afb8f9d84032b8530048517893e180e86845a215))
 * 支持预览 HTML代码块 ([fd01dac](https://github.com/whitexie/ant-chat/commit/fd01dacc4c1a02b6c3d058083269b8733075807e))
+* **Mermaid:** 新增 Mermaid 图表支持 ([49a4aae](https://github.com/whitexie/ant-chat/commit/49a4aae2a90fb03ed00c9748b5a29cd835b5f660))
 
 
 
@@ -26,8 +24,8 @@
 
 * **BubbleList:** 优化AI回复的打字效果 ([db4ed78](https://github.com/whitexie/ant-chat/commit/db4ed7897d56014f8122fc91972fa610b20435de))
 * **Chat:**  优化错误消息显示 ([7f34e7d](https://github.com/whitexie/ant-chat/commit/7f34e7da786c881fabcaf8d6f0e26c54d16f2b66))
-* **Chat:** 优化聊天气泡列表的滚动行为和消息渲染 ([409f968](https://github.com/whitexie/ant-chat/commit/409f96814eb14be5d265d5b5cbc83b475344c9c3))
 * **Chat:** 更新消息发送逻辑，优化会话标题初始化 ([db8b7f8](https://github.com/whitexie/ant-chat/commit/db8b7f83958676f13b718623bed5a0951ee38f6f))
+* **Chat:** 优化聊天气泡列表的滚动行为和消息渲染 ([409f968](https://github.com/whitexie/ant-chat/commit/409f96814eb14be5d265d5b5cbc83b475344c9c3))
 * **Chat:** 重构聊天气泡列表，增加无限滚动和消息加载功能 ([824ebb2](https://github.com/whitexie/ant-chat/commit/824ebb2bc77ae693b590135dee2c3806e54eaa76))
 * **InfiniteScroll:** 优化滚动到底部的逻辑 ([a327d25](https://github.com/whitexie/ant-chat/commit/a327d25fe18c4ed5ae73272a21ecbfe01d324a87))
 
@@ -46,9 +44,9 @@
 
 ### Bug Fixes
 
-* 主题跟随系统变化 ([5d28d9d](https://github.com/whitexie/ant-chat/commit/5d28d9d48e5e523d6b7fd1a367137cbdf29101da))
 * 确保在主题更改时正确切换主题类 ([e18d55d](https://github.com/whitexie/ant-chat/commit/e18d55d3afcec4def79aba1ea61279faae1e86a2))
 * 输入法激活时不触发消息发送 ([750d28d](https://github.com/whitexie/ant-chat/commit/750d28d2491c897436b8c7d283dabaee85b3df7b))
+* 主题跟随系统变化 ([5d28d9d](https://github.com/whitexie/ant-chat/commit/5d28d9d48e5e523d6b7fd1a367137cbdf29101da))
 
 
 
@@ -127,7 +125,7 @@
 ### Features
 
 * 增加`联网搜索`功能(仅Gemini支持) ([174ff77](https://github.com/whitexie/ant-chat/commit/174ff77408bd795935b138954b11815a7d0fd76f))
-* 升级输入框组件 ([4f0541d](https://github.com/whitexie/ant-chat/commit/4f0541d27c1ea233f6224e2fe9a0084c627c99fa))
+* refactor chat sender component ([4f0541d](https://github.com/whitexie/ant-chat/commit/4f0541d27c1ea233f6224e2fe9a0084c627c99fa))
 
 
 
@@ -136,9 +134,10 @@
 
 ### Features
 
-* 增加附件上传功能(上传图片与上传附件合并)，适用于Gemini模型
+* 附件上传功能增强 ([7f659a5](https://github.com/whitexie/ant-chat/commit/7f659a5cb9c311418de59a6df14ca293c5bd4234))
 * 集成 remark-gfm 插件以增强 Markdown 渲染 ([b2e7898](https://github.com/whitexie/ant-chat/commit/b2e78987ebc547928ebdad7c41318194a846ffb8))
 * 移动端适配 ([ea4bd19](https://github.com/whitexie/ant-chat/commit/ea4bd19af913fc733a5f9ab493365c6bb3270562))
+* 增强消息处理，支持附件上传 ([19c77bc](https://github.com/whitexie/ant-chat/commit/19c77bc9177596bae216149529ac01291c88895b))
 
 
 
@@ -222,7 +221,7 @@
 
 
 
-## 0.0.1 (2025-01-16)
+## [0.0.1](https://github.com/whitexie/ant-chat/compare/7fbc12020c88b27fe94637cb14e4b4aaa8dec4b5...v0.0.1) (2025-01-16)
 
 
 ### Bug Fixes
@@ -250,3 +249,6 @@
 * add vitest ([557e836](https://github.com/whitexie/ant-chat/commit/557e836af51e68b4ba59492dace26ba11bdb2d2d))
 * first commit ([7fbc120](https://github.com/whitexie/ant-chat/commit/7fbc12020c88b27fe94637cb14e4b4aaa8dec4b5))
 * lazy load RenderMarkdown and SettingsModal components ([dc5bc6b](https://github.com/whitexie/ant-chat/commit/dc5bc6be37187a1a2b80a276ddaac2f9f4e33ce6))
+
+
+
