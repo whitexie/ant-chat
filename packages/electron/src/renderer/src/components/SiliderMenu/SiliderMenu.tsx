@@ -50,9 +50,9 @@ export function SliderMenu() {
           <SliderMenuItem
             title={null}
             icon={<GithubFilled />}
-            path=""
+            path="https://github.com/whitexie/ant-chat"
             onClick={(_, path) => {
-              window.open(path)
+              window.location.href = path
             }}
           />
         </div>
