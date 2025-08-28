@@ -17,7 +17,6 @@ import {
   onRequestAction,
   refreshRequestAction,
   setActiveConversationsId,
-  setRequestStatus,
   useMessagesStore,
 } from '@/store/messages'
 import Loading from '../Loading'
@@ -32,8 +31,6 @@ export default function Chat() {
   const messages = useMessagesStore(state => state.messages)
   const activeConversationsId = useMessagesStore(state => state.activeConversationsId)
   const currentConversations = useConversationsStore(state => state.conversations.find(item => item.id === activeConversationsId))
-
-  const isLoading = useMessagesStore(state => state.requestStatus === 'loading')
   const features = useChatSttingsStore(useShallow(state => ({ onlineSearch: state.onlineSearch, enableMCP: state.enableMCP })))
 
   const { notification } = App.useApp()
@@ -128,7 +125,6 @@ export default function Chat() {
       }
       <div className="px-2 pb-4">
         <Sender
-          loading={isLoading}
           actions={(
             <ModelControlPanel
               value={settings.modelId}
@@ -140,8 +136,7 @@ export default function Chat() {
           )}
           onSubmit={onSubmit}
           onCancel={() => {
-            abortSendChatCompletions()
-            setRequestStatus('cancel')
+            abortSendChatCompletions(activeConversationsId)
           }}
         />
       </div>

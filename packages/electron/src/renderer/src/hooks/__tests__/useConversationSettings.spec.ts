@@ -100,12 +100,10 @@ describe('useConversationSettings', () => {
     let activeId = 'conv4'
     vi.mocked(useMessagesStore).mockImplementation(cb => cb({
       activeConversationsId: activeId,
-      requestStatus: 'loading',
       messages: [],
       pageIndex: 0,
       pageSize: 0,
       messageTotal: 0,
-      abortFunction: null,
       reset(): void {
         throw new Error('Function not implemented.')
       },

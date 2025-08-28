@@ -1,7 +1,8 @@
-import type { IMcpToolCall, McpToolCallResponse, MessageId } from '@ant-chat/shared'
+import type { IMcpToolCall, IMessage, McpToolCallResponse, MessageId } from '@ant-chat/shared'
 import { dbApi } from '@/api/dbApi'
 import { executeMcpToolCall } from '@/api/mcpApi'
-import { setRequestStatus, updateMessageAction } from './actions'
+import { addStreamingConversationId, removeStreamingConversationId } from '../conversation'
+import { updateMessageAction } from './actions'
 
 export async function setMcpToolCallexecuteState(id: MessageId, toolId: string, state: IMcpToolCall['executeState']) {
   const message = await dbApi.getMessageById(id)
@@ -22,11 +23,9 @@ export async function setMcpToolCallexecuteState(id: MessageId, toolId: string, 
   await updateMessageAction(message)
 }
 
-export async function executeMcpToolAction(messageId: MessageId, tool: IMcpToolCall) {
-  let message = await dbApi.getMessageById(messageId)
-
-  await setMcpToolCallexecuteState(messageId, tool.id, 'executing')
-  setRequestStatus('loading')
+export async function executeMcpToolAction(message: IMessage, tool: IMcpToolCall) {
+  await setMcpToolCallexecuteState(message.id, tool.id, 'executing')
+  addStreamingConversationId(message.convId)
 
   if (!message.mcpTool) {
     throw new Error('message not has mcpTool')
@@ -58,12 +57,12 @@ export async function executeMcpToolAction(messageId: MessageId, tool: IMcpToolC
 
   await updateMessageAction(message)
 
-  await setMcpToolCallexecuteState(messageId, tool.id, 'completed')
-  setRequestStatus('success')
+  await setMcpToolCallexecuteState(message.id, tool.id, 'completed')
+  removeStreamingConversationId(message.convId)
 
   // 检查当前message.mcpTool是否都执行完了
-  message = await dbApi.getMessageById(messageId)
-  const isAllCompleted = message.mcpTool?.every(item => item.executeState === 'completed')
+  const messageLatest = await dbApi.getMessageById(message.id)
+  const isAllCompleted = messageLatest.mcpTool?.every(item => item.executeState === 'completed')
 
   return { isAllCompleted }
 }
