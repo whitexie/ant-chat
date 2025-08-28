@@ -85,6 +85,7 @@ class GeminiService implements AIProvider {
       config: {
         temperature: options.chatSettings.temperature,
         maxOutputTokens: options.chatSettings.maxTokens,
+        abortSignal: options.abortSignal,
       },
     }
 

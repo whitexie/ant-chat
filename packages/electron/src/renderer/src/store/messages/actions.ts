@@ -91,9 +91,9 @@ export function resetAbortFunction() {
   }))
 }
 
-export function abortSendChatCompletions() {
+export function abortSendChatCompletions(conversationsId: string) {
   try {
-    useMessagesStore.getState().abortFunction?.()
+    chatApi.cancelChatCompletions(conversationsId)
   }
   catch (e) {
     console.log('execute abort callback fail => ', e)

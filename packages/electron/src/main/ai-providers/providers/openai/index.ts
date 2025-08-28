@@ -87,20 +87,20 @@ class OpenAIService implements AIProvider {
       toolsConfig = { tools, tool_choice: 'auto' }
     }
 
-    const stream = await this.client.chat.completions.create({
-      ...toolsConfig,
-      model,
-      temperature,
-      max_completion_tokens,
-      messages: [
-        {
-          role: 'system',
-          content: systemPrompt,
-        },
-        ...this.transformMessages(messages),
-      ],
-      stream: true,
-    })
+    const stream = await this.client.chat.completions.create(
+      {
+        ...toolsConfig,
+        model,
+        temperature,
+        max_completion_tokens,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...this.transformMessages(messages),
+        ],
+        stream: true,
+      },
+      { signal: options.abortSignal },
+    )
 
     for await (const chunk of stream) {
       const { finish_reason } = chunk.choices[0]

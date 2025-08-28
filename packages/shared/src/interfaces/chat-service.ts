@@ -13,6 +13,7 @@ export interface SendChatCompletionsOptions {
   messages: IMessage[]
   chatSettings: ChatSettings
   mcpTools?: McpTool[]
+  abortSignal?: AbortSignal
 }
 
 export interface handleChatCompletionsOptions {

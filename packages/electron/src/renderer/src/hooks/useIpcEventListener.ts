@@ -1,6 +1,7 @@
 import type { NotificationOption } from '@ant-chat/shared'
 import { App } from 'antd'
 import { useEffect } from 'react'
+import { addStreamingConversationId, removeStreamingConversationId } from '@/store/conversation'
 import { onMcpServerStatusChanged } from '@/store/mcpConfigs/action'
 import { updateMessageActionV2 } from '@/store/messages'
 import { ipc } from '@/utils/ipc-bus'
@@ -18,6 +19,8 @@ export function useIpcEventListener() {
     ipc.on('mcp:McpServerStatusChanged', onMcpServerStatusChanged)
     ipc.on('chat:stream-message', (_, msg) => {
       console.log('chat:stream-message => ', msg)
+
+      handleStreamingConversationStatus(msg)
       updateMessageActionV2(msg)
     })
 
@@ -27,4 +30,14 @@ export function useIpcEventListener() {
       window.electron.ipcRenderer.removeAllListeners('chat:stream-message')
     }
   }, [])
+}
+
+// 处理对话流式状态的辅助函数
+function handleStreamingConversationStatus(msg: { status: string, convId: string }) {
+  if (['typing', 'loading'].includes(msg.status)) {
+    addStreamingConversationId(msg.convId)
+  }
+  else {
+    removeStreamingConversationId(msg.convId)
+  }
 }

@@ -69,6 +69,7 @@ export type IpcEvents
      * emitter.send('ping', 'pong')
      */
     'chat:send-chat-completions': [handleChatCompletionsOptions]
+    'chat:cancel-chat-completions': [string]
     'common:minimize-window': []
     'common:maximize-or-resore-window': []
     'common:quit-app': []
@@ -140,5 +141,6 @@ export interface IpcRendererEvent {
   'mcp:McpServerStatusChanged': [string, 'disconnected' | 'connected']
   'common:Notification': [NotificationOption]
   'chat:stream-message': [IMessage]
+  'chat:stream-canceled': [string]
   [key: string]: unknown[]
 }
