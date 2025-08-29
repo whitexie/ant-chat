@@ -3,13 +3,11 @@ import type { UploadFile } from 'antd'
 
 import Icon, {
   ArrowUpOutlined,
-  AudioOutlined,
   CloudUploadOutlined,
   GlobalOutlined,
   LinkOutlined,
 } from '@ant-design/icons'
 import { Attachments } from '@ant-design/x'
-import useSpeech from '@ant-design/x/es/sender/useSpeech'
 import { App, Badge, Button, Tooltip } from 'antd'
 import { useState } from 'react'
 import MCPIcon from '@/assets/icons/mcp.svg?react'
@@ -42,10 +40,6 @@ function Sender({ actions, ...props }: SenderProps) {
 
   // 新增输入法状态
   const [isComposing, setIsComposing] = useState(false)
-
-  const [allowSpeech, triggerSpeech, recording] = useSpeech((transcript: string) => {
-    setText(prev => `${prev}${transcript}`)
-  })
 
   async function transformAttachments() {
     const images: IAttachment[] = []
@@ -190,17 +184,6 @@ function Sender({ actions, ...props }: SenderProps) {
           {actions}
         </div>
         <div className="flex items-center gap-1">
-          <Button
-            disabled={!allowSpeech}
-            type="text"
-            shape="circle"
-            icon={recording ? <StopSvg className="h-8 w-8 text-(--ant-color-primary)!" /> : <AudioOutlined />}
-            onClick={() => {
-              if (allowSpeech) {
-                triggerSpeech(recording)
-              }
-            }}
-          />
           <Button
             data-testid="sendBtn"
             type={loading ? 'text' : 'primary'}
