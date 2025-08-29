@@ -75,6 +75,10 @@ export type IpcEvents
     'common:quit-app': []
   }
   | {
+    /**
+     * 这里是使用invoke相关的事件
+     */
+
     // ============================ 全局 相关 ============================
     'common:clipboard-write': (data: ElectronData, type?: 'selection' | 'clipboard') => Promise<boolean>
 
@@ -136,7 +140,9 @@ export type IpcEvents
     'db:search-by-keyword': (query: string) => Promise<IpcResponse<SearchResult[]>>
   }
 
-// Renderer ipc events
+/**
+ * 这里是在渲染进程中接收的事件
+ */
 export interface IpcRendererEvent {
   'mcp:McpServerStatusChanged': [string, 'disconnected' | 'connected']
   'common:Notification': [NotificationOption]

@@ -1,12 +1,23 @@
+import type { ProxySettings } from '@ant-chat/shared'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 
-const initialState = {
+interface GeneralSettingsState {
   // 助理模型ID，用于初始化对话标题
-  assistantModelId: '',
+  assistantModelId: string
+  // 代理设置
+  proxySettings: ProxySettings
 }
 
-export const useGeneralSettingsStore = create<typeof initialState>()(
+const initialState: GeneralSettingsState = {
+  assistantModelId: '',
+  proxySettings: {
+    mode: 'none',
+    customProxyUrl: '',
+  },
+}
+
+export const useGeneralSettingsStore = create<GeneralSettingsState>()(
   devtools(
     persist(
       set => ({
