@@ -2,6 +2,7 @@ import type { BrowserWindow } from 'electron'
 import { registerChatHandlers } from './chatHandlers'
 import { registerCommonHandlers } from './commonHandlers'
 import { registerDbHandlers } from './dbHandlers'
+import { setupGeneralSettingsHandlers } from './generalSettingsHandlers'
 import { registerChatServiceEvent } from './registerChatServiceEvent'
 
 export function registerIpcEvents(mainWindow: BrowserWindow) {
@@ -9,4 +10,5 @@ export function registerIpcEvents(mainWindow: BrowserWindow) {
   registerCommonHandlers(mainWindow)
   registerChatHandlers()
   registerChatServiceEvent()
+  setupGeneralSettingsHandlers()
 }

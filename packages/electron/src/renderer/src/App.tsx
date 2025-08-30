@@ -2,6 +2,7 @@ import { App, ConfigProvider, theme } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { useEffect } from 'react'
 import { Outlet } from 'react-router'
+import { initializeGeneralSettings } from '@/store/generalSettings/actions'
 import { useThemeStore } from '@/store/theme'
 import { AppBar } from './components/AppBar'
 import { RunnerCodeProvider } from './components/RunnerCode'
@@ -54,6 +55,11 @@ function AppWrapper() {
 
 function AntChatApp() {
   useIpcEventListener()
+
+  // 初始化 GeneralSettings
+  useEffect(() => {
+    initializeGeneralSettings()
+  }, [])
 
   return (
     <div className={`

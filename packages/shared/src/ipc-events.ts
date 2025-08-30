@@ -1,4 +1,4 @@
-import type { handleChatCompletionsOptions, handleInitConversationTitleOptions, IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption, SearchResult } from './interfaces'
+import type { GeneralSettingsState, handleChatCompletionsOptions, handleInitConversationTitleOptions, IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption, SearchResult } from './interfaces'
 import type { AddConversationsSchema, AddMcpConfigSchema, AddServiceProviderModelSchema, AddServiceProviderSchema, AllAvailableModelsSchema, McpConfigSchema, ServiceProviderModelsSchema, ServiceProviderSchema, UpdateConversationsSchema, UpdateMcpConfigSchema, UpdateServiceProviderSchema } from './schemas'
 
 export function createIpcResponse<T>(success: boolean, data: T, msg?: string): IpcResponse<T> | ErrorIpcResponse {
@@ -138,6 +138,11 @@ export type IpcEvents
 
     // ============================ 搜索相关 ============================
     'db:search-by-keyword': (query: string) => Promise<IpcResponse<SearchResult[]>>
+
+    // ============================ General Settings 相关 ============================
+    'general-settings:get-settings': () => Promise<IpcResponse<GeneralSettingsState>>
+    'general-settings:update-settings': (updates: Partial<GeneralSettingsState>) => Promise<IpcResponse<GeneralSettingsState>>
+    'general-settings:reset-settings': () => Promise<IpcResponse<GeneralSettingsState>>
   }
 
 /**

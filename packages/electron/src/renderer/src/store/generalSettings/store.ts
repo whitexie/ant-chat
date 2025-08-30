@@ -1,15 +1,12 @@
-import type { ProxySettings } from '@ant-chat/shared'
+import type { GeneralSettingsState } from '@ant-chat/shared'
 import { create } from 'zustand'
-import { devtools, persist } from 'zustand/middleware'
+import { devtools } from 'zustand/middleware'
 
-interface GeneralSettingsState {
-  // 助理模型ID，用于初始化对话标题
-  assistantModelId: string
-  // 代理设置
-  proxySettings: ProxySettings
+interface GeneralSettingsStoreState extends GeneralSettingsState {
+  isLoading: boolean
 }
 
-const initialState: GeneralSettingsState = {
+const DEFAULT_SETTINGS: GeneralSettingsState = {
   assistantModelId: '',
   proxySettings: {
     mode: 'none',
@@ -17,21 +14,15 @@ const initialState: GeneralSettingsState = {
   },
 }
 
-export const useGeneralSettingsStore = create<GeneralSettingsState>()(
+export const useGeneralSettingsStore = create<GeneralSettingsStoreState>()(
   devtools(
-    persist(
-      set => ({
-        ...structuredClone(initialState),
-        reset: () => {
-          set(structuredClone(initialState))
-        },
-      }),
-      {
-        name: 'General-Settings',
-        version: 0,
-      },
-    ),
+    _set => ({
+      // Initial state
+      ...DEFAULT_SETTINGS,
+      isLoading: false,
+    }),
     {
+      name: 'General-Settings',
       enabled: import.meta.env.MODE === 'development',
     },
   ),
