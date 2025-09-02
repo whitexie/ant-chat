@@ -26,10 +26,10 @@ const router = createHashRouter([
         path: 'settings',
         Component: SettingsPage,
         children: [
-          { index: true, element: <Navigate to="./provider" replace /> },
+          { index: true, element: <Navigate to="./general" replace /> },
+          { path: 'general', Component: GeneralSettings },
           { path: 'provider', Component: ProviderManage },
           { path: 'mcp', Component: MCPManage },
-          { path: 'general', Component: GeneralSettings },
         ],
       },
     ],
