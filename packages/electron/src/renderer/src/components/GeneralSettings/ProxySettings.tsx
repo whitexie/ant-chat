@@ -1,5 +1,8 @@
-import { Button, Input, message, Select } from 'antd'
+import { App, Button, Input, Select } from 'antd'
 import React from 'react'
+import { updateProxySettings } from '@/store/generalSettings/actions'
+import { useGeneralSettingsStore } from '@/store/generalSettings/store'
+import { emitter, unwrapIpcResponse } from '@/utils/ipc-bus'
 
 const proxyOptions = [
   { value: 'none', label: '不使用代理' },
@@ -7,50 +10,79 @@ const proxyOptions = [
   { value: 'custom', label: '自定义代理' },
 ]
 
-interface ProxySettingsProps {
-  onModeChange: (mode: 'none' | 'system' | 'custom') => void
-}
+// 代理模式选择组件
+export function ProxySettings() {
+  const { message } = App.useApp()
+  const proxySettings = useGeneralSettingsStore(state => state.proxySettings)
+  const isLoading = useGeneralSettingsStore(state => state.isLoading)
 
-export function ProxySettings({ onModeChange }: ProxySettingsProps) {
+  const handleProxyModeChange = async (mode: 'none' | 'system' | 'custom') => {
+    try {
+      await updateProxySettings({ mode })
+      message.success('代理模式已更新')
+    }
+    catch {
+      message.error('代理模式更新失败')
+    }
+  }
+
   return (
     <Select
-      defaultValue="none"
-      onChange={onModeChange}
+      value={proxySettings.mode}
+      onChange={handleProxyModeChange}
       options={proxyOptions}
       className="min-w-32"
+      loading={isLoading}
+      disabled={isLoading}
     />
   )
 }
 
 // 自定义代理URL配置组件
 export function CustomProxyUrl() {
-  const [proxyUrl, setProxyUrl] = React.useState('')
+  const { message } = App.useApp()
+  const proxySettings = useGeneralSettingsStore(state => state.proxySettings)
+  const isLoading = useGeneralSettingsStore(state => state.isLoading)
+
   const [testing, setTesting] = React.useState(false)
   const [testResult, setTestResult] = React.useState<boolean | null>(null)
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setProxyUrl(e.target.value)
+  const handleUrlBlur = async (e) => {
+    const tempUrl = e.target.value.trim()
+
+    if (!(tempUrl.includes('://'))) {
+      message.error('代理地址必须包含协议头，例如：http://127.0.0.1:7890')
+      return
+    }
+
+    if (tempUrl && tempUrl !== proxySettings.customProxyUrl) {
+      try {
+        await updateProxySettings({ customProxyUrl: tempUrl })
+      }
+      catch {
+        message.error('代理地址更新失败')
+      }
+    }
   }
 
   const handleTestProxy = async () => {
-    if (!proxyUrl) {
+    const urlToTest = proxySettings.customProxyUrl
+    if (!urlToTest) {
       message.warning('请先配置代理地址')
       return
     }
 
     // 验证URL必须包含协议头
-    if (!proxyUrl.includes('://')) {
+    if (!urlToTest.includes('://')) {
       message.error('代理地址必须包含协议头，例如：http://127.0.0.1:7890')
       return
     }
 
     setTesting(true)
     try {
-      // 模拟测试连接
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      // 模拟测试结果
-      const result = Math.random() > 0.3 // 70% 成功率
+      // 使用真实的代理测试API
+      const response = await emitter.invoke('proxy:test-connection', urlToTest)
+      const result = unwrapIpcResponse(response)
 
       setTestResult(result)
       message[result ? 'success' : 'error'](
@@ -58,7 +90,6 @@ export function CustomProxyUrl() {
       )
     }
     catch {
-      setTestResult(false)
       message.error('代理测试失败')
     }
     finally {
@@ -66,30 +97,36 @@ export function CustomProxyUrl() {
     }
   }
 
-  const isValidProxyUrl = proxyUrl.includes('://')
-
   return (
     <div className="flex items-center gap-2">
       <Input
-        value={proxyUrl}
-        onChange={handleUrlChange}
+        defaultValue={proxySettings.customProxyUrl || ''}
+        onBlur={handleUrlBlur}
         placeholder="http://127.0.0.1:7890"
         className="flex-1"
+        disabled={isLoading}
       />
-      {isValidProxyUrl && (
-        <Button
-          type="primary"
-          onClick={handleTestProxy}
-          loading={testing}
-        >
-          {testing ? '测试中...' : '测试连接'}
-        </Button>
-      )}
-      {testResult !== null && (
-        <span style={{ color: testResult ? '#52c41a' : '#ff4d4f' }}>
-          {testResult ? '✓' : '✗'}
-        </span>
-      )}
+      {
+        proxySettings.customProxyUrl?.includes('://')
+        && proxySettings.mode === 'custom'
+        && (
+          <Button
+            type="primary"
+            onClick={handleTestProxy}
+            loading={testing}
+            disabled={isLoading}
+          >
+            {testing ? '测试中...' : '测试连接'}
+          </Button>
+        )
+      }
+      {
+        testResult !== null && (
+          <span style={{ color: testResult ? '#52c41a' : '#ff4d4f' }}>
+            {testResult ? '✓' : '✗'}
+          </span>
+        )
+      }
     </div>
   )
 }

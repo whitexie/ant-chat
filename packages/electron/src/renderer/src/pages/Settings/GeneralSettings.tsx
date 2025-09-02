@@ -4,14 +4,10 @@ import React from 'react'
 import AssistantIcon from '@/assets/icons/Assistant.svg?react'
 import { CustomProxyUrl, ProxySettings } from '@/components/GeneralSettings/ProxySettings'
 import { SelectModel } from '@/components/GeneralSettings/SelectModel'
+import { useGeneralSettingsStore } from '@/store/generalSettings/store'
 
 export function GeneralSettings() {
-  // 临时状态来模拟代理模式选择
-  const [proxyMode, setProxyMode] = React.useState<'none' | 'system' | 'custom'>('none')
-
-  const handleProxyModeChange = (mode: 'none' | 'system' | 'custom') => {
-    setProxyMode(mode)
-  }
+  const proxySettings = useGeneralSettingsStore(state => state.proxySettings)
 
   return (
     <div className="flex flex-col gap-2 p-3">
@@ -29,10 +25,10 @@ export function GeneralSettings() {
           help="配置AI请求的代理设置，支持系统代理和自定义代理"
           icon={<GlobalOutlined className="text-xl" />}
         >
-          <ProxySettings onModeChange={handleProxyModeChange} />
+          <ProxySettings />
         </GeneralSettingsItem>
 
-        {proxyMode === 'custom' && (
+        {proxySettings.mode === 'custom' && (
           <GeneralSettingsItem
             title="代理地址"
             help="配置自定义代理服务器地址"

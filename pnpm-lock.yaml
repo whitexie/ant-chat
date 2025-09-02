@@ -101,6 +101,9 @@ importers:
       openai:
         specifier: ^5.2.0
         version: 5.16.0(ws@8.18.3)(zod@3.25.76)
+      undici:
+        specifier: ^7.15.0
+        version: 7.15.0
     devDependencies:
       '@ant-chat/mcp-client-hub':
         specifier: workspace:*
@@ -6539,6 +6542,10 @@ packages:
 
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+
+  undici@7.15.0:
+    resolution: {integrity: sha512-7oZJCPvvMvTd0OlqWsIxTuItTpJBpU1tcbVl24FMn3xt3+VSunwUasmfPJRE57oNO1KsZ4PgA1xTdAX4hq8NyQ==}
+    engines: {node: '>=20.18.1'}
 
   unicode-emoji-json@0.8.0:
     resolution: {integrity: sha512-3wDXXvp6YGoKGhS2O2H7+V+bYduOBydN1lnI0uVfr1cIdY02uFFiEH1i3kE5CCE4l6UqbLKVmEFW9USxTAMD1g==}
@@ -14162,6 +14169,8 @@ snapshots:
   ufo@1.6.1: {}
 
   undici-types@6.21.0: {}
+
+  undici@7.15.0: {}
 
   unicode-emoji-json@0.8.0: {}
 

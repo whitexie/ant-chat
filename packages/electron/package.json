@@ -28,7 +28,8 @@
     "electron-store": "^8.0.0",
     "electron-updater": "^6.2.0",
     "motion": "^12.23.5",
-    "openai": "^5.2.0"
+    "openai": "^5.2.0",
+    "undici": "^7.15.0"
   },
   "devDependencies": {
     "@ant-chat/mcp-client-hub": "workspace:*",

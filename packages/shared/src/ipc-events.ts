@@ -143,6 +143,9 @@ export type IpcEvents
     'general-settings:get-settings': () => Promise<IpcResponse<GeneralSettingsState>>
     'general-settings:update-settings': (updates: Partial<GeneralSettingsState>) => Promise<IpcResponse<GeneralSettingsState>>
     'general-settings:reset-settings': () => Promise<IpcResponse<GeneralSettingsState>>
+
+    // ============================ 代理相关 ============================
+    'proxy:test-connection': (proxyUrl: string) => Promise<IpcResponse<boolean>>
   }
 
 /**
