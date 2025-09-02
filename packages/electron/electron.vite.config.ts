@@ -14,10 +14,12 @@ export default defineConfig({
       },
     },
     build: {
+      sourcemap: true,
       rollupOptions: {
         output: {
           format: 'cjs',
           entryFileNames: '[name].cjs',
+          sourcemap: true,
         },
       },
     },
