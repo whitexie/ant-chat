@@ -1,5 +1,5 @@
 import type { IMessage } from '@ant-chat/shared'
-import type { AddConversationsSchema, AddServiceProviderModelSchema, AddServiceProviderSchema, McpConfigSchema, UpdateConversationsSchema, UpdateServiceProviderSchema } from '@ant-chat/shared/src/schemas'
+import type { AddConversationsSchema, AddMcpConfigSchema, AddServiceProviderModelSchema, AddServiceProviderSchema, UpdateConversationsSchema, UpdateMcpConfigSchema, UpdateServiceProviderSchema } from '@ant-chat/shared/src/schemas'
 import { emitter, unwrapIpcPaginatedResponse, unwrapIpcResponse } from '@/utils/ipc-bus'
 
 /**
@@ -77,11 +77,11 @@ export const dbApi = {
     return unwrapIpcResponse(await emitter.invoke('db:get-mcp-config-by-server-name', serverName))
   },
 
-  addMcpConfig: async (config: McpConfigSchema) => {
+  addMcpConfig: async (config: AddMcpConfigSchema) => {
     return unwrapIpcResponse(await emitter.invoke('db:add-mcp-config', config))
   },
 
-  updateMcpConfig: async (config: McpConfigSchema) => {
+  updateMcpConfig: async (config: UpdateMcpConfigSchema) => {
     return unwrapIpcResponse(await emitter.invoke('db:update-mcp-config', config))
   },
 

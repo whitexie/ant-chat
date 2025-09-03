@@ -1,0 +1,1 @@
+ALTER TABLE `mcp_configs` ADD `headers` text DEFAULT 'null';

@@ -1,12 +1,14 @@
 import type { McpConfigSchema, McpTool } from '@ant-chat/shared'
 import type { RuleObject } from 'antd/es/form'
+import { AddMcpConfigSchema, UpdateMcpConfigSchema } from '@ant-chat/shared'
 
-import { MinusCircleOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons'
+import { RightOutlined } from '@ant-design/icons'
 import { Alert, Avatar, Button, Descriptions, Drawer, Empty, Form, Input, Select, Tag } from 'antd'
 import React from 'react'
 import { useImmer } from 'use-immer'
 import { dbApi } from '@/api/dbApi'
 import { connectMcpServer, fetchMcpServerTools } from '@/api/mcpApi'
+import { KeyValueList } from '@/components/Common/KeyValueList'
 import { EmojiPickerHoc } from '@/components/EmojiPiker'
 import { QuickImport } from './QuickImport'
 import { SelectTransportType } from './SelectTransportType'
@@ -16,11 +18,20 @@ interface McpConfigDrawerProps {
   mode: 'add' | 'edit'
   defaultValues?: McpConfigSchema
   onClose?: () => void
-  onSave?: (config: McpConfigSchema) => void
+  onSave?: (config: AddMcpConfigSchema | UpdateMcpConfigSchema) => void
 }
 
-interface McpConfigForm extends Partial<Omit<McpConfigSchema, 'env'>> {
-  env: { key: string, value: string }[]
+interface McpConfigForm {
+  serverName: string
+  icon: string
+  transportType: 'stdio' | 'sse'
+  command?: string
+  args?: string[]
+  env?: { key: string, value: string }[]
+  headers?: { key: string, value: string }[]
+  url?: string
+  description?: string
+  timeout?: number
 }
 
 export default function McpConfigDrawer({ open, mode, defaultValues, onClose, onSave }: McpConfigDrawerProps) {
@@ -34,6 +45,7 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
         command: '',
         args: [],
         env: [],
+        headers: [],
         transportType: '',
       }
 
@@ -77,15 +89,61 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
           <Button
             type="primary"
             onClick={async () => {
-              let config: McpConfigSchema | McpConfigForm = await form.validateFields().then(data => data)
-
+              const config: McpConfigForm = await form.validateFields()
               console.log('config => ', JSON.stringify(config))
 
-              if (config.transportType === 'stdio' && Array.isArray(config.env)) {
-                config = { ...config, env: envArrayToObject(config.env) } as McpConfigSchema
+              let finalConfig: AddMcpConfigSchema | UpdateMcpConfigSchema
+
+              if (mode === 'add') {
+                const addConfig = config.transportType === 'stdio'
+                  ? {
+                      serverName: config.serverName,
+                      icon: config.icon,
+                      transportType: 'stdio' as const,
+                      command: config.command || '',
+                      args: config.args || [],
+                      env: config.env ? envArrayToObject(config.env) : undefined,
+                      description: config.description,
+                      timeout: config.timeout,
+                    }
+                  : {
+                      serverName: config.serverName,
+                      icon: config.icon,
+                      transportType: 'sse' as const,
+                      url: config.url || '',
+                      headers: config.headers ? envArrayToObject(config.headers) : undefined,
+                      description: config.description,
+                      timeout: config.timeout,
+                    }
+
+                finalConfig = AddMcpConfigSchema.parse(addConfig)
+              }
+              else {
+                const updateConfig = config.transportType === 'stdio'
+                  ? {
+                      serverName: config.serverName,
+                      icon: config.icon,
+                      transportType: 'stdio' as const,
+                      command: config.command,
+                      args: config.args,
+                      env: config.env ? envArrayToObject(config.env) : config.env,
+                      description: config.description,
+                      timeout: config.timeout,
+                    }
+                  : {
+                      serverName: config.serverName,
+                      icon: config.icon,
+                      transportType: 'sse' as const,
+                      url: config.url,
+                      headers: config.headers ? envArrayToObject(config.headers) : config.headers,
+                      description: config.description,
+                      timeout: config.timeout,
+                    }
+
+                finalConfig = UpdateMcpConfigSchema.parse(updateConfig)
               }
 
-              onSave?.({ ..._defaultValues, ...config } as McpConfigSchema)
+              onSave?.(finalConfig)
             }}
           >
             {mode === 'edit' ? '更新' : '安装'}
@@ -97,20 +155,23 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
         onClose?.()
       }}
     >
-      <div className="w-full h-full flex">
-        <div className="px-2 w-[55vw] overflow-y-auto flex-shrink-0 pt-5">
+      <div className="flex h-full w-full">
+        <div className="w-[55vw] flex-shrink-0 overflow-y-auto px-2 pt-5">
           <QuickImport onImport={(e) => {
             if (e.transportType === 'stdio') {
               const result: McpConfigForm = { ...e, env: envObjectToArray(e.env) }
               form.setFieldsValue(result)
             }
             else {
-              form.setFieldsValue(e)
+              const headers = envObjectToArray(e.headers)
+              console.log('headers => ', headers)
+
+              form.setFieldsValue({ ...e, headers })
             }
           }}
           />
 
-          <div className="pt-5 px-2">
+          <div className="px-2 pt-5">
             <Form form={form} layout="vertical" className="flex flex-col gap-5" initialValues={_defaultValues}>
               <Form.Item
                 label={<FormItemLabel name="MCP服务类型" tag="transportType" />}
@@ -141,17 +202,24 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
               {
                 transportType === 'sse'
                   ? (
-                      <Form.Item
-                        name="url"
-                        label={<FormItemLabel name="Streamable HTTP Endpoint URL" tag="url" />}
-                        validateTrigger="onBlur"
-                        rules={[
-                          { required: true },
-                          { pattern: /^(https?:\/\/)/, message: 'URL必须以http或https开头' },
-                        ]}
-                      >
-                        <Input />
-                      </Form.Item>
+                      <>
+                        <Form.Item
+                          name="url"
+                          label={<FormItemLabel name="请求地址" tag="url" />}
+                          validateTrigger="onBlur"
+                          rules={[
+                            { required: true },
+                            { pattern: /^(https?:\/\/)/, message: 'URL必须以http或https开头' },
+                          ]}
+                        >
+                          <Input />
+                        </Form.Item>
+
+                        <KeyValueList
+                          name="headers"
+                          label={<FormItemLabel name="请求头" tag="headers" />}
+                        />
+                      </>
                     )
                   : transportType === 'stdio'
                     ? (
@@ -172,40 +240,13 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
                             <InputArgs />
                           </Form.Item>
 
-                          <Form.Item
+                          <KeyValueList
+                            name="env"
                             label={<FormItemLabel name="环境变量" tag="env" />}
-                          >
-                            <Form.List name="env">
-                              {(fields, { add, remove }) => (
-                                <>
-                                  {fields.map(({ key, name }) => (
-                                    <div key={key} className="w-full flex items-center mb-4 gap-3">
-                                      <Form.Item
-                                        className="flex-1 !mb-0"
-                                        name={[name, 'key']}
-                                        rules={[{ required: true, message: '请输入环境变量名称' }]}
-                                      >
-                                        <Input placeholder="变量名称" />
-                                      </Form.Item>
-                                      <Form.Item
-                                        name={[name, 'value']}
-                                        rules={[{ required: true, message: '请输入环境变量值' }]}
-                                        className="flex-1 !mb-0"
-                                      >
-                                        <Input placeholder="变量值" />
-                                      </Form.Item>
-                                      <MinusCircleOutlined className="ml-2" onClick={() => remove(name)} />
-                                    </div>
-                                  ))}
-                                  <Form.Item className="!mb-0">
-                                    <Button type="dashed" onClick={() => add({ key: '', value: '' })} block icon={<PlusOutlined />}>
-                                      添加环境变量
-                                    </Button>
-                                  </Form.Item>
-                                </>
-                              )}
-                            </Form.List>
-                          </Form.Item>
+                            keyPlaceholder="变量名称"
+                            valuePlaceholder="变量值"
+                            addButtonLabel="添加环境变量"
+                          />
                         </>
                       )
                     : null
@@ -218,7 +259,7 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
                   : null
               }
 
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <span>测试连接成功后 MCP Server才可以被正常使用</span>
                 <Button
                   type="primary"
@@ -269,12 +310,20 @@ export default function McpConfigDrawer({ open, mode, defaultValues, onClose, on
             </Form>
           </div>
         </div>
-        <div className="dark:bg-black flex-1 bg-[#f8f8f8] overflow-y-auto">
+        <div className={`
+          flex-1 overflow-y-auto bg-[#f8f8f8]
+          dark:bg-black
+        `}
+        >
           {
             mcpTools.length
               ? (
                   <div className="p-3">
-                    <div className="p-3 flex items-center gap-3 dark:bg-white/10 bg-white rounded-md">
+                    <div className={`
+                      flex items-center gap-3 rounded-md bg-white p-3
+                      dark:bg-white/10
+                    `}
+                    >
                       <div>
                         <Avatar size={36} shape="circle">
                           {mcpConfig?.serverName?.[0]}
@@ -315,12 +364,12 @@ function FormItemLabel({ name, tag }: { name: string, tag: string }) {
 
 function EmptyMcpConfig() {
   return (
-    <div className="w-full h-full flex justify-center items-center">
+    <div className="flex h-full w-full items-center justify-center">
       <Empty description={null}>
         <div className="text-xl">
           配置MCP后开始预览
         </div>
-        <span className="text-gray">
+        <span className="text-gray-500">
           完成配置后，将能够在此处预览MCP Server支持的工具能力
         </span>
       </Empty>
@@ -360,15 +409,26 @@ function PreviewMcpToolItem({ item }: { item: McpTool }) {
   const [isExpand, setIsExpand] = React.useState(false)
 
   return (
-    <div key={item.name} className="dark:bg-white/10 bg-[#f0f0f0] rounded p-2">
-      <div className="flex justify-between items-center gap-2 cursor-pointer" onClick={() => setIsExpand(!isExpand)}>
+    <div
+      key={item.name}
+      className={`
+        rounded bg-[#f0f0f0] p-2
+        dark:bg-white/10
+      `}
+    >
+      <div className="flex cursor-pointer items-center justify-between gap-2" onClick={() => setIsExpand(!isExpand)}>
         <div className="">
           <div>{item.name}</div>
-          <div className="text-xs mt-1 text-[#a3a3a3]">{item.description}</div>
+          <div className="mt-1 text-xs text-[#a3a3a3]">{item.description}</div>
         </div>
         <RightOutlined className="flex-shrink-0" rotate={isExpand ? 90 : 0} />
       </div>
-      <div className={`grid ${isExpand ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'} transition-all`}>
+      <div className={`
+        grid
+        ${isExpand ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}
+        transition-all
+      `}
+      >
         <div className="overflow-hidden">
           <PreviewMcpToolParams item={item} />
         </div>
@@ -381,13 +441,17 @@ function PreviewMcpToolParams({ item }: { item: McpTool }) {
   const params = Object.entries(item.inputSchema.properties)
   if (params.length === 0) {
     return (
-      <div className="text-xs py-2 text-[#a3a3a3]">
+      <div className="py-2 text-xs text-[#a3a3a3]">
         该工具没有参数
       </div>
     )
   }
   return (
-    <div className="dark:bg-white/10 bg-[#ececec] p-2 mt-2 rounded">
+    <div className={`
+      mt-2 rounded bg-[#ececec] p-2
+      dark:bg-white/10
+    `}
+    >
       <Descriptions
         size="small"
         column={1}
