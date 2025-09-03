@@ -1,3 +1,13 @@
+# [0.6.0](https://github.com/whitexie/ant-chat/compare/v0.6.0-alpha.1...v0.6.0) (2025-09-03)
+
+
+### Features
+
+* 添加代理管理功能 ([#11](https://github.com/whitexie/ant-chat/issues/11)) ([63a9094](https://github.com/whitexie/ant-chat/commit/63a9094f53e32b27fcc2b1514ff8e421a0bf35cd))
+* sse mcp 支持 配置请求头(headers) ([#12](https://github.com/whitexie/ant-chat/issues/12)) ([12aeed8](https://github.com/whitexie/ant-chat/commit/12aeed859ca1c8622eee6f815d612b318d5ec15c))
+
+
+
 # [0.6.0-alpha.1](https://github.com/whitexie/ant-chat/compare/v0.6.0-alpha.0...v0.6.0-alpha.1) (2025-08-14)
 
 
