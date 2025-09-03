@@ -1,11 +1,10 @@
-import type { McpConfigSchema } from '@ant-chat/shared'
+import { AddMcpConfigSchema } from '@ant-chat/shared'
 import { Alert, Button } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import React from 'react'
-import { getNow } from '@/utils'
 
 interface QuickImportProps {
-  onImport?: (e: McpConfigSchema) => void
+  onImport?: (e: AddMcpConfigSchema) => void
 }
 
 export function QuickImport({ onImport }: QuickImportProps) {
@@ -47,7 +46,7 @@ export function QuickImport({ onImport }: QuickImportProps) {
               setError('')
             }}
           />
-          <div className="flex items-center mt-1 gap-1 justify-end">
+          <div className="mt-1 flex items-center justify-end gap-1">
             <Button size="small" onClick={() => setQuickImport(false)}>取消</Button>
             <Button
               size="small"
@@ -59,6 +58,7 @@ export function QuickImport({ onImport }: QuickImportProps) {
                 }
                 try {
                   const mcpConfig = parseMcpServerJsonText(text)
+                  console.log('parseMcpServerJsonText => ', mcpConfig)
                   onImport?.(mcpConfig)
                   setText('')
                   setQuickImport(false)
@@ -100,7 +100,7 @@ interface ServerJson {
   }
 }
 
-function parseMcpServerJsonText(text: string): McpConfigSchema {
+function parseMcpServerJsonText(text: string): AddMcpConfigSchema {
   const data = JSON.parse(text) as ServerJson
   if (typeof data.mcpServers !== 'object') {
     throw new TypeError('mcpServers 格式错误')
@@ -113,28 +113,11 @@ function parseMcpServerJsonText(text: string): McpConfigSchema {
 
   const [serverName, config] = entries[0]
 
-  if (config.command && config.args) {
-    return {
-      transportType: 'stdio',
-      serverName,
-      icon: '🛠️',
-      command: config.command,
-      args: config.args,
-      env: config.env || {},
-      createdAt: getNow(),
-      updatedAt: getNow(),
-    }
-  }
-  else if (config.url) {
-    return {
-      transportType: 'sse' as const,
-      icon: '🛠️',
-      serverName,
-      url: config.url,
-      createdAt: getNow(),
-      updatedAt: getNow(),
-    }
-  }
+  const options = { ...config, icon: '🛠️', serverName, transportType: 'stdio' }
 
-  throw new Error('未知的服务器配置')
+  if (config.url) {
+    options.transportType = 'sse'
+  }
+  console.log(' options => ', options)
+  return AddMcpConfigSchema.parse(options)
 }

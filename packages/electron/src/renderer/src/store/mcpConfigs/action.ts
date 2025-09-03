@@ -20,7 +20,7 @@ export async function addMcpConfigAction(config: McpConfigSchema) {
     draft.mcpConfigs.push(data)
   }))
 
-  return [true, '']
+  return data
 }
 
 export async function upadteMcpConfigAction(config: McpConfigSchema) {

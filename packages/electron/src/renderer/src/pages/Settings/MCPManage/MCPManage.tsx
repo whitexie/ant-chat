@@ -1,4 +1,4 @@
-import type { McpConfigSchema, SSEMcpConfig, StdioMcpConfig } from '@ant-chat/shared'
+import type { AddMcpConfigSchema, McpConfigSchema, SSEMcpConfig, StdioMcpConfig, UpdateMcpConfigSchema } from '@ant-chat/shared'
 import { PlusOutlined } from '@ant-design/icons'
 import { App, Button, Empty, Switch } from 'antd'
 import React from 'react'
@@ -26,7 +26,10 @@ export default function MCPManage() {
 
   return (
     <div className="p-2">
-      <div className="flex justify-between border border-solid border-(--border-color) rounded-xl p-4 mb-4">
+      <div className={`
+        mb-4 flex justify-between rounded-xl border border-solid border-(--border-color) p-4
+      `}
+      >
         <div>
           启用MCP功能
         </div>
@@ -91,37 +94,42 @@ export default function MCPManage() {
                     onClose={() => {
                       setOpen(false)
                     }}
-                    onSave={async (e) => {
+                    onSave={async (e: AddMcpConfigSchema | UpdateMcpConfigSchema) => {
+                      const configWithTimestamp = {
+                        ...e,
+                        createdAt: mode === 'add' ? Date.now() : (editData?.createdAt || Date.now()),
+                        updatedAt: Date.now(),
+                      } as McpConfigSchema
+
                       if (mode === 'add') {
-                        const [ok, msg] = await addMcpConfigAction(e)
-                        if (ok) {
+                        try {
+                          await addMcpConfigAction(configWithTimestamp)
                           setOpen(false)
                           await refreshAsync()
                         }
-                        else {
-                          message.error(msg)
+                        catch (err) {
+                          message.error((err as Error).message || '添加失败')
                         }
-                        return
                       }
 
                       // 如果修改了名称，需要先删掉数据重新添加
                       if (editData?.serverName && editData?.serverName !== e.serverName) {
                         await deleteMcpConfigAction(editData.serverName)
                         await disconnectMcpServerAction(editData.serverName)
-                        await addMcpConfigAction(e)
+                        await addMcpConfigAction(configWithTimestamp)
 
                         if (mcpServerRuningStatusMap[editData?.serverName] === 'connected') {
                           await connectMcpServerAction(e.serverName)
                         }
                       }
                       else {
-                        await upadteMcpConfigAction(structuredClone(e))
+                        await upadteMcpConfigAction(configWithTimestamp)
 
                         // 如果MCP服务是在运行中且修改了 transportType、url、command、args、env 其中之一，需要重新连接
                         if (
                           e.serverName in mcpServerRuningStatusMap
                           && mcpServerRuningStatusMap[e.serverName] === 'connected'
-                          && checkNeedReconnect(editData as McpConfigSchema, e)
+                          && checkNeedReconnect(editData as McpConfigSchema, configWithTimestamp)
                         ) {
                           await reconnectMcpServerAction(e.serverName)
                         }
