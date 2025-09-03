@@ -17,6 +17,7 @@
     "db:generate": "pnpm -F electron db:generate",
     "db:migrate": "pnpm -F electron db:migrate",
     "lint": "pnpm eslint .",
+    "clean": "rm -rf node_modules packages/*/node_modules",
     "version:patch": "pnpm version patch --no-git-tag-version && pnpm -r version patch --no-git-tag-version",
     "version:minor": "pnpm version minor --no-git-tag-version && pnpm -r version minor --no-git-tag-version",
     "version:major": "pnpm version major --no-git-tag-version && pnpm -r version major --no-git-tag-version",
@@ -43,13 +44,7 @@
     "tsx": "^4.19.3",
     "typescript": "~5.8.2",
     "typescript-eslint": "^8.19.0",
-    "vite": "npm:rolldown-vite@latest",
     "vitest": "3.1.1",
     "zod": "^3.24.4"
-  },
-  "pnpm": {
-    "overrides": {
-      "vite": "npm:rolldown-vite@latest"
-    }
   }
 }

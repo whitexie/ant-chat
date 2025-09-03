@@ -8,7 +8,7 @@ import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import deepEqual from 'fast-deep-equal'
-import * as packageJson from '../package.json'
+import * as packageJson from '../../../package.json'
 import { DEFAULT_MCP_TIMEOUT_SECONDS, DEFAULT_REQUEST_TIMEOUT_MS } from './schema'
 import { getCurrentPlatform } from './utils'
 

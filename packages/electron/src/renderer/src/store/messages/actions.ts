@@ -1,16 +1,9 @@
 import type { ChatFeatures, ConversationsId, ConversationsSettingsSchema, IMessage, MessageId } from '@ant-chat/shared'
-import type { RequestStatus } from './store'
 import { produce } from 'immer'
 import chatApi from '@/api/chatApi'
 import { dbApi } from '@/api/dbApi'
 import { useConversationsStore } from '../conversation/conversationsStore'
 import { useMessagesStore } from './store'
-
-export function setRequestStatus(status: RequestStatus) {
-  useMessagesStore.setState(state => produce(state, (draft) => {
-    draft.requestStatus = status
-  }))
-}
 
 export async function setActiveConversationsId(id: ConversationsId | '') {
   const { pageSize } = useMessagesStore.getState()
@@ -79,27 +72,12 @@ export async function updateMessageActionV2(message: IMessage) {
   }))
 }
 
-export function setAbortFunction(callback: () => void) {
-  useMessagesStore.setState(state => produce(state, (draft) => {
-    draft.abortFunction = callback
-  }))
-}
-
-export function resetAbortFunction() {
-  useMessagesStore.setState(state => produce(state, (draft) => {
-    draft.abortFunction = null
-  }))
-}
-
-export function abortSendChatCompletions() {
+export function abortSendChatCompletions(conversationsId: string) {
   try {
-    useMessagesStore.getState().abortFunction?.()
+    chatApi.cancelChatCompletions(conversationsId)
   }
   catch (e) {
     console.log('execute abort callback fail => ', e)
-  }
-  finally {
-    resetAbortFunction()
   }
 }
 

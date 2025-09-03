@@ -3,6 +3,7 @@ import type { ChatCompletionAssistantMessageParam, ChatCompletionChunk, ChatComp
 import type { AIProvider, ProviderOptions, StreamChunk } from '../interface'
 import { DEFAULT_MCP_TOOL_NAME_SEPARATOR } from '@ant-chat/shared'
 import { clientHub } from '@main/mcpClientHub'
+import { logger } from '@main/utils/logger'
 import OpenAI from 'openai'
 import { createMcpToolCall } from '../util'
 
@@ -18,7 +19,13 @@ class OpenAIService implements AIProvider {
 
   constructor(options: ProviderOptions) {
     const { baseUrl: baseURL, apiKey } = options
+
+    // OpenAI会自动使用环境变量中的代理设置 (HTTP_PROXY, HTTPS_PROXY)
+    // 无需手动配置代理
     this.client = new OpenAI({ baseURL, apiKey })
+
+    logger.info(`OpenAI client initialized for ${baseURL}`)
+    logger.info(`Using proxy: ${process.env.HTTP_PROXY || 'none'}`)
   }
 
   private transformUserMessageContent(contents: MessageContent): ChatCompletionUserMessageParam['content'] {
@@ -87,20 +94,20 @@ class OpenAIService implements AIProvider {
       toolsConfig = { tools, tool_choice: 'auto' }
     }
 
-    const stream = await this.client.chat.completions.create({
-      ...toolsConfig,
-      model,
-      temperature,
-      max_completion_tokens,
-      messages: [
-        {
-          role: 'system',
-          content: systemPrompt,
-        },
-        ...this.transformMessages(messages),
-      ],
-      stream: true,
-    })
+    const stream = await this.client.chat.completions.create(
+      {
+        ...toolsConfig,
+        model,
+        temperature,
+        max_completion_tokens,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...this.transformMessages(messages),
+        ],
+        stream: true,
+      },
+      { signal: options.abortSignal },
+    )
 
     for await (const chunk of stream) {
       const { finish_reason } = chunk.choices[0]

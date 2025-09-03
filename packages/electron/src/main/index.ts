@@ -7,6 +7,7 @@ import { clientHub } from './mcpClientHub'
 import { installDevTools } from './plugins/devtools'
 import { isDev } from './utils/env'
 import { logger } from './utils/logger'
+import { initializeProxy } from './utils/proxy-manager'
 import { MainWindow } from './window'
 
 const __dirname = process.cwd()
@@ -21,6 +22,9 @@ app.whenReady().then(async () => {
 
   // 初始化数据库
   await initializeDb()
+
+  // 初始化代理设置
+  await initializeProxy()
 
   const mainWindow = new MainWindow()
   await mainWindow.createWindow()

@@ -6,6 +6,10 @@ function sendChatCompletions(options: handleChatCompletionsOptions) {
   return emitter.send('chat:send-chat-completions', options)
 }
 
+function cancelChatCompletions(conversationdsId: string) {
+  emitter.send('chat:cancel-chat-completions', conversationdsId)
+}
+
 async function initConversationsTitle(conversationsId: string) {
   const { assistantModelId: modelId } = useGeneralSettingsStore.getState()
   return await emitter.invoke('chat:create-conversations-title', { modelId, conversationsId })
@@ -14,4 +18,5 @@ async function initConversationsTitle(conversationsId: string) {
 export default {
   sendChatCompletions,
   initConversationsTitle,
+  cancelChatCompletions,
 }

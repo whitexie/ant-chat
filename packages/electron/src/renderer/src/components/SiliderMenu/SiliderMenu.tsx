@@ -14,13 +14,13 @@ export function SliderMenu() {
   }
 
   return (
-    <div className="h-full w-12.5 border-(--border-color) slider border-r-solid border-r-1">
-      <div className="flex flex-col justify-between items-center h-full">
-        <div className="flex flex-col items-center pt-2 gap-5">
-          <div className="flex justify-center items-center w-8 h-8 p-1">
+    <div className="h-full w-12.5 border-r-1 border-(--border-color)">
+      <div className="flex h-full flex-col items-center justify-between">
+        <div className="flex flex-col items-center gap-5 pt-2">
+          <div className="flex h-8 w-8 items-center justify-center p-1">
             <img
               src="./logo.svg"
-              className="w-full h-full cursor-pointer"
+              className="h-full w-full cursor-pointer"
               draggable={false}
               onClick={() => {
                 navigate('/')
@@ -50,9 +50,9 @@ export function SliderMenu() {
           <SliderMenuItem
             title={null}
             icon={<GithubFilled />}
-            path=""
+            path="https://github.com/whitexie/ant-chat"
             onClick={(_, path) => {
-              window.open(path)
+              window.location.href = path
             }}
           />
         </div>

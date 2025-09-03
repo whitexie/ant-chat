@@ -1,4 +1,4 @@
-import type { handleChatCompletionsOptions, handleInitConversationTitleOptions, IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption, SearchResult } from './interfaces'
+import type { GeneralSettingsState, handleChatCompletionsOptions, handleInitConversationTitleOptions, IConversations, IMessage, McpServer, McpTool, McpToolCallResponse, NotificationOption, SearchResult } from './interfaces'
 import type { AddConversationsSchema, AddMcpConfigSchema, AddServiceProviderModelSchema, AddServiceProviderSchema, AllAvailableModelsSchema, McpConfigSchema, ServiceProviderModelsSchema, ServiceProviderSchema, UpdateConversationsSchema, UpdateMcpConfigSchema, UpdateServiceProviderSchema } from './schemas'
 
 export function createIpcResponse<T>(success: boolean, data: T, msg?: string): IpcResponse<T> | ErrorIpcResponse {
@@ -69,11 +69,16 @@ export type IpcEvents
      * emitter.send('ping', 'pong')
      */
     'chat:send-chat-completions': [handleChatCompletionsOptions]
+    'chat:cancel-chat-completions': [string]
     'common:minimize-window': []
     'common:maximize-or-resore-window': []
     'common:quit-app': []
   }
   | {
+    /**
+     * 这里是使用invoke相关的事件
+     */
+
     // ============================ 全局 相关 ============================
     'common:clipboard-write': (data: ElectronData, type?: 'selection' | 'clipboard') => Promise<boolean>
 
@@ -133,12 +138,23 @@ export type IpcEvents
 
     // ============================ 搜索相关 ============================
     'db:search-by-keyword': (query: string) => Promise<IpcResponse<SearchResult[]>>
+
+    // ============================ General Settings 相关 ============================
+    'general-settings:get-settings': () => Promise<IpcResponse<GeneralSettingsState>>
+    'general-settings:update-settings': (updates: Partial<GeneralSettingsState>) => Promise<IpcResponse<GeneralSettingsState>>
+    'general-settings:reset-settings': () => Promise<IpcResponse<GeneralSettingsState>>
+
+    // ============================ 代理相关 ============================
+    'proxy:test-connection': (proxyUrl: string) => Promise<IpcResponse<boolean>>
   }
 
-// Renderer ipc events
+/**
+ * 这里是在渲染进程中接收的事件
+ */
 export interface IpcRendererEvent {
   'mcp:McpServerStatusChanged': [string, 'disconnected' | 'connected']
   'common:Notification': [NotificationOption]
   'chat:stream-message': [IMessage]
+  'chat:stream-canceled': [string]
   [key: string]: unknown[]
 }

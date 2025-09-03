@@ -57,13 +57,13 @@ export function MessageBubble({ message, onFooterButtonClick, onExecuteAllComple
           status={message.status}
         />
         {isAI && message.mcpTool && (
-          <div className="flex flex-col gap-4 mt-3">
+          <div className="mt-3 flex flex-col gap-4">
             {message.mcpTool.map(tool => (
               <McpToolCallPanel
                 key={tool.id}
                 item={tool}
                 onExecute={async (item) => {
-                  const { isAllCompleted } = await executeMcpToolAction(message.id, item)
+                  const { isAllCompleted } = await executeMcpToolAction(message, item)
                   if (isAllCompleted) {
                     onExecuteAllCompleted?.(message.id)
                   }
@@ -81,7 +81,7 @@ export function MessageBubble({ message, onFooterButtonClick, onExecuteAllComple
       loading={message.status === 'loading'}
       placement={isUser ? 'end' : 'start'}
       avatar={<MessageAvatar message={message} />}
-      className="group w-full max-w-(--chat-width) mx-auto"
+      className="group mx-auto w-full max-w-(--chat-width)"
       typing={message.status === 'typing' ? { step: 1, interval: 50 } : false}
       styles={bubbleStyle}
       messageRender={renderMessageContent}

@@ -107,3 +107,15 @@ export async function updateConversationsSettingsAction(id: ConversationsId, con
     }
   }))
 }
+
+export function addStreamingConversationId(id: string) {
+  useConversationsStore.setState(state => produce(state, (draft) => {
+    draft.streamingConversationIds.add(id)
+  }))
+}
+
+export function removeStreamingConversationId(id: string) {
+  useConversationsStore.setState(state => produce(state, (draft) => {
+    draft.streamingConversationIds.delete(id)
+  }))
+}

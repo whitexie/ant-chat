@@ -7,11 +7,13 @@ export interface StoreState {
   pageSize: number
   conversationsTotal: number
   activeConversationsId: string
+  streamingConversationIds: Set<string>
 }
 
 export const initialState: StoreState = {
   conversations: [],
   abortCallbacks: [],
+  streamingConversationIds: new Set<string>(),
   pageIndex: 0,
   pageSize: 20,
   conversationsTotal: 1,

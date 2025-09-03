@@ -3,6 +3,7 @@ import type { GenerateContentParameters, Part, Tool } from '@google/genai'
 import type { AIProvider, ProviderOptions } from '../interface'
 import { DEFAULT_MCP_TOOL_NAME_SEPARATOR } from '@ant-chat/shared'
 import { FunctionCallingConfigMode, GoogleGenAI } from '@google/genai'
+import { logger } from '@main/utils/logger'
 import { uuid } from '@main/utils/util'
 import { createMcpToolCall } from '../util'
 import { mcpToolsToGeminiTools } from './util'
@@ -17,12 +18,15 @@ class GeminiService implements AIProvider {
   protected readonly generativeImageModels = ['gemini-2.0-flash-exp-image-generation']
 
   constructor(options: ProviderOptions) {
+    // GoogleGenAI会自动使用环境变量中的代理设置 (HTTP_PROXY, HTTPS_PROXY)
+    // 无需手动配置代理
     this.client = new GoogleGenAI({
       apiKey: options.apiKey,
-      httpOptions: {
-        baseUrl: options.baseUrl,
-      },
+      httpOptions: { baseUrl: options.baseUrl },
     })
+
+    logger.info(`Gemini client initialized for ${options.baseUrl}`)
+    logger.info(`Using proxy: ${process.env.HTTP_PROXY || 'none'}`)
   }
 
   async createConversationTitle(options: CreateConversationTitleOptions) {
@@ -39,7 +43,6 @@ class GeminiService implements AIProvider {
 
   async* sendChatCompletions(options: SendChatCompletionsOptions) {
     const params: GenerateContentParameters = this.buildCompleteParameters(options)
-
     const stream = await this.client.models.generateContentStream(params)
 
     for await (const chunk of stream) {
@@ -85,6 +88,7 @@ class GeminiService implements AIProvider {
       config: {
         temperature: options.chatSettings.temperature,
         maxOutputTokens: options.chatSettings.maxTokens,
+        abortSignal: options.abortSignal,
       },
     }
 

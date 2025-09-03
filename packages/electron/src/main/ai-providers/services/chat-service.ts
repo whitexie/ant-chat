@@ -5,6 +5,7 @@ import { clientHub } from '@main/mcpClientHub'
 import { mainEmitter } from '@main/utils/ipc-events-bus'
 import { getMainWindow } from '@main/window'
 import { AIProviderMapping } from '../providers'
+import { StreamAbortController } from '../utils/StreamAbortController'
 import { formatMessagesForContext } from './utils'
 
 class ChatService {
@@ -74,6 +75,8 @@ export async function handleChatCompletions(options: handleChatCompletionsOption
   mainEmitter.send(mainWindow.webContents, 'chat:stream-message', aiMessage)
 
   let stream: AsyncIterable<StreamChunk> | null = null
+  const streamAbortController = new StreamAbortController(conversationsId)
+
   try {
     stream = await chatService.sendChatCompletions(
       {
@@ -83,6 +86,7 @@ export async function handleChatCompletions(options: handleChatCompletionsOption
           model: modelInfo.model,
         },
         mcpTools,
+        abortSignal: streamAbortController.signal,
       },
     )
   }
@@ -96,6 +100,8 @@ export async function handleChatCompletions(options: handleChatCompletionsOption
 
   try {
     for await (const chunk of stream) {
+      streamAbortController.signal.throwIfAborted()
+
       const { reasoningContent, content, functionCalls } = chunk
       if (reasoningContent) {
         aiMessage.reasoningContent += reasoningContent

@@ -3,37 +3,36 @@ import type { UploadFile } from 'antd'
 
 import Icon, {
   ArrowUpOutlined,
-  AudioOutlined,
   CloudUploadOutlined,
   GlobalOutlined,
   LinkOutlined,
 } from '@ant-design/icons'
 import { Attachments } from '@ant-design/x'
-import useSpeech from '@ant-design/x/es/sender/useSpeech'
 import { App, Badge, Button, Tooltip } from 'antd'
 import { useState } from 'react'
 import MCPIcon from '@/assets/icons/mcp.svg?react'
 import StopSvg from '@/assets/icons/stop.svg?react'
 import { setOnlieSearch, useChatSttingsStore } from '@/store/chatSettings'
+import { useConversationsStore } from '@/store/conversation'
 import { useMessagesStore } from '@/store/messages'
 import { fileToBase64 } from '@/utils'
 import SwitchButton from '../SwitchButton'
 import MCPManagementPanel from './MCPManagementPanel'
 
 interface SenderProps {
-  loading?: boolean
   actions?: React.ReactNode
   onSubmit?: (message: string, images: IImage[], attachments: IAttachment[], features: ChatFeatures) => void
   onCancel?: () => void
 }
 
-function Sender({ loading = false, actions, ...props }: SenderProps) {
+function Sender({ actions, ...props }: SenderProps) {
   const { message } = App.useApp()
   const [text, setText] = useState('')
   const [openHeader, setOpenHeader] = useState(false)
   const [attachmentList, setAttachmentList] = useState<UploadFile[]>([])
   const [rows, setRows] = useState(2)
   const hasMessage = useMessagesStore(state => !!state.messages.length)
+  const loading = useConversationsStore(state => state.streamingConversationIds.has(state.activeConversationsId))
 
   // ============================ MCP、联网搜索 ============================
   const mcpEnabled = useChatSttingsStore(state => state.enableMCP)
@@ -41,10 +40,6 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
 
   // 新增输入法状态
   const [isComposing, setIsComposing] = useState(false)
-
-  const [allowSpeech, triggerSpeech, recording] = useSpeech((transcript: string) => {
-    setText(prev => `${prev}${transcript}`)
-  })
 
   async function transformAttachments() {
     const images: IAttachment[] = []
@@ -79,19 +74,22 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
   return (
     <div
       className={`
-        w-full max-w-(--chat-width) mx-auto
-        ${hasMessage ? 'relative' : 'absolute left-2 right-2 bottom-[50%]'} 
-        transition transition-duration-500 p-3 
-        bg-white dark:bg-[var(--ant-layout-color-bg-body)]
-        border-solid border-2 border-[#0000001a] dark:border-[#fff6]
-        rounded-xl overflow-hidden shadow-lg
+        mx-auto w-full max-w-(--chat-width)
+        ${hasMessage ? 'relative' : 'absolute right-2 bottom-[50%] left-2'}
+        overflow-hidden rounded-xl border-2 border-solid border-[#0000001a] bg-white p-3 shadow-lg
+        transition duration-500
         focus-within:border-(--ant-color-primary) focus-within:shadow-(--ant-box-shadow-secondary)
+        dark:border-[#fff6] dark:bg-[var(--ant-layout-color-bg-body)]
       `}
     >
-      <div className={`header transition-height overflow-hidden h-0 ${openHeader && 'h-25'}`}>
+      <div className={`
+        h-0 overflow-hidden transition-[height]
+        ${openHeader && 'h-25'}
+      `}
+      >
         {
           openHeader && (
-            <div data-testid="header-content" className="content">
+            <div data-testid="header-content">
               <Attachments
                 multiple
                 overflow="scrollX"
@@ -125,7 +123,7 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
           )
         }
       </div>
-      <div className="input-wrapper">
+      <div>
         <textarea
           data-testid="textarea"
           value={text}
@@ -148,12 +146,14 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
           }}
           placeholder="Enter发送消息，Shift+Enter换行"
           className={`
-            w-full h-full bg-transparent border-none p-1 outline-none resize-none 
-            placeholder-[#b4b4b4] 
-            dark:text-[var(--ant-layout-color-text-body)]  dark:placeholder-[var(--ant-layout-color-text-body)]`}
+            h-full w-full resize-none border-none bg-transparent p-1 placeholder-[#b4b4b4]
+            outline-none
+            dark:text-[var(--ant-layout-color-text-body)]
+            dark:placeholder-[var(--ant-layout-color-text-body)]
+          `}
         />
       </div>
-      <div className="footer flex justify-between">
+      <div className="flex justify-between">
         <div className="flex gap-1">
           <Tooltip title="附件(支持文档与图片)">
             <Badge dot={(attachmentList.length > 0) && !openHeader}>
@@ -183,18 +183,7 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
           />
           {actions}
         </div>
-        <div className="flex gap-1 items-center">
-          <Button
-            disabled={!allowSpeech}
-            type="text"
-            shape="circle"
-            icon={recording ? <StopSvg className="w-8 h-8 color-[var(--ant-color-primary)]!" /> : <AudioOutlined />}
-            onClick={() => {
-              if (allowSpeech) {
-                triggerSpeech(recording)
-              }
-            }}
-          />
+        <div className="flex items-center gap-1">
           <Button
             data-testid="sendBtn"
             type={loading ? 'text' : 'primary'}
@@ -202,7 +191,7 @@ function Sender({ loading = false, actions, ...props }: SenderProps) {
             disabled={text.length === 0 && !loading}
             icon={loading
               ? (
-                  <StopSvg className="w-8 h-8 !text-(--ant-color-primary)" />
+                  <StopSvg className="h-8 w-8 !text-(--ant-color-primary)" />
                 )
               : <ArrowUpOutlined />}
             onClick={

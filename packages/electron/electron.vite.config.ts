@@ -1,5 +1,4 @@
 import { resolve } from 'node:path'
-// @ts-expect-error 下面的会报错，先忽略，不影响
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { codeInspectorPlugin } from 'code-inspector-plugin'
@@ -15,10 +14,12 @@ export default defineConfig({
       },
     },
     build: {
+      sourcemap: true,
       rollupOptions: {
         output: {
           format: 'cjs',
           entryFileNames: '[name].cjs',
+          sourcemap: true,
         },
       },
     },
