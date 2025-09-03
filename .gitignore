@@ -33,7 +33,6 @@ coverage
 
 debug.http
 report-*.html
-.npmrc
 
 
 # electron
