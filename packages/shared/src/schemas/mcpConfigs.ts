@@ -13,6 +13,7 @@ export const BaseMcpConfig = z.object({
 export const SSEMcpConfig = BaseMcpConfig.extend({
   transportType: z.literal('sse'),
   url: z.string({ message: 'url 是必填项' }).url({ message: 'url格式错误' }),
+  headers: z.record(z.string()).optional(),
 })
 
 export type SSEMcpConfig = z.infer<typeof SSEMcpConfig>

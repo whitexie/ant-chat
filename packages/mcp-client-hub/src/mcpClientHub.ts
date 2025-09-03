@@ -98,7 +98,19 @@ export class MCPClientHub {
     let transport: StdioClientTransport | SSEClientTransport
 
     if (config.transportType === 'sse') {
-      transport = new SSEClientTransport(new URL(config.url), {})
+      const sseOptions = {
+        requestInit: {
+          headers: config.headers,
+        },
+      }
+      const reconnectingEventSourceOptions = {
+        max_retry_time: 5000,
+        withCredentials: !!config.headers?.Authorization,
+      }
+      transport = new SSEClientTransport(new URL(config.url), {
+        ...sseOptions,
+        eventSourceInit: reconnectingEventSourceOptions,
+      })
     }
     else {
       transport = new StdioClientTransport({
@@ -217,7 +229,7 @@ export class MCPClientHub {
     try {
       const config = JSON.parse(connection.server.config)
       const parsedConfig = McpConfigSchema.parse(config)
-      timeout = secondsToMs(parsedConfig?.timeout || 30)
+      timeout = secondsToMs(parsedConfig?.timeout || timeout)
     }
     catch (error) {
       console.error(`Failed to parse timeout configuration for server ${serverName}: ${error}`)

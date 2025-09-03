@@ -283,7 +283,7 @@ importers:
   packages/mcp-client-hub:
     dependencies:
       '@modelcontextprotocol/sdk':
-        specifier: ^1.15.1
+        specifier: ^1.17.4
         version: 1.17.4
       fast-deep-equal:
         specifier: ^3.1.3
